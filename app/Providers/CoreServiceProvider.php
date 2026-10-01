@@ -13,7 +13,7 @@ use App\Sync\Entities\CoreEntities;
 use App\Sync\SyncRegistry;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class CoreServiceProvider extends ServiceProvider
@@ -32,7 +32,9 @@ class CoreServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->rateLimiters();
+        // Lazily: building the rate limiter binds it to the cache store, and on a fresh deployment that store
+        // (database) does not exist until the installer gate has switched to the file store for this request.
+        $this->callAfterResolving(RateLimiter::class, fn (RateLimiter $limiter) => $this->rateLimiters($limiter));
         CoreEntities::register($this->app->make(SyncRegistry::class));
 
         if (! $this->app->runningInConsole() && $this->app->make(InstallState::class)->isInstalled()) {
@@ -44,20 +46,20 @@ class CoreServiceProvider extends ServiceProvider
      * Named limiters, each with its OWN counter. (The numeric `throttle:N,1` shorthand shares one counter
      * per client across every route that uses it, so unrelated screens would eat each other's budget.)
      */
-    private function rateLimiters(): void
+    private function rateLimiters(\Illuminate\Cache\RateLimiter $limiter): void
     {
         $byIp = fn (Request $r) => $r->ip();
         $byActor = fn (Request $r) => $r->user()?->getAuthIdentifier() ?? $r->ip();
         $byDevice = fn (Request $r) => $r->attributes->get('device')?->getKey() ?? $byActor($r);
 
-        RateLimiter::for('installer-token', fn (Request $r) => Limit::perMinute(20)->by($byIp($r)));
-        RateLimiter::for('installer-database', fn (Request $r) => Limit::perMinute(40)->by($byIp($r)));
-        RateLimiter::for('installer-run', fn (Request $r) => Limit::perMinute(10)->by($byIp($r)));
-        RateLimiter::for('login', fn (Request $r) => Limit::perMinute(30)->by($byIp($r)));   // per-account limit lives in AuthController
-        RateLimiter::for('password', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
-        RateLimiter::for('credentials', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
-        RateLimiter::for('upload', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
-        RateLimiter::for('sync-pull', fn (Request $r) => Limit::perMinute(240)->by($byDevice($r)));
-        RateLimiter::for('sync-push', fn (Request $r) => Limit::perMinute(240)->by($byDevice($r)));
+        $limiter->for('installer-token', fn (Request $r) => Limit::perMinute(20)->by($byIp($r)));
+        $limiter->for('installer-database', fn (Request $r) => Limit::perMinute(40)->by($byIp($r)));
+        $limiter->for('installer-run', fn (Request $r) => Limit::perMinute(10)->by($byIp($r)));
+        $limiter->for('login', fn (Request $r) => Limit::perMinute(30)->by($byIp($r)));   // per-account limit lives in AuthController
+        $limiter->for('password', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
+        $limiter->for('credentials', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
+        $limiter->for('upload', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
+        $limiter->for('sync-pull', fn (Request $r) => Limit::perMinute(240)->by($byDevice($r)));
+        $limiter->for('sync-push', fn (Request $r) => Limit::perMinute(240)->by($byDevice($r)));
     }
 }

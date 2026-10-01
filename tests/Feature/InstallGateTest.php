@@ -86,4 +86,16 @@ class InstallGateTest extends TestCase
         $this->assertStringContainsString("frame-ancestors 'none'", $r->headers->get('Content-Security-Policy'));
         $this->assertStringNotContainsString('unsafe-inline', $r->headers->get('Content-Security-Policy'));
     }
+
+    public function test_booting_does_not_touch_the_cache_or_database(): void
+    {
+        // On a bare deployment the default cache/session store is a database that does not exist yet. Anything that
+        // binds to the cache at boot (e.g. eagerly defining rate limiters) would crash every installer page.
+        $this->assertFalse(app()->resolved(\Illuminate\Cache\RateLimiter::class));
+        $this->assertFalse(app()->resolved('cache.store'));
+
+        // ...and the limiters still exist once the limiter is actually used.
+        $this->assertNotNull(\Illuminate\Support\Facades\RateLimiter::limiter('installer-run'));
+        $this->assertNotNull(\Illuminate\Support\Facades\RateLimiter::limiter('sync-push'));
+    }
 }
