@@ -92,18 +92,14 @@ requirements step fails with "Application folder is outside the public web folde
 
 ## Updating to a new version
 
-Updates come as `foundation-hostinger-app-only.zip`, which contains only the `foundation_app` folder.
-Never extract a partial "patch" over the folder: Hostinger's File Manager can replace whole sub-folders instead of
-merging, which deletes files and breaks the site.
+Two small zips, no renaming and no copying. They contain only code folders (never `storage`, `.env` or `index.php`),
+so your installation, settings and data are not touched.
 
-1. Rename the current `foundation_app` to `foundation_app_old` (do not delete it yet).
-2. Upload `foundation-hostinger-app-only.zip` to the same place (next to `public_html`) and extract it there.
-3. If the system was already installed, copy these from `foundation_app_old` into the new `foundation_app`:
-   `.env`, `storage/app/install/`, `storage/app/private/` and (SQLite installs only) `storage/app/db/`.
-4. Updates that change the screens also need `foundation-hostinger-public-assets.zip`: extract it **inside your
-   web folder** (e.g. `public_html/acr`), so the folders `app`, `css`, `fonts`, `icons` and `vendor` there are
-   replaced. It does not contain `index.php`, so your edited `index.php` stays as it is.
-5. Open the site (hard refresh: pull down on a phone, or Ctrl+F5). When everything works, delete `foundation_app_old`.
+1. `update-foundation_app.zip` → open the `foundation_app` folder, upload it there, **Extract** here, answer yes to overwrite.
+2. `update-web.zip` → open your web folder (e.g. `public_html/acr`), upload it there, **Extract** here, answer yes to overwrite.
+3. Refresh the site (pull down on a phone, or Ctrl+F5).
+
+Only when a release says the PHP libraries changed will it also ship a new `vendor` folder.
 
 ## Troubleshooting
 

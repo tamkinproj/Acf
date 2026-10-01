@@ -44,16 +44,14 @@ rm -f "$OUT"
 zip -qr "$OUT" foundation_app public_html README-HOSTINGER.md
 echo "Built $OUT ($(du -h "$OUT" | cut -f1))"
 
-# App-only zip for UPDATES: replaces the whole foundation_app folder and never touches the web folder.
-# (Never ship partial "patch" zips: some File Managers replace whole folders on extract instead of merging.)
-APP_ONLY="${OUT%.zip}-app-only.zip"
-rm -f "$APP_ONLY"
-zip -qr "$APP_ONLY" foundation_app
-echo "Built $APP_ONLY ($(du -h "$APP_ONLY" | cut -f1))"
-
-# Public-assets zip for UPDATES of the web folder: only the folders the app owns (the page's scripts, styles, fonts, icons).
-# It never contains index.php or .htaccess, so an index.php you edited for a sub-folder install is left alone.
-PUBLIC_ONLY="${OUT%.zip}-public-assets.zip"
-rm -f "$PUBLIC_ONLY"
-(cd "$STAGE/public_html" && zip -qr "$PUBLIC_ONLY" app css fonts icons vendor)
-echo "Built $PUBLIC_ONLY ($(du -h "$PUBLIC_ONLY" | cut -f1))"
+# UPDATE zips: drop-in, no renaming or copying. Each one is extracted INSIDE its target folder and contains only
+# complete code folders - never storage/, .env or index.php - so an installed site keeps its settings and data.
+#   update-foundation_app.zip -> extract inside foundation_app   (code; vendor is unchanged unless composer.lock changes)
+#   update-web.zip            -> extract inside the web folder (e.g. public_html/acr)
+UPD_APP="${OUT%/*}/update-foundation_app.zip"
+UPD_WEB="${OUT%/*}/update-web.zip"
+rm -f "$UPD_APP" "$UPD_WEB"
+(cd "$STAGE/foundation_app" && zip -qr "$UPD_APP" app bootstrap config database resources routes)
+(cd "$STAGE/public_html" && zip -qr "$UPD_WEB" app css icons vendor)
+echo "Built $UPD_APP ($(du -h "$UPD_APP" | cut -f1))"
+echo "Built $UPD_WEB ($(du -h "$UPD_WEB" | cut -f1))"
