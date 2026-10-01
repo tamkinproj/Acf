@@ -14,7 +14,7 @@ export async function startBackend({ extraInstallArgs = [] } = {}) {
   const root = path.resolve(import.meta.dirname, '../..');
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'fdn-js-'));
   const dir = path.join(tmp, 'app');
-  const skip = [/\/\.git(\/|$)/, /\/vendor(\/|$)/, /node_modules/, /\/storage\/logs/, /\/storage\/framework\/(views|sessions|cache)/, /\/storage\/app\/(db|install|private)/, /\/\.env$/, /\/tests\/js/];
+  const skip = [/\/\.git(\/|$)/, /^\/vendor(\/|$)/, /node_modules/, /\/storage\/logs/, /\/storage\/framework\/(views|sessions|cache)/, /\/storage\/app\/(db|install|private)/, /\/\.env$/, /\/tests\/js/];
   fs.cpSync(root, dir, { recursive: true, filter: (src) => !skip.some((r) => r.test(src.replace(root, ''))) });
   fs.symlinkSync(path.join(root, 'vendor'), path.join(dir, 'vendor'));
   for (const d of ['storage/framework/views', 'storage/framework/sessions', 'storage/framework/cache/data', 'storage/logs', 'storage/app/db', 'storage/app/install', 'storage/app/private', 'bootstrap/cache']) fs.mkdirSync(path.join(dir, d), { recursive: true });

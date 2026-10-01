@@ -4,9 +4,11 @@ An offline-first web application for an Islamic association / foundation. This r
 **separate application** with its own database, users, configuration and storage. It shares no code,
 tables or credentials with any other system.
 
-**Status — Phase 1, backend.** Installer, authentication, roles & permissions, foundation profile,
-settings, locations, audit log, device identity and the synchronization API are built and tested. The
-browser client (offline PWA: IndexedDB, sync engine, UI) is the next phase. Aytam, beneficiaries, relief,
+**Status — Phase 1 (backend) and Phase 2 (web client).** Installer, authentication, roles & permissions,
+foundation profile, settings, places, audit log, device identity and the synchronization API are built and
+tested, and a browser client works on top of them: it keeps its own local database (IndexedDB), saves every
+change on the device first, syncs in the background, and shows what is waiting, failed or in conflict. It is
+a plain website for now; installing it as an app (service worker, manifest) is a later phase. Aytam, beneficiaries, relief,
 donations, projects, inventory and volunteers are intentionally **not** built yet — the architecture is
 ready for them (see `docs/ARCHITECTURE.md`).
 
@@ -48,3 +50,4 @@ php artisan serve                # then open /install
 
 - `docs/ARCHITECTURE.md` — design decisions, data model, security, extension points.
 - `docs/SYNC_PROTOCOL.md` — the exact push / pull / status / conflict contract the client builds against.
+- `docs/CLIENT.md` — how the browser client is built, how to add a screen or an entity, and how it is tested.
