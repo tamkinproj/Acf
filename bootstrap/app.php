@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureAccountUsable;
 use App\Http\Middleware\EnsureInstalled;
+use App\Http\Middleware\ProgramContext;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Middleware\ResetTenantContext;
 use App\Http\Middleware\ResolveTenant;
@@ -29,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')->prefix('api')->group(base_path('routes/api.php'));
             Route::middleware('web')->prefix('install')->group(base_path('routes/install.php'));
             Route::middleware('web')->prefix('upgrade')->group(base_path('routes/upgrade.php'));
+            Route::middleware('web')->prefix('apply')->group(base_path('routes/public.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -41,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => RequirePermission::class,
             'device' => ResolveDevice::class,
             'tenancy' => ResolveTenant::class,
+            'program' => ProgramContext::class,
             'account.usable' => EnsureAccountUsable::class,
         ]);
         $middleware->redirectGuestsTo(fn () => '/login');

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Aytam\AytamDashboardController;
 use App\Http\Controllers\Api\Aytam\AytamDocumentController;
 use App\Http\Controllers\Api\Aytam\FamilyController;
 use App\Http\Controllers\Api\Aytam\GuardianController;
+use App\Http\Controllers\Api\Aytam\ImportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +42,18 @@ Route::prefix('programs/{program}')->group(function () {
     Route::post('/guardians', [GuardianController::class, 'store'])->middleware('program:aytam,aytam.view_all+aytam.update');
     Route::patch('/guardians/{guardian}', [GuardianController::class, 'update'])->middleware('program:aytam,aytam.view_all+aytam.update');
     Route::delete('/guardians/{guardian}', [GuardianController::class, 'destroy'])->middleware('program:aytam,aytam.view_all+aytam.update');
+
+    // import of existing data (CSV / Excel)
+    Route::get('/imports', [ImportController::class, 'index'])->middleware('program:aytam,aytam.import');
+    Route::post('/imports', [ImportController::class, 'store'])->middleware(['program:aytam,aytam.import', 'throttle:upload']);
+    Route::get('/imports/{batch}', [ImportController::class, 'show'])->middleware('program:aytam,aytam.import');
+    Route::get('/imports/{batch}/rows', [ImportController::class, 'rows'])->middleware('program:aytam,aytam.import');
+    Route::put('/imports/{batch}/mapping', [ImportController::class, 'mapping'])->middleware('program:aytam,aytam.import');
+    Route::post('/imports/{batch}/validate', [ImportController::class, 'validateBatch'])->middleware('program:aytam,aytam.import');
+    Route::post('/imports/{batch}/decisions', [ImportController::class, 'decideAll'])->middleware('program:aytam,aytam.import');
+    Route::post('/imports/{batch}/rows/{row}/decision', [ImportController::class, 'decide'])->middleware('program:aytam,aytam.import');
+    Route::post('/imports/{batch}/commit', [ImportController::class, 'commit'])->middleware('program:aytam,aytam.import');
+    Route::delete('/imports/{batch}', [ImportController::class, 'destroy'])->middleware('program:aytam,aytam.import');
 
     require __DIR__.'/registration.php';
 });

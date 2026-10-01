@@ -55,7 +55,12 @@ final class NameNormalizer
             }
         }
 
-        return min(1.0, (2 * $matched) / (count($x) + count($y)));
+        $dice = (2 * $matched) / (count($x) + count($y));
+        // One name entirely inside the other ("Ahmad Abdullah" / "Ahmad bin Abdullah") is a strong match, not a partial one.
+        $shorter = min(count($x), count($y));
+        $containment = $shorter >= 2 ? 0.95 * ($matched / $shorter) : 0.0;
+
+        return min(1.0, max($dice, $containment));
     }
 
     private static function wordScore(string $a, string $b): float

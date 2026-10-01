@@ -29,6 +29,9 @@ class Requirements
         $checks[] = $this->check('ext-gd', 'PHP extension: gd (logo processing)', extension_loaded('gd'),
             "Enable the 'gd' extension, or the foundation logo cannot be uploaded.", required: false);
 
+        $checks[] = $this->check('ext-zip', 'PHP extension: zip (Excel import)', extension_loaded('zip') && extension_loaded('xmlreader'),
+            "Enable the 'zip' and 'xmlreader' extensions, or Excel (.xlsx) files cannot be imported. CSV files still work.", required: false);
+
         $mysql = extension_loaded('pdo_mysql');
         $sqlite = extension_loaded('pdo_sqlite');
         $checks[] = $this->check('db-driver', 'Database driver (pdo_mysql or pdo_sqlite)', $mysql || $sqlite,
