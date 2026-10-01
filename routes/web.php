@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 // Public branding image (login page, offline shell). Storage stays private; PHP serves it.
 Route::get('/assets/logo', [FoundationController::class, 'logo']);
 
-// The browser client (offline-first PWA) is the next build phase. Until it lands, every non-API page
-// resolves to this shell, which proves the install gate and sessions work end to end.
-Route::get('/{any?}', fn () => view('shell', ['foundation' => Foundation::current()]))
-    ->where('any', '^(?!api|install|up).*$');
+// The browser client. One HTML page; screens are routed client-side with #/hash, so it works the same from a
+// domain root or a subfolder. (Installable-app features - service worker, manifest - are a later phase.)
+Route::get('/{any?}', fn () => response()->view('shell', ['foundation' => Foundation::current()])->header('Cache-Control', 'no-cache'))
+    ->where('any', '^(?!api(/|$)|install(/|$)|up$).*$');

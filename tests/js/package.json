@@ -1,0 +1,7 @@
+{
+  "name": "foundation-client-tests",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test --test-concurrency=1 --test-timeout=120000 sync.test.mjs" },
+  "devDependencies": { "fake-indexeddb": "^6.0.0" }
+}
