@@ -1,0 +1,21 @@
+// A session that disappears while the device-registration screen is open must lead back to sign-in, not a bare error.
+import { chromium } from 'playwright-core';
+import { startBackend, ADMIN } from '../js/backend.mjs';
+import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
+const be = await startBackend();
+const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium', args: ['--no-sandbox'] });
+const page = await (await browser.newContext()).newPage();
+const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) process.exitCode = 1; };
+await page.goto(be.url + '/'); await page.waitForSelector('[data-login]');
+await page.fill('#f-email', ADMIN.email); await page.fill('#f-password', ADMIN.password); await page.click('[data-login] button[type=submit]');
+await page.waitForSelector('[data-new]');
+const dbf = be.dir + '/storage/app/db/' + fs.readdirSync(be.dir + '/storage/app/db').find((f) => f.endsWith('.sqlite'));
+execFileSync('python3', ['-c', 'import sqlite3,sys;c=sqlite3.connect(sys.argv[1]);c.execute("delete from sessions");c.commit()', dbf]);
+await page.fill('[data-new] #f-name', 'Field Phone'); await page.click('[data-new] button[type=submit]');
+await page.waitForSelector('[data-login]', { timeout: 8000 }).then(() => ok(true, 'revoked session -> back to sign-in'), () => ok(false, 'revoked session -> back to sign-in'));
+await page.fill('#f-email', ADMIN.email); await page.fill('#f-password', ADMIN.password); await page.click('[data-login] button[type=submit]');
+await page.waitForSelector('[data-new]', { timeout: 8000 }).then(() => ok(true, 'can sign in again and register'), () => ok(false, 'can sign in again and register'));
+await page.fill('[data-new] #f-name', 'Field Phone'); await page.click('[data-new] button[type=submit]');
+await page.waitForSelector('.dash', { timeout: 15000 }).then(() => ok(true, 'device registered, dashboard opens'), () => ok(false, 'device registered, dashboard opens'));
+await browser.close(); be.stop();

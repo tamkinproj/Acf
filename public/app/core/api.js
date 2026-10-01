@@ -53,11 +53,16 @@ async function send(method, path, body, { timeout = 15000, signal } = {}) {
   return { status: res.status, ok: res.ok, json, retryAfter: res.headers.get('Retry-After') };
 }
 
+let onSignedOut = null;
+/** Called when the server says the sign-in is gone (session ended or revoked) on a request that needed one. */
+export const setSignedOutHandler = (fn) => { onSignedOut = fn; };
+
 /** Returns data on success; throws ApiError (server said no) or NetworkError (couldn't reach it). */
 export async function call(method, path, body, opts) {
   let r = await send(method, path, body, opts);
   if (r.status === 419) { await ensureCsrf(true); r = await send(method, path, body, opts); }   // CSRF token went stale
   if (r.status >= 500 && !r.json) throw new NetworkError('The server is having trouble. Try again shortly.');
+  if (r.status === 401 && r.json?.code === 'UNAUTHENTICATED' && !path.startsWith('/auth/')) onSignedOut?.();
   if (!r.ok) throw new ApiError({ status: r.status, code: r.json?.code, message: r.json?.message, errors: r.json?.errors, data: r.json?.data });
   return r.json ? { data: r.json.data, meta: r.json.meta } : { data: null };
 }

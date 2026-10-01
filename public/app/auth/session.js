@@ -19,6 +19,10 @@ export const session = createStore({
   online: true, hasPin: false, conflictUser: null, mustChangePassword: false, idleMinutes: 15,
 });
 
+// If the server forgets who we are while the device-registration screen is open (session ended, password reset elsewhere),
+// go back to sign-in instead of showing a bare "Authentication required". A working session keeps its data and is handled by sync.
+api.setSignedOutHandler(() => { if (session.get().status === 'needs-device') session.set({ status: 'anon', user: null, permissions: [] }); });
+
 export const can = (perm) => !perm || session.get().permissions.includes(perm);
 
 async function loadBranding() {
