@@ -25,7 +25,7 @@ Note the folder Hostinger assigns to the subdomain (often `public_html/foundatio
 - If the subdomain's folder is `public_html/foundation`, open its `index.php` and change `../foundation_app` to
   `../../foundation_app` (3 places). If the folder sits directly beside `foundation_app`, change nothing.
 
-### No subdomain: install in a folder of the existing site (e.g. `yourdomain.com/acf/`)
+### No subdomain: install in a folder of the existing site (e.g. `yourdomain.com/acr/`)
 
 This works, with one rule: **`foundation_app` stays outside `public_html`; only the public files go in the folder.**
 
@@ -34,14 +34,14 @@ domains/yourdomain.com/
 ├── foundation_app/          ← the private app (NOT inside public_html)
 └── public_html/
     ├── ...your other site...
-    └── acf/                 ← contents of the package's public_html folder
+    └── acr/                 ← contents of the package's public_html folder
 ```
 
 1. In File Manager tap the home icon so you can see the folder that **contains** `public_html`. Put `foundation_app` there.
-2. Create the folder `acf` inside `public_html`, and put the package's public files in it (`index.php`,
+2. Create the folder `acr` inside `public_html`, and put the package's public files in it (`index.php`,
    `.htaccess`, `css/`, `favicon.ico`, `robots.txt`).
-3. Edit `public_html/acf/index.php`: change `../foundation_app` to `../../foundation_app` (3 places).
-4. Open `https://yourdomain.com/acf/`. In the wizard, set **Application URL** to `https://yourdomain.com/acf`.
+3. Edit `public_html/acr/index.php`: change `../foundation_app` to `../../foundation_app` (3 places).
+4. Open `https://yourdomain.com/acr/`. In the wizard, set **Application URL** to `https://yourdomain.com/acr`.
 
 Things to know about sharing a domain: PHP version is set **per website, not per folder**, so the whole domain
 (including your other application) runs on the PHP version you choose, and Foundation needs 8.3 or newer — make
