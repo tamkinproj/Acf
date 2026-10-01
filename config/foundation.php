@@ -62,5 +62,9 @@ return [
     'uploads' => [
         'logo_max_kb' => 2048,
         'logo_max_pixels' => 4000,
+        // Case documents (passports, certificates, photos...). Anything outside this allow-list is refused.
+        'document_max_kb' => (int) env('FOUNDATION_DOCUMENT_MAX_KB', 10240),
+        'document_max_pixels' => 50_000_000,
+        'public_form_max_files' => 12,
     ],
 ];

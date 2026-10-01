@@ -14,6 +14,13 @@ class ProgramUser extends Model
 
     protected $guarded = [];
 
+    protected static function booted(): void
+    {
+        $forget = fn (self $m) => app(\App\Core\Access\GrantCache::class)->forget($m->user_id);
+        static::saved($forget);
+        static::deleted($forget);
+    }
+
     public static function syncFields(): array
     {
         return ['program_id', 'user_id', 'role_id'];

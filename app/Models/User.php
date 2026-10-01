@@ -68,9 +68,6 @@ class User extends Authenticatable
         return $this->hasMany(ProgramUser::class);
     }
 
-    /** @var array<string,list<string>>|null program id => permissions granted by the program role */
-    private ?array $programGrants = null;
-
     /**
      * Foundation-wide when $program is null; inside a program, the program role's grants count as well.
      * Platform permissions are held only by platform administrators; foundation administrators hold everything
@@ -98,17 +95,11 @@ class User extends Authenticatable
         return $program !== null && in_array($key, $this->programGrants()[$program->getKey()] ?? [], true);
     }
 
-    /** @return array<string,list<string>> */
+    /** @return array<string,list<string>> program id => permissions granted by the person's role in that program */
     public function programGrants(): array
     {
-        return $this->programGrants ??= $this->programMemberships()->with('role:id,permissions')->get()
-            ->mapWithKeys(fn (ProgramUser $m) => [$m->program_id => array_values($m->role?->permissions ?? [])])->all();
-    }
-
-    public function forgetGrants(): void
-    {
-        $this->programGrants = null;
-        $this->unsetRelation('role');
+        return app(\App\Core\Access\GrantCache::class)->for($this->getKey(), fn () => $this->programMemberships()->with('role:id,permissions')->get()
+            ->mapWithKeys(fn (ProgramUser $m) => [$m->program_id => array_values($m->role?->permissions ?? [])])->all());
     }
 
     /** Foundation-wide permissions (what the navigation and the dashboard care about). @return list<string> */

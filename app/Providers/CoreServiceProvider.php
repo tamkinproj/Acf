@@ -26,6 +26,7 @@ class CoreServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(TenantContext::class);
+        $this->app->singleton(\App\Core\Access\GrantCache::class);
         $this->app->singleton(InstallState::class);
         $this->app->singleton(DeviceContext::class);
         $this->app->singleton(ChangeContext::class);
@@ -77,6 +78,10 @@ class CoreServiceProvider extends ServiceProvider
         $limiter->for('password', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
         $limiter->for('credentials', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
         $limiter->for('upload', fn (Request $r) => Limit::perMinute(10)->by($byActor($r)));
+        $limiter->for('documents', fn (Request $r) => Limit::perMinute(60)->by($byActor($r)));
+        // Public registration links: anyone on the internet can reach these, so they are limited per address.
+        $limiter->for('public-form', fn (Request $r) => Limit::perMinute(60)->by($byIp($r)));
+        $limiter->for('public-submit', fn (Request $r) => Limit::perMinute(6)->by($byIp($r)));
         $limiter->for('sync-pull', fn (Request $r) => Limit::perMinute(240)->by($byDevice($r)));
         $limiter->for('sync-push', fn (Request $r) => Limit::perMinute(240)->by($byDevice($r)));
     }

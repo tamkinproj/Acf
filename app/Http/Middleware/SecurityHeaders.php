@@ -22,10 +22,13 @@ class SecurityHeaders
         $h->set('X-Frame-Options', 'DENY');
         $h->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $h->set('Permissions-Policy', 'geolocation=(self), camera=(self), microphone=()');
-        $h->set('Content-Security-Policy',
-            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; "
-            ."font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; "
-            ."frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+        // A response that set its own (stricter) policy - a downloaded document - keeps it.
+        if (! $h->has('Content-Security-Policy')) {
+            $h->set('Content-Security-Policy',
+                "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; "
+                ."font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; "
+                ."frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+        }
         if ($request->isSecure()) {
             $h->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }

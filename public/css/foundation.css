@@ -16,7 +16,7 @@ p.lead { color: var(--text-2); margin: 0 0 var(--s6); }
 .steplabel { font-size: 13px; color: var(--text-2); margin: 0 0 var(--s6); }
 label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin: var(--s4) 0 6px; }
 .hint { font-weight: 400; color: var(--text-3); font-size: 13px; }
-input[type=text], input[type=email], input[type=url], input[type=password], input[type=number], input[type=file], select, textarea { width: 100%; min-height: 44px; padding: 10px var(--s3); border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
+input[type=text], input[type=tel], input[type=date], input[type=email], input[type=url], input[type=password], input[type=number], input[type=file], select, textarea { width: 100%; min-height: 44px; padding: 10px var(--s3); border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
 textarea { min-height: 96px; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
@@ -48,3 +48,18 @@ code, .mono { background: var(--fill-2); padding: 2px 6px; border-radius: 6px; f
 .tabs { display: flex; gap: var(--s4); margin: var(--s2) 0; flex-wrap: wrap; }
 .tabs label { margin: 0; font-weight: 500; font-size: 15px; color: var(--text); display: flex; gap: 6px; align-items: center; }
 .err { color: var(--red); font-size: 13px; margin-top: 4px; }
+
+/* Public registration form (same look as the installer and the app). */
+.foot { text-align: center; color: var(--text-3); font-size: 12px; margin: var(--s5) 0 0; }
+.errlist { margin: var(--s1) 0 0; padding-left: var(--s5); }
+.group { border: 0; padding: 0; margin: var(--s7) 0 0; min-width: 0; }
+.group legend { font-size: 18px; font-weight: 700; letter-spacing: -.01em; padding: 0; margin: 0 0 var(--s1); }
+.q { margin: 0 0 var(--s2); }
+.ql { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin: var(--s4) 0 6px; }
+.req { color: var(--red); font-style: normal; margin-left: 3px; }
+.hint.block { display: block; margin: -2px 0 6px; }
+.choices { display: flex; flex-direction: column; gap: 2px; }
+.choice { display: flex; align-items: center; gap: var(--s3); min-height: 44px; margin: 0; font-size: 15px; font-weight: 500; color: var(--text); }
+.choice input { width: 20px; height: 20px; accent-color: var(--accent); }
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+input[type=date], input[type=tel], input[type=number] { width: 100%; min-height: 44px; padding: 10px var(--s3); border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; }

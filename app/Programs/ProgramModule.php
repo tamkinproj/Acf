@@ -29,4 +29,16 @@ abstract class ProgramModule
     {
         return [];
     }
+
+    /** Validation rules for the keys of a program's `config`. @return array<string,mixed> */
+    public function configRules(): array
+    {
+        return [];
+    }
+
+    /** The program permission that lets a module's own supervisor configure the program (partners, requirements). */
+    public function configurePermission(): ?string
+    {
+        return null;
+    }
 }

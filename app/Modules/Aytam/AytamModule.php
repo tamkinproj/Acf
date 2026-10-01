@@ -79,4 +79,18 @@ final class AytamModule extends ProgramModule
             'required_documents' => ['photo', 'birth_certificate'],
         ];
     }
+
+    public function configRules(): array
+    {
+        return [
+            'code_prefix' => ['sometimes', 'string', 'regex:/^[A-Z]{2,6}$/'],
+            'required_documents' => ['sometimes', 'array'],
+            'required_documents.*' => ['string', \Illuminate\Validation\Rule::in(\App\Models\Document::TYPES)],
+        ];
+    }
+
+    public function configurePermission(): ?string
+    {
+        return 'aytam.configure';
+    }
 }

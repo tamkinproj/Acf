@@ -39,7 +39,12 @@ class UserController extends Controller
 
     public function show(User $user): JsonResponse
     {
-        return ApiResponse::ok($this->present($user->load('role:id,key,name')));
+        $memberships = $user->programMemberships()->with(['program:id,name,slug,category,status', 'role:id,key,name'])->get();
+
+        return ApiResponse::ok($this->present($user->load('role:id,key,name')) + ['programs' => $memberships->map(fn ($m) => [
+            'program_id' => $m->program_id, 'name' => $m->program?->name, 'category' => $m->program?->category, 'status' => $m->program?->status,
+            'role' => $m->role ? ['id' => $m->role->id, 'key' => $m->role->key, 'name' => $m->role->name] : null,
+        ])->all()]);
     }
 
     public function store(Request $request): JsonResponse

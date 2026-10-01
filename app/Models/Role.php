@@ -14,6 +14,12 @@ class Role extends Model
     protected $guarded = [];
     protected $casts = ['permissions' => 'array', 'is_system' => 'boolean'];
 
+    protected static function booted(): void
+    {
+        static::saved(fn () => app(\App\Core\Access\GrantCache::class)->forget());
+        static::deleted(fn () => app(\App\Core\Access\GrantCache::class)->forget());
+    }
+
     public static function syncFields(): array
     {
         return ['key', 'name', 'description', 'is_system', 'scope', 'module', 'permissions'];
