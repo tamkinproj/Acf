@@ -20,33 +20,82 @@ It is **separate from MuslimEdu**: own database, own users, own folder, own cook
 
 ---
 
-## 2. Where we are today
+## 2. What we have built so far
 
-### ✅ Built (Phase 1 and 2)
+In numbers: **19 commits**, about **7,800 lines** of application code, **13 installer pages**, **10 screens**, **40 API routes**, **16 database tables**, **3 command-line tools**, and **150+ automated checks**. The foundation (everything the programs will stand on) is complete.
 
-| Area | What works |
-|---|---|
-| **Installer** | A setup wizard that works with no internet: checks the server, connects the database, creates the Super Admin with a password you choose, registers the first device. Never shows database passwords. Refuses to install over an existing database. |
-| **Sign-in and security** | Email + password, session cookies, rate limiting, forced password change for temporary passwords, optional 6-digit device PIN, automatic lock after idle time, sign-out protection when work has not synced. |
-| **People and roles** | Six built-in roles and 16 permissions (see §4). Create people (a one-time temporary password is shown once), edit them, disable them, reset passwords. |
-| **Foundation profile** | Name, logo, address, registration details. |
-| **Places** | A tree: country → region → province → municipality → barangay → site. Works offline. |
-| **Devices** | Every phone/browser that syncs is registered; access can be withdrawn if a phone is lost. |
-| **Settings** | Time zone, language default, currency, idle-lock time, sync interval. |
-| **Activity log** | Who did what, when, from which device. Cannot be edited. |
-| **Offline sync** | Local database in the browser, a queue of changes, background sync, a Sync screen showing what is waiting / failed / in conflict, and conflict resolution (keep server's, use mine, or combine). |
-| **Design** | A clean, calm, Apple-inspired interface: sidebar on desktop, tab bar and bottom sheets on phones, real dark mode. |
-| **Recovery tools** | One-time pages for hosts without a command line: Super Admin password reset, session/cookie diagnostic. |
+### 2.1 Installer — set up the system with no command line ✅
 
-### 🧪 How it was tested
+A guided wizard that works with **no internet**:
 
-* 128 automated PHP tests (installer, sign-in, permissions, sync, conflicts, upgrade).
-* 19 sync-engine tests against a real backend.
-* Real-browser (Chromium) flows: add places offline then reconnect; two devices editing the same record and resolving the conflict; people / settings / roles / devices / PIN; session loss; wrong cookie path.
+1. Welcome → 2. Requirements check (PHP version, extensions, writable folders) → 3. Database (MySQL/MariaDB or SQLite, connection tested) → 4. System (name, URL, time zone, language, currency) → 5. Foundation (name, registration details) → 6. Administrator (**you choose the password; no defaults**) → 7. Device → 8. Review → Install → Complete.
 
-### ⚠️ Known issues and not-yet-done
+Safeguards: a one-time token gate, never shows database passwords, **refuses to install into a non-empty database**, refuses an app folder that is publicly reachable, writes only a whitelist of settings to `.env`, and **never auto-reinstalls** if the install lock is damaged (it shows a recovery screen instead). Command-line install and upgrade tools exist for developers.
 
-* **Sign-in on the current Hostinger site:** the URL entered during setup was `…/acf` but the site lives at `…/acr`, so the browser drops the login cookie. *Workaround:* in `foundation_app/.env` set `APP_URL=https://manhaje.com/acr` and `SESSION_PATH=/acr`. *Permanent fix:* the code now takes the cookie path from the real folder; it is written and browser-tested but still needs to be packaged and uploaded.
+### 2.2 Accounts, security and recovery ✅
+
+* Sign-in with email + password, rate-limited; temporary passwords force a change at first sign-in.
+* **Device PIN** (6 digits, stored only as a salted hash; five wrong tries disable it), **idle auto-lock**, and a sign-out guard that warns before discarding unsynced work.
+* Sessions can be listed and ended from **My account**; changing a password signs out other devices.
+* A user signing in on a browser that still holds *another* user's unsynced work is blocked until that work is synced.
+* Recovery pages for hosts without a command line: **Super Admin password reset** and a **session/cookie diagnostic**.
+
+### 2.3 The ten screens ✅
+
+| Screen | What it does | Who sees it (default) |
+|---|---|---|
+| **Home** | Greeting, sync status, overview numbers, recent activity, quick actions | Everyone with dashboard access |
+| **Places** | Searchable tree of country → site; add, edit, remove; works offline; pending-sync dots | Staff and above (view: all roles) |
+| **Sync** | What is waiting, what failed and why, retry / undo; conflict cards with *Use mine / Keep server's / Combine* | Everyone (resolving: Staff and above) |
+| **Foundation** | Profile, address, registration details, logo upload | Everyone (edit: Admins) |
+| **People** | Sortable, searchable table; add person (one-time temporary password), edit, disable, remove, reset password | Admins |
+| **Roles** | See and edit what each role may do, with on/off switches | Admins (edit: Super Admin) |
+| **Devices** | Register, rename, issue a new token, revoke; shows online/offline | Admins |
+| **Activity** | The permanent audit trail, searchable and filterable, with before/after details | Admins |
+| **Settings** | Time zone, language, currency, idle-lock time, sync interval | Everyone (edit: Admins) |
+| **My account** | Profile, password, PIN, appearance (light/dark/auto), other sessions, sign out | Everyone |
+
+Plus: sign-in, device registration, lock screen with PIN keypad, forced password change, a PIN prompt, and the installer pages.
+
+### 2.4 Offline-first engine ✅
+
+* A **local database in the browser** for every record type, plus a queue of changes made on the device.
+* Each save writes the record and its queue entry together, so a crash never leaves one without the other.
+* **Background sync** (push in batches, then pull), automatic retry, and a status badge that is always visible: *Synced · Syncing · Offline · N changes waiting · N conflicts · Sync failed*.
+* **Conflict handling:** edits to the same field by two people are never overwritten; a manager chooses. Changes already sent are safe to resend (no duplicates).
+* A pull never overwrites a field you have edited but not yet synced.
+* Deleted records are kept as markers so every device learns about them.
+
+### 2.5 Server, data and API ✅
+
+* **16 database tables**: users, roles, foundations, locations, settings, devices, audit log, change feed, conflicts, sessions, cache, jobs, install log and system state.
+* Every replicated record carries a unique id, a version number, who/where it was last changed, and soft-delete markers — the plan that lets future modules join sync with no rework.
+* **40 API routes** in these groups: sign-in and account, users, roles and permissions, devices, foundation and logo, settings, dashboard summary, audit log, and sync (push, pull, status, schema, conflicts).
+* **16 permissions** across 6 roles (see §4). Every request is checked on the server, not only on the screen.
+* A **module registry**: a new program (Aytam, teaching …) registers its records once and gets sync, offline, conflicts, permissions and audit for free.
+* All times are stored in UTC and shown in the foundation's time zone.
+
+### 2.6 Design ✅
+
+A calm, Apple-inspired system: system font, neutral surfaces, one blue accent, colour only for state; sidebar on desktop; top bar, tab bar and bottom sheets on phones; sortable table that becomes a list on phones; iOS-style switches; skeleton loading; real **dark mode**. All styling comes from one token file shared by the app and the installer.
+
+### 2.7 Hosting and delivery ✅
+
+* Runs on **Hostinger shared hosting using only File Manager** (no Composer or SSH). Works at a domain root or inside a folder such as `/acr/`.
+* Application code lives **outside** the public web folder.
+* Ready-made packages: a full install package and two small **update zips** that never touch `.env`, `storage` or `index.php`.
+* Documentation: `README`, `ARCHITECTURE`, `SYNC_PROTOCOL`, `CLIENT`, `HOSTINGER`, and this document.
+
+### 2.8 How it was tested ✅
+
+* **131 PHP tests** (130 pass, 1 skipped by design): installer, sign-in, permissions, users and roles, devices, sync push/pull, conflicts, upgrade, subfolder hosting, database emptiness, logo handling.
+* **19 sync-engine tests** against a real backend.
+* **Real-browser (Chromium) flows**: offline add then reconnect; two devices in conflict (both resolutions); people, settings, roles, devices, PIN, sign-out guard; lost session; wrong cookie path.
+* Also checked on a real MariaDB database and under PHP 8.5.
+
+### 2.9 Known issues and not yet done ⚠️
+
+* **Sign-in on the current Hostinger site:** the URL entered during setup was `…/acf` but the site lives at `…/acr`, so the browser drops the login cookie. *Workaround:* in `foundation_app/.env` set `APP_URL=https://manhaje.com/acr` and `SESSION_PATH=/acr`. *Permanent fix:* the code now takes the cookie path from the real folder. It is written, browser-tested and saved in the project, but it must still be uploaded to the server (`update-foundation_app.zip`).
 * The interface is **English only** for now. The language setting exists and the layout is ready for right-to-left, but Arabic (and Filipino) translations are not written.
 * **Not installable as a phone app yet** (no home-screen icon, and the page itself needs a connection to load the first time).
 * No backup/restore screen yet; back up the database from hPanel.
