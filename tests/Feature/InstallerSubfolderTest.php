@@ -44,7 +44,12 @@ class InstallerSubfolderTest extends InstallTestCase
         foreach ($views as $name => $data) {
             $html = view($name, $data)->render();
             $this->assertDoesNotMatchRegularExpression('#(action|href|src)="/#', $html, "{$name} contains a root-relative URL");
-            $this->assertStringContainsString($base.'/css/foundation.css', $html, "{$name} stylesheet");
+            if ($name === 'shell') {
+                $this->assertStringContainsString('data-base="'.$base.'"', $html, 'the client learns its base URL from the page');
+                $this->assertStringContainsString($base.'/app/main.js', $html);
+            }
+            $css = $name === 'shell' ? 'css/app.css' : 'css/foundation.css';
+            $this->assertStringContainsString($base.'/'.$css, $html, "{$name} stylesheet");
         }
 
         $this->assertStringContainsString('action="'.$base.'/install/token"', view('install.token', ['path' => 'x'])->render());
