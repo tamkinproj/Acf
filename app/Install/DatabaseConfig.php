@@ -162,15 +162,20 @@ final class DatabaseConfig
         };
     }
 
-    /** True when the target database already contains tables (installer refuses to overwrite). */
+    /** True when the selected database already contains tables (installer refuses to overwrite). */
     public function hasExistingTables(): bool
     {
         $name = '_install_probe_'.bin2hex(random_bytes(3));
         config(["database.connections.{$name}" => $this->connection()]);
         try {
-            $schema = DB::connection($name)->getSchemaBuilder();
+            $db = DB::connection($name);
+            // Count ONLY this database's tables. (Schema::getTableListing() with no schema lists every database the
+            // MySQL user can see, which wrongly reports "not empty" for users that have access to several databases.)
+            $count = $this->driver === 'sqlite'
+                ? $db->selectOne("SELECT COUNT(*) AS c FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")->c
+                : $db->selectOne('SELECT COUNT(*) AS c FROM information_schema.tables WHERE table_schema = DATABASE()')->c;
 
-            return count($schema->getTableListing()) > 0;
+            return (int) $count > 0;
         } finally {
             DB::purge($name);
             config(["database.connections.{$name}" => null]);
