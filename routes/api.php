@@ -23,14 +23,14 @@ use Illuminate\Support\Facades\Route;
 // ---- public ----
 Route::get('/system/status', [SystemController::class, 'status']);
 Route::get('/auth/csrf', [AuthController::class, 'csrf']);
-Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:30,1');
+Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 // ---- authenticated (user session) ----
 Route::middleware(['auth', 'account.usable', 'device'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'show']);
     Route::patch('/auth/profile', [AuthController::class, 'updateProfile']);
-    Route::put('/auth/password', [AuthController::class, 'changePassword'])->middleware('throttle:10,1');
+    Route::put('/auth/password', [AuthController::class, 'changePassword'])->middleware('throttle:password');
     Route::get('/auth/sessions', [AuthController::class, 'sessions']);
     Route::delete('/auth/sessions/{handle}', [AuthController::class, 'revokeSession']);
 
@@ -39,7 +39,7 @@ Route::middleware(['auth', 'account.usable', 'device'])->group(function () {
     Route::get('/system/health', [SystemController::class, 'health'])->middleware('permission:settings.manage');
 
     Route::get('/foundation', [FoundationController::class, 'show'])->middleware('permission:foundation.view');
-    Route::post('/foundation/logo', [FoundationController::class, 'uploadLogo'])->middleware(['permission:foundation.manage', 'throttle:10,1']);
+    Route::post('/foundation/logo', [FoundationController::class, 'uploadLogo'])->middleware(['permission:foundation.manage', 'throttle:upload']);
     Route::delete('/foundation/logo', [FoundationController::class, 'deleteLogo'])->middleware('permission:foundation.manage');
 
     Route::get('/users', [UserController::class, 'index'])->middleware('permission:users.view');
@@ -47,7 +47,7 @@ Route::middleware(['auth', 'account.usable', 'device'])->group(function () {
     Route::post('/users', [UserController::class, 'store'])->middleware('permission:users.manage');
     Route::patch('/users/{user}', [UserController::class, 'update'])->middleware('permission:users.manage');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->middleware('permission:users.manage');
-    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware(['permission:users.manage', 'throttle:10,1']);
+    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware(['permission:users.manage', 'throttle:credentials']);
 
     Route::get('/roles', [RoleController::class, 'index'])->middleware('permission:roles.view');
     Route::get('/permissions', [RoleController::class, 'permissions'])->middleware('permission:roles.view');
@@ -67,8 +67,8 @@ Route::middleware(['auth', 'account.usable', 'device'])->group(function () {
     Route::prefix('sync')->middleware(['device:required', 'permission:sync.use'])->group(function () {
         Route::get('/status', [SyncController::class, 'status']);
         Route::get('/schema', [SyncController::class, 'schema']);
-        Route::get('/pull', [SyncController::class, 'pull'])->middleware('throttle:120,1');
-        Route::post('/push', [SyncController::class, 'push'])->middleware('throttle:120,1');
+        Route::get('/pull', [SyncController::class, 'pull'])->middleware('throttle:sync-pull');
+        Route::post('/push', [SyncController::class, 'push'])->middleware('throttle:sync-push');
         Route::get('/conflicts', [ConflictController::class, 'index']);
         Route::post('/conflicts/{conflict}/resolve', [ConflictController::class, 'resolve'])->middleware('permission:sync.manage');
     });

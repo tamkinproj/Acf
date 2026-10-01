@@ -241,4 +241,15 @@ class InstallerTest extends InstallTestCase
         $this->assertNull($f->address);
         $this->assertNull($f->logo_path);
     }
+
+    public function test_unrelated_wizard_actions_do_not_share_a_rate_limit(): void
+    {
+        $this->post('/install/requirements');
+
+        // An administrator retrying the connection test many times must still be able to press "Install Now".
+        for ($i = 0; $i < 12; $i++) {
+            $this->post('/install/database', ['driver' => 'mysql', 'host' => '127.0.0.1', 'port' => 1, 'database' => 'x', 'username' => 'u', 'action' => 'test']);
+        }
+        $this->post('/install/run')->assertRedirect('/install/database')->assertStatus(302);   // gated by missing steps - NOT 429
+    }
 }
