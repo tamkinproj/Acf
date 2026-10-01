@@ -16,11 +16,12 @@ class DeviceService
     private const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
     /** @return array{0:Device,1:string} device and its plaintext token (returned once) */
-    public function register(string $name, string $type, ?string $registeredBy = null, bool $primary = false, bool $withToken = true): array
+    public function register(string $name, string $type, ?string $registeredBy = null, bool $primary = false, bool $withToken = true, ?string $foundationId = null): array
     {
         $token = $withToken ? $this->newToken() : null;
         $device = new Device;
         $device->forceFill([
+            'foundation_id' => $foundationId,
             'device_code' => $this->newCode(),
             'name' => $name,
             'type' => $type,
@@ -59,7 +60,7 @@ class DeviceService
                 $suffix .= self::ALPHABET[random_int(0, strlen(self::ALPHABET) - 1)];
             }
             $code = config('foundation.device.code_prefix').$suffix;
-        } while (Device::withTrashed()->where('device_code', $code)->exists());
+        } while (Device::withoutGlobalScopes()->withTrashed()->where('device_code', $code)->exists());
 
         return $code;
     }

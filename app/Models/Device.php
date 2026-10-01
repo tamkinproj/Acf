@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Sync\Concerns\Syncable;
+use App\Tenancy\BelongsToFoundation;
 use Illuminate\Database\Eloquent\Model;
 
 class Device extends Model
 {
-    use Syncable;
+    use Syncable, BelongsToFoundation;
 
     protected $guarded = [];
     protected $hidden = ['token_hash'];

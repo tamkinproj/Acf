@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Install\InstallState;
 use App\Install\InstallStatus;
+use App\Install\Upgrader;
 use App\Support\ApiResponse;
 use Closure;
 use Illuminate\Http\Request;
@@ -42,6 +43,13 @@ class EnsureInstalled
                 return $wantsJson
                     ? ApiResponse::error('ALREADY_INSTALLED', 'This system is already installed.', 403)
                     : response()->view('install.already', [], 403);
+            }
+
+            // The code is newer than the installed data (new files were uploaded): finish the upgrade first.
+            if (! $request->is('upgrade', 'upgrade/*', 'up') && app(Upgrader::class)->needed()) {
+                return $wantsJson
+                    ? ApiResponse::error('UPGRADE_REQUIRED', 'The system needs to be updated. Open the site in a browser to finish the update.', 503)
+                    : redirect('/upgrade');
             }
 
             return $next($request);

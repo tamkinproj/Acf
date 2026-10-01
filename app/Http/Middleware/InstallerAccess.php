@@ -20,17 +20,17 @@ class InstallerAccess
 {
     public function __construct(private InstallState $state) {}
 
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $area = 'install'): Response
     {
         if ($this->isDirectLoopback($request) || $request->session()->get('installer_authorized') === true) {
             return $next($request);
         }
 
-        if ($request->is('install/token')) {
+        if ($request->is("{$area}/token")) {
             return $next($request);
         }
 
-        return redirect('/install/token');
+        return redirect("/{$area}/token");
     }
 
     /** Verify a submitted token. Throttled so it cannot be brute-forced. */
@@ -52,7 +52,7 @@ class InstallerAccess
         return $ok;
     }
 
-    private function isDirectLoopback(Request $request): bool
+    public function isDirectLoopback(Request $request): bool
     {
         $remote = (string) $request->server('REMOTE_ADDR');
         $proxied = $request->headers->has('X-Forwarded-For') || $request->headers->has('Forwarded') || $request->headers->has('X-Real-IP');

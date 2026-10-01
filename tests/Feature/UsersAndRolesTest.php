@@ -69,32 +69,44 @@ class UsersAndRolesTest extends TestCase
         $this->actingAs($viewer)->getJson('/api/dashboard/summary')->assertOk();
     }
 
-    public function test_foundation_admin_cannot_touch_super_admins_or_grant_the_role(): void
+    public function test_only_a_foundation_admin_can_touch_foundation_admin_accounts(): void
     {
-        $fa = $this->makeUser('foundation_admin');
-        $this->actingAs($fa);
+        // A people-manager (holds every users.* permission) is still not a Foundation Admin.
+        $manager = $this->makeUserWithPermissions(['dashboard.view', 'users.view', 'users.create', 'users.update', 'users.deactivate', 'roles.view']);
+        $this->actingAs($manager);
 
         $this->patchJson('/api/users/'.$this->admin->id, ['name' => 'Hacked'])->assertStatus(403)->assertJsonPath('code', 'FORBIDDEN');
-        $this->postJson('/api/users', ['name' => 'Sneaky', 'email' => 's@example.test', 'role_id' => $this->roleId('super_admin')])->assertStatus(403);
+        $this->postJson('/api/users', ['name' => 'Sneaky', 'email' => 's@example.test', 'role_id' => $this->roleId('foundation_admin')])->assertStatus(403);
         $this->postJson('/api/users/'.$this->admin->id.'/reset-password')->assertStatus(403);
         $this->deleteJson('/api/users/'.$this->admin->id)->assertStatus(403);
 
         $staff = $this->makeUser('staff');
-        $this->patchJson('/api/users/'.$staff->id, ['role_id' => $this->roleId('super_admin')])->assertStatus(403);
+        $this->patchJson('/api/users/'.$staff->id, ['role_id' => $this->roleId('foundation_admin')])->assertStatus(403);
         $this->patchJson('/api/users/'.$staff->id, ['role_id' => $this->roleId('viewer')])->assertOk();
     }
 
-    public function test_cannot_lock_out_the_last_super_admin_or_yourself(): void
+    public function test_deactivating_needs_its_own_permission(): void
+    {
+        $editor = $this->makeUserWithPermissions(['users.view', 'users.update']);
+        $staff = $this->makeUser('staff');
+
+        $this->actingAs($editor)->patchJson('/api/users/'.$staff->id, ['name' => 'Renamed'])->assertOk();
+        $this->patchJson('/api/users/'.$staff->id, ['status' => 'disabled'])->assertStatus(403);
+        $this->deleteJson('/api/users/'.$staff->id)->assertStatus(403);
+        $this->assertSame('active', $staff->fresh()->status);
+    }
+
+    public function test_cannot_lock_out_the_last_foundation_admin_or_yourself(): void
     {
         $this->actingAs($this->admin);
         $this->patchJson('/api/users/'.$this->admin->id, ['status' => 'disabled'])->assertStatus(403);
         $this->deleteJson('/api/users/'.$this->admin->id)->assertStatus(403);
         $this->patchJson('/api/users/'.$this->admin->id, ['role_id' => $this->roleId('viewer')])->assertStatus(403);
 
-        $second = $this->makeUser('super_admin');
+        $second = $this->makeUser('foundation_admin');
         $this->actingAs($second)->patchJson('/api/users/'.$this->admin->id, ['status' => 'disabled'])->assertOk();
         // Now $second is the only active super admin left.
-        $third = $this->makeUser('super_admin');
+        $third = $this->makeUser('foundation_admin');
         $third->update(['status' => 'disabled']);
         $this->actingAs($this->admin->fresh())->getJson('/api/auth/me')->assertStatus(401);
         $this->actingAs($second)->deleteJson('/api/users/'.$second->id)->assertStatus(403);
@@ -129,18 +141,41 @@ class UsersAndRolesTest extends TestCase
         $this->assertTrue($this->makeUser('viewer')->hasPermission('locations.manage'));
     }
 
-    public function test_super_admin_role_is_immutable_and_foundation_admin_cannot_edit_roles(): void
+    public function test_foundation_admin_role_is_fixed_and_only_role_managers_edit_roles(): void
     {
-        $super = Role::where('key', 'super_admin')->first();
-        $this->actingAs($this->admin)->putJson("/api/roles/{$super->id}/permissions", ['permissions' => []])->assertStatus(403);
+        $fixed = Role::where('key', 'foundation_admin')->first();
+        $this->actingAs($this->admin)->putJson("/api/roles/{$fixed->id}/permissions", ['permissions' => []])->assertStatus(403);
 
-        $fa = $this->makeUser('foundation_admin');
-        $this->actingAs($fa)->putJson('/api/roles/'.Role::where('key', 'staff')->value('id').'/permissions', ['permissions' => ['dashboard.view']])->assertStatus(403);
+        // Foundation Admin CAN edit other roles (a foundation controls its own roles)...
+        $staffId = Role::where('key', 'staff')->value('id');
+        $this->putJson("/api/roles/{$staffId}/permissions", ['permissions' => ['dashboard.view']])->assertOk();
+        // ...but staff cannot.
+        $this->actingAs($this->makeUser('staff'))->putJson("/api/roles/{$staffId}/permissions", ['permissions' => ['dashboard.view']])->assertStatus(403);
     }
 
     public function test_roles_and_permission_catalog_listing(): void
     {
-        $this->actingAs($this->admin)->getJson('/api/roles')->assertOk()->assertJsonCount(6, 'data');
-        $this->getJson('/api/permissions')->assertOk()->assertJsonFragment(['key' => 'users.manage']);
+        $r = $this->actingAs($this->admin)->getJson('/api/roles')->assertOk();
+        $keys = array_column($r->json('data'), 'key');
+        foreach (['foundation_admin', 'staff', 'field_worker', 'volunteer', 'viewer', 'aytam_mushrif', 'aytam_field_worker'] as $expected) {
+            $this->assertContains($expected, $keys);
+        }
+        $this->assertNotContains('platform_admin', $keys, 'platform roles are invisible to a foundation');
+
+        $catalog = $this->getJson('/api/permissions')->assertOk()->assertJsonFragment(['key' => 'users.create'])->json('data');
+        $this->assertNotContains('platform.view', array_column($catalog, 'key'), 'a foundation can never grant platform permissions');
+    }
+
+    public function test_a_foundation_can_create_custom_roles_but_not_with_the_wrong_scope_of_permission(): void
+    {
+        $this->actingAs($this->admin);
+        $this->postJson('/api/roles', ['name' => 'Case Reviewer', 'scope' => 'program', 'module' => 'aytam', 'permissions' => ['aytam.view', 'aytam.review']])
+            ->assertCreated()->assertJsonPath('data.key', 'case_reviewer');
+        $this->postJson('/api/roles', ['name' => 'Odd', 'scope' => 'program', 'permissions' => ['users.create']])->assertStatus(422)->assertJsonPath('code', 'INVALID_PERMISSION');
+        $this->postJson('/api/roles', ['name' => 'Sneaky', 'scope' => 'foundation', 'permissions' => ['platform.view']])->assertStatus(422);
+
+        $id = Role::where('key', 'case_reviewer')->value('id');
+        $this->deleteJson("/api/roles/{$id}")->assertOk();
+        $this->deleteJson('/api/roles/'.Role::where('key', 'staff')->value('id'))->assertStatus(403);
     }
 }

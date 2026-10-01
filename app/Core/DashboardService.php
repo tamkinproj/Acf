@@ -5,6 +5,8 @@ namespace App\Core;
 use App\Models\AuditLog;
 use App\Models\Device;
 use App\Models\Location;
+use App\Models\Organization;
+use App\Models\Program;
 use App\Models\SyncChange;
 use App\Models\SyncConflict;
 use App\Models\SystemState;
@@ -44,7 +46,7 @@ class DashboardService
             'sync' => $this->sync(),
             'counts' => $this->counts($user),
             'cards' => $cards,
-            'modules' => collect(self::PLANNED_MODULES)->mapWithKeys(fn ($m) => [$m => ['available' => isset($cards[$m])]])->all(),
+            'modules' => collect(\App\Programs\ProgramModules::all())->mapWithKeys(fn ($m, $key) => [$key => ['available' => true, 'label' => $m->label()]])->all(),
         ];
     }
 
@@ -82,6 +84,12 @@ class DashboardService
         $counts = [];
         if ($user->hasPermission('users.view')) {
             $counts['users'] = User::query()->where('status', 'active')->count();
+        }
+        if ($user->hasPermission('programs.view') || $user->isFoundationAdmin()) {
+            $counts['programs'] = Program::query()->where('status', Program::ACTIVE)->count();
+        }
+        if ($user->hasPermission('organizations.view')) {
+            $counts['organizations'] = Organization::query()->where('status', 'active')->count();
         }
         if ($user->hasPermission('locations.view')) {
             $counts['locations'] = Location::query()->count();

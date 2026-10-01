@@ -27,8 +27,8 @@ class DashboardAuditTest extends TestCase
             ->assertJsonPath('data.sync.devices.total', 1)
             ->assertJsonPath('data.sync.open_conflicts', 0)
             ->assertJsonPath('data.counts.users', 1)
-            ->assertJsonPath('data.modules.aytam.available', false)
-            ->assertJsonPath('data.modules.donations.available', false);
+            ->assertJsonPath('data.modules.aytam.available', true)
+            ->assertJsonMissingPath('data.modules.donations');
         $this->assertGreaterThan(0, $r->json('data.sync.latest_seq'));
     }
 
@@ -54,7 +54,7 @@ class DashboardAuditTest extends TestCase
 
         $all = $this->asDevice($this->admin)->getJson('/api/audit-logs')->assertOk();
         $row = collect($all->json('data'))->firstWhere('action', 'location.created');
-        $this->assertSame([$staff->id, 'Main Office', 'synced'], [$row['user_id'], $row['device_name'], $row['sync_status']]);
+        $this->assertSame([$staff->id, 'Server', 'synced'], [$row['user_id'], $row['device_name'], $row['sync_status']]);
         $this->assertSame('Created location "Cotabato"', $row['summary']);
 
         $this->assertNotEmpty($this->getJson('/api/audit-logs?action=location')->json('data'));
@@ -100,7 +100,8 @@ class DashboardAuditTest extends TestCase
     {
         $r = $this->getJson('/api/system/status')->assertOk();
         $this->assertEqualsCanonicalizing(['installed', 'version', 'name', 'short_name', 'logo_hash', 'locale'], array_keys($r->json('data')));
-        $r->assertJsonPath('data.name', 'Test Foundation');
+        $r->assertJsonPath('data.name', 'Foundation Management System');
+        $this->assertStringNotContainsString('Test Foundation', $r->getContent(), 'the sign-in page never reveals which foundations exist');
     }
 
     public function test_settings_listing_comes_from_the_catalog(): void

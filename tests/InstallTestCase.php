@@ -62,16 +62,10 @@ abstract class InstallTestCase extends BaseTestCase
         $this->post('/install/database', ['driver' => 'sqlite', 'sqlite_name' => $this->dbName, 'action' => 'save'])->assertRedirect('/install/system');
         $this->post('/install/system', ($overrides['system'] ?? []) + [
             'app_name' => 'Al-Noor Foundation System', 'app_url' => 'https://foundation.example.com', 'timezone' => 'Asia/Manila',
-            'locale' => 'en', 'currency' => 'PHP', 'deployment_model' => 'central',
-        ])->assertRedirect('/install/foundation');
-        $this->post('/install/foundation', [
-            'name' => 'Al-Noor Foundation', 'short_name' => 'Al-Noor', 'description' => 'Helping orphans', 'address' => 'Cotabato City',
-            'phone' => '0917 000 0000', 'email' => 'info@alnoor.example', 'website' => 'https://alnoor.example',
-            'logo' => \Illuminate\Http\UploadedFile::fake()->image('logo.png', 600, 300),
+            'locale' => 'en',
         ])->assertRedirect('/install/admin');
         $this->post('/install/admin', ($overrides['admin'] ?? []) + [
             'name' => 'Aisha Santos', 'email' => 'Aisha@Example.test', 'admin_password' => 'Sup3r-secret-pass', 'admin_password_confirmation' => 'Sup3r-secret-pass',
-        ])->assertRedirect('/install/device');
-        $this->post('/install/device', ['name' => 'Main Office', 'type' => 'office'])->assertRedirect('/install/review');
+        ])->assertRedirect('/install/review');
     }
 }

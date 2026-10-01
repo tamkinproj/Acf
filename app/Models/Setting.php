@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Sync\Concerns\Syncable;
+use App\Tenancy\BelongsToFoundation;
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-    use Syncable;
+    use Syncable, BelongsToFoundation;
 
     protected $guarded = [];
     protected $casts = ['value' => 'json'];

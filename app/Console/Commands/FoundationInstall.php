@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 
 /**
- * Non-interactive installer for developers, CI and scripted deployments. It feeds the same answers the wizard
+ * Non-interactive installer for developers, CI and scripted deployments. It installs the PLATFORM and its Platform Admin; create foundations afterwards (platform:foundation). It feeds the same answers the wizard
  * collects into the same Installer, so every safety rule (empty database, lock written last, ...) still applies.
  *
  * Secrets: prefer the FOUNDATION_ADMIN_PASSWORD / FOUNDATION_DB_PASSWORD environment variables or the prompt over
@@ -27,10 +27,8 @@ class FoundationInstall extends Command
         {--sqlite-name=foundation : SQLite file name (stored in storage/app/db)}
         {--db-host=127.0.0.1} {--db-port=3306} {--db-name=} {--db-user=} {--db-password= : or env FOUNDATION_DB_PASSWORD}
         {--app-name=Foundation Management System} {--app-url=http://localhost:8000}
-        {--timezone=Asia/Manila} {--locale=en} {--currency=PHP} {--deployment-model=standalone}
-        {--foundation-name=} {--foundation-short-name=}
-        {--admin-name=} {--admin-email=} {--admin-password= : or env FOUNDATION_ADMIN_PASSWORD, or prompt}
-        {--device-name=Main Office} {--device-type=office}';
+        {--timezone=Asia/Manila} {--locale=en}
+        {--admin-name=} {--admin-email=} {--admin-password= : or env FOUNDATION_ADMIN_PASSWORD, or prompt}';
 
     protected $description = 'Install the system without the web wizard (same checks, same installer).';
 
@@ -73,20 +71,14 @@ class FoundationInstall extends Command
 
         $data = Validator::make([
             'app_name' => $this->option('app-name'), 'app_url' => rtrim((string) $this->option('app-url'), '/'),
-            'timezone' => $this->option('timezone'), 'locale' => $this->option('locale'), 'currency' => $this->option('currency'),
-            'deployment_model' => $this->option('deployment-model'),
-            'foundation_name' => $this->option('foundation-name'), 'short_name' => $this->option('foundation-short-name'),
+            'timezone' => $this->option('timezone'), 'locale' => $this->option('locale'),
             'admin_name' => $this->option('admin-name'), 'admin_email' => $this->option('admin-email'), 'admin_password' => $adminPassword,
-            'device_name' => $this->option('device-name'), 'device_type' => $this->option('device-type'),
         ], [
             'app_name' => ['required', 'string', 'max:120'], 'app_url' => ['required', 'url:http,https', 'max:255'],
             'timezone' => ['required', Rule::in(\DateTimeZone::listIdentifiers())],
-            'locale' => ['required', Rule::in(SettingsCatalog::LOCALES)], 'currency' => ['required', Rule::in(SettingsCatalog::CURRENCIES)],
-            'deployment_model' => ['required', Rule::in(config('foundation.deployment_models'))],
-            'foundation_name' => ['required', 'string', 'max:200'], 'short_name' => ['nullable', 'string', 'max:60'],
+            'locale' => ['required', Rule::in(SettingsCatalog::LOCALES)],
             'admin_name' => ['required', 'string', 'max:150'], 'admin_email' => ['required', 'email:rfc', 'max:190'],
             'admin_password' => ['required', 'string', PasswordPolicy::rule()],
-            'device_name' => ['required', 'string', 'max:120'], 'device_type' => ['required', Rule::in(config('foundation.device.types'))],
         ]);
         if ($data->fails()) {
             foreach ($data->errors()->all() as $message) {
@@ -100,10 +92,8 @@ class FoundationInstall extends Command
         $state->put([
             'requirements' => true,
             'database' => $db,
-            'system' => collect($v)->only(['app_name', 'app_url', 'timezone', 'locale', 'currency', 'deployment_model'])->all(),
-            'foundation' => ['name' => $v['foundation_name'], 'short_name' => $v['short_name'] ?? null],
+            'system' => collect($v)->only(['app_name', 'app_url', 'timezone', 'locale'])->all(),
             'admin' => ['name' => $v['admin_name'], 'email' => strtolower($v['admin_email'])],
-            'device' => ['name' => $v['device_name'], 'type' => $v['device_type']],
         ]);
         $state->putSecret('db_password_enc', $dbPassword);
         $state->putSecret('admin_password_enc', $adminPassword);

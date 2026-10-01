@@ -10,7 +10,12 @@ use App\Sync\ChangeContext;
 use App\Sync\ChangeFeed;
 use App\Sync\DeviceContext;
 use App\Sync\Entities\CoreEntities;
+use App\Modules\Aytam\AytamModule;
+use App\Programs\ProgramModules;
 use App\Sync\SyncRegistry;
+use App\Tenancy\FoundationUserProvider;
+use App\Tenancy\TenantContext;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Cache\RateLimiter;
@@ -20,6 +25,7 @@ class CoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(TenantContext::class);
         $this->app->singleton(InstallState::class);
         $this->app->singleton(DeviceContext::class);
         $this->app->singleton(ChangeContext::class);
@@ -36,15 +42,13 @@ class CoreServiceProvider extends ServiceProvider
         // (database) does not exist until the installer gate has switched to the file store for this request.
         $this->callAfterResolving(RateLimiter::class, fn (RateLimiter $limiter) => $this->rateLimiters($limiter));
         CoreEntities::register($this->app->make(SyncRegistry::class));
+        ProgramModules::register(new AytamModule);
+        Auth::provider('foundation-eloquent', fn ($app, array $config) => new FoundationUserProvider($app['hash'], $config['model']));
 
         // The login cookie must be scoped to the folder the site is ACTUALLY served from. A stored value can be wrong
         // (typo in the URL entered during setup, site moved or renamed), and then the browser never sends the cookie back.
         if (! $this->app->runningInConsole()) {
             config(['session.path' => self::sessionPathFor($this->app->make('request'))]);
-        }
-
-        if (! $this->app->runningInConsole() && $this->app->make(InstallState::class)->isInstalled()) {
-            $this->app->make(SettingsService::class)->applyRuntime();
         }
     }
 

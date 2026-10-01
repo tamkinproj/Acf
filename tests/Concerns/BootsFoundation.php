@@ -4,44 +4,104 @@ namespace Tests\Concerns;
 
 use App\Core\Access\RoleSeeder;
 use App\Core\Devices\DeviceService;
+use App\Core\Platform\FoundationProvisioner;
 use App\Core\Settings\SettingsService;
 use App\Models\Device;
 use App\Models\Foundation;
 use App\Models\Role;
 use App\Models\User;
 use App\Sync\DeviceContext;
+use App\Tenancy\TenantContext;
 use Illuminate\Support\Str;
 
-/** Builds an installed system (roles, settings, foundation, primary device, super admin) without the wizard. */
+/**
+ * Builds an installed platform with one foundation ("Test Foundation") and its administrator, without the wizard.
+ * Direct model calls in a test act inside that foundation unless a test switches context on purpose.
+ */
 trait BootsFoundation
 {
-    protected User $admin;
+    protected Foundation $foundation;
+    protected User $admin;            // Foundation Admin of $foundation
+    protected User $platformAdmin;
     protected Device $device;
     protected string $deviceToken;
 
     protected function bootFoundation(): void
     {
         $this->markInstalled();
-        app(RoleSeeder::class)->seed();
-        app(SettingsService::class)->ensureDefaults();
-        Foundation::create(['name' => 'Test Foundation', 'short_name' => 'TF']);
+        $tenant = app(TenantContext::class);
+        $tenant->reset();
 
-        $this->admin = $this->makeUser('super_admin', 'admin@example.test');
+        $platformRole = app(RoleSeeder::class)->ensurePlatform();
+        app(SettingsService::class)->ensureDefaults([], null, platform: true);
+        $this->platformAdmin = $tenant->asSystem(fn () => User::create([
+            'foundation_id' => null, 'name' => 'Platform Admin', 'email' => 'platform@example.test',
+            'password' => 'Correct-horse-9', 'role_id' => $platformRole->id, 'status' => 'active',
+        ]));
+        app(RoleSeeder::class)->markSeen();
 
-        [$this->device] = app(DeviceService::class)->register('Main Office', 'office', $this->admin->id, primary: true, withToken: false);
+        [$this->foundation, $this->admin] = $this->createFoundation('Test Foundation', 'admin@example.test', 'TF');
+        $this->inFoundation($this->foundation);
+
+        $this->device = Device::query()->where('is_primary', true)->firstOrFail();
         $this->deviceToken = app(DeviceService::class)->issueToken($this->device);
         app(DeviceContext::class)->forgetPrimary();
     }
 
-    protected function makeUser(string $roleKey, ?string $email = null, string $password = 'Correct-horse-9'): User
+    /** @return array{0:Foundation,1:User} */
+    protected function createFoundation(string $name, string $adminEmail, ?string $short = null): array
     {
-        return User::create([
+        $result = app(FoundationProvisioner::class)->create(
+            ['name' => $name, 'short_name' => $short],
+            ['name' => 'Admin of '.$name, 'email' => $adminEmail, 'password' => 'Correct-horse-9'],
+        );
+
+        return [$result['foundation'], $result['admin']];
+    }
+
+    /** Make direct model calls in the test act inside this foundation. */
+    protected function inFoundation(Foundation $foundation): static
+    {
+        app(TenantContext::class)->setTenant($foundation->getKey());
+        app(DeviceContext::class)->forgetPrimary();
+        app(SettingsService::class)->forget();
+
+        return $this;
+    }
+
+    protected function inPlatform(): static
+    {
+        app(TenantContext::class)->setPlatform();
+
+        return $this;
+    }
+
+    protected function makeUser(string $roleKey, ?string $email = null, string $password = 'Correct-horse-9', ?Foundation $foundation = null): User
+    {
+        $foundation ??= $this->foundation;
+
+        return app(TenantContext::class)->runAs($foundation->getKey(), fn () => User::create([
             'name' => ucfirst(str_replace('_', ' ', $roleKey)).' '.Str::random(4),
             'email' => $email ?? Str::lower(Str::random(8)).'@example.test',
             'password' => $password,
             'role_id' => Role::where('key', $roleKey)->firstOrFail()->id,
             'status' => 'active',
-        ]);
+        ]));
+    }
+
+    /** A user whose role holds exactly these permissions (for testing permission gates without a built-in role). */
+    protected function makeUserWithPermissions(array $permissions, ?string $email = null, ?Foundation $foundation = null): User
+    {
+        $foundation ??= $this->foundation;
+
+        return app(TenantContext::class)->runAs($foundation->getKey(), function () use ($permissions, $email) {
+            $role = Role::create(['key' => 'custom_'.Str::lower(Str::random(6)), 'name' => 'Custom', 'is_system' => false, 'scope' => 'foundation', 'permissions' => $permissions]);
+
+            return User::create([
+                'name' => 'Custom '.Str::random(4), 'email' => $email ?? Str::lower(Str::random(8)).'@example.test',
+                'password' => 'Correct-horse-9', 'role_id' => $role->id, 'status' => 'active',
+            ]);
+        });
     }
 
     /** Authenticated as $user, carrying the registered device's token (as the PWA's sync client does). */
@@ -52,9 +112,7 @@ trait BootsFoundation
 
     protected function newDevice(string $name = 'Field Phone'): array
     {
-        [$device, $token] = app(DeviceService::class)->register($name, 'field', $this->admin->id);
-
-        return [$device, $token];
+        return app(DeviceService::class)->register($name, 'field', $this->admin->id);
     }
 
     /** Build a push change. */

@@ -19,7 +19,7 @@ class LogoTest extends TestCase
         $this->bootFoundation();
     }
 
-    public function test_valid_logo_is_reencoded_stored_under_a_random_name_and_served_publicly(): void
+    public function test_valid_logo_is_reencoded_stored_under_a_random_name_and_served_to_its_own_foundation_only(): void
     {
         $r = $this->asDevice($this->admin)->post('/api/foundation/logo', ['logo' => UploadedFile::fake()->image('../../evil name.jpg', 1200, 800)], ['Accept' => 'application/json'])->assertOk();
 
@@ -34,6 +34,15 @@ class LogoTest extends TestCase
         $this->assertLessThanOrEqual(512, max($w, $h), 'oversized logos are scaled down');
 
         $this->get('/assets/logo')->assertOk()->assertHeader('Content-Type', 'image/png')->assertHeader('X-Content-Type-Options', 'nosniff');
+
+        // Not public, and not shared: other foundations and anonymous visitors never get it.
+        [, $otherAdmin] = $this->createFoundation('Other', 'other@example.test');
+        $this->actingAs($otherAdmin)->get('/assets/logo')->assertNotFound();
+        auth()->logout();
+        $this->flushSession();
+        $this->app['auth']->forgetGuards();
+        $this->get('/assets/logo')->assertStatus(401);
+        $this->inFoundation($this->foundation);
         $this->assertSame($f->logo_hash, SyncChangeHash::latestFor($f));
     }
 

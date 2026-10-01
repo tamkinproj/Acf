@@ -23,11 +23,11 @@ class InstallerTest extends InstallTestCase
         $this->get('/install/requirements')->assertOk()->assertSee('System requirements')->assertSee('PHP 8.3.0 or newer');
 
         $this->completeWizard();
-        $this->get('/install/review')->assertOk()->assertSee('Al-Noor Foundation')->assertSee('Aisha Santos')->assertDontSee('Sup3r-secret-pass');
+        $this->get('/install/review')->assertOk()->assertSee('Al-Noor Foundation System')->assertSee('Aisha Santos')->assertDontSee('Sup3r-secret-pass');
 
         $this->post('/install/run')
             ->assertOk()
-            ->assertSee('Installation Complete')->assertSee('Al-Noor Foundation')->assertSee('Aisha Santos')->assertSee('Go to Dashboard')
+            ->assertSee('Installation Complete')->assertSee('Al-Noor Foundation System')->assertSee('Aisha Santos')->assertSee('Sign in')
             ->assertDontSee('Sup3r-secret-pass');
 
         // ---- state & lock ----
@@ -49,30 +49,25 @@ class InstallerTest extends InstallTestCase
         $this->assertStringNotContainsString('Sup3r-secret-pass', $env);
         $this->assertSame(0600, fileperms($this->envFile) & 0777);
 
-        // ---- data ----
-        $admin = User::query()->with('role')->sole();
+        // ---- data: a platform, one Platform Admin, and no foundation yet ----
+        $tenant = app(\App\Tenancy\TenantContext::class);
+        $admin = $tenant->asSystem(fn () => User::query()->with('role')->sole());
         $this->assertSame('aisha@example.test', $admin->email);
-        $this->assertSame('super_admin', $admin->role->key);
+        $this->assertNull($admin->foundation_id);
+        $this->assertSame('platform_admin', $admin->role->key);
         $this->assertTrue(Hash::check('Sup3r-secret-pass', $admin->password));
         $this->assertNotSame('Sup3r-secret-pass', $admin->password);
 
-        $device = Device::query()->sole();
-        $this->assertMatchesRegularExpression('/^FOUNDATION-DEVICE-[A-Z2-9]{8}$/', $device->device_code);
-        $this->assertTrue($device->is_primary);
-        $this->assertNull($device->token_hash, 'the installer device stays unclaimed until the admin claims it');
-        $this->assertSame('Main Office', $device->name);
+        $this->assertSame(0, $tenant->asSystem(fn () => Foundation::count()), 'foundations are created from the platform, not by the installer');
+        $this->assertSame(0, $tenant->asSystem(fn () => Device::count()));
+        $this->assertSame(1, $tenant->asSystem(fn () => \App\Models\Role::count()), 'only the platform role exists until a foundation is created');
 
-        $foundation = Foundation::current();
-        $this->assertSame('Al-Noor Foundation', $foundation->name);
-        $this->assertNotNull($foundation->logo_path);
-        $this->assertFileExists(storage_path('app/private/'.$foundation->logo_path));
-
-        $this->assertSame('Asia/Manila', Setting::where('key', 'app.timezone')->value('value'));
-        $this->assertSame('Al-Noor Foundation System', Setting::where('key', 'app.name')->value('value'));
-        $this->assertSame(6, \App\Models\Role::count());
+        $platformSettings = fn (string $key) => $tenant->asSystem(fn () => Setting::whereNull('foundation_id')->where('key', $key)->value('value'));
+        $this->assertSame('Asia/Manila', $platformSettings('app.timezone'));
+        $this->assertSame('Al-Noor Foundation System', $platformSettings('app.name'));
         $this->assertSame(config('foundation.version'), SystemState::get('version'));
         $this->assertSame($state->lock()['install_id'], SystemState::get('install_id'));
-        $this->assertTrue(AuditLog::where('action', 'system.installed')->exists());
+        $this->assertTrue($tenant->asSystem(fn () => AuditLog::where('action', 'system.installed')->exists()));
 
         // ---- installation log: no secrets, shows the steps ----
         $steps = InstallationLog::query()->pluck('step')->all();
@@ -85,7 +80,7 @@ class InstallerTest extends InstallTestCase
         $this->get('/install')->assertStatus(403)->assertSee('This system is already installed.');
         $this->post('/install/run')->assertStatus(403);
         $this->post('/install/admin', ['name' => 'Mallory', 'email' => 'm@x.test', 'admin_password' => 'Another-pass-1', 'admin_password_confirmation' => 'Another-pass-1'])->assertStatus(403);
-        $this->assertSame(1, User::count(), 'no second administrator can be created');
+        $this->assertSame(1, $tenant->asSystem(fn () => User::count()), 'no second administrator can be created');
     }
 
     public function test_wizard_cannot_skip_steps(): void
@@ -132,8 +127,7 @@ class InstallerTest extends InstallTestCase
     {
         $this->post('/install/requirements');
         $this->post('/install/database', ['driver' => 'sqlite', 'sqlite_name' => $this->dbName, 'action' => 'save']);
-        $this->post('/install/system', ['app_name' => 'X', 'app_url' => 'https://x.test', 'timezone' => 'UTC', 'locale' => 'en', 'currency' => 'PHP', 'deployment_model' => 'central']);
-        $this->post('/install/foundation', ['name' => 'F']);
+        $this->post('/install/system', ['app_name' => 'X', 'app_url' => 'https://x.test', 'timezone' => 'UTC', 'locale' => 'en']);
 
         foreach (['short1', 'alllettersnodigits', '1234567890123'] as $weak) {
             $this->post('/install/admin', ['name' => 'A', 'email' => 'a@x.test', 'admin_password' => $weak, 'admin_password_confirmation' => $weak]);
@@ -141,7 +135,7 @@ class InstallerTest extends InstallTestCase
         $this->post('/install/admin', ['name' => 'A', 'email' => 'a@x.test', 'admin_password' => 'Valid-pass-123', 'admin_password_confirmation' => 'different-123']);
         $this->assertArrayNotHasKey('admin', app(InstallState::class)->data());
 
-        $this->post('/install/admin', ['name' => 'A', 'email' => 'a@x.test', 'admin_password' => 'Valid-pass-123', 'admin_password_confirmation' => 'Valid-pass-123'])->assertRedirect('/install/device');
+        $this->post('/install/admin', ['name' => 'A', 'email' => 'a@x.test', 'admin_password' => 'Valid-pass-123', 'admin_password_confirmation' => 'Valid-pass-123'])->assertRedirect('/install/review');
         $this->assertStringNotContainsString('Valid-pass-123', file_get_contents($this->installDir.'/state.json'));
         $this->get('/install/admin')->assertDontSee('Valid-pass-123');
     }
@@ -173,6 +167,7 @@ class InstallerTest extends InstallTestCase
     public function test_a_failed_run_can_be_retried_and_then_succeeds(): void
     {
         $this->completeWizard();
+        $tenant = app(\App\Tenancy\TenantContext::class);
 
         // Simulate a crash after the schema was built: tables exist, but no lock was written.
         $state = app(InstallState::class);
@@ -184,9 +179,8 @@ class InstallerTest extends InstallTestCase
         $state->putSecret('db_password_enc', '');
 
         $this->post('/install/run')->assertOk()->assertSee('Installation Complete');
-        $this->assertSame(1, User::count(), 'seeding is idempotent: no duplicate administrator');
-        $this->assertSame(1, Device::count());
-        $this->assertSame(1, Foundation::count());
+        $this->assertSame(1, $tenant->asSystem(fn () => User::count()), 'seeding is idempotent: no duplicate administrator');
+        $this->assertSame(1, $tenant->asSystem(fn () => \App\Models\Role::count()), 'seeding is idempotent: no duplicate role');
         $this->assertSame(InstallStatus::Installed, $state->status());
     }
 
@@ -213,34 +207,6 @@ class InstallerTest extends InstallTestCase
 
         $this->get('/install', ['X-Forwarded-For' => '203.0.113.7'])->assertRedirect('/install/token');
         $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.7'])->get('/install')->assertRedirect('/install/token');
-    }
-
-    public function test_logo_upload_rejects_non_images(): void
-    {
-        $this->post('/install/requirements');
-        $this->post('/install/database', ['driver' => 'sqlite', 'sqlite_name' => $this->dbName, 'action' => 'save']);
-        $this->post('/install/system', ['app_name' => 'X', 'app_url' => 'https://x.test', 'timezone' => 'UTC', 'locale' => 'en', 'currency' => 'PHP', 'deployment_model' => 'central']);
-
-        $php = \Illuminate\Http\UploadedFile::fake()->createWithContent('logo.png', '<?php system($_GET["c"]); ?>');
-        $this->post('/install/foundation', ['name' => 'F', 'logo' => $php])->assertSessionHasErrors('logo');
-        $this->assertArrayNotHasKey('foundation', app(InstallState::class)->data());
-        $this->assertSame([], glob(storage_path('app/private/foundation/*')) ?: []);
-    }
-
-    public function test_minimal_foundation_profile_installs(): void
-    {
-        $this->post('/install/requirements');
-        $this->post('/install/database', ['driver' => 'sqlite', 'sqlite_name' => $this->dbName, 'action' => 'save']);
-        $this->post('/install/system', ['app_name' => 'X', 'app_url' => 'https://x.test', 'timezone' => 'UTC', 'locale' => 'en', 'currency' => 'PHP', 'deployment_model' => 'standalone']);
-        $this->post('/install/foundation', ['name' => 'Only A Name']);   // every optional field omitted entirely
-        $this->post('/install/admin', ['name' => 'A', 'email' => 'a@x.test', 'admin_password' => 'Valid-pass-123', 'admin_password_confirmation' => 'Valid-pass-123']);
-        $this->post('/install/device', ['name' => 'D', 'type' => 'office']);
-
-        $this->post('/install/run')->assertOk()->assertSee('Installation Complete');
-        $f = Foundation::current();
-        $this->assertSame('Only A Name', $f->name);
-        $this->assertNull($f->address);
-        $this->assertNull($f->logo_path);
     }
 
     public function test_unrelated_wizard_actions_do_not_share_a_rate_limit(): void

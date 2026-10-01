@@ -5,14 +5,11 @@ namespace App\Install;
 use App\Core\Access\RoleCatalog;
 use App\Core\Access\RoleSeeder;
 use App\Core\Audit\Auditor;
-use App\Core\Devices\DeviceService;
 use App\Core\Settings\SettingsService;
-use App\Models\Device;
-use App\Models\Foundation;
 use App\Models\Role;
 use App\Models\SystemState;
 use App\Models\User;
-use App\Sync\DeviceContext;
+use App\Tenancy\TenantContext;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -35,6 +32,7 @@ class Installer
         private InstallState $state,
         private InstallLog $log,
         private Requirements $requirements,
+        private TenantContext $tenant,
     ) {}
 
     /** @return array{ok:bool,error:?string,summary:?array<string,string>} */
@@ -84,8 +82,8 @@ class Installer
             $this->log->add($step, 'ok', 'Database structure created');
 
             $step = 'seed';
-            $summary = DB::transaction(fn () => $this->seed($input, $installId));
-            $this->log->add($step, 'ok', 'Roles, settings, foundation, administrator and device created');
+            $summary = $this->tenant->asSystem(fn () => DB::transaction(fn () => $this->seed($input, $installId)));
+            $this->log->add($step, 'ok', 'Platform role, settings and administrator created');
 
             $step = 'finalize';
             $this->writeEnv($input, includeInstallId: $installId);
@@ -114,10 +112,10 @@ class Installer
 
     // ---- steps -----------------------------------------------------------
 
-    /** @return array{database:DatabaseConfig,system:array,foundation:array,admin:array,device:array} */
+    /** @return array{database:DatabaseConfig,system:array,admin:array} */
     private function collect(array $data): array
     {
-        foreach (['database', 'system', 'foundation', 'admin', 'device'] as $required) {
+        foreach (['database', 'system', 'admin'] as $required) {
             if (empty($data[$required])) {
                 throw new RuntimeException("The '{$required}' step has not been completed.");
             }
@@ -132,9 +130,7 @@ class Installer
         return [
             'database' => DatabaseConfig::fromArray($db),
             'system' => $data['system'],
-            'foundation' => $data['foundation'],
             'admin' => $data['admin'] + ['password' => $adminPassword],
-            'device' => $data['device'],
         ];
     }
 
@@ -193,35 +189,19 @@ class Installer
     /** @return array<string,string> safe-to-display summary */
     private function seed(array $in, string $installId): array
     {
-        app(RoleSeeder::class)->seed();
-
         $sys = $in['system'];
+        $role = app(RoleSeeder::class)->ensurePlatform();
         app(SettingsService::class)->ensureDefaults([
             'app.name' => $sys['app_name'],
             'app.timezone' => $sys['timezone'],
             'app.locale' => $sys['locale'],
-            'app.currency' => $sys['currency'],
-            'deployment.model' => $sys['deployment_model'],
-        ]);
-
-        $f = $in['foundation'];
-        $foundation = Foundation::current() ?? Foundation::create([
-            'name' => $f['name'], 'short_name' => $f['short_name'] ?? null, 'description' => $f['description'] ?? null,
-            'address' => $f['address'] ?? null, 'phone' => $f['phone'] ?? null, 'email' => $f['email'] ?? null, 'website' => $f['website'] ?? null,
-            'logo_path' => $f['logo']['path'] ?? null, 'logo_hash' => $f['logo']['hash'] ?? null,
-        ]);
+        ], null, platform: true);
 
         $a = $in['admin'];
-        $superRole = Role::query()->where('key', RoleCatalog::SUPER_ADMIN)->firstOrFail();
-        $admin = User::query()->where('role_id', $superRole->id)->first() ?? User::create([
-            'name' => $a['name'], 'email' => $a['email'], 'password' => $a['password'],
-            'role_id' => $superRole->id, 'status' => 'active', 'must_change_password' => false,
+        $admin = User::query()->whereNull('foundation_id')->where('role_id', $role->id)->first() ?? User::create([
+            'foundation_id' => null, 'name' => $a['name'], 'email' => $a['email'], 'password' => $a['password'],
+            'role_id' => $role->id, 'status' => 'active', 'must_change_password' => false,
         ]);
-
-        $devices = app(DeviceService::class);
-        $device = Device::query()->where('is_primary', true)->first()
-            ?? $devices->register($in['device']['name'], $in['device']['type'], $admin->getKey(), primary: true, withToken: false)[0];
-        app(DeviceContext::class)->forgetPrimary();
 
         foreach ([
             'installed_at' => now()->toIso8601String(), 'version' => config('foundation.version'),
@@ -229,14 +209,14 @@ class Installer
         ] as $key => $value) {
             SystemState::put($key, $value);
         }
+        app(RoleSeeder::class)->markSeen();
 
-        app(Auditor::class)->record('system.installed', 'System installed', 'system', null, null,
-            ['version' => config('foundation.version'), 'device' => $device->device_code], $admin);
+        app(Auditor::class)->record('system.installed', 'Platform installed', 'system', null, null,
+            ['version' => config('foundation.version')], $admin);
 
         return [
-            'foundation' => $foundation->name,
+            'platform' => $sys['app_name'],
             'administrator' => $admin->name,
-            'device' => $device->name.' ('.$device->device_code.')',
             'version' => (string) config('foundation.version'),
         ];
     }

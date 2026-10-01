@@ -35,7 +35,10 @@ class FoundationStatus extends Command
             $this->line('Database      : '.DB::connection()->getDriverName().' — reachable');
             $this->line('Installed at  : '.SystemState::get('installed_at'));
             $this->line('DB version    : '.SystemState::get('version').' (schema '.SystemState::get('schema_version').')');
-            $this->line(sprintf('Users %d · Roles %d · Devices %d', User::count(), Role::count(), Device::count()));
+            app(\App\Tenancy\TenantContext::class)->asSystem(fn () => $this->line(sprintf(
+                'Foundations %d · Users %d · Roles %d · Devices %d',
+                \App\Models\Foundation::count(), User::count(), Role::count(), Device::count(),
+            )));
             if ($dbId !== $state->lock()['install_id']) {
                 $problems[] = 'The database install_id does not match the lock file (the lock or database may belong to a different installation).';
             }

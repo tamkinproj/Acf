@@ -19,8 +19,8 @@ class DeviceContext
     private ?string $userOverride = null;
     private bool $userOverridden = false;
     private ?string $ip = null;
-    private ?string $primaryId = null;
-    private bool $primaryLoaded = false;
+    /** @var array<string,?string> primary device id per tenant context key */
+    private array $primary = [];
 
     public function setDevice(?Device $device): void
     {
@@ -47,8 +47,7 @@ class DeviceContext
 
     public function forgetPrimary(): void
     {
-        $this->primaryId = null;
-        $this->primaryLoaded = false;
+        $this->primary = [];
     }
 
     public function deviceId(): ?string
@@ -76,17 +75,22 @@ class DeviceContext
         return $this->ip ?? (app()->runningInConsole() ? null : request()->ip());
     }
 
+    /** The foundation's own server device (a write made on the server is, truthfully, made by that device). */
     private function primaryDeviceId(): ?string
     {
-        if (! $this->primaryLoaded) {
+        $tenant = app(\App\Tenancy\TenantContext::class);
+        if (! $tenant->isTenant()) {
+            return null;
+        }
+        $key = $tenant->key();
+        if (! array_key_exists($key, $this->primary) || $this->primary[$key] === null) {
             try {
-                $this->primaryId = Device::query()->where('is_primary', true)->value('id');
+                $this->primary[$key] = Device::query()->where('is_primary', true)->value('id');
             } catch (\Throwable) {
-                $this->primaryId = null;
+                $this->primary[$key] = null;
             }
-            $this->primaryLoaded = $this->primaryId !== null;
         }
 
-        return $this->primaryId;
+        return $this->primary[$key];
     }
 }

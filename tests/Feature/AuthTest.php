@@ -52,7 +52,9 @@ class AuthTest extends TestCase
         $this->assertSame($unknown->json('message'), $wrong->json('message'));
         $this->assertSame($wrong->json('message'), $off->json('message'));
         $this->assertGuest();
-        $this->assertSame(3, AuditLog::where('action', 'auth.login_failed')->count());
+        $this->inFoundation($this->foundation);
+        $this->assertSame(2, AuditLog::where('action', 'auth.login_failed')->count(), 'failures of known accounts are logged in their own foundation');
+        $this->assertSame(1, app(\App\Tenancy\TenantContext::class)->asPlatform(fn () => AuditLog::where('action', 'auth.login_failed')->count()), 'an unknown email is logged at platform level');
     }
 
     public function test_login_is_throttled_per_email_and_ip(): void
@@ -79,6 +81,7 @@ class AuthTest extends TestCase
 
         $this->postJson('/api/auth/logout')->assertOk();
         $this->assertGuest();
+        $this->inFoundation($this->foundation);
         $this->assertTrue(AuditLog::where('action', 'auth.logout')->exists());
     }
 

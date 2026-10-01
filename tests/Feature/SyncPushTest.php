@@ -372,10 +372,11 @@ class SyncPushTest extends TestCase
 
     public function test_user_safety_rules_also_apply_through_sync(): void
     {
+        $manager = $this->makeUserWithPermissions(['users.view', 'users.update', 'sync.use']);
         $fa = $this->makeUser('foundation_admin');
 
-        $r = $this->one($this->change('users', 'update', ['name' => 'Pwned'], $this->admin->id, 1), $fa);
-        $this->assertSame(['rejected', 'forbidden'], [$r['status'], $r['code']]);
+        $r = $this->one($this->change('users', 'update', ['name' => 'Pwned'], $this->admin->id, 1), $manager);
+        $this->assertSame(['rejected', 'forbidden'], [$r['status'], $r['code']], 'only a Foundation Admin may change Foundation Admin accounts');
 
         $r = $this->one($this->change('users', 'update', ['status' => 'disabled'], $this->admin->id, 1));
         $this->assertSame('forbidden', $r['code'], 'cannot disable yourself');

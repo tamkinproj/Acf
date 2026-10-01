@@ -2,16 +2,19 @@
 
 namespace App\Core\Users;
 
+use App\Core\Access\PermissionCatalog;
 use App\Core\Access\RoleCatalog;
 use App\Core\Settings\SettingsCatalog;
 use App\Models\Role;
 use App\Models\User;
 use App\Sync\RejectChange;
+use App\Tenancy\TenantRule;
 use Illuminate\Validation\Rule;
 
 /**
- * Validation and safety invariants for user records. Shared by the user REST
- * endpoints AND the sync engine, so the same rules hold whichever path wrote.
+ * Validation and safety invariants for FOUNDATION user records. Shared by the user REST endpoints AND the sync engine,
+ * so the same rules hold whichever path wrote. Everything resolves inside the current foundation: a role or user from
+ * another foundation simply does not exist here.
  */
 class UserRules
 {
@@ -21,28 +24,37 @@ class UserRules
 
         return [
             'name' => [...$req, 'string', 'max:150'],
-            'email' => [...$req, 'email:rfc', 'max:190', function (string $attribute, mixed $value, \Closure $fail) use ($existing) {
-                $taken = User::withTrashed()->whereRaw('lower(email) = ?', [strtolower((string) $value)])
-                    ->when($existing, fn ($q) => $q->where('id', '!=', $existing->getKey()))->exists();
-                if ($taken) {
-                    $fail('This email address is already in use (including deactivated or removed accounts).');
-                }
-            }],
+            'email' => [...$req, 'email:rfc', 'max:190', self::uniqueEmail($existing)],
             'phone' => ['nullable', 'string', 'max:40'],
-            'role_id' => [...$req, 'uuid', Rule::exists('roles', 'id')->whereNull('deleted_at')],
+            'role_id' => [...$req, 'uuid', TenantRule::exists(Role::class, 'id', fn ($q) => $q->where('scope', PermissionCatalog::FOUNDATION))],
             'status' => ['sometimes', Rule::in(['active', 'disabled'])],
             'locale' => ['nullable', Rule::in(SettingsCatalog::LOCALES)],
         ];
+    }
+
+    /** Email is unique across the whole platform (it is the sign-in name), including removed accounts. */
+    public static function uniqueEmail(?User $existing): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail) use ($existing) {
+            $taken = User::withoutGlobalScopes()->withTrashed()->whereRaw('lower(email) = ?', [strtolower((string) $value)])
+                ->when($existing, fn ($q) => $q->where('id', '!=', $existing->getKey()))->exists();
+            if ($taken) {
+                $fail('This email address is already in use.');
+            }
+        };
     }
 
     /** @throws RejectChange */
     public static function guard(User $actor, string $op, ?User $target, array $fields): void
     {
         $newRole = isset($fields['role_id']) ? Role::query()->find($fields['role_id']) : null;
-        $touchesSuper = ($newRole?->key === RoleCatalog::SUPER_ADMIN) || ($target?->isSuperAdmin() ?? false);
+        $touchesAdmin = ($newRole?->key === RoleCatalog::FOUNDATION_ADMIN) || ($target?->isFoundationAdmin() ?? false);
 
-        if ($touchesSuper && ! $actor->isSuperAdmin()) {
-            throw new RejectChange('forbidden', 'Only a Super Admin can create, change or remove Super Admin accounts.');
+        if ($touchesAdmin && ! $actor->isFoundationAdmin()) {
+            throw new RejectChange('forbidden', 'Only a Foundation Admin can create, change or remove Foundation Admin accounts.');
+        }
+        if (isset($fields['status']) && $fields['status'] !== ($target?->status ?? 'active') && ! $actor->hasPermission('users.deactivate')) {
+            throw new RejectChange('forbidden', 'You do not have permission to activate or deactivate users.');
         }
         if ($target && $target->getKey() === $actor->getKey()) {
             if (isset($fields['role_id']) && $fields['role_id'] !== $target->role_id) {
@@ -52,19 +64,19 @@ class UserRules
                 throw new RejectChange('forbidden', 'You cannot disable or delete your own account.');
             }
         }
-        if ($target && $target->isSuperAdmin()) {
+        if ($target && $target->isFoundationAdmin()) {
             $losing = $op === 'delete'
                 || (isset($fields['status']) && $fields['status'] !== 'active')
-                || (isset($fields['role_id']) && $newRole?->key !== RoleCatalog::SUPER_ADMIN);
-            if ($losing && self::activeSuperAdmins()->where('id', '!=', $target->getKey())->count() === 0) {
-                throw new RejectChange('last_super_admin', 'The last active Super Admin cannot be disabled, demoted or removed.');
+                || (isset($fields['role_id']) && $newRole?->key !== RoleCatalog::FOUNDATION_ADMIN);
+            if ($losing && self::activeFoundationAdmins()->where('id', '!=', $target->getKey())->count() === 0) {
+                throw new RejectChange('last_foundation_admin', 'The last active Foundation Admin cannot be disabled, demoted or removed.');
             }
         }
     }
 
-    private static function activeSuperAdmins()
+    private static function activeFoundationAdmins()
     {
         return User::query()->where('status', 'active')
-            ->whereHas('role', fn ($q) => $q->where('key', RoleCatalog::SUPER_ADMIN));
+            ->whereHas('role', fn ($q) => $q->where('key', RoleCatalog::FOUNDATION_ADMIN));
     }
 }

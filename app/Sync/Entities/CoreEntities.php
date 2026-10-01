@@ -15,7 +15,7 @@ use App\Models\User;
 use App\Sync\EntityDefinition;
 use App\Sync\RejectChange;
 use App\Sync\SyncRegistry;
-use Illuminate\Validation\Rule;
+use App\Tenancy\TenantRule;
 
 /** Registers the Phase 1 entities. Modules follow the same pattern from their own provider. */
 final class CoreEntities
@@ -28,12 +28,14 @@ final class CoreEntities
         $registry->register(new EntityDefinition(
             name: 'foundations',
             model: Foundation::class,
-            ops: ['update' => 'foundation.manage'],
+            ops: ['update' => 'foundation.update'],
             pullPermission: 'foundation.view',
-            writable: ['name', 'short_name', 'description', 'address', 'phone', 'email', 'website',
+            writable: ['name', 'legal_name', 'short_name', 'description', 'address', 'country', 'phone', 'email', 'website',
                 'registration_number', 'registration_info', 'default_location_id'],
             rules: fn () => [
                 'name' => ['sometimes', 'required', 'string', 'max:200'],
+                'legal_name' => ['nullable', 'string', 'max:200'],
+                'country' => ['nullable', 'string', 'max:100'],
                 'short_name' => ['nullable', 'string', 'max:60'],
                 'description' => ['nullable', 'string', 'max:5000'],
                 'address' => ['nullable', 'string', 'max:1000'],
@@ -42,7 +44,7 @@ final class CoreEntities
                 'website' => ['nullable', 'url:http,https', 'max:255'],
                 'registration_number' => ['nullable', 'string', 'max:100'],
                 'registration_info' => ['nullable', 'string', 'max:5000'],
-                'default_location_id' => ['nullable', 'uuid', Rule::exists('locations', 'id')->whereNull('deleted_at')],
+                'default_location_id' => ['nullable', 'uuid', TenantRule::exists(Location::class)],
             ],
         ));
 
@@ -62,7 +64,7 @@ final class CoreEntities
         $registry->register(new EntityDefinition(
             name: 'users',
             model: User::class,
-            ops: ['update' => 'users.manage', 'delete' => 'users.manage'],
+            ops: ['update' => 'users.update', 'delete' => 'users.deactivate'],
             pullPermission: 'users.view',
             writable: ['name', 'email', 'phone', 'role_id', 'status', 'locale'],
             rules: fn (string $op, ?User $existing) => UserRules::rules($op, $existing),

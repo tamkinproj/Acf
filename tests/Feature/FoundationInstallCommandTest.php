@@ -13,8 +13,8 @@ class FoundationInstallCommandTest extends InstallTestCase
     {
         return $extra + [
             '--driver' => 'sqlite', '--sqlite-name' => $this->dbName, '--app-url' => 'https://example.test/acr',
-            '--foundation-name' => 'CLI Foundation', '--admin-name' => 'Cli Admin', '--admin-email' => 'cli@example.test',
-            '--admin-password' => 'Cli-secret-pass-1', '--device-name' => 'Laptop', '--device-type' => 'office',
+            '--admin-name' => 'Cli Admin', '--admin-email' => 'cli@example.test',
+            '--admin-password' => 'Cli-secret-pass-1',
         ];
     }
 
@@ -23,13 +23,15 @@ class FoundationInstallCommandTest extends InstallTestCase
         $this->artisan('foundation:install', $this->args())->assertSuccessful();
 
         $this->assertSame(InstallStatus::Installed, app(InstallState::class)->status());
-        $this->assertSame('cli@example.test', User::sole()->email);
+        $admin = app(\App\Tenancy\TenantContext::class)->asSystem(fn () => User::sole());
+        $this->assertSame('cli@example.test', $admin->email);
+        $this->assertNull($admin->foundation_id, 'the installer creates the Platform Admin, not a foundation user');
         $env = file_get_contents($this->envFile);
         $this->assertStringContainsString('SESSION_PATH=/acr', $env);
         $this->assertStringNotContainsString('Cli-secret-pass-1', $env);
 
         $this->artisan('foundation:install', $this->args())->assertFailed();   // already installed
-        $this->assertSame(1, User::count());
+        $this->assertSame(1, app(\App\Tenancy\TenantContext::class)->asSystem(fn () => User::count()));
     }
 
     public function test_rejects_weak_passwords_and_bad_input_before_touching_anything(): void

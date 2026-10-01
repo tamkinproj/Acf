@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToFoundation;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class SyncConflict extends Model
 {
-    use HasUuids;
+    use HasUuids, BelongsToFoundation;
 
     protected $guarded = [];
     protected $casts = [

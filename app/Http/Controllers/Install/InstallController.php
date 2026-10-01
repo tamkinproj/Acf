@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Install;
 
-use App\Core\Foundation\LogoStorage;
 use App\Core\Settings\SettingsCatalog;
 use App\Core\Users\PasswordPolicy;
 use App\Http\Controllers\Controller;
@@ -25,7 +24,7 @@ use InvalidArgumentException;
  */
 class InstallController extends Controller
 {
-    private const STEPS = ['requirements', 'database', 'system', 'foundation', 'admin', 'device'];
+    private const STEPS = ['requirements', 'database', 'system', 'admin'];
 
     public function __construct(private InstallState $state, private Requirements $requirements) {}
 
@@ -127,10 +126,10 @@ class InstallController extends Controller
         if ($redirect = $this->require('database')) {
             return $redirect;
         }
-        $defaults = ['app_name' => 'Foundation Management System', 'app_url' => request()->root(), 'timezone' => 'Asia/Manila', 'locale' => 'en', 'currency' => 'PHP', 'deployment_model' => 'central'];
+        $defaults = ['app_name' => 'Foundation Management System', 'app_url' => request()->root(), 'timezone' => 'Asia/Manila', 'locale' => 'en'];
 
         return view('install.system', ['current' => 'system', 'v' => ($this->state->data()['system'] ?? []) + $defaults,
-            'timezones' => \DateTimeZone::listIdentifiers(), 'locales' => SettingsCatalog::LOCALES, 'currencies' => SettingsCatalog::CURRENCIES, 'models' => config('foundation.deployment_models')]);
+            'timezones' => \DateTimeZone::listIdentifiers(), 'locales' => SettingsCatalog::LOCALES]);
     }
 
     public function systemSave(Request $request): RedirectResponse
@@ -143,63 +142,18 @@ class InstallController extends Controller
             'app_url' => ['required', 'url:http,https', 'max:255'],
             'timezone' => ['required', Rule::in(\DateTimeZone::listIdentifiers())],
             'locale' => ['required', Rule::in(SettingsCatalog::LOCALES)],
-            'currency' => ['required', Rule::in(SettingsCatalog::CURRENCIES)],
-            'deployment_model' => ['required', Rule::in(config('foundation.deployment_models'))],
         ]);
         $data['app_url'] = rtrim($data['app_url'], '/');
         $this->state->put(['system' => $data]);
 
-        return redirect('/install/foundation');
-    }
-
-    // ---- 4 foundation -------------------------------------------------------
-
-    public function foundation(): View|RedirectResponse
-    {
-        if ($redirect = $this->require('system')) {
-            return $redirect;
-        }
-
-        return view('install.foundation', ['current' => 'foundation', 'v' => $this->state->data()['foundation'] ?? []]);
-    }
-
-    public function foundationSave(Request $request, LogoStorage $logos): RedirectResponse
-    {
-        if ($redirect = $this->require('system')) {
-            return $redirect;
-        }
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:200'],
-            'short_name' => ['nullable', 'string', 'max:60'],
-            'description' => ['nullable', 'string', 'max:5000'],
-            'address' => ['nullable', 'string', 'max:1000'],
-            'phone' => ['nullable', 'string', 'max:40'],
-            'email' => ['nullable', 'email:rfc', 'max:190'],
-            'website' => ['nullable', 'url:http,https', 'max:255'],
-            'logo' => ['nullable', 'file', 'max:'.config('foundation.uploads.logo_max_kb')],
-        ]);
-
-        $previous = $this->state->data()['foundation']['logo'] ?? null;
-        $logo = $previous;
-        if ($request->hasFile('logo')) {
-            try {
-                $logo = $logos->store($request->file('logo'));
-                $logos->delete($previous['path'] ?? null);
-            } catch (InvalidArgumentException $e) {
-                return back()->withInput()->withErrors(['logo' => $e->getMessage()]);
-            }
-        }
-
-        $this->state->put(['foundation' => collect($data)->except('logo')->all() + ['logo' => $logo]]);
-
         return redirect('/install/admin');
     }
 
-    // ---- 5 administrator -------------------------------------------------------
+    // ---- 4 platform administrator -------------------------------------------------------
 
     public function admin(): View|RedirectResponse
     {
-        if ($redirect = $this->require('foundation')) {
+        if ($redirect = $this->require('system')) {
             return $redirect;
         }
 
@@ -208,7 +162,7 @@ class InstallController extends Controller
 
     public function adminSave(Request $request): RedirectResponse
     {
-        if ($redirect = $this->require('foundation')) {
+        if ($redirect = $this->require('system')) {
             return $redirect;
         }
         $data = $request->validate([
@@ -223,31 +177,6 @@ class InstallController extends Controller
         $this->state->put(['admin' => ['name' => $data['name'], 'email' => strtolower($data['email'])]]);
         $this->state->putSecret('admin_password_enc', $data['admin_password']);
 
-        return redirect('/install/device');
-    }
-
-    // ---- 6 device -----------------------------------------------------------
-
-    public function device(): View|RedirectResponse
-    {
-        if ($redirect = $this->require('admin')) {
-            return $redirect;
-        }
-
-        return view('install.device', ['current' => 'device', 'v' => ($this->state->data()['device'] ?? []) + ['name' => 'Main Office', 'type' => 'office'], 'types' => config('foundation.device.types')]);
-    }
-
-    public function deviceSave(Request $request): RedirectResponse
-    {
-        if ($redirect = $this->require('admin')) {
-            return $redirect;
-        }
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'type' => ['required', Rule::in(config('foundation.device.types'))],
-        ]);
-        $this->state->put(['device' => $data]);
-
         return redirect('/install/review');
     }
 
@@ -255,7 +184,7 @@ class InstallController extends Controller
 
     public function review(): View|RedirectResponse
     {
-        if ($redirect = $this->require('device')) {
+        if ($redirect = $this->require('admin')) {
             return $redirect;
         }
         $d = $this->state->data();
@@ -265,7 +194,7 @@ class InstallController extends Controller
 
     public function run(Installer $installer): View|RedirectResponse
     {
-        if ($redirect = $this->require('device')) {
+        if ($redirect = $this->require('admin')) {
             return $redirect;
         }
         $result = $installer->run();

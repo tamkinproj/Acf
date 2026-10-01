@@ -27,13 +27,13 @@ class UpgradeTest extends TestCase
         $staff->update(['permissions' => array_values(array_diff($staff->permissions, ['locations.manage']))]);
 
         // A later release (e.g. the Aytam module) introduces a permission and a setting.
-        PermissionCatalog::register(['aytam.view' => ['label' => 'View aytam', 'group' => 'Aytam']]);
+        PermissionCatalog::register(['relief.view' => ['label' => 'View relief', 'group' => 'Relief', 'scope' => 'program']]);
         SettingsCatalog::register(['aytam.default_status' => ['group' => 'aytam', 'default' => 'active', 'rules' => ['required']]]);
 
         $this->artisan('foundation:upgrade')->assertSuccessful();
 
         $this->assertTrue(Setting::where('key', 'aytam.default_status')->exists());
-        $this->assertContains('aytam.view', Role::where('key', 'super_admin')->first()->permissions);
+        $this->assertContains('relief.view', Role::where('key', 'foundation_admin')->first()->permissions);
         $this->assertNotContains('locations.manage', $staff->fresh()->permissions, 'a removed permission is not silently re-granted');
         $this->assertSame(config('foundation.version'), SystemState::get('version'));
 
@@ -53,7 +53,7 @@ class UpgradeTest extends TestCase
         $this->artisan('foundation:status')->assertFailed();   // DB install_id was never recorded in this fixture
 
         SystemState::put('install_id', 'test-install-id');
-        SystemState::put('schema_version', 1);
+        SystemState::put('schema_version', (int) config('foundation.schema_version'));
         $this->artisan('foundation:status')->assertSuccessful();
 
         SystemState::put('install_id', 'someone-elses');

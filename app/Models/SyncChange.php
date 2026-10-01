@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToFoundation;
 use Illuminate\Database\Eloquent\Model;
 
 /** One row of the replication change feed. Append-only. */
 class SyncChange extends Model
 {
+    use BelongsToFoundation;
+
     protected $primaryKey = 'seq';
     public $timestamps = false;
     protected $guarded = [];

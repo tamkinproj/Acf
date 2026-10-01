@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
 class Auditor
 {
     private ?string $correlationId = null;
+    private int $muted = 0;
 
     public function __construct(private DeviceContext $context, private SyncRegistry $registry) {}
 
@@ -29,10 +30,15 @@ class Auditor
         ?array $old = null,
         ?array $new = null,
         ?User $actor = null,
+        ?string $foundationId = null,
     ): AuditLog {
+        if ($this->muted > 0) {
+            return new AuditLog;
+        }
         $actor ??= auth()->user();
 
         return AuditLog::create([
+            'foundation_id' => $foundationId,
             'occurred_at' => now(),
             'device_id' => $this->context->deviceId(),
             'user_id' => $actor?->getKey(),
@@ -46,6 +52,17 @@ class Auditor
             'correlation_id' => $this->correlationId ??= (string) Str::uuid7(),
             'ip_address' => $this->context->ip(),
         ]);
+    }
+
+    /** Bulk set-up (provisioning a foundation) writes one summary entry instead of dozens of per-row ones. */
+    public function muted(callable $fn): mixed
+    {
+        $this->muted++;
+        try {
+            return $fn();
+        } finally {
+            $this->muted--;
+        }
     }
 
     public function forModel(Model $model, string $event, ?array $old, ?array $new): AuditLog

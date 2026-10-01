@@ -18,8 +18,8 @@ class LocationService
         $req = $op === 'create' ? ['required'] : ['sometimes', 'required'];
 
         return [
-            'parent_id' => ['nullable', 'uuid', Rule::exists('locations', 'id')->whereNull('deleted_at')],
-            'level' => [...$req, Rule::in(array_keys(Location::LEVELS))],
+            'parent_id' => ['nullable', 'uuid', \App\Tenancy\TenantRule::exists(Location::class)],
+            'level' => [...$req, \Illuminate\Validation\Rule::in(array_keys(Location::LEVELS))],
             'name' => [...$req, 'string', 'max:150'],
             'code' => ['nullable', 'string', 'max:50'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],

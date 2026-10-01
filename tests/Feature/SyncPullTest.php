@@ -162,7 +162,7 @@ class SyncPullTest extends TestCase
     {
         $this->asDevice($this->admin)->getJson('/api/sync/status')->assertOk()
             ->assertJsonPath('data.online', true)->assertJsonPath('data.device.code', $this->device->device_code)
-            ->assertJsonPath('data.open_conflicts', 0)->assertJsonPath('data.schema_version', 1);
+            ->assertJsonPath('data.open_conflicts', 0)->assertJsonPath('data.schema_version', (int) config('foundation.schema_version'));
 
         $viewer = $this->asDevice($this->makeUser('viewer'))->getJson('/api/sync/schema')->assertOk()->json('data.entities');
         $this->assertFalse($viewer['users']['can_pull']);

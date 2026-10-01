@@ -3,11 +3,15 @@
 namespace App\Core\Settings;
 
 use App\Models\Setting;
+use App\Tenancy\TenantContext;
 
+/** Settings of the current context: a foundation's own, or the platform's (foundation_id NULL). Cached per context. */
 class SettingsService
 {
-    /** @var array<string,mixed>|null */
-    private ?array $cache = null;
+    /** @var array<string,array<string,mixed>> */
+    private array $cache = [];
+
+    public function __construct(private TenantContext $tenant) {}
 
     public function get(string $key, mixed $default = null): mixed
     {
@@ -19,32 +23,37 @@ class SettingsService
     /** @return array<string,mixed> */
     public function all(): array
     {
-        return $this->cache ??= Setting::query()->pluck('value', 'key')->all();
+        return $this->cache[$this->tenant->key()] ??= Setting::query()->pluck('value', 'key')->all();
     }
 
     public function forget(): void
     {
-        $this->cache = null;
+        $this->cache = [];
     }
 
-    /** Create a row for every catalogued key that does not exist yet (install and upgrade). */
-    public function ensureDefaults(array $overrides = []): int
+    /**
+     * Create a row for every catalogued key that does not exist yet (install, upgrade, new foundation).
+     * Runs for the current context, or for $foundationId (null foundation + $platform = the platform's own).
+     */
+    public function ensureDefaults(array $overrides = [], ?string $foundationId = null, bool $platform = false): int
     {
-        $existing = Setting::withTrashed()->pluck('key')->all();
-        $created = 0;
-        foreach (SettingsCatalog::all() as $key => $def) {
-            if (in_array($key, $existing, true)) {
-                continue;
+        return $this->tenant->asSystem(function () use ($overrides, $foundationId, $platform) {
+            $existing = Setting::withTrashed()->where('foundation_id', $foundationId)->pluck('key')->all();
+            $created = 0;
+            foreach (SettingsCatalog::forScope($platform) as $key => $def) {
+                if (in_array($key, $existing, true)) {
+                    continue;
+                }
+                Setting::create(['foundation_id' => $foundationId, 'key' => $key, 'group' => $def['group'], 'value' => $overrides[$key] ?? $def['default']]);
+                $created++;
             }
-            Setting::create(['key' => $key, 'group' => $def['group'], 'value' => $overrides[$key] ?? $def['default']]);
-            $created++;
-        }
-        $this->forget();
+            $this->forget();
 
-        return $created;
+            return $created;
+        });
     }
 
-    /** Push stored settings into the running configuration (name, locale, currency). */
+    /** Push the current context's settings into the running configuration (name, locale, currency). */
     public function applyRuntime(): void
     {
         try {

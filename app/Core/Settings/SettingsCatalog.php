@@ -15,6 +15,9 @@ final class SettingsCatalog
     public const LOCALES = ['en', 'fil', 'ar'];
     public const CURRENCIES = ['PHP', 'USD', 'SAR', 'AED', 'EUR', 'GBP', 'MYR', 'IDR', 'SGD'];
 
+    /** Settings the platform itself owns (the rest belong to a foundation). */
+    public const PLATFORM_KEYS = ['app.name', 'app.timezone', 'app.locale', 'security.idle_lock_minutes'];
+
     /** @var array<string,array{group:string,default:mixed,rules:array}> */
     private static array $extra = [];
 
@@ -31,6 +34,14 @@ final class SettingsCatalog
             'security.idle_lock_minutes' => ['group' => 'security', 'default' => 15, 'rules' => ['required', 'integer', 'between:1,480']],
             'sync.auto_interval_seconds' => ['group' => 'sync', 'default' => 60, 'rules' => ['required', 'integer', 'between:15,3600']],
         ], self::$extra);
+    }
+
+    /** @return array<string,array{group:string,default:mixed,rules:array}> the keys that apply to platform (true) or foundation (false) settings */
+    public static function forScope(bool $platform): array
+    {
+        return $platform
+            ? array_intersect_key(self::all(), array_flip(self::PLATFORM_KEYS))
+            : self::all();
     }
 
     /** @param array<string,array{group:string,default:mixed,rules:array}> $settings */

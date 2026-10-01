@@ -14,7 +14,7 @@
   <div class="brand"><div class="mark">F</div><div><b>FOUNDATION</b><span>Foundation Management System</span></div></div>
   <div class="card">
     @isset($current)
-      @php($order = ['requirements'=>'Requirements','database'=>'Database','system'=>'System','foundation'=>'Foundation','admin'=>'Administrator','device'=>'Device'])
+      @php($order = ['requirements'=>'Requirements','database'=>'Database','system'=>'Platform','admin'=>'Administrator'])
       @php($keys = array_keys($order))
       @php($idx = array_search($current, $keys, true))
       <ol class="steps" aria-label="Setup progress">

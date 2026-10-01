@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Core\Settings\SettingsCatalog;
 use App\Core\Settings\SettingsService;
 use App\Http\Controllers\Controller;
-use App\Models\Foundation;
 use App\Models\SystemState;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -17,15 +16,16 @@ class SystemController extends Controller
     /** Public, non-sensitive: lets the login page and offline shell brand themselves. */
     public function status(SettingsService $settings): JsonResponse
     {
-        $f = Foundation::current();
+        // The sign-in page belongs to the platform: it never reveals which foundations exist.
+        $name = app(\App\Tenancy\TenantContext::class)->asPlatform(fn () => $settings->get('app.name'));
 
         return ApiResponse::ok([
             'installed' => true,
             'version' => config('foundation.version'),
-            'name' => $f?->name ?? $settings->get('app.name'),
-            'short_name' => $f?->short_name,
-            'logo_hash' => $f?->logo_hash,
-            'locale' => $settings->get('app.locale'),
+            'name' => $name,
+            'short_name' => null,
+            'logo_hash' => null,
+            'locale' => 'en',
         ]);
     }
 
@@ -36,7 +36,7 @@ class SystemController extends Controller
 
         return ApiResponse::ok(collect(SettingsCatalog::all())->map(fn ($def, $key) => [
             'key' => $key, 'group' => $def['group'], 'value' => $values[$key] ?? $def['default'],
-        ])->values());
+        ])->when(app(\App\Tenancy\TenantContext::class)->isPlatform(), fn ($c) => $c->only(SettingsCatalog::PLATFORM_KEYS))->values());
     }
 
     public function health(): JsonResponse

@@ -5,10 +5,19 @@ namespace Tests\Unit;
 use App\Models\AuditLog;
 use App\Models\Location;
 use App\Models\SyncChange;
+use Tests\Concerns\BootsFoundation;
 use Tests\TestCase;
 
 class SyncModelTest extends TestCase
 {
+    use BootsFoundation;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->bootFoundation();
+    }
+
     public function test_create_update_delete_version_feed_and_audit(): void
     {
         $loc = Location::create(['level' => 'country', 'name' => 'Philippines', 'path' => '/x/', 'depth' => 0]);
@@ -35,13 +44,13 @@ class SyncModelTest extends TestCase
 
     public function test_server_local_column_changes_do_not_bump_version(): void
     {
-        $role = \App\Models\Role::create(['key' => 'r', 'name' => 'R', 'permissions' => []]);
+        $role = \App\Models\Role::create(['key' => 'r', 'name' => 'R', 'scope' => 'foundation', 'permissions' => []]);
         $u = \App\Models\User::create(['name' => 'A', 'email' => 'a@x.test', 'password' => 'secret-pass-1', 'role_id' => $role->id]);
         $u->forceFill(['last_login_at' => now()])->save();
 
         $this->assertSame(1, $u->fresh()->version);
-        $this->assertSame(1, SyncChange::where('entity', 'users')->count());
-        $this->assertArrayNotHasKey('password', SyncChange::where('entity', 'users')->first()->payload);
+        $this->assertSame(1, SyncChange::where('entity', 'users')->where('entity_id', $u->id)->count());
+        $this->assertArrayNotHasKey('password', SyncChange::where('entity', 'users')->where('entity_id', $u->id)->first()->payload);
     }
 
     public function test_hard_delete_and_audit_edits_are_blocked(): void

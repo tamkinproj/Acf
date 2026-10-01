@@ -20,12 +20,8 @@ Route::middleware(InstallerAccess::class)->group(function () {
     Route::post('/database', [InstallController::class, 'databaseSave'])->middleware('throttle:installer-database');
     Route::get('/system', [InstallController::class, 'system']);
     Route::post('/system', [InstallController::class, 'systemSave']);
-    Route::get('/foundation', [InstallController::class, 'foundation']);
-    Route::post('/foundation', [InstallController::class, 'foundationSave']);
     Route::get('/admin', [InstallController::class, 'admin']);
     Route::post('/admin', [InstallController::class, 'adminSave']);
-    Route::get('/device', [InstallController::class, 'device']);
-    Route::post('/device', [InstallController::class, 'deviceSave']);
     Route::get('/review', [InstallController::class, 'review']);
     Route::post('/run', [InstallController::class, 'run'])->middleware('throttle:installer-run');
 });

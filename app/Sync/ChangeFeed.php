@@ -30,6 +30,7 @@ class ChangeFeed
         };
 
         return SyncChange::create([
+            'foundation_id' => $model->tenantOwnerId(),
             'change_id' => $this->change->take(),
             'entity' => $entity,
             'entity_id' => $model->getKey(),

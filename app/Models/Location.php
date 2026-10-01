@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Sync\Concerns\Syncable;
+use App\Tenancy\BelongsToFoundation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Location extends Model
 {
-    use Syncable;
+    use Syncable, BelongsToFoundation;
 
     /** Hierarchy order. A child must sit at a deeper level than its parent (levels may be skipped). */
     public const LEVELS = ['country' => 1, 'region' => 2, 'province' => 3, 'municipality' => 4, 'barangay' => 5, 'site' => 6];

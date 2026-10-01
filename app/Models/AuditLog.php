@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Sync\Concerns\HasSyncMetadata;
+use App\Tenancy\BelongsToFoundation;
 use Illuminate\Database\Eloquent\Model;
 use LogicException;
 
 /** Append-only activity record. Replicates like any other entity but can never be edited or removed. */
 class AuditLog extends Model
 {
-    use HasSyncMetadata;
+    use HasSyncMetadata, BelongsToFoundation;
 
     protected $guarded = [];
     protected $casts = [

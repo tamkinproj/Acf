@@ -9,8 +9,8 @@ return [
     | detectable (see `php artisan foundation:status`).
     */
     'name' => 'Foundation Management System',
-    'version' => '1.0.0',
-    'schema_version' => 1,
+    'version' => '2.0.0',
+    'schema_version' => 2,
 
     /*
     | Where installer state lives. Deliberately a plain directory (not the

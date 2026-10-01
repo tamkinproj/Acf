@@ -3,6 +3,8 @@
 use App\Http\Middleware\EnsureAccountUsable;
 use App\Http\Middleware\EnsureInstalled;
 use App\Http\Middleware\RequirePermission;
+use App\Http\Middleware\ResetTenantContext;
+use App\Http\Middleware\ResolveTenant;
 use App\Http\Middleware\ResolveDevice;
 use App\Http\Middleware\SecurityHeaders;
 use App\Support\ApiResponse;
@@ -26,14 +28,19 @@ return Application::configure(basePath: dirname(__DIR__))
             // The JSON API shares the web session (same-origin PWA): cookie auth + CSRF, no tokens in localStorage.
             Route::middleware('web')->prefix('api')->group(base_path('routes/api.php'));
             Route::middleware('web')->prefix('install')->group(base_path('routes/install.php'));
+            Route::middleware('web')->prefix('upgrade')->group(base_path('routes/upgrade.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(EnsureInstalled::class);
+        $middleware->prepend(ResetTenantContext::class);
+        // Route-model binding looks records up through the tenant scope, so the tenant must be known first.
+        $middleware->appendToPriorityList(after: \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class, append: ResolveTenant::class);
         $middleware->append(SecurityHeaders::class);
         $middleware->alias([
             'permission' => RequirePermission::class,
             'device' => ResolveDevice::class,
+            'tenancy' => ResolveTenant::class,
             'account.usable' => EnsureAccountUsable::class,
         ]);
         $middleware->redirectGuestsTo(fn () => '/login');
