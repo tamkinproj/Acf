@@ -2,6 +2,6 @@
   "name": "foundation-e2e",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node offline.mjs && node conflict.mjs && node admin.mjs && node device-session.mjs" },
+  "scripts": { "test": "node offline.mjs && node conflict.mjs && node admin.mjs && node device-session.mjs && node wrong-cookie-path.mjs" },
   "devDependencies": { "playwright-core": "^1.50.0" }
 }

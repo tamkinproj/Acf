@@ -37,9 +37,23 @@ class CoreServiceProvider extends ServiceProvider
         $this->callAfterResolving(RateLimiter::class, fn (RateLimiter $limiter) => $this->rateLimiters($limiter));
         CoreEntities::register($this->app->make(SyncRegistry::class));
 
+        // The login cookie must be scoped to the folder the site is ACTUALLY served from. A stored value can be wrong
+        // (typo in the URL entered during setup, site moved or renamed), and then the browser never sends the cookie back.
+        if (! $this->app->runningInConsole()) {
+            config(['session.path' => self::sessionPathFor($this->app->make('request'))]);
+        }
+
         if (! $this->app->runningInConsole() && $this->app->make(InstallState::class)->isInstalled()) {
             $this->app->make(SettingsService::class)->applyRuntime();
         }
+    }
+
+    /** "/acr" for https://example.org/acr/..., "/" for a domain root. Derived from the request, never from stored config. */
+    public static function sessionPathFor(Request $request): string
+    {
+        $base = '/'.trim($request->getBasePath(), '/');
+
+        return preg_match('#^/[A-Za-z0-9/_\-.~%]*$#', $base) ? $base : '/';
     }
 
     /**
