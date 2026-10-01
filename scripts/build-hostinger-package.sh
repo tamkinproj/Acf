@@ -50,3 +50,10 @@ APP_ONLY="${OUT%.zip}-app-only.zip"
 rm -f "$APP_ONLY"
 zip -qr "$APP_ONLY" foundation_app
 echo "Built $APP_ONLY ($(du -h "$APP_ONLY" | cut -f1))"
+
+# Public-assets zip for UPDATES of the web folder: only the folders the app owns (the page's scripts, styles, fonts, icons).
+# It never contains index.php or .htaccess, so an index.php you edited for a sub-folder install is left alone.
+PUBLIC_ONLY="${OUT%.zip}-public-assets.zip"
+rm -f "$PUBLIC_ONLY"
+(cd "$STAGE/public_html" && zip -qr "$PUBLIC_ONLY" app css fonts icons vendor)
+echo "Built $PUBLIC_ONLY ($(du -h "$PUBLIC_ONLY" | cut -f1))"
