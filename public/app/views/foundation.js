@@ -1,23 +1,23 @@
 import * as api from '../core/api.js';
 import { assetUrl } from '../core/config.js';
-import { db, setMeta } from '../core/db.js';
+import { db } from '../core/db.js';
 import { icon, monogram } from '../core/icons.js';
 import { busy, field, readForm, sheet, showErrors, textarea, toast } from '../core/ui.js';
 import { $, html } from '../core/util.js';
-import { session } from '../auth/session.js';
+import { refreshProfile, session } from '../auth/session.js';
 import { updateRecord } from '../sync/outbox.js';
 import { kit } from './kit.js';
 
 // The foundation's identity. Text fields are edited offline like everything else; the logo is a file, so it needs a connection.
-const ROWS = [['Name', 'name'], ['Short name', 'short_name'], ['About', 'description'], ['Address', 'address'], ['Phone', 'phone'], ['Email', 'email'], ['Website', 'website'], ['Registration number', 'registration_number'], ['Registration details', 'registration_info']];
+const ROWS = [['Name', 'name'], ['Short name', 'short_name'], ['Legal name', 'legal_name'], ['About', 'description'], ['Address', 'address'], ['Country', 'country'], ['Phone', 'phone'], ['Email', 'email'], ['Website', 'website'], ['Registration number', 'registration_number'], ['Registration details', 'registration_info']];
 
 export default {
   async mount(ctx) {
     const k = kit(ctx);
-    const manage = ctx.can('foundation.manage');
+    const manage = ctx.can('foundation.update');
     let f = null;
     let places = [];
-    const logoHash = () => session.get().branding?.logo_hash;
+    const logoHash = () => session.get().foundation?.logo_hash;
     const draw = () => k.render(view(f, places, manage, logoHash()));
 
     k.live(async () => ({ f: await db.foundations.toCollection().first(), places: await db.locations.filter((l) => !l.deleted_at).toArray() }), (d) => { f = d.f; places = d.places; draw(); });
@@ -39,11 +39,8 @@ export default {
   },
 };
 
-async function refreshBranding() {
-  const { data } = await api.get('/system/status');
-  await setMeta('branding', data);
-  session.set({ branding: data });
-}
+// The logo belongs to this foundation, so its hash comes with the signed-in profile (the sign-in page itself shows no logo).
+async function refreshBranding() { await refreshProfile(); }
 
 function edit(f, places) {
   sheet({
@@ -51,8 +48,10 @@ function edit(f, places) {
     body: html`<form class="form" novalidate>
       ${field({ label: 'Name', name: 'name', value: f.name, required: true })}
       ${field({ label: 'Short name', name: 'short_name', value: f.short_name, hint: 'Used where space is tight.' })}
+      ${field({ label: 'Legal name', name: 'legal_name', value: f.legal_name, hint: 'As registered, if different.' })}
       ${textarea({ label: 'About', name: 'description', value: f.description })}
       ${textarea({ label: 'Address', name: 'address', value: f.address })}
+      ${field({ label: 'Country', name: 'country', value: f.country })}
       ${field({ label: 'Phone', name: 'phone', type: 'tel', value: f.phone })}
       ${field({ label: 'Email', name: 'email', type: 'email', value: f.email })}
       ${field({ label: 'Website', name: 'website', type: 'url', value: f.website, hint: 'Starting with https://' })}

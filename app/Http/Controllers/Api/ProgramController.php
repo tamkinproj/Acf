@@ -89,15 +89,39 @@ class ProgramController extends Controller
             'config' => ['sometimes', 'array'],
         ]);
         if (isset($data['config'])) {
-            $rules = $program->moduleDefinition()?->configRules() ?? [];
-            $unknown = array_diff(array_keys($data['config']), array_map(fn ($k) => explode('.', $k)[0], array_keys($rules)));
-            abort_if($unknown !== [], 422, 'Unknown configuration: '.implode(', ', $unknown));
-            Validator::make($data['config'], $rules)->validate();
-            $data['config'] = array_replace($program->config ?? [], $data['config']);
+            $data['config'] = $this->mergedConfig($program, $data['config']);
         }
         $program->forceFill($data)->save();
 
         return ApiResponse::ok($this->present($program->refresh(), detail: true));
+    }
+
+    /**
+     * Change only the module's own settings (Aytam: the id prefix, the documents every child needs). Open to the module's
+     * supervisor as well as to foundation managers - the name, dates and status stay with the managers.
+     */
+    public function configure(Request $request, Program $program): JsonResponse
+    {
+        abort_unless($this->access->canView($request->user(), $program), 404);
+        abort_unless($this->access->canConfigure($request->user(), $program), 403, 'You do not have permission to configure this program.');
+        if ($program->status === Program::ARCHIVED) {
+            return ApiResponse::error('PROGRAM_ARCHIVED', 'An archived program cannot be edited.', 409);
+        }
+        $data = $request->validate(['config' => ['required', 'array']]);
+        $program->forceFill(['config' => $this->mergedConfig($program, $data['config'])])->save();
+
+        return ApiResponse::ok($this->present($program->refresh(), detail: true));
+    }
+
+    /** @return array<string,mixed> */
+    private function mergedConfig(Program $program, array $config): array
+    {
+        $rules = $program->moduleDefinition()?->configRules() ?? [];
+        $unknown = array_diff(array_keys($config), array_map(fn ($k) => explode('.', $k)[0], array_keys($rules)));
+        abort_if($unknown !== [], 422, 'Unknown configuration: '.implode(', ', $unknown));
+        Validator::make($config, $rules)->validate();
+
+        return array_replace($program->config ?? [], $config);
     }
 
     /** draft/inactive -> active, active -> inactive, anything -> archived. Needs programs.activate. */

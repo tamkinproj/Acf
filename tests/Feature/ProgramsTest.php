@@ -239,4 +239,61 @@ class ProgramsTest extends TestCase
         $this->getJson("/api/programs/{$p->id}/team")->assertStatus(404);
         $this->postJson('/api/programs', ['name' => 'Aytam Care', 'category' => 'aytam'])->assertCreated()->assertJsonPath('data.slug', 'aytam-care');   // slugs are per foundation
     }
+
+    public function test_a_mushrif_can_pick_partners_without_seeing_the_whole_organization_list(): void
+    {
+        $aytam = $this->makeProgram('Aytam Care', activate: true);
+        $a = $this->postJson('/api/organizations', ['name' => 'Partner A', 'type' => 'partner'])->json('data.id');
+        $b = $this->postJson('/api/organizations', ['name' => 'Partner B', 'type' => 'donor'])->json('data.id');
+        $this->patchJson("/api/organizations/{$b}", ['status' => 'inactive']);
+        $mushrif = $this->makeUser('volunteer');
+        $this->putJson("/api/programs/{$aytam->id}/team/{$mushrif->id}", ['role_id' => $this->roleId('aytam_mushrif')])->assertCreated();
+
+        $this->actingAs($mushrif)->getJson('/api/organizations')->assertStatus(403);
+        $options = $this->getJson("/api/programs/{$aytam->id}/organization-options")->assertOk()->json('data');
+        $this->assertSame(['Partner A'], array_column($options, 'name'), 'only active organizations');
+
+        $this->postJson("/api/programs/{$aytam->id}/organizations", ['organization_id' => $a])->assertCreated();
+        $this->getJson("/api/programs/{$aytam->id}/organization-options")->assertJsonCount(0, 'data');
+
+        $this->actingAs($this->makeUser('staff'))->getJson("/api/programs/{$aytam->id}/organization-options")->assertStatus(403);   // may see the program, not manage its partners
+    }
+
+    public function test_the_team_screen_offers_candidates_only_to_those_who_can_add_them(): void
+    {
+        $p = $this->makeProgram('Aytam Care', activate: true);
+        $member = $this->makeUser('volunteer', 'member@example.test');
+        $outsider = $this->makeUser('staff', 'outsider@example.test');
+        $this->putJson("/api/programs/{$p->id}/team/{$member->id}", ['role_id' => $this->roleId('aytam_field_worker')])->assertCreated();
+
+        $admin = $this->getJson("/api/programs/{$p->id}/team")->assertOk()->json('data');
+        $this->assertTrue($admin['can_manage']);
+        $this->assertContains('outsider@example.test', array_column($admin['candidates'], 'email'));
+        $this->assertNotContains('member@example.test', array_column($admin['candidates'], 'email'));
+
+        $this->actingAs($member);
+        $theirs = $this->getJson("/api/programs/{$p->id}/team")->assertOk()->json('data');
+        $this->assertFalse($theirs['can_manage']);
+        $this->assertSame([], $theirs['candidates'], 'a member sees the team, not the foundation\'s directory');
+    }
+
+    public function test_a_mushrif_configures_aytam_requirements_but_not_the_program_itself(): void
+    {
+        $p = $this->makeProgram('Aytam Care', activate: true);
+        $mushrif = $this->makeUser('volunteer');
+        $worker = $this->makeUser('volunteer');
+        $this->putJson("/api/programs/{$p->id}/team/{$mushrif->id}", ['role_id' => $this->roleId('aytam_mushrif')])->assertCreated();
+        $this->putJson("/api/programs/{$p->id}/team/{$worker->id}", ['role_id' => $this->roleId('aytam_field_worker')])->assertCreated();
+
+        $this->actingAs($mushrif)->patchJson("/api/programs/{$p->id}/config", ['config' => ['required_documents' => ['photo', 'passport'], 'code_prefix' => 'ORP']])->assertOk()
+            ->assertJsonPath('data.config.code_prefix', 'ORP')->assertJsonPath('data.config.required_documents.1', 'passport');
+        $this->patchJson("/api/programs/{$p->id}/config", ['config' => ['code_prefix' => 'bad']])->assertStatus(422);
+        $this->patchJson("/api/programs/{$p->id}/config", ['config' => ['name' => 'Renamed']])->assertStatus(422);
+        $this->patchJson("/api/programs/{$p->id}", ['name' => 'Renamed'])->assertStatus(403);              // name and dates stay with managers
+        $this->postJson("/api/programs/{$p->id}/status", ['status' => 'archived'])->assertStatus(403);
+
+        $this->actingAs($worker)->patchJson("/api/programs/{$p->id}/config", ['config' => ['code_prefix' => 'XXX']])->assertStatus(403);
+        $this->actingAs($this->makeUser('viewer'))->patchJson("/api/programs/{$p->id}/config", ['config' => ['code_prefix' => 'XXX']])->assertStatus(403);   // may see the program, not configure it
+        $this->assertSame('ORP', Program::find($p->id)->config['code_prefix']);
+    }
 }

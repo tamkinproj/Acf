@@ -123,4 +123,15 @@ export function actionSheet({ title, actions }) {
     }),
   });
 }
+/** A one-time secret (a temporary password) handed to an administrator. Shown once, with a copy button. */
+export function showSecret({ title, who, password, note = 'They will be asked to choose their own password the first time they sign in.' }) {
+  return sheet({
+    title,
+    body: html`<div class="stack"><p>Give this temporary password to <b>${who}</b>. ${note}</p>
+      <div class="secret"><code>${password}</code><button class="btn sm secondary" type="button" data-copy>${icon('copy')} Copy</button></div>
+      <div class="banner warn">${icon('alert')}<div class="grow">It is shown only once. If it is lost, reset the password again.</div></div>
+      <div class="btn-row"><button class="btn" type="button" data-close>Done</button></div></div>`,
+    onMount: (el) => $('[data-copy]', el).addEventListener('click', () => copyText(password)),
+  });
+}
 export { esc };

@@ -44,7 +44,9 @@ function view(d, ctx) {
   const st = syncState.get();
   const hero = heroCopy(st);
   const first = (ctx.session.get().user?.name ?? '').split(' ')[0];
+  const programs = ctx.session.get().programs ?? [];
   const metrics = [
+    programs.length > 0 && { k: 'Programs', v: programs.filter((p) => p.status === 'active').length, s: programs.length === 1 ? 'active' : `active of ${programs.length}`, to: 'programs' },
     ctx.can('locations.view') && { k: 'Places', v: d.places, s: 'recorded', to: 'places' },
     ctx.can('users.view') && { k: 'People', v: d.people, s: 'active accounts', to: 'users' },
     ctx.can('devices.view') && { k: 'Devices', v: d.devices, s: 'registered', to: 'devices' },
@@ -53,7 +55,9 @@ function view(d, ctx) {
   ].filter(Boolean);
   const actions = [
     ctx.can('locations.manage') && { icon: 'pin', label: 'Add a place', to: 'places' },
-    ctx.can('users.manage') && { icon: 'users', label: 'Add a person', to: 'users' },
+    ctx.can('users.create') && { icon: 'users', label: 'Add a person', to: 'users' },
+    ctx.can('programs.create') && { icon: 'heart', label: 'Create a program', to: 'programs' },
+    ctx.can('organizations.create') && { icon: 'folder', label: 'Add an organization', to: 'organizations' },
     st.conflicts > 0 && ctx.can('sync.manage') && { icon: 'alert', label: 'Review sync conflicts', to: 'sync' },
   ].filter(Boolean);
 
@@ -64,6 +68,8 @@ function view(d, ctx) {
 
     <section><h2>Today's overview</h2>
       <div class="overview">${metrics.map((t) => html`<a class="metric" href="${href(t.to)}"><span class="k">${t.k}</span><span class="v">${t.v}</span><span class="s">${t.s}</span></a>`)}</div></section>
+
+    ${programs.length ? html`<section><h2>Your programs</h2><div class="card flush"><ul class="list">${programs.map((p) => html`<li><a class="row-link" href="${href('programs/' + p.id)}">${icon(p.category === 'aytam' ? 'heart' : 'folder')}<span class="grow"><span class="t">${p.name}</span><span class="d block">${p.role ? p.role.name : 'Foundation access'}</span></span><span class="chip ${p.status === 'active' ? 'green' : p.status === 'draft' ? 'grey' : 'orange'}">${p.status}</span>${icon('chevron', 'chev')}</a></li>`)}</ul></div></section>` : ''}
 
     <div class="two-col">
       <section><h2>${ctx.can('audit.view') ? 'Recent activity' : 'Your recent changes'}</h2>

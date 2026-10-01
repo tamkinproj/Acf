@@ -58,4 +58,11 @@ export function ago(iso) {
   if (s < 86400) return `${Math.round(s / 3600)} hours ago`;
   return fmtDate(iso);
 }
+export function fmtBytes(n) {
+  if (!n) return '0 KB';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.min(units.length - 1, Math.floor(Math.log(n) / Math.log(1024)));
+  const v = n / 1024 ** i;
+  return `${v >= 100 || i === 0 ? Math.round(v) : v.toFixed(1)} ${units[i]}`;
+}
 export const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;

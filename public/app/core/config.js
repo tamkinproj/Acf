@@ -3,4 +3,4 @@
 export const BASE = (globalThis.document?.documentElement?.dataset.base ?? '').replace(/\/$/, '');
 export const apiUrl = (path) => `${BASE}/api${path}`;
 export const assetUrl = (path) => `${BASE}/${path.replace(/^\//, '')}`;
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = '2.0.0';

@@ -13,7 +13,7 @@ const VERB = { create: 'Add', update: 'Change', delete: 'Remove' };
 const FRIENDLY_CODE = {
   forbidden: 'You do not have permission to make this change.', validation: 'The server did not accept the values.', hierarchy: 'This does not fit the place structure.',
   has_children: 'There are places inside it; move or remove them first.', not_found: 'The record no longer exists on the server.', already_exists: 'This record already exists.',
-  invalid_field: 'A field was not allowed.', last_super_admin: 'The last Super Admin account must stay active.',
+  invalid_field: 'A field was not allowed.', last_foundation_admin: 'The last Foundation Admin account must stay active.',
 };
 
 async function labelOf(entity, id, fields) {

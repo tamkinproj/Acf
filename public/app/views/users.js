@@ -3,6 +3,7 @@ import { db } from '../core/db.js';
 import { icon } from '../core/icons.js';
 import { busy, confirmDialog, copyText, field, readForm, searchInput, select, sheet, showErrors, toast } from '../core/ui.js';
 import { $, esc, html, initials, raw } from '../core/util.js';
+import { href } from '../core/router.js';
 import { kick } from '../sync/engine.js';
 import { removeRecord, UNSYNCED, updateRecord } from '../sync/outbox.js';
 import { kit } from './kit.js';
@@ -12,7 +13,9 @@ import { kit } from './kit.js';
 export default {
   async mount(ctx) {
     const k = kit(ctx);
-    const manage = ctx.can('users.manage');
+    const canCreate = ctx.can('users.create');
+    const manage = ctx.can('users.update');          // opens the edit sheet
+    const canDeactivate = ctx.can('users.deactivate');
     const me = ctx.session.get().user.id;
     let users = [];
     let roles = [];
@@ -28,7 +31,7 @@ export default {
       const val = (u) => (sortKey === 'role' ? roleName.get(u.role_id) ?? '' : sortKey === 'status' ? u.status : u.name).toLowerCase();
       const shown = users.filter((u) => (status === 'all' || u.status === status) && (!term || `${u.name} ${u.email}`.toLowerCase().includes(term)))
         .sort((a, b) => val(a).localeCompare(val(b)) * sortDir || a.name.localeCompare(b.name));
-      k.render(view(shown.slice(0, limit), shown.length, roleName, pending, manage, me, q, status, users.length, sortKey, sortDir));
+      k.render(view(shown.slice(0, limit), shown.length, roleName, pending, manage, canCreate, me, q, status, users.length, sortKey, sortDir));
       const input = ctx.root.querySelector('#q');
       if (q && input) { input.focus(); input.setSelectionRange(q.length, q.length); }
     };
@@ -40,8 +43,8 @@ export default {
     k.on('change', '#st', (e, t) => { status = t.value; limit = 25; draw(); });
     k.on('click', '[data-sort]', (e, t) => { const key = t.dataset.sort; sortDir = sortKey === key ? -sortDir : 1; sortKey = key; draw(); });
     k.on('click', '[data-more]', () => { limit += 25; draw(); });
-    k.on('click', '[data-add]', () => openCreate(roles));
-    k.on('click', 'tr[data-edit]', (e, t) => openEdit(users.find((u) => u.id === t.dataset.edit), roles, me));
+    k.on('click', '[data-add]', () => openCreate(roles.filter((r) => r.scope !== 'program')));
+    k.on('click', 'tr[data-edit]', (e, t) => openEdit(users.find((u) => u.id === t.dataset.edit), roles.filter((r) => r.scope !== 'program'), me, canDeactivate));
     return () => k.cleanup();
   },
 };
@@ -85,7 +88,7 @@ function openCreate(roles) {
   });
 }
 
-function openEdit(u, roles, me) {
+function openEdit(u, roles, me, canDeactivate) {
   if (!u) return;
   const self = u.id === me;
   sheet({
@@ -95,23 +98,32 @@ function openEdit(u, roles, me) {
       ${field({ label: 'Email', name: 'email', type: 'email', value: u.email, required: true })}
       ${field({ label: 'Phone', name: 'phone', type: 'tel', value: u.phone })}
       ${select({ label: 'Role', name: 'role_id', value: u.role_id, options: roles.map((r) => [r.id, r.name]), disabled: self, hint: self ? 'You cannot change your own role.' : '' })}
-      ${select({ label: 'Status', name: 'status', value: u.status, options: [['active', 'Active'], ['disabled', 'Disabled — cannot sign in']], disabled: self, hint: self ? 'You cannot disable yourself.' : '' })}
+      ${select({ label: 'Status', name: 'status', value: u.status, options: [['active', 'Active'], ['disabled', 'Disabled — cannot sign in']], disabled: self || !canDeactivate, hint: self ? 'You cannot disable yourself.' : !canDeactivate ? 'You do not have permission to deactivate people.' : '' })}
       <div class="btn-row"><button class="btn" type="submit">Save</button><button class="btn secondary" type="button" data-close>Cancel</button></div>
+      <hr><div class="field"><span class="lbl">Program access</span><div data-programs class="muted">Loading…</div><span class="hint">A person's role in each program is set on that program's Team tab.</span></div>
       <hr><div class="btn-row">
-        <button class="btn sm ghost" type="button" data-reset>${icon('key')} Reset password</button>
-        ${self ? '' : html`<button class="btn sm danger" type="button" data-remove>${icon('trash')} Remove person</button>`}</div></form>`,
+        <button class="btn sm secondary" type="button" data-reset>${icon('key')} Reset password</button>
+        ${self || !canDeactivate ? '' : html`<button class="btn sm danger" type="button" data-remove>${icon('trash')} Remove person</button>`}</div></form>`,
     onMount: (el, close) => {
       const form = $('form', el);
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const v = readForm(form);
         if (self) { delete v.role_id; delete v.status; }
+        if (!canDeactivate) delete v.status;
         if (!v.name || !v.email) { showErrors(form, { name: !v.name && 'Enter a name.', email: !v.email && 'Enter an email.' }); return; }
         const changed = Object.fromEntries(Object.entries(v).filter(([key, val]) => (u[key] ?? null) !== val));
         if (Object.keys(changed).length) await updateRecord('users', u.id, changed);
         close();
         toast(Object.keys(changed).length ? 'Saved on this device. It will sync when connected.' : 'Nothing changed');
       });
+      api.get(`/users/${u.id}`).then(({ data }) => {
+        const box = $('[data-programs]', el);
+        if (!box) return;
+        box.innerHTML = data.programs?.length
+          ? html`<ul class="list">${data.programs.map((p) => html`<li><a class="row-link" href="${href('programs/' + p.program_id + '/team')}" data-close><span class="grow"><span class="t">${p.name}</span></span><span class="chip blue">${p.role?.name ?? 'No role'}</span>${icon('chevron', 'chev')}</a></li>`)}</ul>`.toString()
+          : 'Not on any program team.';
+      }).catch(() => { const box = $('[data-programs]', el); if (box) box.textContent = 'Program access needs a connection.'; });
       $('[data-reset]', el).addEventListener('click', async () => {
         if (!(await confirmDialog({ title: 'Reset password?', text: `${u.name} will be signed out everywhere and must use a new temporary password.`, confirmLabel: 'Reset password' }))) return;
         try { const { data } = await api.post(`/users/${u.id}/reset-password`); close(); tempPasswordSheet('Password reset', u.name, data.temporary_password); } catch (err) { toast(api.explain(err), 'bad'); }
@@ -126,11 +138,11 @@ function openEdit(u, roles, me) {
   });
 }
 
-function view(users, total, roleName, pending, manage, me, q, status, everyone, sortKey, sortDir) {
+function view(users, total, roleName, pending, manage, canCreate, me, q, status, everyone, sortKey, sortDir) {
   const th = (key, label) => html`<th scope="col" aria-sort="${sortKey === key ? (sortDir === 1 ? 'ascending' : 'descending') : 'none'}"><button class="th" type="button" data-sort="${key}" aria-pressed="${sortKey === key}">${label}${sortKey === key ? icon(sortDir === 1 ? 'arrowUp' : 'arrowDown') : ''}</button></th>`;
   return html`
-    <div class="page-head"><div><h1>People</h1><p>Everyone who can sign in to this foundation's system.</p></div>
-      ${manage ? html`<div class="btn-row"><button class="btn" type="button" data-add>${icon('plus')} Add person</button></div>` : ''}</div>
+    <div class="page-head"><div><h1>People</h1><p>Everyone who can sign in to this foundation's system. A person's work in each program is set on that program's Team tab.</p></div>
+      ${canCreate ? html`<div class="btn-row"><button class="btn" type="button" data-add>${icon('plus')} Add person</button></div>` : ''}</div>
     <div class="card flush"><div class="filters">
       <div class="grow">${searchInput({ value: q, placeholder: 'Search people', label: 'Search people' })}</div>
       <div class="field"><label class="sr-only" for="st">Status</label><select class="select" id="st">${[['all', 'Everyone'], ['active', 'Active'], ['disabled', 'Disabled']].map(([v, t]) => html`<option value="${v}" ${status === v ? 'selected' : ''}>${t}</option>`)}</select></div></div>

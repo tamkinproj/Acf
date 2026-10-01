@@ -15,7 +15,7 @@ import { clearPin, hasPin, resetPinFailures } from './pin.js';
 //   active        working
 
 export const session = createStore({
-  status: 'booting', user: null, permissions: [], foundation: null, branding: null,
+  status: 'booting', kind: 'foundation', user: null, permissions: [], programs: [], foundation: null, branding: null,
   online: true, hasPin: false, conflictUser: null, mustChangePassword: false, idleMinutes: 15,
 });
 
@@ -24,6 +24,11 @@ export const session = createStore({
 api.setSignedOutHandler(() => { if (session.get().status === 'needs-device') session.set({ status: 'anon', user: null, permissions: [] }); });
 
 export const can = (perm) => !perm || session.get().permissions.includes(perm);
+export const isPlatform = () => session.get().kind === 'platform';
+
+/** What this person may do INSIDE one program (their foundation role plus their role in that program). */
+export const programFor = (id) => session.get().programs.find((p) => p.id === id) ?? null;
+export const canIn = (programId, perm) => !perm || (programFor(programId)?.permissions ?? []).includes(perm);
 
 async function loadBranding() {
   try {
@@ -34,9 +39,9 @@ async function loadBranding() {
 }
 
 async function applyProfile(data) {
-  const profile = { user: data.user, permissions: data.permissions, foundation: data.foundation, idleMinutes: data.session?.idle_lock_minutes ?? 15 };
+  const profile = { kind: data.kind ?? 'foundation', user: data.user, permissions: data.permissions, programs: data.programs ?? [], foundation: data.foundation, idleMinutes: data.session?.idle_lock_minutes ?? 15 };
   await setMeta('profile', profile);
-  session.set({ user: data.user, permissions: data.permissions, foundation: data.foundation, idleMinutes: profile.idleMinutes, mustChangePassword: !!data.user.must_change_password });
+  session.set({ kind: profile.kind, user: data.user, permissions: data.permissions, programs: profile.programs, foundation: data.foundation, idleMinutes: profile.idleMinutes, mustChangePassword: !!data.user.must_change_password });
 }
 
 async function loadDisplayTimezone() {
@@ -58,10 +63,10 @@ export async function boot() {
   } catch (e) {
     if (e.network && cached) {
       // Server unreachable but this device has been used before: work from the local copy.
-      session.set({ user: cached.user, permissions: cached.permissions, foundation: cached.foundation, idleMinutes: cached.idleMinutes, online: false });
+      session.set({ kind: cached.kind ?? 'foundation', user: cached.user, permissions: cached.permissions, programs: cached.programs ?? [], foundation: cached.foundation, idleMinutes: cached.idleMinutes, online: false });
       await loadDisplayTimezone();
       session.set({ status: (await hasPin()) ? 'locked' : 'active' });
-      if (!(await hasPin())) engine.start();
+      if (!(await hasPin()) && cached.kind !== 'platform') engine.start();
       return;
     }
     session.set({ status: 'anon', online: !e.network });
@@ -88,6 +93,8 @@ async function handleSignedIn(data) {
   session.set({ conflictUser: null, online: true });
   await loadDisplayTimezone();
   if (data.user.must_change_password) { session.set({ status: 'active' }); return true; }
+  // Platform administrators run the service online: no device, no local copy, no sync.
+  if (data.kind === 'platform') { session.set({ status: 'active' }); return true; }
   if (!api.hasDeviceToken()) { session.set({ status: 'needs-device' }); return true; }
   await resetPinFailures();
   session.set({ status: 'active' });
@@ -108,8 +115,7 @@ export async function reauthenticate(password) {
   await applyProfile(data);
   await resetPinFailures();
   session.set({ status: 'active', online: true });
-  engine.start();
-  engine.kick(0);
+  if (session.get().kind !== 'platform') { engine.start(); engine.kick(0); }
 }
 
 export async function registerDevice(token) {
@@ -125,7 +131,7 @@ export async function forgetDevice() { await delMeta('deviceToken'); api.setDevi
 export function lock() {
   if (session.get().status === 'active') session.set({ status: 'locked' });
 }
-export function unlock() { session.set({ status: 'active' }); engine.kick(300); }
+export function unlock() { session.set({ status: 'active' }); if (session.get().kind !== 'platform') engine.kick(300); }
 
 /** Sign out. Returns { ok:false, waiting } if there is unsynced work and the caller has not confirmed discarding it. */
 export async function logout({ discard = false } = {}) {
@@ -135,7 +141,7 @@ export async function logout({ discard = false } = {}) {
   if (waiting && !discard) { engine.start(); return { ok: false, waiting }; }
   await api.post('/auth/logout').catch(() => {});
   await wipeLocalData();
-  session.set({ status: 'anon', user: null, permissions: [], foundation: null, hasPin: false, conflictUser: null });
+  session.set({ status: 'anon', kind: 'foundation', user: null, permissions: [], programs: [], foundation: null, hasPin: false, conflictUser: null });
   return { ok: true };
 }
 

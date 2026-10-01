@@ -12,6 +12,9 @@
 <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
 <link rel="stylesheet" href="{{ asset('css/tokens.css') }}">
 <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+<link rel="stylesheet" href="{{ asset('css/platform.css') }}">
+<link rel="stylesheet" href="{{ asset('css/program.css') }}">
+<link rel="stylesheet" href="{{ asset('css/registration.css') }}">
 <script type="module" src="{{ asset('app/main.js') }}"></script>
 </head>
 <body>

@@ -23,12 +23,14 @@ Route::post('/programs', [ProgramController::class, 'store'])->middleware('permi
 Route::get('/programs/{program}', [ProgramController::class, 'show']);
 Route::patch('/programs/{program}', [ProgramController::class, 'update'])->middleware('permission:programs.update');
 Route::post('/programs/{program}/status', [ProgramController::class, 'status'])->middleware('permission:programs.activate');
+Route::patch('/programs/{program}/config', [ProgramController::class, 'configure']);
 
 Route::get('/programs/{program}/team', [ProgramTeamController::class, 'index']);
 Route::put('/programs/{program}/team/{user}', [ProgramTeamController::class, 'upsert'])->middleware('permission:programs.update');
 Route::delete('/programs/{program}/team/{user}', [ProgramTeamController::class, 'destroy'])->middleware('permission:programs.update');
 
 Route::get('/programs/{program}/organizations', [ProgramOrganizationController::class, 'index']);
+Route::get('/programs/{program}/organization-options', [ProgramOrganizationController::class, 'options']);
 Route::post('/programs/{program}/organizations', [ProgramOrganizationController::class, 'store']);
 Route::patch('/programs/{program}/organizations/{link}', [ProgramOrganizationController::class, 'update']);
 Route::delete('/programs/{program}/organizations/{link}', [ProgramOrganizationController::class, 'destroy']);

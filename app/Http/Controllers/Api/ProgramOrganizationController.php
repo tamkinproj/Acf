@@ -32,6 +32,16 @@ class ProgramOrganizationController extends Controller
         ]);
     }
 
+    /** Active organizations not yet working with this program - what a program's own supervisor may pick from. */
+    public function options(Request $request, Program $program): JsonResponse
+    {
+        $this->authorizeConfigure($request, $program);
+        $linked = ProgramOrganization::query()->where('program_id', $program->getKey())->select('organization_id');
+        $rows = Organization::query()->where('status', 'active')->whereNotIn('id', $linked)->orderBy('name')->get(['id', 'name', 'type', 'country']);
+
+        return ApiResponse::ok($rows->map(fn ($o) => ['id' => $o->id, 'name' => $o->name, 'type' => $o->type, 'country' => $o->country])->all());
+    }
+
     public function store(Request $request, Program $program): JsonResponse
     {
         $this->authorizeConfigure($request, $program);

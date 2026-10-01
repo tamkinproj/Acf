@@ -26,7 +26,15 @@ class ProgramTeamController extends Controller
         $members = ProgramUser::query()->where('program_id', $program->getKey())->with(['user:id,name,email,status', 'role:id,key,name'])->get()
             ->sortBy(fn (ProgramUser $m) => $m->user?->name)->values();
 
+        $canManage = $this->access->canManage($request->user(), $program);
+        // People who could be added: active, and not already on the team. Only offered to those who can add them.
+        $candidates = $canManage
+            ? User::query()->where('status', 'active')->whereNotIn('id', ProgramUser::query()->where('program_id', $program->getKey())->select('user_id'))->orderBy('name')->get(['id', 'name', 'email'])
+            : collect();
+
         return ApiResponse::ok([
+            'can_manage' => $canManage,
+            'candidates' => $candidates->map(fn ($u) => ['id' => $u->id, 'name' => $u->name, 'email' => $u->email])->all(),
             'members' => $members->map(fn (ProgramUser $m) => [
                 'user_id' => $m->user_id, 'name' => $m->user?->name, 'email' => $m->user?->email, 'user_status' => $m->user?->status,
                 'role' => $m->role ? ['id' => $m->role->id, 'key' => $m->role->key, 'name' => $m->role->name] : null,
