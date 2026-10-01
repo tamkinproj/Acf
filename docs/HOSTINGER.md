@@ -101,6 +101,13 @@ so your installation, settings and data are not touched.
 
 Only when a release says the PHP libraries changed will it also ship a new `vendor` folder.
 
+## Forgot the Super Admin password (or email)
+
+No command line needed. `scripts/reset-admin.template.php` is a one-time recovery page: replace `__KEY__` with a long random
+string, save it as `reset-admin.php` in the web folder (e.g. `public_html/acr`), and open
+`https://yourdomain/acr/reset-admin.php?k=<that string>`. It lists the Super Admin accounts, lets you choose a new password,
+signs out other sessions, and deletes itself. Without the key it answers 404. Delete it manually if it is still there afterwards.
+
 ## Troubleshooting
 
 | You see | Do this |
