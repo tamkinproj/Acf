@@ -83,4 +83,13 @@ class InstallerPrimitivesTest extends TestCase
             }
         }
     }
+
+    public function test_cookie_path_follows_the_application_folder(): void
+    {
+        $this->assertSame('/', \App\Install\Installer::cookiePath('https://foundation.example.com'));
+        $this->assertSame('/', \App\Install\Installer::cookiePath('https://foundation.example.com/'));
+        $this->assertSame('/acf', \App\Install\Installer::cookiePath('https://manhaje.com/acf'));
+        $this->assertSame('/acf/app', \App\Install\Installer::cookiePath('https://manhaje.com/acf/app/'));
+        $this->assertSame('/', \App\Install\Installer::cookiePath('https://x.test/a;b=c'), 'anything odd falls back to the safe default');
+    }
 }

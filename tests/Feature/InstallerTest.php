@@ -43,6 +43,7 @@ class InstallerTest extends InstallTestCase
         $this->assertStringContainsString('FOUNDATION_INSTALL_ID=', $env);
         $this->assertStringContainsString('DB_CONNECTION=sqlite', $env);
         $this->assertStringContainsString('SESSION_COOKIE=foundation_session', $env);
+        $this->assertStringContainsString('SESSION_PATH=/', $env);
         $this->assertStringContainsString('APP_DEBUG=false', $env);
         $this->assertStringContainsString('APP_TIMEZONE=UTC', $env, 'storage is always UTC; the chosen timezone is a display setting');
         $this->assertStringNotContainsString('Sup3r-secret-pass', $env);

@@ -169,6 +169,9 @@ class Installer
             'SESSION_DRIVER' => 'database',
             'SESSION_LIFETIME' => 120,
             'SESSION_COOKIE' => 'foundation_session',   // never collides with another app on the same domain
+            // Scope cookies (session AND the XSRF-TOKEN cookie) to the folder the app lives in, so another
+            // application on the same domain neither receives them nor overwrites them.
+            'SESSION_PATH' => self::cookiePath($sys['app_url']),
             'SESSION_SECURE_COOKIE' => str_starts_with($sys['app_url'], 'https://'),
             'CACHE_STORE' => 'file',
             'QUEUE_CONNECTION' => 'sync',
@@ -244,6 +247,14 @@ class Installer
         $this->state->put(['status' => 'installed', 'completed_at' => now()->toIso8601String()]);
         @unlink($this->state->path('token'));
         @unlink($this->state->path('app.key'));
+    }
+
+    /** "https://example.com/acf" -> "/acf"; a domain root -> "/". */
+    public static function cookiePath(string $appUrl): string
+    {
+        $path = '/'.trim((string) parse_url($appUrl, PHP_URL_PATH), '/');
+
+        return preg_match('#^/[A-Za-z0-9/_\-.~%]*$#', $path) ? $path : '/';
     }
 
     private function scrub(string $message): string
