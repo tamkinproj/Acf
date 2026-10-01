@@ -90,6 +90,18 @@ requirements step fails with "Application folder is outside the public web folde
 - Keep a copy of `foundation_app/.env` and `foundation_app/storage/app/install/installed.lock` somewhere safe.
   If either is lost the system stops and shows a recovery screen (it never reinstalls over your data).
 
+## Updating to a new version
+
+Updates come as `foundation-hostinger-app-only.zip`, which contains only the `foundation_app` folder.
+Never extract a partial "patch" over the folder: Hostinger's File Manager can replace whole sub-folders instead of
+merging, which deletes files and breaks the site.
+
+1. Rename the current `foundation_app` to `foundation_app_old` (do not delete it yet).
+2. Upload `foundation-hostinger-app-only.zip` to the same place (next to `public_html`) and extract it there.
+3. If the system was already installed, copy these from `foundation_app_old` into the new `foundation_app`:
+   `.env`, `storage/app/install/`, `storage/app/private/` and (SQLite installs only) `storage/app/db/`.
+4. Open the site. When everything works, delete `foundation_app_old`.
+
 ## Troubleshooting
 
 | You see | Do this |

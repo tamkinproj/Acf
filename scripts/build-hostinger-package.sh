@@ -43,3 +43,10 @@ cd "$STAGE"
 rm -f "$OUT"
 zip -qr "$OUT" foundation_app public_html README-HOSTINGER.md
 echo "Built $OUT ($(du -h "$OUT" | cut -f1))"
+
+# App-only zip for UPDATES: replaces the whole foundation_app folder and never touches the web folder.
+# (Never ship partial "patch" zips: some File Managers replace whole folders on extract instead of merging.)
+APP_ONLY="${OUT%.zip}-app-only.zip"
+rm -f "$APP_ONLY"
+zip -qr "$APP_ONLY" foundation_app
+echo "Built $APP_ONLY ($(du -h "$APP_ONLY" | cut -f1))"
