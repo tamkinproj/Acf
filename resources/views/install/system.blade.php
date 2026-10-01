@@ -23,6 +23,6 @@
         @foreach(['central'=>'Central server','local_server'=>'Local foundation server','standalone'=>'Standalone (one device)'] as $k => $label)@if(in_array($k,$models,true))<option value="{{ $k }}" @selected(old('deployment_model', $v['deployment_model']) === $k)>{{ $label }}</option>@endif @endforeach
       </select></div>
   </div>
-  <div class="actions"><a class="btn ghost" href="{{ url('/install/database') }}">Back</a><button class="btn" type="submit">Continue</button></div>
+  <div class="actions"><a class="btn secondary" href="{{ url('/install/database') }}">Back</a><button class="btn" type="submit">Continue</button></div>
 </form>
 @endsection

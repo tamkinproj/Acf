@@ -10,7 +10,7 @@ export const ADMIN = { email: 'admin@test.example', password: 'Js-Test-Pass-123'
 
 const freePort = () => new Promise((res) => { const s = net.createServer().listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => res(port)); }); });
 
-export async function startBackend({ extraInstallArgs = [] } = {}) {
+export async function startBackend({ extraInstallArgs = [], install = true } = {}) {
   const root = path.resolve(import.meta.dirname, '../..');
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'fdn-js-'));
   const dir = path.join(tmp, 'app');
@@ -22,9 +22,9 @@ export async function startBackend({ extraInstallArgs = [] } = {}) {
 
   const port = await freePort();
   const url = `http://127.0.0.1:${port}`;
-  const install = spawnSync('php', ['artisan', 'foundation:install', '--driver=sqlite', '--sqlite-name=jstest', `--app-url=${url}`, '--foundation-name=Test Foundation',
-    '--admin-name=Test Admin', `--admin-email=${ADMIN.email}`, `--admin-password=${ADMIN.password}`, '--device-name=Main Office', ...extraInstallArgs], { cwd: dir, encoding: 'utf8' });
-  if (install.status !== 0) throw new Error(`install failed:\n${install.stdout}\n${install.stderr}`);
+  const run = install ? spawnSync('php', ['artisan', 'foundation:install', '--driver=sqlite', '--sqlite-name=jstest', `--app-url=${url}`, '--foundation-name=Test Foundation',
+    '--admin-name=Test Admin', `--admin-email=${ADMIN.email}`, `--admin-password=${ADMIN.password}`, '--device-name=Main Office', ...extraInstallArgs], { cwd: dir, encoding: 'utf8' }) : { status: 0 };
+  if (run.status !== 0) throw new Error(`install failed:\n${run.stdout}\n${run.stderr}`);
 
   const server = spawn('php', ['-S', `127.0.0.1:${port}`, '../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php'], {
     cwd: path.join(dir, 'public'), env: { ...process.env, PHP_CLI_SERVER_WORKERS: '4', FOUNDATION_SYNC_SETTLE_SECONDS: '0' }, stdio: 'ignore' });

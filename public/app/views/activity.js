@@ -1,4 +1,5 @@
 import { db } from '../core/db.js';
+import { searchInput } from '../core/ui.js';
 import { icon } from '../core/icons.js';
 import { $, fmtDateTime, html } from '../core/util.js';
 import { kit } from './kit.js';
@@ -37,7 +38,7 @@ export default {
   },
 };
 
-const tone = (a) => (a.endsWith('.failed') || a.includes('revoke') || a.endsWith('.deleted') ? 'red' : a.endsWith('.created') || a === 'auth.login' ? '' : 'grey');
+const tone = (a) => (a.endsWith('.failed') || a.includes('revoke') || a.endsWith('.deleted') ? 'red' : a.endsWith('.created') || a === 'auth.login' ? 'green' : 'grey');
 const show = (v) => (v === null || v === undefined ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v));
 
 function changes(r) {
@@ -48,15 +49,15 @@ function changes(r) {
 
 function view(list, total, area, q, detail, deviceNames) {
   return html`
-    <div class="page-head"><div><h2>Activity</h2><p>A permanent record of who did what, and from which device.</p></div></div>
-    <div class="card"><div class="filters">
-      <div class="field grow"><label class="sr-only" for="q">Search activity</label><input class="input" id="q" type="search" placeholder="Search activity…" value="${q}" autocomplete="off"></div>
+    <div class="page-head"><div><h1>Activity</h1><p>A permanent record of who did what, and from which device.</p></div></div>
+    <div class="card flush"><div class="filters">
+      <div class="grow">${searchInput({ value: q, placeholder: 'Search activity', label: 'Search activity' })}</div>
       <div class="field"><label class="sr-only" for="area">Area</label><select class="select" id="area">${AREAS.map(([v, t]) => html`<option value="${v}" ${area === v ? 'selected' : ''}>${t}</option>`)}</select></div></div>
       ${list.length ? html`<ul class="list timeline">${list.map((r) => html`<li class="${detail === r.id ? 'open' : ''}">
         <span class="dot ${tone(r.action)}" aria-hidden="true"></span>
         <div class="grow"><div class="t">${r.summary}</div><div class="d">${r.user_name || 'System'} · ${fmtDateTime(r.occurred_at)}${deviceNames.get(r.device_id) ? ` · ${deviceNames.get(r.device_id)}` : ''}</div>
           ${detail === r.id ? html`<div class="detail">${changes(r)}<p class="muted mono">${r.action}</p></div>` : ''}</div>
         <button class="btn sm ghost" type="button" data-detail="${r.id}" aria-expanded="${detail === r.id}" aria-label="Details">${icon('chevron')}</button></li>`)}</ul>
-        ${total > list.length ? html`<div class="btn-row center"><button class="btn ghost" type="button" data-more>Show more (${total - list.length} left)</button></div>` : ''}`
+        ${total > list.length ? html`<div class="btn-row center"><button class="btn secondary" type="button" data-more>Show more (${total - list.length} left)</button></div>` : ''}`
         : html`<div class="empty">${icon('list')}<b>${q || area !== 'all' ? 'Nothing matches' : 'No activity yet'}</b><span>${q || area !== 'all' ? 'Try a different search or area.' : 'Events appear as people use the system.'}</span></div>`}</div>`;
 }

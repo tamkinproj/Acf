@@ -1,24 +1,10 @@
 <?php
 // Generates the favicon / home-screen icon PNGs from code: php scripts/make-icons.php
-// Brand mark: the khatam - an eight-pointed star made of two overlapping squares - in gold on deep emerald.
+// Mark: a white "F" on the accent blue, built from three bars (no fonts needed, so it renders the same everywhere).
 $out = __DIR__.'/../public/icons';
 @mkdir($out, 0775, true);
 
-function star(float $cx, float $cy, float $r): array   // 16 vertices: outer points at radius r, inner notches at r * 0.7654
-{
-    $pts = [];
-    $inner = $r * 0.7654;                                 // 8-point {8/2} star where the two squares cross
-    for ($i = 0; $i < 16; $i++) {
-        $a = M_PI / 8 * $i - M_PI / 2;
-        $rad = $i % 2 === 0 ? $r : $inner;
-        $pts[] = $cx + cos($a) * $rad;
-        $pts[] = $cy + sin($a) * $rad;
-    }
-
-    return $pts;
-}
-
-function render(int $size, bool $maskable, bool $rounded): GdImage
+function render(int $size, bool $rounded): GdImage
 {
     $s = 4;                                               // supersample for clean edges
     $n = $size * $s;
@@ -26,25 +12,23 @@ function render(int $size, bool $maskable, bool $rounded): GdImage
     imagealphablending($im, false); imagesavealpha($im, true);
     imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
     imagealphablending($im, true);
-    $emerald = imagecolorallocate($im, 10, 74, 60);
-    $emerald2 = imagecolorallocate($im, 15, 107, 87);
-    $gold = imagecolorallocate($im, 212, 162, 76);
-    $goldDeep = imagecolorallocate($im, 184, 134, 47);
+    $blue = imagecolorallocate($im, 0, 113, 227);
+    $white = imagecolorallocate($im, 255, 255, 255);
 
-    if ($maskable || ! $rounded) {
-        imagefilledrectangle($im, 0, 0, $n, $n, $emerald);
+    if (! $rounded) {
+        imagefilledrectangle($im, 0, 0, $n, $n, $blue);   // iOS applies its own corner mask
     } else {
         $r = (int) ($n * 0.22);
-        imagefilledrectangle($im, $r, 0, $n - $r, $n, $emerald);
-        imagefilledrectangle($im, 0, $r, $n, $n - $r, $emerald);
-        foreach ([[$r, $r], [$n - $r, $r], [$r, $n - $r], [$n - $r, $n - $r]] as [$x, $y]) { imagefilledellipse($im, $x, $y, $r * 2, $r * 2, $emerald); }
+        imagefilledrectangle($im, $r, 0, $n - $r, $n, $blue);
+        imagefilledrectangle($im, 0, $r, $n, $n - $r, $blue);
+        foreach ([[$r, $r], [$n - $r, $r], [$r, $n - $r], [$n - $r, $n - $r]] as [$x, $y]) { imagefilledellipse($im, $x, $y, $r * 2, $r * 2, $blue); }
     }
-    $c = $n / 2;
-    $scale = $maskable ? 0.30 : 0.36;                     // maskable keeps the mark inside the safe zone
-    imagefilledellipse($im, (int) $c, (int) $c, (int) ($n * $scale * 2.35), (int) ($n * $scale * 2.35), $emerald2);
-    imagefilledpolygon($im, star($c, $c, $n * $scale), $gold);
-    imagefilledpolygon($im, star($c, $c, $n * $scale * 0.58), $emerald);
-    imagefilledellipse($im, (int) $c, (int) $c, (int) ($n * $scale * 0.34), (int) ($n * $scale * 0.34), $goldDeep);
+    // the F: stem + top bar + middle bar, centred in the safe area
+    $w = (int) ($n * 0.40); $h = (int) ($n * 0.50); $t = (int) ($n * 0.115);
+    $x = (int) (($n - $w) / 2); $y = (int) (($n - $h) / 2);
+    imagefilledrectangle($im, $x, $y, $x + $t, $y + $h, $white);
+    imagefilledrectangle($im, $x, $y, $x + $w, $y + $t, $white);
+    imagefilledrectangle($im, $x, $y + (int) ($h * 0.42), $x + (int) ($w * 0.8), $y + (int) ($h * 0.42) + $t, $white);
 
     $dst = imagecreatetruecolor($size, $size);
     imagealphablending($dst, false); imagesavealpha($dst, true);
@@ -53,9 +37,7 @@ function render(int $size, bool $maskable, bool $rounded): GdImage
     return $dst;
 }
 
-foreach ([
-    'apple-touch-icon.png' => [180, false, false], 'favicon-32.png' => [32, false, true],
-] as $file => [$size, $maskable, $rounded]) {
-    imagepng(render($size, $maskable, $rounded), "$out/$file", 9);
+foreach (['apple-touch-icon.png' => [180, false], 'favicon-32.png' => [32, true]] as $file => [$size, $rounded]) {
+    imagepng(render($size, $rounded), "$out/$file", 9);
     echo "wrote $file\n";
 }

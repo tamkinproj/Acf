@@ -20,7 +20,7 @@ const go = async (r) => { await page.goto(`${be.url}/#/${r}`); await page.waitFo
 try {
   await page.goto(be.url + '/'); await page.waitForSelector('[data-login]');
   await page.fill('#f-email', ADMIN.email); await page.fill('#f-password', ADMIN.password); await page.click('[data-login] button[type=submit]');
-  await page.click('[data-claim]'); await page.waitForSelector('.hero'); await page.waitForTimeout(1500);
+  await page.click('[data-claim]'); await page.waitForSelector('.dash'); await page.waitForTimeout(1500);
   await page.getByRole('button', { name: 'Not now' }).click();
 
   // person: create online -> temp password sheet -> appears in list
@@ -32,12 +32,12 @@ try {
   const temp = await page.locator('.secret code').innerText();
   ok(temp.length >= 12, 'temporary password shown once (' + temp.length + ' chars)');
   await page.click('.sheet [data-close]:has-text("Done")'); await page.waitForTimeout(2500);
-  ok(await page.locator('.list li', { hasText: 'Amina Yusuf' }).count() === 1, 'new person appears in list after sync');
+  ok(await page.locator('tr', { hasText: 'Amina Yusuf' }).count() === 1, 'new person appears in list after sync');
   ok(await sql("select count(*) from users where email='amina@test.example'") === '1', 'person exists on server');
 
   // edit person offline (status) -> queue
   await ctx.setOffline(true);
-  await page.locator('.list li', { hasText: 'Amina Yusuf' }).locator('[data-edit]').click();
+  await page.locator('tr', { hasText: 'Amina Yusuf' }).click();
   await page.fill('#f-phone', '0917 555 0100'); await page.click('.sheet button[type=submit]'); await page.waitForTimeout(500);
   await shot('02-person-pending');
 
@@ -49,7 +49,7 @@ try {
   ok(await sql("select value from settings where key='sync.auto_interval_seconds'") .includes('90'), 'offline setting change reached server');
 
   // roles: save permissions
-  await go('roles'); await page.locator('.card', { hasText: 'Field Worker' }).locator('[data-open]').click();
+  await go('roles'); await page.locator('.acc', { hasText: 'Field Worker' }).locator('[data-open]').first().click();
   await shot('03-role-open');
   await page.locator('[data-perm="locations.manage"]').check(); await page.click('[data-save]'); await page.waitForTimeout(1500);
   ok((await sql("select permissions from roles where key='field_worker'")).includes('locations.manage'), 'role permission saved on server');

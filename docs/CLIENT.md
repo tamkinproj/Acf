@@ -1,7 +1,7 @@
 # Browser client
 
 A no-build-step web client served by Laravel (`resources/views/shell.blade.php` → `public/app/main.js`).
-Plain ES modules, one small vendored library (Dexie, for IndexedDB), self-hosted fonts, a strict
+Plain ES modules, one small vendored library (Dexie, for IndexedDB), the device's own system font, a strict
 Content-Security-Policy (no inline scripts or styles). It works from a domain root or a sub-folder
 (`/acr/`) because every URL is built from `<html data-base>`.
 
@@ -14,7 +14,17 @@ Content-Security-Policy (no inline scripts or styles). It works from a domain ro
 | `public/app/sync/engine.js` | Push (batches of 50) → pull (atomic with the cursor) → conflicts. Phases: idle, syncing, offline, auth, device, error. |
 | `public/app/auth/` | Session state machine, device PIN (PBKDF2, 5 tries), idle lock |
 | `public/app/views/` | One module per screen, each exporting `{ mount(ctx) }` that returns a cleanup function |
-| `public/css/app.css` | The whole visual identity as custom properties; light and dark |
+| `public/css/tokens.css` | The design tokens (colour, type, spacing, radius, shadow, motion), light and dark. Shared with the installer. |
+| `public/css/app.css` | Every component (sidebar, tab bar, cards, grouped lists, table, forms, switches, sheets, toasts, skeletons) built only from the tokens |
+
+## Design system
+
+Apple-inspired: neutral surfaces, one accent (blue), hairlines instead of shadows, system font (SF Pro on Apple
+devices), generous spacing on a 4/8/12/16/20/24/32/40/48/64 scale, 8-20px radii. Colour is used for state only
+(green ok, orange attention, red error, blue information). Desktop uses a quiet sidebar; phones get a top bar,
+a bottom tab bar and bottom sheets. Lists are "grouped rows", People is a sortable table that turns into a list
+on phones, destructive and secondary actions live in action sheets. Dark mode is a real theme, not an inversion.
+Change a token in `tokens.css` and every screen follows; screens never carry their own styles.
 
 ## Rules the code follows
 

@@ -25,7 +25,7 @@
   <label for="sqlite_name">SQLite file name <span class="hint">(SQLite only; stored privately under storage/app/db)</span></label>
   <input id="sqlite_name" name="sqlite_name" type="text" value="{{ old('sqlite_name', $db['sqlite_name'] ?? 'foundation') }}">
   <div class="actions">
-    <button class="btn ghost" type="submit" name="action" value="test">Test Database Connection</button>
+    <button class="btn secondary" type="submit" name="action" value="test">Test Database Connection</button>
     <button class="btn" type="submit" name="action" value="save">Continue</button>
   </div>
 </form>

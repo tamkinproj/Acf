@@ -17,7 +17,7 @@
 <form method="post" action="{{ url('/install/requirements') }}">
   @csrf
   <div class="actions">
-    <a class="btn ghost" href="{{ url('/install/requirements') }}">Re-check</a>
+    <a class="btn secondary" href="{{ url('/install/requirements') }}">Re-check</a>
     <button class="btn" type="submit" @disabled(! $passes)>Continue</button>
   </div>
 </form>

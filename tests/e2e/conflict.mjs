@@ -23,13 +23,13 @@ async function login(page, claim) {
   await page.fill('#f-email', ADMIN.email); await page.fill('#f-password', ADMIN.password); await page.click('[data-login] button[type=submit]');
   if (claim) await page.click('[data-claim]');
   else { await page.fill('[data-new] #f-name', 'Second phone'); await page.click('[data-new] button[type=submit]'); }
-  await page.waitForSelector('.hero'); await page.waitForTimeout(1500);
+  await page.waitForSelector('.dash'); await page.waitForTimeout(1500);
   await page.getByRole('button', { name: 'Not now' }).click();
 }
 const synced = (page) => page.waitForFunction(() => /^Synced/.test(document.querySelector('.sync')?.innerText || ''), null, { timeout: 20000 });
 const edit = async (page, from, to) => {
   await page.goto(be.url + '/#/places'); await page.waitForSelector('.tree-row');
-  await page.locator('.tree-row', { hasText: from }).locator('[data-edit]').click();
+  await page.locator('.tree-row', { hasText: from }).locator('[data-actions]').click(); await page.click('[data-act="1"]');
   await page.fill('#f-name', to); await page.click('.sheet button[type=submit]'); await page.waitForTimeout(500);
 };
 try {

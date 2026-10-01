@@ -16,4 +16,3 @@ export function kit(ctx) {
   };
 }
 
-export const pageHead = (title, lead, actions = '') => `<div class="page-head"><div><h2>${title}</h2>${lead ? `<p>${lead}</p>` : ''}</div><div class="btn-row">${actions}</div></div>`;

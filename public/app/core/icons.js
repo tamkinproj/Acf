@@ -1,6 +1,6 @@
-import { raw } from './util.js';
+import { esc, raw } from './util.js';
 
-// One icon family: 24px grid, 1.75 stroke, round caps. Hand-drawn paths so nothing is fetched from anywhere.
+// One icon family (Lucide/SF-Symbols style): 24px grid, 1.6 stroke, round caps. Hand-drawn paths so nothing is fetched from anywhere.
 const P = {
   home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
@@ -22,6 +22,8 @@ const P = {
   trash: '<path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/>',
   edit: '<path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
   chevron: '<path d="M9 5l7 7-7 7"/>',
+  arrowUp: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+  arrowDown: '<path d="M12 5v14M6 13l6 6 6-6"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>',
   key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 8l3 3"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
@@ -41,17 +43,7 @@ const P = {
   folder: '<path d="M3 6.5A1.5 1.5 0 014.5 5H9l2 2.5h8.5A1.5 1.5 0 0121 9v9.5a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 18.5z"/>',
 };
 
-export const icon = (name, cls = '') => raw(`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] ?? P.info}</svg>`);
+export const icon = (name, cls = '') => raw(`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] ?? P.info}</svg>`);
 
-/** The khatam: two overlapping squares forming an eight-pointed star. */
-export function starPoints(cx, cy, R, ratio = 0.7654) {
-  const pts = [];
-  for (let i = 0; i < 16; i++) {
-    const a = (Math.PI / 8) * i - Math.PI / 2;
-    const r = i % 2 === 0 ? R : R * ratio;
-    pts.push(`${(cx + Math.cos(a) * r).toFixed(2)},${(cy + Math.sin(a) * r).toFixed(2)}`);
-  }
-  return pts.join(' ');
-}
-export const star = (cls = '') => raw(`<svg class="${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="${starPoints(12, 12, 11)}"/></svg>`);
-export const mark = (cls = 'mark') => raw(`<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true"><circle class="m-ring" cx="32" cy="32" r="31"/><polygon class="m-star" points="${starPoints(32, 32, 23)}"/><polygon class="m-cut" points="${starPoints(32, 32, 13.5)}"/><circle class="m-dot" cx="32" cy="32" r="4.6"/></svg>`);
+/** The default app mark: the foundation's initial on the accent colour (replaced by the logo once one is uploaded). */
+export const monogram = (name = 'F', cls = '') => raw(`<span class="mark ${cls}" aria-hidden="true">${esc(([...String(name).trim()][0] ?? 'F').toUpperCase())}</span>`);

@@ -62,7 +62,7 @@ function openMerge(c) {
     title: 'Combine both versions',
     body: html`<form class="form" data-merge-form><p class="muted">Edit the final value for each field. Fields you do not list keep the server's value.</p>
       ${fields.map((f) => field({ label: f.replace(/_/g, ' '), name: f, value: c.local_payload[f] ?? c.server_payload?.[f] ?? '' , hint: `Server: ${valueText(c.server_payload?.[f])}` }))}
-      <div class="btn-row"><button class="btn" type="submit">Save combined version</button><button class="btn ghost" type="button" data-close>Cancel</button></div></form>`,
+      <div class="btn-row"><button class="btn" type="submit">Save combined version</button><button class="btn secondary" type="button" data-close>Cancel</button></div></form>`,
     onMount: (el, close) => $('[data-merge-form]', el).addEventListener('submit', async (e) => {
       e.preventDefault();
       try { await resolveConflict(c.id, 'merged', readForm(e.currentTarget)); close(); toast('Combined version applied'); } catch (err) { toast(err.message, 'bad'); }
@@ -74,22 +74,22 @@ function view(entries, conflicts, manager) {
   const st = syncState.get();
   const d = describe(st);
   const waiting = entries.filter((e) => e.status !== 'conflict');
-  const tone = { ok: 'chip', busy: 'chip gold', offline: 'chip grey', pending: 'chip amber', failed: 'chip red', conflict: 'chip blue', auth: 'chip red' }[d.state];
+  const tone = { ok: 'chip green', busy: 'chip blue', offline: 'chip grey', pending: 'chip amber', failed: 'chip red', conflict: 'chip blue', auth: 'chip red' }[d.state];
   return html`
-    <div class="page-head"><div><h2>Sync</h2><p>Everything you do is saved on this device first. This page shows what has reached the server and what has not.</p></div>
+    <div class="page-head"><div><h1>Sync</h1><p>Everything you do is saved on this device first. This page shows what has reached the server and what has not.</p></div>
       <div class="btn-row"><button class="btn" type="button" data-sync ${st.phase === 'syncing' ? 'disabled' : ''}>${icon('sync')} ${st.phase === 'syncing' ? 'Syncing…' : 'Sync now'}</button></div></div>
 
-    <div class="card notch"><div class="card-head"><h3>Status</h3><span class="${tone}">${d.text}</span></div>
+    <div class="card"><div class="card-head"><h3>Status</h3><span class="${tone}">${d.text}</span></div>
       <dl class="kv"><dt>Last synced</dt><dd>${st.lastSyncAt ? `${fmtDateTime(st.lastSyncAt)} (${ago(st.lastSyncAt)})` : 'Not yet on this visit'}</dd>
         <dt>Waiting</dt><dd>${plural(st.pending, 'change')}</dd>
         ${st.lastError ? html`<dt>Last problem</dt><dd>${st.lastError}</dd>` : ''}</dl></div>
 
-    ${conflicts.length ? html`<section class="stack"><h3>Needs your decision</h3>
+    ${conflicts.length ? html`<section><h2>Needs your decision</h2><div class="stack">
       ${!manager ? html`<div class="banner info">${icon('info')}<div class="grow">These records were edited in two places at once. A manager has to choose which version to keep.</div></div>` : ''}
-      ${conflicts.map((c) => conflictCard(c, manager))}</section>` : ''}
+      ${conflicts.map((c) => conflictCard(c, manager))}</div></section>` : ''}
 
-    <section class="stack"><h3>Waiting to sync</h3>
-      ${waiting.length ? html`<div class="card"><ul class="list">${waiting.map(queueRow)}</ul></div>`
+    <section><h2>Waiting to sync</h2>
+      ${waiting.length ? html`<div class="card flush"><ul class="list">${waiting.map(queueRow)}</ul></div>`
         : html`<div class="empty">${icon('check')}<b>Nothing waiting</b><span>Every change made on this device is already on the server.</span></div>`}</section>`;
 }
 
@@ -104,5 +104,5 @@ const conflictCard = (c, manager) => html`<div class="card"><div class="card-hea
   <div class="stack">${(c.conflicting_fields.length ? c.conflicting_fields : Object.keys(c.local_payload)).map((f) => html`
     <div><div class="muted">${f.replace(/_/g, ' ')}</div><div class="diff"><div class="mine"><small>Your change</small>${valueText(c.local_payload[f])}</div><div class="theirs"><small>Server's version</small>${valueText(c.server_payload?.[f])}</div></div></div>`)}</div>
   ${manager ? html`<div class="btn-row"><button class="btn" type="button" data-resolve="${c.id}:accept_local">Use mine</button>
-    <button class="btn ghost" type="button" data-resolve="${c.id}:accept_server">Keep the server's</button>
-    ${c.op === 'update' ? html`<button class="btn ghost" type="button" data-merge="${c.id}">Combine…</button>` : ''}</div>` : ''}</div>`;
+    <button class="btn secondary" type="button" data-resolve="${c.id}:accept_server">Keep the server's</button>
+    ${c.op === 'update' ? html`<button class="btn secondary" type="button" data-merge="${c.id}">Combine…</button>` : ''}</div>` : ''}</div>`;

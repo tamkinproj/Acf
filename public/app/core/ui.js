@@ -88,5 +88,39 @@ export async function copyText(text) {
   try { await navigator.clipboard.writeText(text); toast('Copied'); } catch { toast('Copy failed: select the text and copy it manually.', 'bad'); }
 }
 
-export const busy = (btn, on, label) => { if (!btn) return; btn.disabled = on; if (label !== undefined) btn.dataset.label ||= btn.textContent; btn.textContent = on ? (label ?? btn.textContent) : (btn.dataset.label ?? btn.textContent); };
+export const busy = (btn, on, label) => {
+  if (!btn) return;
+  btn.disabled = on;
+  btn.toggleAttribute('aria-busy', on);
+  if (on) btn.setAttribute('aria-busy', 'true'); else btn.removeAttribute('aria-busy');
+  if (label !== undefined) btn.dataset.label ||= btn.textContent;
+  btn.textContent = on ? (label ?? btn.textContent) : (btn.dataset.label ?? btn.textContent);
+};
+
+/** Search field with a magnifier and a clear button (the clear button hides itself while the field is empty). */
+export const searchInput = ({ id = 'q', value = '', placeholder = 'Search', label = placeholder }) => html`
+  <div class="search"><label class="sr-only" for="${id}">${label}</label>${icon('search')}<input class="input" id="${id}" type="search" placeholder="${placeholder}" value="${value}" autocomplete="off" enterkeyhint="search">
+  <button class="icon-btn clear" type="button" aria-label="Clear search">${icon('x')}</button></div>`;
+document.addEventListener('click', (e) => {
+  const c = e.target.closest?.('.search .clear');
+  if (!c) return;
+  const input = c.parentElement.querySelector('input');
+  input.value = '';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.focus();
+});
+
+/** A short list of actions for one item (the iOS "action sheet"). actions: [{ label, icon, danger, run }] */
+export function actionSheet({ title, actions }) {
+  return sheet({
+    title,
+    body: html`<div class="actions-list">${actions.map((a, i) => html`<button type="button" data-act="${i}" class="${a.danger ? 'danger' : ''}">${a.icon ? icon(a.icon) : ''}${a.label}</button>`)}</div>`,
+    onMount: (el, close) => el.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-act]');
+      if (!b) return;
+      close();
+      actions[Number(b.dataset.act)].run();
+    }),
+  });
+}
 export { esc };

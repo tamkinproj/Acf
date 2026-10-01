@@ -18,6 +18,6 @@
 <p class="hint">Passwords are not shown.</p>
 <form method="post" action="{{ url('/install/run') }}">
   @csrf
-  <div class="actions"><a class="btn ghost" href="{{ url('/install/device') }}">Back</a><button class="btn" type="submit">Install Now</button></div>
+  <div class="actions"><a class="btn secondary" href="{{ url('/install/device') }}">Back</a><button class="btn" type="submit">Install Now</button></div>
 </form>
 @endsection

@@ -1,7 +1,7 @@
 import * as api from '../core/api.js';
 import { assetUrl } from '../core/config.js';
 import { db, setMeta } from '../core/db.js';
-import { icon, mark } from '../core/icons.js';
+import { icon, monogram } from '../core/icons.js';
 import { busy, field, readForm, sheet, showErrors, textarea, toast } from '../core/ui.js';
 import { $, html } from '../core/util.js';
 import { session } from '../auth/session.js';
@@ -58,7 +58,7 @@ function edit(f, places) {
       ${field({ label: 'Website', name: 'website', type: 'url', value: f.website, hint: 'Starting with https://' })}
       ${field({ label: 'Registration number', name: 'registration_number', value: f.registration_number })}
       ${textarea({ label: 'Registration details', name: 'registration_info', value: f.registration_info })}
-      <div class="btn-row"><button class="btn" type="submit">Save</button><button class="btn ghost" type="button" data-close>Cancel</button></div></form>`,
+      <div class="btn-row"><button class="btn" type="submit">Save</button><button class="btn secondary" type="button" data-close>Cancel</button></div></form>`,
     onMount: (el, close) => $('form', el).addEventListener('submit', async (e) => {
       e.preventDefault();
       const v = readForm(e.currentTarget);
@@ -75,10 +75,10 @@ function view(f, places, manage, logo) {
   if (!f) return html`<div class="empty">${icon('building')}<b>Profile not loaded yet</b><span>It arrives with the first sync.</span></div>`;
   const home = places.find((p) => p.id === f.default_location_id);
   return html`
-    <div class="page-head"><div><h2>Foundation</h2><p>How the foundation is identified on every screen and report.</p></div>
+    <div class="page-head"><div><h1>Foundation</h1><p>How the foundation is identified on every screen and report.</p></div>
       ${manage ? html`<div class="btn-row"><button class="btn" type="button" data-edit>${icon('edit')} Edit profile</button></div>` : ''}</div>
     <div class="card letterhead">
-      <div class="logo-box">${logo ? html`<img src="${assetUrl('assets/logo')}?v=${logo}" alt="Logo of ${f.name}">` : mark()}</div>
+      <div class="logo-box">${logo ? html`<img src="${assetUrl('assets/logo')}?v=${logo}" alt="Logo of ${f.name}">` : monogram(f.name)}</div>
       <div class="grow"><h3>${f.name}</h3>${f.short_name ? html`<p class="muted">${f.short_name}</p>` : ''}
         ${manage ? html`<div class="btn-row"><label class="btn sm ghost">${icon('upload')} ${logo ? 'Change logo' : 'Upload logo'}<input type="file" accept="image/png,image/jpeg,image/webp" data-logo hidden></label>
           ${logo ? html`<button class="btn sm ghost" type="button" data-rmlogo>Remove</button>` : ''}</div><p class="hint">Logos need a connection to upload. PNG, JPEG or WebP.</p>` : ''}</div></div>

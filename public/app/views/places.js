@@ -1,6 +1,6 @@
 import { db } from '../core/db.js';
 import { icon } from '../core/icons.js';
-import { confirmDialog, field, readForm, select, sheet, toast } from '../core/ui.js';
+import { actionSheet, confirmDialog, field, readForm, searchInput, select, sheet, toast } from '../core/ui.js';
 import { $, html, raw } from '../core/util.js';
 import { createRecord, removeRecord, updateRecord, UNSYNCED } from '../sync/outbox.js';
 import { kit } from './kit.js';
@@ -23,10 +23,10 @@ export default {
     const draw = () => {
       const tree = flatten(places, q);
       k.render(html`
-        <div class="page-head"><div><h2>Places</h2><p>Where the foundation works. Every beneficiary, distribution and project will point to one of these.</p></div>
+        <div class="page-head"><div><h1>Places</h1><p>Where the foundation works. Every beneficiary, distribution and project will point to one of these.</p></div>
           ${manage ? html`<div class="btn-row"><button class="btn" type="button" data-add="">${icon('plus')} Add place</button></div>` : ''}</div>
-        <div class="card">
-          <div class="field"><label class="sr-only" for="q">Search places</label><input class="input" id="q" type="search" placeholder="Search places…" value="${q}" autocomplete="off"></div>
+        <div class="card flush">
+          <div class="filters">${searchInput({ value: q, placeholder: 'Search places', label: 'Search places' })}</div>
           ${tree.length ? html`<ul class="tree">${tree.map(({ p, depth }) => row(p, depth, pending.has(p.id), manage))}</ul>`
             : html`<div class="empty">${icon('pin')}<b>${q ? 'No places match' : 'No places yet'}</b><span>${q ? 'Try a different name.' : manage ? 'Start with your country or region, then add what is inside it.' : 'Places will appear here once they are added.'}</span>
               ${!q && manage ? html`<button class="btn" type="button" data-add="">${icon('plus')} Add the first place</button>` : ''}</div>`}
@@ -40,15 +40,21 @@ export default {
 
     k.on('input', '#q', (e, t) => { q = t.value; draw(); });
     k.on('click', '[data-add]', (e, t) => openForm({ parentId: t.dataset.add || null }));
-    k.on('click', '[data-edit]', (e, t) => openForm({ id: t.dataset.edit }));
-    k.on('click', '[data-del]', async (e, t) => {
-      const p = byId().get(t.dataset.del);
+    k.on('click', '[data-actions]', (e, t) => {
+      const p = byId().get(t.dataset.actions);
+      actionSheet({ title: p.name, actions: [
+        { label: 'Add a place inside', icon: 'plus', run: () => openForm({ parentId: p.id }) },
+        { label: 'Edit', icon: 'edit', run: () => openForm({ id: p.id }) },
+        { label: 'Remove', icon: 'trash', danger: true, run: () => remove(p) },
+      ] });
+    });
+    async function remove(p) {
       if (places.some((c) => c.parent_id === p.id)) { toast('Move or remove the places inside it first.', 'bad'); return; }
       if (await confirmDialog({ title: `Remove “${p.name}”?`, text: 'It disappears for everyone after syncing. This is recorded in the activity log.', confirmLabel: 'Remove', danger: true })) {
         await removeRecord('locations', p.id);
         toast('Removed. It will sync when connected.');
       }
-    });
+    }
 
     function openForm({ id = null, parentId = null }) {
       const existing = id ? byId().get(id) : null;
@@ -69,7 +75,7 @@ export default {
           <div class="row-2">${field({ label: 'Latitude (optional)', name: 'latitude', type: 'number', value: existing?.latitude, attrs: 'step="any" min="-90" max="90"' })}
             ${field({ label: 'Longitude (optional)', name: 'longitude', type: 'number', value: existing?.longitude, attrs: 'step="any" min="-180" max="180"' })}</div>
           <div data-msg class="err" hidden></div>
-          <div class="btn-row"><button class="btn" type="submit">${existing ? 'Save' : 'Add place'}</button><button class="btn ghost" type="button" data-close>Cancel</button></div></form>`,
+          <div class="btn-row"><button class="btn" type="submit">${existing ? 'Save' : 'Add place'}</button><button class="btn secondary" type="button" data-close>Cancel</button></div></form>`,
         onMount: (el, close) => {
           const form = $('[data-form]', el);
           const syncLevels = () => {
@@ -101,15 +107,13 @@ export default {
   },
 };
 
-const row = (p, depth, isPending, manage) => html`
-  <li class="tree-row depth-${Math.min(depth, 5)} ${p.is_active === false ? 'is-inactive' : ''}">
-    <span class="indent"></span><span class="glyph">${icon(p.level === 'site' ? 'pin' : 'folder')}</span>
-    <div class="grow"><div class="name">${isPending ? html`<span class="pending-dot" title="Waiting to sync"></span>` : ''}${p.name}</div>
-      <div class="meta">${LABEL[p.level] ?? p.level}${p.code ? ` · ${p.code}` : ''}${p.is_active === false ? ' · inactive' : ''}</div></div>
-    ${manage ? html`<button class="icon-btn" type="button" data-add="${p.id}" aria-label="Add a place inside ${p.name}" title="Add inside">${icon('plus')}</button>
-      <button class="icon-btn" type="button" data-edit="${p.id}" aria-label="Edit ${p.name}">${icon('edit')}</button>
-      <button class="icon-btn" type="button" data-del="${p.id}" aria-label="Remove ${p.name}">${icon('trash')}</button>` : ''}
-  </li>`;
+const row = (p, depth, isPending, manage) => {
+  const inner = html`<span class="glyph">${icon(p.level === 'site' ? 'pin' : 'folder')}</span>
+    <span class="grow"><span class="name">${isPending ? html`<span class="pending-dot" title="Waiting to sync"></span>` : ''}${p.name}</span><br>
+      <span class="meta">${LABEL[p.level] ?? p.level}${p.code ? ` · ${p.code}` : ''}${p.is_active === false ? ' · inactive' : ''}</span></span>`;
+  return html`<li class="tree-row depth-${Math.min(depth, 5)} ${p.is_active === false ? 'is-inactive' : ''}">
+    ${manage ? html`<button class="row-main" type="button" data-actions="${p.id}" aria-label="${p.name}, ${LABEL[p.level] ?? p.level}. Actions">${inner}${icon('chevron', 'chev')}</button>` : html`<div class="row-main">${inner}</div>`}</li>`;
+};
 
 /** Depth-first, siblings alphabetical. Filtering keeps the ancestors of every match so context is never lost. */
 function flatten(places, q) {

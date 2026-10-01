@@ -1,7 +1,7 @@
 import { assetUrl } from '../core/config.js';
 import { currentRoute, href, navigate, prefetchViews, routes, visibleRoutes } from '../core/router.js';
 import { html, raw, $, $$, esc, fmtTime, plural } from '../core/util.js';
-import { icon, mark } from '../core/icons.js';
+import { icon, monogram } from '../core/icons.js';
 import { session, can } from '../auth/session.js';
 import { describe, syncState, syncNow } from '../sync/engine.js';
 import { sheet, toast } from '../core/ui.js';
@@ -9,7 +9,8 @@ import { live, db } from '../core/db.js';
 
 // The signed-in frame: sidebar on wide screens, top bar + bottom tabs on phones, and the always-visible sync indicator.
 
-const brandMark = (b) => (b?.logo_hash ? html`<img class="mark-img" src="${assetUrl('assets/logo')}?v=${b.logo_hash}" alt="">` : mark());
+const brandMark = (b, name) => (b?.logo_hash ? html`<img class="mark-img" src="${assetUrl('assets/logo')}?v=${b.logo_hash}" alt="">` : monogram(name));
+const skeleton = () => html`<div class="page-head"><div class="skeleton title"></div></div><div class="card flush"><div class="skeleton row"></div><div class="skeleton row"></div><div class="skeleton row"></div></div>`;
 
 export function mountShell(container) {
   const s = session.get();
@@ -20,51 +21,53 @@ export function mountShell(container) {
   const tabs = [...main.slice(0, 3)];
   const more = items.filter((r) => !tabs.includes(r));
 
+  const chipHtml = html`<button class="sync" type="button" data-sync-chip data-state="ok"><span class="sync-dot"></span><span class="sync-text">Synced</span></button>`;
   container.innerHTML = html`
     <div class="frame">
       <aside class="rail" aria-label="Main navigation">
-        <a class="rail-brand" href="${href(items[0]?.path ?? 'account')}">${brandMark(s.foundation)}<span><b>${name}</b><small>Foundation</small></span></a>
+        <a class="rail-brand" href="${href(items[0]?.path ?? 'account')}">${brandMark(s.foundation, name)}<span><b>${name}</b><small>Foundation</small></span></a>
         <ul class="nav">${main.map((r) => navItem(r))}</ul>
         ${manage.length ? html`<div class="nav-label">Manage</div><ul class="nav">${manage.map((r) => navItem(r))}</ul>` : ''}
-        <div class="nav-label">You</div><ul class="nav">${navItem(routes.find((r) => r.path === 'account'))}</ul>
-        <div class="rail-foot"><div class="rail-device" data-device></div></div>
+        <div class="nav-label">Account</div><ul class="nav">${navItem(routes.find((r) => r.path === 'account'))}</ul>
+        <div class="rail-foot">${chipHtml}<div class="rail-device" data-device></div></div>
       </aside>
       <div class="main">
-        <header class="topbar"><span class="brand-sm">${brandMark(s.foundation)}</span><h1 data-title>${name}</h1><button class="sync" type="button" data-sync-chip data-state="ok"><span class="sync-dot"></span><span class="sync-text">Synced</span></button></header>
+        <header class="topbar">${brandMark(s.foundation, name)}<span class="topbar-title" data-title>${name}</span>${chipHtml}</header>
         <div data-banner></div>
-        <main id="view" tabindex="-1"></main>
+        <main id="view" tabindex="-1" aria-live="polite"></main>
       </div>
       <nav class="tabbar" aria-label="Main navigation">
-        ${tabs.map((r) => html`<a href="${href(r.path)}" data-nav="${r.path}">${icon(r.icon)}<span>${r.title}</span>${r.path === 'sync' ? html`<span class="badge" data-badge hidden></span>` : ''}</a>`)}
+        ${tabs.map((r) => html`<a href="${href(r.path)}" data-nav="${r.path}">${icon(r.icon)}<span>${r.title}</span></a>`)}
         <button type="button" data-more>${icon('more')}<span>More</span></button>
       </nav>
     </div>`.toString();
 
-  const chip = $('[data-sync-chip]', container);
+  const chips = $$('[data-sync-chip]', container);
   const view = $('#view', container);
   let unmountView = null;
   let mountToken = 0;
 
-  chip.addEventListener('click', () => navigate('sync'));
+  chips.forEach((c) => c.addEventListener('click', () => navigate('sync')));
   $('[data-more]', container).addEventListener('click', () => openMore(more));
 
   // ---- live indicator ---------------------------------------------------------------------------------------
   const paint = () => {
     const st = syncState.get();
     const d = describe(st);
-    chip.dataset.state = d.state;
-    $('.sync-text', chip).textContent = d.text;
-    chip.title = st.lastSyncAt ? `Last synced ${fmtTime(st.lastSyncAt)}` : 'Not synced yet';
+    for (const chip of chips) {
+      chip.dataset.state = d.state;
+      $('.sync-text', chip).textContent = d.text;
+      chip.title = st.lastSyncAt ? `Last synced ${fmtTime(st.lastSyncAt)}` : 'Not synced yet';
+    }
     const attention = st.pending + st.failed + st.conflicts;
-    $$('[data-badge]', container).forEach((b) => { b.hidden = !attention; b.textContent = attention; });
-    $$('.nav [data-nav="sync"]', container).forEach((a) => { let b = $('.badge', a); if (attention) { if (!b) { b = Object.assign(document.createElement('span'), { className: 'badge' }); a.appendChild(b); } b.textContent = attention; } else b?.remove(); });
+    $$('[data-nav="sync"]', container).forEach((a) => { let b = $('.badge', a); if (attention) { if (!b) { b = Object.assign(document.createElement('span'), { className: 'badge' }); a.appendChild(b); } b.textContent = attention; } else b?.remove(); });
     $('[data-banner]', container).innerHTML = banners(st).toString();
   };
   const offStore = syncState.subscribe(paint);
   const offSession = session.subscribe(paint);
   paint();
 
-  const stopDevice = live(() => db.meta.get('deviceInfo'), (r) => { $('[data-device]', container).innerHTML = r?.value ? html`This device<br><span class="mono">${r.value.device_code}</span>`.toString() : ''; });
+  const stopDevice = live(() => db.meta.get('deviceInfo'), (r) => { $('[data-device]', container).innerHTML = r?.value ? html`This device · <span class="mono">${r.value.device_code}</span>`.toString() : ''; });
 
   container.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-action]');
@@ -85,6 +88,7 @@ export function mountShell(container) {
     unmountView?.(); unmountView = null;
     view.replaceChildren();
     const el = Object.assign(document.createElement('div'), { className: 'page' });
+    el.innerHTML = skeleton().toString();
     view.appendChild(el);
     try {
       const mod = (await route.load()).default;
@@ -120,6 +124,6 @@ function banners(st) {
 function openMore(items) {
   sheet({
     title: 'More',
-    body: html`<ul class="list">${items.map((r) => html`<li><a class="grow t cursor-link" href="${href(r.path)}" data-close>${icon(r.icon)} ${r.title}</a></li>`)}</ul>`,
+    body: html`<ul class="list">${items.map((r) => html`<li><a class="row-link" href="${href(r.path)}" data-close>${icon(r.icon)}<span>${r.title}</span>${icon('chevron', 'chev')}</a></li>`)}</ul>`,
   });
 }

@@ -18,7 +18,7 @@ const api = (p) => page.evaluate(async (u) => (await (await fetch(u, { credentia
 try {
   await page.goto(be.url + '/'); await page.waitForSelector('[data-login]');
   await page.fill('#f-email', ADMIN.email); await page.fill('#f-password', ADMIN.password); await page.click('[data-login] button[type=submit]');
-  await page.click('[data-claim]'); await page.waitForSelector('.hero'); await page.waitForTimeout(1500);
+  await page.click('[data-claim]'); await page.waitForSelector('.dash'); await page.waitForTimeout(1500);
   await page.getByRole('button', { name: 'Not now' }).click();
   await page.goto(be.url + '/#/places'); await page.waitForSelector('[data-add]');
 
@@ -29,8 +29,8 @@ try {
   await page.click('.sheet button[type=submit]'); await page.waitForSelector('.tree-row', { timeout: 5000 });
   ok(await page.locator('.tree-row', { hasText: 'Philippines' }).count() === 1, 'offline: place appears immediately');
   await page.waitForTimeout(800); await shot('01-offline-added');
-  const rowAdd = page.locator('.tree-row', { hasText: 'Philippines' }).locator('[data-add]');
-  if (await rowAdd.count()) { await rowAdd.first().click(); await page.fill('#f-name', 'Region XII'); await page.click('.sheet button[type=submit]'); await page.waitForTimeout(600); }
+  await page.locator('.tree-row', { hasText: 'Philippines' }).locator('[data-actions]').click(); await page.click('[data-act="0"]');
+  await page.fill('#f-name', 'Region XII'); await page.click('.sheet button[type=submit]'); await page.waitForTimeout(600);
   const pill = await page.locator('.sync').first().innerText();
   ok(/offline|waiting|change/i.test(pill), `indicator says: "${pill.replace(/\n/g, ' ')}"`);
   await page.goto(be.url + '/#/sync'); await page.waitForTimeout(700); await shot('02-sync-queue-offline');

@@ -62,9 +62,9 @@ function view(rows, pending, manage) {
   for (const r of rows) (groups[r.group || 'general'] ||= []).push(r);
   const tz = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [];
   return html`
-    <div class="page-head"><div><h2>Settings</h2><p>${manage ? 'Changes save on this device straight away and reach everyone after syncing.' : 'You can see the settings but not change them.'}</p></div></div>
-    ${rows.length ? Object.entries(groups).map(([g, list]) => html`<section class="stack"><h3>${GROUPS[g] ?? g}</h3>
-      <div class="card form">${list.map((r) => html`<div class="setting">${control(r, manage)}${pending.has(r.id) ? html`<span class="chip amber">Waiting to sync</span>` : ''}</div>`)}</div></section>`)
+    <div class="page-head"><div><h1>Settings</h1><p>${manage ? 'Changes save on this device straight away and reach everyone after syncing.' : 'You can see the settings but not change them.'}</p></div></div>
+    ${rows.length ? Object.entries(groups).map(([g, list]) => html`<section><h2>${GROUPS[g] ?? g}</h2>
+      <div class="card flush">${list.map((r) => html`<div class="setting">${control(r, manage)}${pending.has(r.id) ? html`<span class="chip amber">Waiting to sync</span>` : ''}</div>`)}</div></section>`)
       : html`<div class="empty">${icon('sliders')}<b>Settings not loaded yet</b><span>They arrive with the first sync.</span></div>`}
     <datalist id="tz">${tz.map((z) => html`<option value="${z}"></option>`)}</datalist>`;
 }

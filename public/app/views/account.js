@@ -19,6 +19,7 @@ export default {
     const draw = () => k.render(view(session.get(), sessions, sessionsError));
     const loadSessions = () => api.get('/auth/sessions').then(({ data }) => { sessions = data; sessionsError = ''; draw(); }).catch((e) => { sessionsError = e.network ? 'Needs a connection.' : api.explain(e); draw(); });
     const off = session.subscribe(draw);
+    draw();
     loadSessions();
 
     k.on('submit', '[data-profile]', async (e, form) => {
@@ -61,7 +62,7 @@ const device = (ua) => {
 function view(s, sessions, sessionsError) {
   const u = s.user;
   return html`
-    <div class="page-head"><div><h2>My account</h2><p>${u.email} · ${u.role?.name ?? ''}</p></div></div>
+    <div class="page-head"><div><h1>My account</h1><p>${u.email} · ${u.role?.name ?? ''}</p></div></div>
     <div class="grid-2">
       <section class="card"><div class="card-head"><h3>Profile</h3></div>
         <form class="form" data-profile novalidate>
@@ -77,10 +78,10 @@ function view(s, sessions, sessionsError) {
           ${field({ label: 'Repeat new password', name: 'password_confirmation', type: 'password', autocomplete: 'new-password', required: true })}
           <div class="btn-row"><button class="btn" type="submit">Change password</button></div></form></section>
 
-      <section class="card"><div class="card-head"><h3>This device</h3><span class="chip ${s.hasPin ? '' : 'amber'}">${s.hasPin ? 'PIN on' : 'No PIN'}</span></div>
+      <section class="card"><div class="card-head"><h3>This device</h3><span class="chip ${s.hasPin ? 'green' : 'amber'}">${s.hasPin ? 'PIN on' : 'No PIN'}</span></div>
         <p class="muted">A 6-digit PIN locks this device when idle and lets you back in without a connection.</p>
-        <div class="btn-row"><button class="btn ghost" type="button" data-pin-set>${icon('lock')} ${s.hasPin ? 'Change PIN' : 'Set a PIN'}</button>
-          ${s.hasPin ? html`<button class="btn ghost" type="button" data-pin-off>Remove PIN</button>` : ''}</div>
+        <div class="btn-row"><button class="btn secondary" type="button" data-pin-set>${icon('lock')} ${s.hasPin ? 'Change PIN' : 'Set a PIN'}</button>
+          ${s.hasPin ? html`<button class="btn secondary" type="button" data-pin-off>Remove PIN</button>` : ''}</div>
         <hr>${raw(select({ label: 'Appearance', name: 'theme', value: getTheme(), options: [['auto', 'Follow this device'], ['light', 'Light'], ['dark', 'Dark']] }).toString().replace('<select', '<select data-theme'))}</section>
 
       <section class="card"><div class="card-head"><h3>Where I'm signed in</h3></div>

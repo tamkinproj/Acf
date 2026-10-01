@@ -1,42 +1,50 @@
-:root{--green:#0f5c4d;--green-d:#0a4338;--green-l:#e6f2ef;--gold:#b8892b;--ink:#17262b;--mut:#5f7076;--line:#d9e2e0;--bg:#f4f7f6;--card:#fff;--ok:#1b7f4f;--bad:#b3261e;--warn:#9a6a00;--r:12px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:720px;margin:0 auto;padding:24px 16px 48px}
-.brand{display:flex;align-items:center;gap:12px;margin:8px 0 20px}
-.brand .mark{width:44px;height:44px;border-radius:12px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;font-size:20px}
-.brand b{display:block;letter-spacing:.12em;font-size:12px;color:var(--gold)}
-.brand span{font-size:18px;font-weight:600}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:24px 0 8px}
-p.lead{color:var(--mut);margin:0 0 20px}
-.steps{display:flex;gap:6px;margin:0 0 20px;padding:0;list-style:none}
-.steps li{flex:1;height:6px;border-radius:3px;background:var(--line)}
-.steps li.done{background:var(--green)}.steps li.now{background:var(--gold)}
-.steplabel{font-size:13px;color:var(--mut);margin:-12px 0 16px}
-label{display:block;font-weight:600;margin:16px 0 6px}
-.hint{font-weight:400;color:var(--mut);font-size:13px}
-input[type=text],input[type=email],input[type=url],input[type=password],input[type=number],input[type=file],select,textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid #b9c7c4;border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
-textarea{min-height:90px}
-input:focus,select:focus,textarea:focus,.btn:focus{outline:3px solid #9ccfc4;outline-offset:1px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:560px){.row{grid-template-columns:1fr}}
-.actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:28px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:10px;border:1px solid var(--green);background:var(--green);color:#fff;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
-.btn:hover{background:var(--green-d)}
-.btn.ghost{background:#fff;color:var(--green)}.btn.ghost:hover{background:var(--green-l)}
-.alert{padding:12px 14px;border-radius:10px;margin:0 0 16px;border:1px solid}
-.alert.bad{background:#fdecea;border-color:#f3b8b3;color:#7a1710}
-.alert.good{background:#e8f6ee;border-color:#a9dcbf;color:#14532d}
-.alert.warn{background:#fff6e0;border-color:#ecd28d;color:#6b4a00}
-.checks{list-style:none;margin:0;padding:0}
-.checks li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
-.checks .ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:700}
-.ic.ok{background:var(--ok)}.ic.no{background:var(--bad)}.ic.opt{background:#8a9a97}
-.checks small{display:block;color:var(--mut)}
-.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 16px;margin:0}
-.kv dt{color:var(--mut)}.kv dd{margin:0;word-break:break-word}
-@media(max-width:560px){.kv{grid-template-columns:1fr}}
-.center{text-align:center}.big{font-size:56px;color:var(--ok);line-height:1}
-code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace;background:#eef3f2;padding:2px 6px;border-radius:6px;font-size:14px}
-.tabs{display:flex;gap:8px;margin:8px 0}.tabs label{margin:0;font-weight:500;display:flex;gap:6px;align-items:center}
-.err{color:var(--bad);font-size:14px;margin-top:4px}
+/* Installer pages - same tokens and feel as the app (see tokens.css). */
+.wrap { max-width: 600px; margin: 0 auto; padding: var(--s7) var(--s4) var(--s10); }
+.brand { display: flex; align-items: center; gap: var(--s3); margin: var(--s2) 0 var(--s6); }
+.brand .mark { width: 40px; height: 40px; border-radius: 11px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+.brand b { display: block; font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--text-3); }
+.brand span { font-size: 17px; font-weight: 600; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: var(--s7); box-shadow: var(--shadow); }
+@media (max-width: 560px) { .card { padding: var(--s5); } }
+h1 { font-size: 28px; font-weight: 700; letter-spacing: -.02em; margin: 0 0 var(--s1); }
+h2 { font-size: 20px; margin: var(--s7) 0 var(--s2); }
+p.lead { color: var(--text-2); margin: 0 0 var(--s6); }
+.steps { display: flex; gap: 6px; margin: 0 0 var(--s2); padding: 0; list-style: none; }
+.steps li { flex: 1; height: 4px; border-radius: 2px; background: var(--fill); }
+.steps li.done { background: var(--accent); }
+.steps li.now { background: var(--accent); opacity: .5; }
+.steplabel { font-size: 13px; color: var(--text-2); margin: 0 0 var(--s6); }
+label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin: var(--s4) 0 6px; }
+.hint { font-weight: 400; color: var(--text-3); font-size: 13px; }
+input[type=text], input[type=email], input[type=url], input[type=password], input[type=number], input[type=file], select, textarea { width: 100%; min-height: 44px; padding: 10px var(--s3); border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
+textarea { min-height: 96px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
+@media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+.actions { display: flex; gap: var(--s3); justify-content: space-between; align-items: center; margin-top: var(--s7); flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 var(--s5); border: 0; border-radius: 10px; background: var(--accent); color: var(--on-accent); font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; transition: background var(--t-fast), transform var(--t-fast); }
+.btn:hover { background: var(--accent-hover); text-decoration: none; }
+.btn:active { transform: scale(.98); }
+.btn.secondary, .btn.ghost { background: var(--fill); color: var(--text); }
+.btn.secondary:hover, .btn.ghost:hover { background: var(--fill-strong); }
+.alert { padding: var(--s3) var(--s4); border-radius: var(--r); margin: 0 0 var(--s4); font-size: 14px; }
+.alert.bad { background: var(--red-soft); color: var(--text); }
+.alert.good { background: var(--green-soft); color: var(--text); }
+.alert.warn { background: var(--orange-soft); color: var(--text); }
+.checks { list-style: none; margin: 0; padding: 0; }
+.checks li { display: flex; gap: var(--s3); padding: var(--s3) 0; border-bottom: 1px solid var(--line); }
+.checks li:last-child { border-bottom: 0; }
+.checks .ic { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 700; }
+.ic.ok { background: var(--green-solid); } .ic.no { background: var(--red); } .ic.opt { background: var(--text-3); }
+.checks small { display: block; color: var(--text-2); }
+.kv { display: grid; grid-template-columns: 150px 1fr; margin: 0; }
+.kv dt, .kv dd { margin: 0; padding: var(--s3) 0; border-bottom: 1px solid var(--line); }
+.kv dt { color: var(--text-2); }
+.kv dd { overflow-wrap: anywhere; }
+@media (max-width: 560px) { .kv { grid-template-columns: 1fr; } .kv dt { border-bottom: 0; padding-bottom: 0; } }
+.center { text-align: center; }
+.big { width: 64px; height: 64px; margin: 0 auto var(--s4); border-radius: 50%; display: grid; place-items: center; background: var(--green-soft); color: var(--green); font-size: 30px; line-height: 1; }
+code, .mono { background: var(--fill-2); padding: 2px 6px; border-radius: 6px; font-family: var(--mono); font-size: 13px; }
+.tabs { display: flex; gap: var(--s4); margin: var(--s2) 0; flex-wrap: wrap; }
+.tabs label { margin: 0; font-weight: 500; font-size: 15px; color: var(--text); display: flex; gap: 6px; align-items: center; }
+.err { color: var(--red); font-size: 13px; margin-top: 4px; }

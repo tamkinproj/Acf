@@ -50,20 +50,20 @@ function view(roles, catalog, counts, manage, openId, draft, loadError) {
   const groups = {};
   catalog.forEach((p) => (groups[p.group] ||= []).push(p));
   return html`
-    <div class="page-head"><div><h2>Roles</h2><p>Each person has one role. A role is a set of things they are allowed to do.</p></div></div>
+    <div class="page-head"><div><h1>Roles</h1><p>Each person has one role. A role is a set of things they are allowed to do.</p></div></div>
     ${loadError ? html`<div class="banner info">${icon('info')}<div class="grow">${loadError}</div></div>` : ''}
-    <div class="stack">${roles.map((r) => {
+    <div class="card flush">${roles.map((r) => {
       const open = r.id === openId;
       const locked = r.key === 'super_admin';
-      return html`<div class="card ${open ? 'open' : ''}">
+      return html`<div class="acc ${open ? 'open' : ''}">
         <button class="row-btn" type="button" data-open="${r.id}" aria-expanded="${open}">
           <span class="grow"><b>${r.name}</b>${r.is_system ? html` <span class="chip grey">Built in</span>` : ''}<span class="d">${r.description || ''}</span></span>
           <span class="muted">${plural(counts.get(r.id) || 0, 'person', 'people')} · ${locked ? 'everything' : plural((r.permissions || []).length, 'permission')}</span>${icon('chevron')}</button>
         ${open ? html`<div class="perm-grid">
           ${locked ? html`<div class="banner info">${icon('shield')}<div class="grow">Super Admin always holds every permission and cannot be changed.</div></div>` : ''}
-          ${catalog.length ? Object.entries(groups).map(([g, list]) => html`<fieldset ${locked || !manage ? 'disabled' : ''}><legend>${g}${manage && !locked ? html` <button class="link" type="button" data-group="${g}">toggle all</button>` : ''}</legend>
+          ${catalog.length ? Object.entries(groups).map(([g, list]) => html`<fieldset ${locked || !manage ? 'disabled' : ''}><legend>${g}${manage && !locked ? html` · <button class="link" type="button" data-group="${g}">toggle all</button>` : ''}</legend>
             ${list.map((p) => html`<label class="check"><input type="checkbox" data-perm="${p.key}" ${locked || draft?.has(p.key) ? 'checked' : ''}> <span>${p.label}</span></label>`)}</fieldset>`)
             : html`<p class="muted">${(r.permissions || []).join(', ') || 'No permissions'}</p>`}
-          ${manage && !locked && catalog.length ? html`<div class="btn-row"><button class="btn" type="button" data-save>Save permissions</button><button class="btn ghost" type="button" data-open="${r.id}">Cancel</button></div>` : ''}</div>` : ''}</div>`;
+          ${manage && !locked && catalog.length ? html`<div class="btn-row"><button class="btn" type="button" data-save>Save permissions</button><button class="btn secondary" type="button" data-open="${r.id}">Cancel</button></div>` : ''}</div>` : ''}</div>`;
     })}</div>`;
 }
