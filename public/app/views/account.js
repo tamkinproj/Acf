@@ -74,7 +74,7 @@ function view(s, sessions, sessionsError) {
       <section class="card"><div class="card-head"><h3>Password</h3></div>
         <form class="form" data-password novalidate>
           ${field({ label: 'Current password', name: 'current_password', type: 'password', autocomplete: 'current-password', required: true })}
-          ${field({ label: 'New password', name: 'password', type: 'password', autocomplete: 'new-password', required: true, hint: 'At least 12 characters.' })}
+          ${field({ label: 'New password', name: 'password', type: 'password', autocomplete: 'new-password', required: true, hint: 'At least 10 characters, with letters and numbers.' })}
           ${field({ label: 'Repeat new password', name: 'password_confirmation', type: 'password', autocomplete: 'new-password', required: true })}
           <div class="btn-row"><button class="btn" type="submit">Change password</button></div></form></section>
 
