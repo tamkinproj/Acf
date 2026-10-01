@@ -1,0 +1,9 @@
+# Defence in depth: this folder holds .env, vendor/ and storage/. It must never be served by the web server.
+# (The web root is the separate public_html/ folder; if this folder ever ends up under it, deny everything.)
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

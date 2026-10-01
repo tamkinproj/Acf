@@ -10,5 +10,5 @@
     Nothing was deleted. Review your answers and run the installation again.
   </div>
 @endif
-<div class="actions"><span></span><a class="btn" href="/install/{{ $step }}">{{ $error ? 'Resume Setup' : 'Start Setup' }}</a></div>
+<div class="actions"><span></span><a class="btn" href="{{ url('/install/'.$step) }}">{{ $error ? 'Resume Setup' : 'Start Setup' }}</a></div>
 @endsection

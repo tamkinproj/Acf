@@ -13,6 +13,21 @@ setup wizard. Allow about 15 minutes.
    Use a brand-new, empty database dedicated to this system — never one that another app uses.
 3. **SSL on** — Security → SSL, and turn on *Force HTTPS*.
 
+## Use a subdomain if your domain already hosts another site
+
+If `yourdomain.com` already runs another application (for example MuslimEdu), **do not install Foundation into
+that site's `public_html`** and do not change that site's PHP version. Create a subdomain such as
+`foundation.yourdomain.com` in hPanel, set **PHP 8.3 on that subdomain only**, and give it its own empty database.
+Note the folder Hostinger assigns to the subdomain (often `public_html/foundation`).
+
+- Put the **contents of the package's `public_html` folder** into the subdomain's folder.
+- Put `foundation_app` **outside every web folder** — in the domain folder that contains `public_html`.
+- If the subdomain's folder is `public_html/foundation`, open its `index.php` and change `../foundation_app` to
+  `../../foundation_app` (3 places). If the folder sits directly beside `foundation_app`, change nothing.
+
+The installer checks this for you: if `foundation_app` is somewhere the web server can serve, the
+requirements step fails with "Application folder is outside the public web folder" and nothing is installed.
+
 ## Upload
 
 1. hPanel → **File Manager**. Open the folder that **contains** `public_html`

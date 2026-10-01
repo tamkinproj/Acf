@@ -16,8 +16,8 @@
   <dt>Device</dt><dd>{{ $d['device']['name'] ?? '' }} ({{ $d['device']['type'] ?? '' }})</dd>
 </dl>
 <p class="hint">Passwords are not shown.</p>
-<form method="post" action="/install/run">
+<form method="post" action="{{ url('/install/run') }}">
   @csrf
-  <div class="actions"><a class="btn ghost" href="/install/device">Back</a><button class="btn" type="submit">Install Now</button></div>
+  <div class="actions"><a class="btn ghost" href="{{ url('/install/device') }}">Back</a><button class="btn" type="submit">Install Now</button></div>
 </form>
 @endsection

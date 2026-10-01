@@ -127,7 +127,7 @@ class InstallController extends Controller
         if ($redirect = $this->require('database')) {
             return $redirect;
         }
-        $defaults = ['app_name' => 'Foundation Management System', 'app_url' => request()->getSchemeAndHttpHost(), 'timezone' => 'Asia/Manila', 'locale' => 'en', 'currency' => 'PHP', 'deployment_model' => 'central'];
+        $defaults = ['app_name' => 'Foundation Management System', 'app_url' => request()->root(), 'timezone' => 'Asia/Manila', 'locale' => 'en', 'currency' => 'PHP', 'deployment_model' => 'central'];
 
         return view('install.system', ['current' => 'system', 'v' => ($this->state->data()['system'] ?? []) + $defaults,
             'timezones' => \DateTimeZone::listIdentifiers(), 'locales' => SettingsCatalog::LOCALES, 'currencies' => SettingsCatalog::CURRENCIES, 'models' => config('foundation.deployment_models')]);

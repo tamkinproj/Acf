@@ -6,7 +6,7 @@
 @if($testResult)
   <div class="alert {{ $testResult['ok'] ? 'good' : 'bad' }}" role="status">{{ $testResult['message'] }}</div>
 @endif
-<form method="post" action="/install/database" autocomplete="off">
+<form method="post" action="{{ url('/install/database') }}" autocomplete="off">
   @csrf
   <div class="tabs" role="radiogroup" aria-label="Database type">
     @if($mysql)<label><input type="radio" name="driver" value="mysql" @checked(old('driver', $db['driver']) === 'mysql')> MySQL / MariaDB</label>@endif

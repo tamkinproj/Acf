@@ -3,7 +3,7 @@
 @section('content')
 <h1>System configuration</h1>
 <p class="lead">Basic settings. You can change most of these later in Settings.</p>
-<form method="post" action="/install/system">
+<form method="post" action="{{ url('/install/system') }}">
   @csrf
   <label for="app_name">Application name</label>
   <input id="app_name" name="app_name" type="text" required value="{{ old('app_name', $v['app_name']) }}">
@@ -23,6 +23,6 @@
         @foreach(['central'=>'Central server','local_server'=>'Local foundation server','standalone'=>'Standalone (one device)'] as $k => $label)@if(in_array($k,$models,true))<option value="{{ $k }}" @selected(old('deployment_model', $v['deployment_model']) === $k)>{{ $label }}</option>@endif @endforeach
       </select></div>
   </div>
-  <div class="actions"><a class="btn ghost" href="/install/database">Back</a><button class="btn" type="submit">Continue</button></div>
+  <div class="actions"><a class="btn ghost" href="{{ url('/install/database') }}">Back</a><button class="btn" type="submit">Continue</button></div>
 </form>
 @endsection

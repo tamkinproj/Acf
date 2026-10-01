@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>@yield('title', 'Setup') · Foundation Management System</title>
-<link rel="stylesheet" href="/css/foundation.css">
+<link rel="stylesheet" href="{{ asset('css/foundation.css') }}">
 </head>
 <body>
 <div class="wrap">

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ $foundation->name ?? config('app.name') }}</title>
-<link rel="stylesheet" href="/css/foundation.css">
+<link rel="stylesheet" href="{{ asset('css/foundation.css') }}">
 </head>
 <body>
 <div class="wrap">

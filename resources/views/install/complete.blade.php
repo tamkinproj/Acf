@@ -12,5 +12,5 @@
   <dt>Device</dt><dd>{{ $summary['device'] }}</dd>
   <dt>System version</dt><dd>{{ $summary['version'] }}</dd>
 </dl>
-<div class="actions"><span></span><a class="btn" href="/">Go to Dashboard</a></div>
+<div class="actions"><span></span><a class="btn" href="{{ url('/') }}">Go to Dashboard</a></div>
 @endsection

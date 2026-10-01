@@ -38,6 +38,11 @@ class Requirements
         $checks[] = $this->check('db-sqlite', 'SQLite driver (pdo_sqlite)', $sqlite,
             'Only needed for standalone SQLite installs.', required: false);
 
+        $exposed = $this->appFolderIsPublic();
+        $checks[] = $this->check('private-app', 'Application folder is outside the public web folder', ! $exposed,
+            'The application folder is inside your website\'s public folder, so anyone could download its files, including the database password the installer will write. '
+            .'Move the application folder (foundation_app) OUT of public_html, next to it, and leave only the public files in the web folder.');
+
         foreach ($this->writableDirs() as $label => $dir) {
             $ok = $this->ensureWritable($dir);
             $checks[] = $this->check('dir-'.md5($dir), "Writable: {$label}", $ok,
@@ -62,6 +67,24 @@ class Requirements
             "Unsupported session driver '{$driver}'.");
 
         return $checks;
+    }
+
+    /**
+     * True when the folder holding .env/vendor/storage lives under the web server's document root.
+     * (Normal layouts keep it OUTSIDE: the document root is public/ or public_html/ only.) Skipped when
+     * there is no web document root, e.g. on the command line.
+     */
+    public function appFolderIsPublic(): bool
+    {
+        $docRoot = (string) request()->server('DOCUMENT_ROOT', '');
+        $docRoot = $docRoot !== '' ? realpath($docRoot) : false;
+        $app = realpath(base_path());
+        if ($docRoot === false || $app === false) {
+            return false;
+        }
+        $docRoot = rtrim($docRoot, '/\\').DIRECTORY_SEPARATOR;
+
+        return str_starts_with(rtrim($app, '/\\').DIRECTORY_SEPARATOR, $docRoot);
     }
 
     public function passes(): bool
