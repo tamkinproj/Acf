@@ -53,7 +53,7 @@
 .reg-qs { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
 .reg-qs > li { padding: var(--s2) var(--s3) var(--s2) 0; gap: var(--s2); min-height: 0; flex-wrap: wrap; }
 .reg-q.has-error { background: var(--red-soft); }
-.reg-q-main { flex: 1 1 200px; min-width: 0; display: grid; gap: 2px; padding: var(--s2) var(--s4); border: 0; background: none; text-align: start; border-radius: var(--r-sm); }
+.reg-q-main { flex: 1 1 140px; min-width: 0; display: grid; gap: 2px; padding: var(--s2) var(--s4); border: 0; background: none; text-align: start; border-radius: var(--r-sm); }
 .reg-q-main:hover:not([disabled]) { background: var(--fill-2); }
 .reg-q-main[disabled] { cursor: default; opacity: 1; color: inherit; }
 .reg-q-main .t { font-weight: 500; overflow-wrap: anywhere; }
@@ -105,7 +105,8 @@
 .reg-note { margin-top: var(--s2); padding: var(--s2) var(--s3); border-radius: var(--r-sm); background: var(--fill-2); white-space: pre-wrap; overflow-wrap: anywhere; }
 .reg-ans { white-space: pre-wrap; }
 .reg-file { display: grid; gap: var(--s2); }
-.reg-file-meta { display: flex; align-items: center; gap: var(--s2); }
+.reg-file-meta { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+.reg-file-meta .grow { flex: 1 1 120px; overflow-wrap: anywhere; }
 .reg-file-meta > svg { width: 18px; height: 18px; color: var(--text-3); flex: none; }
 .reg-thumb { width: 160px; max-width: 100%; max-height: 160px; object-fit: cover; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--fill-2); }
 .reg-canon + .reg-canon { margin-top: var(--s4); }
@@ -192,3 +193,15 @@
 .imp-sub .banner { align-items: center; flex-wrap: wrap; }
 .imp-lock { display: flex; align-items: center; gap: var(--s2); }
 .imp-lock svg { width: 14px; height: 14px; flex: none; }
+
+.field[hidden] { display: none; }
+@media (max-width: 560px) {
+  .reg .kv, .reg-contact, .reg-canon .kv { grid-template-columns: minmax(0, 1fr); }
+  .reg .kv dt { padding-bottom: 0; border-bottom: 0; font-size: 13px; }
+  .reg .kv dd { padding-top: 2px; }
+  .reg-review-title { align-items: flex-start; }
+}
+@media (max-width: 560px) {
+  .imp-steps { gap: 0; }
+  .imp-steps li { min-width: 0; font-size: 11px; }
+}

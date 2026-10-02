@@ -129,7 +129,7 @@ async function mountBatch(tab, batchId) {
   // ---- views -------------------------------------------------------------------------------------------------------
   const head = (title) => html`<a class="reg-back" href="${tab.link()}">${icon('chevron', 'flip')}All imports</a>
     <div class="page-head reg-head"><div><h2 class="reg-h">${title}</h2><div class="prop">${batchChip(b.status)}<span>${plural(b.row_count, 'row')}</span><span>Uploaded ${ago(b.created_at)}</span></div></div>
-      ${open() ? html`<div class="btn-row"><button class="btn danger sm" type="button" data-cancel>Cancel this import</button></div>` : ''}</div>`;
+      ${open() && run.state !== 'running' ? html`<div class="btn-row"><button class="btn danger sm" type="button" data-cancel>Cancel this import</button></div>` : ''}</div>`;
 
   const mappingStep = () => {
     const mapping = draftMapping;
@@ -180,13 +180,13 @@ async function mountBatch(tab, batchId) {
       <div class="card-head"><div><h3>2. Check the file</h3><p>Every row is checked against the rules for a child's record, and compared with the children already on file. Nothing is created yet.</p></div></div>
       ${b.status === 'mapped' ? html`<div class="btn-row"><button class="btn" type="button" data-validate>Check the file</button><button class="btn secondary" type="button" data-edit-map>Change the column matching</button></div>`
         : html`${summaryCards()}
-          <div class="btn-row"><button class="btn secondary sm" type="button" data-edit-map>Change the column matching</button><button class="btn secondary sm" type="button" data-validate>Check again</button></div>
+          ${run.state === 'idle' ? html`<div class="btn-row"><button class="btn secondary sm" type="button" data-edit-map>Change the column matching</button><button class="btn secondary sm" type="button" data-validate>Check again</button></div>` : ''}
           ${(s.invalid ?? 0) > 0 ? invalidList() : ''}`}</section>`;
   };
 
   const invalidList = () => html`<div class="imp-sub"><h4>Rows with errors</h4>
       <div class="banner warn">${icon('alert')}<div class="grow">These rows have problems and <b>will not be imported</b>. The best fix is to correct them in your file and upload it again. Or carry on below and import only the rows that are fine.</div>
-        <button class="btn sm secondary" type="button" data-startover>Fix the file and upload again</button></div>
+        ${run.state === 'idle' ? html`<button class="btn sm secondary" type="button" data-startover>Fix the file and upload again</button>` : ''}</div>
       ${invalid.error ? html`<div class="banner bad">${icon('alert')}<div class="grow">${invalid.error}</div><button class="btn sm" type="button" data-retry-invalid>Try again</button></div>` : ''}
       <ul class="list imp-rows">${invalid.rows.map((r) => html`<li class="imp-row"><div class="grow"><div class="t">Row ${r.row_number}</div>
           <ul class="imp-msgs">${Object.entries(r.errors).map(([k, msgs]) => html`<li><b>${k === 'row' ? 'This row' : targetLabel(k)}:</b> ${[].concat(msgs).join(' ')}</li>`)}</ul>${cells(r)}</div></li>`)}</ul>
