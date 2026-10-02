@@ -13,6 +13,7 @@ use App\Models\SystemState;
 use App\Models\User;
 use App\Tenancy\TenantContext;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Brings an installation up to the code's release: migrations, then the data changes a release needs. One place used by
@@ -48,6 +49,11 @@ class Upgrader
 
     public function hasPlatformAdmin(): bool
     {
+        // Before the upgrade has run, an older database has no platform at all (and no users.foundation_id to ask about).
+        if (! Schema::hasColumn('users', 'foundation_id')) {
+            return false;
+        }
+
         return $this->tenant->asSystem(fn () => User::query()->whereNull('foundation_id')->whereNull('deleted_at')->exists());
     }
 
