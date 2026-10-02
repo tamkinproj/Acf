@@ -29,6 +29,18 @@ class ProgramsTest extends TestCase
         return Program::find($id);
     }
 
+    public function test_signing_in_lists_programs_for_an_admin_who_is_not_a_member_of_any(): void
+    {
+        $this->makeProgram('Aytam Care', 'aytam', true);
+        $this->makeProgram('Flood relief', 'relief', true);
+        auth()->logout();
+        $this->app['auth']->forgetGuards();
+
+        $r = $this->postJson('/api/auth/login', ['email' => 'admin@example.test', 'password' => 'Correct-horse-9'])->assertOk();
+        $this->assertEqualsCanonicalizing(['Aytam Care', 'Flood relief'], array_column($r->json('data.programs'), 'name'));
+        $this->assertNull($r->json('data.programs.0.role'), 'a foundation admin has no program role, and that is fine');
+    }
+
     private function roleId(string $key): string
     {
         return Role::where('key', $key)->value('id');

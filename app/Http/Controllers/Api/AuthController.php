@@ -207,7 +207,7 @@ class AuthController extends Controller
                 array_merge($user->role?->permissions ?? [], $grants[$p->getKey()] ?? []),
                 fn ($k) => in_array($k, $programPerms, true),
             )));
-            $role = $memberships[$p->getKey()]?->role;
+            $role = $memberships->get($p->getKey())?->role;
 
             return [
                 'id' => $p->getKey(), 'name' => $p->name, 'slug' => $p->slug, 'category' => $p->category, 'module' => $p->module,
