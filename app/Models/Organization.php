@@ -14,6 +14,7 @@ class Organization extends Model
     public const TYPES = ['partner', 'donor', 'government', 'school', 'hospital', 'ngo', 'community', 'business', 'other'];
 
     protected $guarded = [];
+    protected array $auditExcept = ['address', 'email', 'phone', 'notes'];
 
     public static function syncFields(): array
     {

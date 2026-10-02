@@ -92,20 +92,23 @@ requirements step fails with "Application folder is outside the public web folde
 
 ## Updating to a new version
 
-Two small zips, no renaming and no copying. They contain only code folders (never `storage`, `.env` or `index.php`),
+Two zips, no renaming and no copying. They contain only code folders (never `storage`, `.env` or `index.php`),
 so your installation, settings and data are not touched.
 
 1. `update-foundation_app.zip` → open the `foundation_app` folder, upload it there, **Extract** here, answer yes to overwrite.
 2. `update-web.zip` → open your web folder (e.g. `public_html/acr`), upload it there, **Extract** here, answer yes to overwrite.
-3. Refresh the site (pull down on a phone, or Ctrl+F5).
+3. Open the site. If the release changes the database it shows **"This site needs to be upgraded"** (`/upgrade`): paste the
+   one-time token from `foundation_app/storage/app/install/token` and press **Upgrade**. The upgrade is safe to repeat; your
+   data is kept. If the release introduces the Platform Admin (version 2), the page also asks you to create the first one.
+4. Refresh the site (pull down on a phone, or Ctrl+F5).
 
-Only when a release says the PHP libraries changed will it also ship a new `vendor` folder.
+Version 2 ships a new `vendor` folder (the spreadsheet reader); `update-foundation_app.zip` already includes it.
 
-## Forgot the Super Admin password (or email)
+## Forgot an administrator password (Platform Admin or Foundation Admin)
 
 No command line needed. `scripts/reset-admin.template.php` is a one-time recovery page: replace `__KEY__` with a long random
 string, save it as `reset-admin.php` in the web folder (e.g. `public_html/acr`), and open
-`https://yourdomain/acr/reset-admin.php?k=<that string>`. It lists the Super Admin accounts, lets you choose a new password,
+`https://yourdomain/acr/reset-admin.php?k=<that string>`. It lists the Platform and Foundation Admin accounts, lets you choose a new password,
 signs out other sessions, and deletes itself. Without the key it answers 404. Delete it manually if it is still there afterwards.
 
 ## Troubleshooting
@@ -120,6 +123,5 @@ signs out other sessions, and deletes itself. Without the key it answers 404. De
 
 ## What works right now
 
-This package contains the **server side** (installer, accounts, roles, foundation profile, locations,
-audit log, devices and the sync API). The screens people will use day to day (login page, dashboard, offline
-app) are the next build phase — after installing you will see a "System is running" page.
+Platform administration, foundations, users, roles, programs, organizations, Aytam records, documents, registration
+forms and public links, review, and CSV/Excel import. See `PHASE1.md`.

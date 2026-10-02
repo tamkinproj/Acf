@@ -11,6 +11,7 @@ class OrganizationContact extends Model
     use Syncable, BelongsToFoundation;
 
     protected $guarded = [];
+    protected array $auditExcept = ['email', 'phone', 'notes'];
     protected $casts = ['is_primary' => 'boolean'];
 
     public static function syncFields(): array

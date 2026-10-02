@@ -46,12 +46,13 @@ echo "Built $OUT ($(du -h "$OUT" | cut -f1))"
 
 # UPDATE zips: drop-in, no renaming or copying. Each one is extracted INSIDE its target folder and contains only
 # complete code folders - never storage/, .env or index.php - so an installed site keeps its settings and data.
-#   update-foundation_app.zip -> extract inside foundation_app   (code; vendor is unchanged unless composer.lock changes)
+#   update-foundation_app.zip -> extract inside foundation_app   (code + vendor: version 2 adds the spreadsheet reader)
+#   After extracting both, open the site: it redirects to /upgrade (token in storage/app/install/token) to migrate the data.
 #   update-web.zip            -> extract inside the web folder (e.g. public_html/acr)
 UPD_APP="${OUT%/*}/update-foundation_app.zip"
 UPD_WEB="${OUT%/*}/update-web.zip"
 rm -f "$UPD_APP" "$UPD_WEB"
-(cd "$STAGE/foundation_app" && zip -qr "$UPD_APP" app bootstrap config database resources routes)
+(cd "$STAGE/foundation_app" && zip -qr "$UPD_APP" app bootstrap config database resources routes vendor composer.json composer.lock)
 (cd "$STAGE/public_html" && zip -qr "$UPD_WEB" app css icons vendor)
 echo "Built $UPD_APP ($(du -h "$UPD_APP" | cut -f1))"
 echo "Built $UPD_WEB ($(du -h "$UPD_WEB" | cut -f1))"

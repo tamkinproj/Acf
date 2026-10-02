@@ -19,7 +19,8 @@ ready for them (see `docs/ARCHITECTURE.md`).
 2. Open the site's URL. You are taken to the setup wizard (`/install`).
 3. Read the one-time token from `storage/app/install/token` (File Manager / FTP) and paste it in.
    (Not needed when you browse from the server itself on `127.0.0.1`.)
-4. Follow the wizard: requirements → database → system → foundation → administrator → device → install.
+4. Follow the wizard: requirements → database → system → platform administrator → install. Then sign in and create
+   foundations from the Platform screens. (An existing single-foundation installation upgrades itself at `/upgrade`.)
 
 The wizard supports MySQL/MariaDB or SQLite (single-device installs), needs no internet, writes `.env`
 for you, builds the database, and then **locks itself**: `/install` answers *"This system is already
@@ -48,6 +49,8 @@ php artisan serve                # then open /install
 
 ## Documents
 
+- `docs/PHASE1.md` — the platform / foundation / program model, Aytam, registration, import, security, upgrade and how to add a program.
+- `docs/SYSTEM_OVERVIEW_AND_ROADMAP.md` — what exists, what is next (19 phases).
 - `docs/ARCHITECTURE.md` — design decisions, data model, security, extension points.
 - `docs/SYNC_PROTOCOL.md` — the exact push / pull / status / conflict contract the client builds against.
 - `docs/CLIENT.md` — how the browser client is built, how to add a screen or an entity, and how it is tested.

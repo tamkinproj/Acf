@@ -1,5 +1,5 @@
 <?php
-// ONE-TIME Super Admin recovery. Upload to the web folder (e.g. public_html/acr), open it once, then it deletes itself.
+// ONE-TIME administrator recovery (Platform Admins and Foundation Admins). Upload to the web folder (e.g. public_html/acr), open it once, then it deletes itself.
 // Proof of ownership = the secret key below, which only someone with File Manager access can read.
 // You choose the new password here; nothing is shown, mailed or stored in clear text.
 const RESET_KEY = '__KEY__';
@@ -33,14 +33,24 @@ $laravel = require "$app/bootstrap/app.php";
 $laravel->make(Illuminate\Contracts\Http\Kernel::class)->bootstrap();
 
 use App\Core\Users\PasswordPolicy;
+use App\Models\Foundation;
 use App\Models\User;
+use App\Tenancy\TenantContext;
 
+// Recovery works across the whole platform, so it reads and writes outside any one foundation.
+$tenant = $laravel->make(TenantContext::class);
 try {
-    $admins = User::query()->whereHas('role', fn ($q) => $q->where('key', 'super_admin'))->orderBy('created_at')->get(['id', 'name', 'email', 'status']);
+    $admins = $tenant->asSystem(function () {
+        $names = Foundation::query()->pluck('name', 'id');
+
+        return User::query()->whereHas('role', fn ($q) => $q->whereIn('key', ['platform_admin', 'foundation_admin']))
+            ->orderByRaw('foundation_id is not null')->orderBy('created_at')->get(['id', 'name', 'email', 'status', 'foundation_id'])
+            ->each(fn ($u) => $u->setAttribute('where', $u->foundation_id ? ($names[$u->foundation_id] ?? 'Foundation') : 'Platform'));
+    });
 } catch (Throwable $e) {
     $page('Database', '<h1>Cannot read the database</h1><div class="bad">Check the database settings in <code>.env</code>. ('.$esc(class_basename($e)).')</div>');
 }
-if ($admins->isEmpty()) { $page('No Super Admin', '<h1>No Super Admin found</h1><div class="bad">The installation never finished. Run the setup wizard with a new empty database.</div>'); }
+if ($admins->isEmpty()) { $page('No administrator', '<h1>No administrator found</h1><div class="bad">The installation never finished. Run the setup wizard with a new empty database.</div>'); }
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -56,11 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($v->fails()) { $error = $v->errors()->first(); }
     }
     if ($error === '') {
-        $target = User::query()->findOrFail($user->id);
-        $target->forceFill(['password' => $pw, 'must_change_password' => false, 'status' => 'active'])->save();
+        $target = $tenant->asSystem(fn () => User::query()->findOrFail($user->id));
+        $tenant->asSystem(fn () => $target->forceFill(['password' => $pw, 'must_change_password' => false, 'status' => 'active'])->save());
         try { $laravel->make(App\Core\Users\SessionRevoker::class)->revokeAll($target->getKey()); } catch (Throwable) {}
         try { Illuminate\Support\Facades\RateLimiter::clear('login'); Illuminate\Support\Facades\Cache::flush(); } catch (Throwable) {}
-        try { $laravel->make(App\Core\Audit\Auditor::class)->record('user.password_reset', 'Super Admin password reset with the recovery file', 'users', $target->getKey()); } catch (Throwable) {}
+        try { $tenant->asSystem(fn () => $laravel->make(App\Core\Audit\Auditor::class)->record('user.password_reset', 'Administrator password reset with the recovery file', 'users', $target->getKey(), null, null, $target, $target->foundation_id)); } catch (Throwable) {}
         @unlink(__FILE__);
         $page('Done', '<h1>Password changed</h1><div class="ok">You can now sign in as <b>'.$esc($target->email).'</b> with the password you just chose.</div>'
             .'<div class="box">This recovery file has <b>deleted itself</b>. If it is still listed in File Manager, delete <code>'.$esc(basename(__FILE__)).'</code> now.</div>');
@@ -68,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $options = '';
-foreach ($admins as $a) { $options .= '<option value="'.$esc($a->id).'">'.$esc($a->name).' — '.$esc($a->email).($a->status !== 'active' ? ' (disabled)' : '').'</option>'; }
-$page('Reset Super Admin', '<h1>Reset Super Admin</h1><p>Choose a new password. Other devices will be signed out.</p>'
+foreach ($admins as $a) { $options .= '<option value="'.$esc($a->id).'">'.$esc($a->where).' · '.$esc($a->name).' — '.$esc($a->email).($a->status !== 'active' ? ' (disabled)' : '').'</option>'; }
+$page('Reset administrator', '<h1>Reset administrator</h1><p>Choose a new password. Other devices will be signed out.</p>'
     .($error ? '<div class="bad">'.$esc($error).'</div>' : '')
     .'<form method="post" class="box" autocomplete="off"><label for="user">Account</label><select id="user" name="user">'.$options.'</select>'
     .'<label for="p1">New password</label><input id="p1" type="password" name="password" required autocomplete="new-password">'

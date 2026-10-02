@@ -73,7 +73,9 @@ describe('first sync', () => {
     await engine.syncNow();
     assert.equal(engine.syncState.get().phase, 'idle');
     assert.ok((await dbm.getMeta('cursor')) > 0);
-    assert.equal((await dbm.table('roles').toArray()).length, 6);
+    const serverRoles = (await api.get('/roles')).data;
+    assert.ok(serverRoles.length >= 6);
+    assert.equal((await dbm.table('roles').toArray()).length, serverRoles.length);
     assert.equal((await dbm.table('foundations').toArray()).length, 1);
     assert.ok((await dbm.table('settings').toArray()).length >= 7);
     assert.equal((await dbm.table('users').toArray()).length, 1);
