@@ -16,6 +16,11 @@ class EnsureInstalled
             return $next($request);
         }
 
+        // A person opening the address in a browser is sent to the installer; programs get the JSON answer.
+        if (! $request->is('api/*') && ! $request->expectsJson()) {
+            return redirect('/install');
+        }
+
         return ApiResponse::error('NOT_INSTALLED', 'The system is not installed yet. Open /install on the server.', 503);
     }
 }

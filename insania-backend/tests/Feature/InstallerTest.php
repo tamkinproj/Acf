@@ -41,6 +41,17 @@ class InstallerTest extends TestCase
         $this->getJson('/api/ping')->assertOk()->assertJsonPath('data.installed', false);
     }
 
+    public function test_a_browser_visit_before_install_goes_to_the_installer(): void
+    {
+        $this->get('/')->assertRedirect('/install');
+    }
+
+    public function test_the_home_address_is_friendly_once_installed(): void
+    {
+        InstallState::markInstalled();
+        $this->get('/')->assertOk()->assertSee('Insania server is running');
+    }
+
     public function test_page_shows_and_creates_the_token_file(): void
     {
         $this->get('/install')->assertOk()->assertSee('storage/app/install/token', false);
