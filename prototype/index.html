@@ -60,16 +60,14 @@ p{margin:0 0 1rem}
 .skip{position:absolute;inset-inline-start:1rem;top:-4rem;background:var(--brand);color:#fff;padding:.6rem 1rem;border-radius:999px;z-index:100}
 .skip:focus{top:1rem}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
-.icon{width:1.25rem;height:1.25rem;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.icon{width:1.25rem;height:1.25rem;min-width:1.25rem;max-width:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
-.proto{font-size:.8rem;text-align:center;padding:.4rem 1rem;color:var(--muted)}
-.proto b{color:var(--accent-ink)}
 
 /* glass surfaces */
 .glass,.card,.float,.nav .row,.tabbar{background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
 
 /* ---------- Floating glass navigation ---------- */
-.nav{position:sticky;top:.6rem;z-index:50;padding-inline:.6rem}
+.nav{position:sticky;top:.6rem;z-index:50;padding-inline:.6rem;margin-top:.6rem}
 .nav .row{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:1200px;margin-inline:auto;min-height:4.1rem;padding:.4rem .6rem;padding-inline-start:.9rem;border-radius:999px;border:1px solid var(--line);box-shadow:var(--shadow)}
 .brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;font-weight:700;color:var(--ink);font-size:1rem;line-height:1.2;letter-spacing:-.01em}
 .logo{width:3.2rem;height:3.2rem;flex:none;background:var(--logo) center/contain no-repeat}
@@ -88,6 +86,7 @@ p{margin:0 0 1rem}
 .btn-line:hover{background:rgba(110,125,100,.2)}
 .btn-sm{padding:.65rem 1rem;font-size:.85rem}
 .signin .t{display:none}
+@media(max-width:639px){#lang,.signin{width:2.75rem;height:2.75rem;padding:0}#lang .icon,.signin .icon{width:1.4rem;height:1.4rem;min-width:1.4rem}}
 @media(min-width:640px){.signin .t{display:inline}}
 
 /* ---------- iOS-style floating tab bar (phones) ---------- */
@@ -97,7 +96,7 @@ p{margin:0 0 1rem}
 .tabbar a.active .icon{color:var(--accent-ink)}
 .tabbar{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
 .tabbar a.active{background:var(--accent-soft);color:var(--brand)}
-@media(max-width:520px){#langLabel{display:none}}
+@media(max-width:639px){#langLabel{display:none}}
 @media(min-width:1120px){.tabbar{display:none}}
 
 /* ---------- Sections ---------- */
@@ -324,8 +323,6 @@ html.lite{scroll-behavior:auto}
     <symbol id="i-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
   </defs>
 </svg>
-
-<div class="proto"><b data-i18n="proto1">Prototype</b> <span data-i18n="proto2">· sample content and placeholders. Replace everything in [brackets].</span></div>
 
 <!-- ============ NAVBAR ============ -->
 <header class="nav">
@@ -838,7 +835,7 @@ html.lite{scroll-behavior:auto}
   var LOGIN_URL = "#";
 
   var AR = {
-    skip:"تخطَّ إلى المحتوى", proto1:"نموذج أوّلي", proto2:"· محتوى تجريبي وعناصر نائبة. استبدل كل ما بين [أقواس].",
+    skip:"تخطَّ إلى المحتوى", 
     brand:"مؤسسة الإنسانية الخيرية", n_home:"الرئيسية", n_about:"من نحن", n_programs:"البرامج", n_partners:"الشركاء", n_impact:"الأثر", n_news:"الأخبار", n_contact:"تواصل معنا", signin:"تسجيل الدخول",
     h_eyebrow:"رعاية الأيتام ودعم المجتمع", h_t1:"نرعى كل يتيم،", h_t2:"بكرامة وثقة.",
     h_sub:"تدعم مؤسسة الإنسانية الخيرية الأيتام وأسرهم في الفلبين عبر برامج يكفلها شركاء موثوقون في الإمارات.",
