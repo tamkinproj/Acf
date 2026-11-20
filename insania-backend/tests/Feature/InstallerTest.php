@@ -52,6 +52,14 @@ class InstallerTest extends TestCase
         $this->get('/')->assertOk()->assertSee('Insania server is running');
     }
 
+    public function test_forms_post_back_to_their_own_address_so_a_subfolder_works(): void
+    {
+        // The server lives at /server/ on the real site; a form pointing at "/install" would leave that folder.
+        $this->assertDoesNotMatchRegularExpression('/<form[^>]*action="\//', $this->get('/install')->getContent());
+        InstallState::markInstalled();
+        $this->assertDoesNotMatchRegularExpression('/<form[^>]*action="\//', $this->get('/upgrade')->getContent());
+    }
+
     public function test_page_shows_and_creates_the_token_file(): void
     {
         $this->get('/install')->assertOk()->assertSee('storage/app/install/token', false);

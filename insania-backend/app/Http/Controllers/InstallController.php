@@ -74,7 +74,8 @@ class InstallController extends Controller
     public function upgradeShow()
     {
         if (! InstallState::installed()) {
-            return redirect('/install');
+            // Relative address: keeps the /server folder and the page's own http/https.
+            return new \Illuminate\Http\RedirectResponse(request()->getBaseUrl().'/install', 302);
         }
         InstallState::token();
 

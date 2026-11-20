@@ -6,7 +6,7 @@
 @if($errors)<div class="err">@foreach($errors as $e)<div>{{ $e }}</div>@endforeach</div>@endif
 <div class="card"><strong>Server check</strong>
 @foreach($rows as $r)<div class="{{ $r['ok'] ? 'ok' : 'bad' }}">{{ $r['ok'] ? '✓' : '✗' }} {{ $r['label'] }} <small>{{ $r['detail'] }}</small></div>@endforeach</div>
-<form method="post" action="/install" autocomplete="off">
+<form method="post" autocomplete="off">
 <div class="card"><h2>1. Setup code</h2>
 <small>Open <code>{{ $hint }}</code> in File Manager, copy the text inside, paste it here. This proves you control the server.</small>
 <label>Setup code</label><input name="token" required></div>

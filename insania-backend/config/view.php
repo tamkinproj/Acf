@@ -28,9 +28,11 @@ return [
     |
     */
 
+    // Each uploaded package has its own BUILD id, so pages saved by an older upload are never reused
+    // (unzipping in File Manager can keep old file dates, which would hide a fix).
     'compiled' => env(
         'VIEW_COMPILED_PATH',
-        realpath(storage_path('framework/views'))
+        storage_path('framework/views'.(is_file(base_path('BUILD')) ? '/'.preg_replace('/[^A-Za-z0-9_-]/', '', (string) file_get_contents(base_path('BUILD'))) : ''))
     ),
 
 ];

@@ -18,7 +18,8 @@ class EnsureInstalled
 
         // A person opening the address in a browser is sent to the installer; programs get the JSON answer.
         if (! $request->is('api/*') && ! $request->expectsJson()) {
-            return redirect('/install');
+            // Relative address: keeps the /server folder and the page's own http/https.
+            return new \Illuminate\Http\RedirectResponse(request()->getBaseUrl().'/install', 302);
         }
 
         return ApiResponse::error('NOT_INSTALLED', 'The system is not installed yet. Open /install on the server.', 503);

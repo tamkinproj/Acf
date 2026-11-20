@@ -16,5 +16,6 @@ for d in storage/app/install storage/logs storage/framework/cache/data storage/f
 cp "$SRC/deploy/server/index.php" "$OUT/public_html/server/index.php"
 cp "$SRC/deploy/server/.htaccess" "$OUT/public_html/server/.htaccess"
 ( cd "$OUT/insania_app/vendor" && find . -name .git -type d -prune -exec rm -rf {} + ; find . -type d \( -name tests -o -name Tests -o -name docs \) -prune -exec rm -rf {} + )
+date -u +%Y%m%d%H%M%S > "$OUT/insania_app/BUILD"
 printf "Require all denied\n" > "$OUT/insania_app/.htaccess"
 echo built
