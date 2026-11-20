@@ -305,6 +305,11 @@ html.lite{scroll-behavior:auto}
     <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol>
     <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2.7s7 7.3 7 12a7 7 0 0 1-14 0c0-4.7 7-12 7-12z"/></symbol>
+    <symbol id="i-mosque" viewBox="0 0 24 24"><path d="M4 21v-7a8 8 0 0 1 16 0v7"/><line x1="2" y1="21" x2="22" y2="21"/><line x1="12" y1="6" x2="12" y2="2"/></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 10l9-6 9 6"/><line x1="5" y1="10" x2="5" y2="18"/><line x1="12" y1="10" x2="12" y2="18"/><line x1="19" y1="10" x2="19" y2="18"/><line x1="3" y1="21" x2="21" y2="21"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><polyline points="3 8 12 13 21 8"/><line x1="12" y1="13" x2="12" y2="21"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M22 9l-10-5L2 9l10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
   </defs>
 </svg>
@@ -501,30 +506,34 @@ html.lite{scroll-behavior:auto}
     <div class="head">
       <span class="eyebrow" data-i18n="pj_eyebrow">Implemented projects</span>
       <h2 class="title" data-i18n="pj_title">Projects we have completed</h2>
-      <p class="lead" data-i18n="pj_lead">A record of what we have built and delivered, with the location, year and sponsor of each project.</p>
+      <p class="lead" data-i18n="pj_lead">From orphan care to education, alumni, waqf, water and mosques: a record of what we have delivered, with the location, year and sponsor of each project.</p>
     </div>
 
     <div class="grid g4">
       <div class="card stat"><div class="num"><b data-count="24">24</b><span>+</span></div><div class="lab" data-i18n="pj_s1">Projects completed</div></div>
-      <div class="card stat"><div class="num"><b data-count="9">9</b></div><div class="lab" data-i18n="pj_s2">Schools and madrasas</div></div>
+      <div class="card stat"><div class="num"><b data-count="8">8</b></div><div class="lab" data-i18n="pj_s2">Types of projects</div></div>
       <div class="card stat"><div class="num"><b data-count="15">15</b></div><div class="lab" data-i18n="pj_s3">Communities reached</div></div>
       <div class="card stat"><div class="num"><b data-count="800">800</b><span>+</span></div><div class="lab" data-i18n="pj_s4">People benefiting</div></div>
     </div>
-    <p class="note" data-i18n="pj_note">Sample figures. Replace with the real numbers.</p>
+    <p class="note" data-i18n="pj_note">Sample figures and projects. Replace them with the real ones and add one card per project.</p>
 
     <div class="filters" role="group" aria-label="Filter projects">
       <button class="fbtn" type="button" data-f="all" aria-pressed="true" data-i18n="f_all">All</button>
+      <button class="fbtn" type="button" data-f="orphan" aria-pressed="false" data-i18n="cat_orphan">Orphan care</button>
       <button class="fbtn" type="button" data-f="edu" aria-pressed="false" data-i18n="cat_edu">Education</button>
-      <button class="fbtn" type="button" data-f="ground" aria-pressed="false" data-i18n="cat_ground">Construction</button>
-      <button class="fbtn" type="button" data-f="train" aria-pressed="false" data-i18n="cat_train">Training and events</button>
+      <button class="fbtn" type="button" data-f="alumni" aria-pressed="false" data-i18n="cat_alumni">Alumni</button>
+      <button class="fbtn" type="button" data-f="waqf" aria-pressed="false" data-i18n="cat_waqf">Waqf</button>
+      <button class="fbtn" type="button" data-f="water" aria-pressed="false" data-i18n="cat_water">Water</button>
+      <button class="fbtn" type="button" data-f="mosque" aria-pressed="false" data-i18n="cat_mosque">Mosques</button>
       <button class="fbtn" type="button" data-f="relief" aria-pressed="false" data-i18n="cat_relief">Relief</button>
+      <button class="fbtn" type="button" data-f="train" aria-pressed="false" data-i18n="cat_train">Training and events</button>
     </div>
 
     <div class="grid g3">
-      <article class="card proj" data-cat="edu">
-        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_edu">Education</span><svg class="icon"><use href="#i-image"/></svg></div>
+      <article class="card proj" data-cat="orphan">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_orphan">Orphan care</span><svg class="icon"><use href="#i-heart"/></svg></div>
         <span class="badge" data-i18n="pj_done">Completed</span>
-        <h3 style="margin-top:.7rem" data-i18n="pj_t1">[Madrasa construction]</h3>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t1">[Orphan sponsorship and care]</h3>
         <ul class="meta">
           <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
           <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
@@ -533,9 +542,9 @@ html.lite{scroll-behavior:auto}
         </ul>
       </article>
       <article class="card proj" data-cat="edu">
-        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_edu">Education</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_edu">Education</span><svg class="icon"><use href="#i-book"/></svg></div>
         <span class="badge" data-i18n="pj_done">Completed</span>
-        <h3 style="margin-top:.7rem" data-i18n="pj_t2">[Classroom rehabilitation]</h3>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t2">[Madrasa construction]</h3>
         <ul class="meta">
           <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
           <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
@@ -543,10 +552,10 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
       </article>
-      <article class="card proj" data-cat="ground">
-        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_ground">Construction</span><svg class="icon"><use href="#i-image"/></svg></div>
+      <article class="card proj" data-cat="alumni">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_alumni">Alumni</span><svg class="icon"><use href="#i-cap"/></svg></div>
         <span class="badge" data-i18n="pj_done">Completed</span>
-        <h3 style="margin-top:.7rem" data-i18n="pj_t3">[Groundbreaking: new school building]</h3>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t3">[Alumni program and graduation]</h3>
         <ul class="meta">
           <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
           <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
@@ -554,10 +563,32 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
       </article>
-      <article class="card proj" data-cat="train">
-        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_train">Training and events</span><svg class="icon"><use href="#i-image"/></svg></div>
+      <article class="card proj" data-cat="waqf">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_waqf">Waqf</span><svg class="icon"><use href="#i-bank"/></svg></div>
         <span class="badge" data-i18n="pj_done">Completed</span>
-        <h3 style="margin-top:.7rem" data-i18n="pj_t4">[Graduation and alumni program]</h3>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t4">[Waqf (endowment) project]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+      <article class="card proj" data-cat="water">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_water">Water</span><svg class="icon"><use href="#i-drop"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t5">[Water tank project]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+      <article class="card proj" data-cat="mosque">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_mosque">Mosques</span><svg class="icon"><use href="#i-mosque"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t6">[Mosque construction]</h3>
         <ul class="meta">
           <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
           <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
@@ -566,9 +597,9 @@ html.lite{scroll-behavior:auto}
         </ul>
       </article>
       <article class="card proj" data-cat="relief">
-        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_relief">Relief</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_relief">Relief</span><svg class="icon"><use href="#i-box"/></svg></div>
         <span class="badge" data-i18n="pj_done">Completed</span>
-        <h3 style="margin-top:.7rem" data-i18n="pj_t5">[Relief goods distribution]</h3>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t7">[Relief goods distribution]</h3>
         <ul class="meta">
           <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
           <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
@@ -577,9 +608,20 @@ html.lite{scroll-behavior:auto}
         </ul>
       </article>
       <article class="card proj" data-cat="train">
-        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_train">Training and events</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_train">Training and events</span><svg class="icon"><use href="#i-users"/></svg></div>
         <span class="badge" data-i18n="pj_done">Completed</span>
-        <h3 style="margin-top:.7rem" data-i18n="pj_t6">[Teacher and student training]</h3>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t8">[Teacher and student training]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+      <article class="card proj" data-cat="edu">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_edu">Education</span><svg class="icon"><use href="#i-book"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t9">[Classroom rehabilitation]</h3>
         <ul class="meta">
           <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
           <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
@@ -821,7 +863,7 @@ html.lite{scroll-behavior:auto}
     o1:"استفسار عام", o2:"طلب مساعدة", o3:"الكفالة", o4:"أن أصبح شريكًا", o5:"شكوى أو اقتراح",
     f_msg:"الرسالة", f_consent:"أوافق على التواصل معي بشأن طلبي وأقبل سياسة الخصوصية.", f_send:"إرسال الرسالة",
     f_ok:"نموذج أوّلي فقط: لم تُرسَل رسالتك. في الموقع الفعلي تصل إلى [بريد التواصل].",
-    ld_eyebrow:"القيادة", ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]", tm_eyebrow:"فريقنا", tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع", pj_eyebrow:"المشاريع المنفذة", pj_title:"مشاريعنا المنفذة", pj_lead:"سجلّ بما بنيناه وأنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"مدارس ومعاهد", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام تجريبية. استبدلها بالأرقام الحقيقية.", f_all:"الكل", cat_edu:"التعليم", cat_ground:"الإنشاءات", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_t1:"[بناء مدرسة (مدراسة)]", pj_t2:"[تأهيل الفصول الدراسية]", pj_t3:"[وضع حجر الأساس: مبنى مدرسة جديد]", pj_t4:"[حفل التخرج وبرنامج الخريجين]", pj_t5:"[توزيع مواد الإغاثة]", pj_t6:"[تدريب المعلمين والطلاب]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)", g_eyebrow:"من الميدان", g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.", sp1:"جمعية دار البر", sp2:"جمعية دبي الخيرية", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
+    ld_eyebrow:"القيادة", ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]", tm_eyebrow:"فريقنا", tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع", pj_eyebrow:"المشاريع المنفذة", pj_title:"مشاريعنا المنفذة", pj_lead:"من رعاية الأيتام إلى التعليم والخريجين والوقف والمياه والمساجد: سجلّ بما أنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"نوعًا من المشاريع", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام ومشاريع تجريبية. استبدلها بالحقيقية وأضف بطاقة لكل مشروع.", f_all:"الكل", cat_edu:"التعليم", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)", g_eyebrow:"من الميدان", g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.", sp1:"جمعية دار البر", sp2:"جمعية دبي الخيرية", cat_orphan:"رعاية الأيتام", cat_alumni:"الخريجون", cat_waqf:"الوقف", cat_water:"المياه", cat_mosque:"المساجد", pj_t1:"[كفالة الأيتام ورعايتهم]", pj_t2:"[بناء مدرسة (مدراسة)]", pj_t3:"[برنامج الخريجين وحفل التخرج]", pj_t4:"[مشروع وقفي]", pj_t5:"[مشروع خزان مياه]", pj_t6:"[بناء مسجد]", pj_t7:"[توزيع مواد الإغاثة]", pj_t8:"[تدريب المعلمين والطلاب]", pj_t9:"[تأهيل الفصول الدراسية]", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
     l1:"سياسة الخصوصية", l2:"شروط الاستخدام", l3:"حماية الأطفال", l4:"سياسة الشكاوى", rights:"جميع الحقوق محفوظة.", lic:"رقم الترخيص",
     t_title:"مؤسسة الإنسانية الخيرية | رعاية الأيتام ودعم المجتمع",
     e_req:"هذا الحقل مطلوب.", e_mail:"أدخل بريدًا إلكترونيًا صحيحًا.", e_cons:"يلزم الموافقة للمتابعة."
