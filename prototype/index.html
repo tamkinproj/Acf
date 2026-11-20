@@ -344,6 +344,14 @@ main > section.hero{background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rg
 @media(max-width:959px){main > section.hero,[dir=rtl] main > section.hero{background:linear-gradient(180deg,#fff 60%,#f8fcee);padding-top:0}.hero-intro{display:flex;flex-direction:column;justify-content:flex-end;min-height:min(calc(100vh - 6.5rem),44rem);min-height:min(calc(100svh - 6.5rem),44rem);margin-inline:-1rem;padding:2rem 1rem 1.75rem;background:linear-gradient(180deg,rgba(12,28,6,0) 18%,rgba(12,28,6,.4) 38%,rgba(12,28,6,.88) 52%,#0c1c06 60%),var(--hero-photo) 36% top/auto 60% no-repeat,#0c1c06}.hero-intro .eyebrow{align-self:flex-start;background:rgba(255,255,255,.9)}.hero-intro h1{color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.25)}.hero-intro h1 em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--accent)}.hero-intro .lead{color:rgba(255,255,255,.92);margin-bottom:0}}@media(min-width:640px) and (max-width:959px){.hero-intro{margin-inline:-1.5rem;padding-inline:1.5rem}}
 .hero-card{background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%)}
 
+/* plain icons: no tinted background behind them */
+.chip{background:none;width:auto;height:auto;border-radius:0;place-items:start;color:var(--brand)}
+.chip .icon{width:1.75rem;height:1.75rem;min-width:1.75rem}
+.fcard .chip,.info .chip{width:auto;height:auto}
+.fcard .chip .icon{width:1.5rem;height:1.5rem;min-width:1.5rem}
+.info .chip .icon{width:1.4rem;height:1.4rem;min-width:1.4rem}
+details[open] summary .icon{background:var(--fill)}
+
 /* render below-the-fold sections only when they get close (faster first paint on every device) */
 section:not(.hero),footer{content-visibility:auto;contain-intrinsic-size:auto 700px}
 .linkbtn{font:inherit;font-size:.8rem;background:var(--fill);border:0;border-radius:999px;padding:.4rem .9rem;color:var(--muted);cursor:pointer}
@@ -388,6 +396,7 @@ html.lite{scroll-behavior:auto}
     <symbol id="i-mosque" viewBox="0 0 24 24"><path d="M4 21v-7a8 8 0 0 1 16 0v7"/><line x1="2" y1="21" x2="22" y2="21"/><line x1="12" y1="6" x2="12" y2="2"/></symbol>
     <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 10l9-6 9 6"/><line x1="5" y1="10" x2="5" y2="18"/><line x1="12" y1="10" x2="12" y2="18"/><line x1="19" y1="10" x2="19" y2="18"/><line x1="3" y1="21" x2="21" y2="21"/></symbol>
     <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><polyline points="3 8 12 13 21 8"/><line x1="12" y1="13" x2="12" y2="21"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="13" rx="2"/><line x1="12" y1="16" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></symbol>
     <symbol id="i-cap" viewBox="0 0 24 24"><path d="M22 9l-10-5L2 9l10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/></symbol>
     <symbol id="i-facebook" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></symbol>
     <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></symbol>
@@ -548,7 +557,7 @@ html.lite{scroll-behavior:auto}
   <div class="container">
     <div class="head">
       <h2 class="title" data-i18n="p_title">What we do</h2>
-      <p class="lead" data-i18n="p_lead">Orphan care is at the heart of our work, alongside education, alumni, waqf, water, mosque and relief programs.</p>
+      <p class="lead" data-i18n="p_lead">Orphan care is at the heart of our work, alongside education, Alimni, waqf, water, mosque and relief programs.</p>
     </div>
 
     <article class="card feature">
@@ -568,7 +577,7 @@ html.lite{scroll-behavior:auto}
 
     <div class="grid g3" style="margin-top:1.25rem">
       <div class="card"><span class="chip"><svg class="icon"><use href="#i-book"/></svg></span><h3 data-i18n="pg1t">Education and madrasas</h3><p data-i18n="pg1p">Building and equipping madrasas and classrooms, and supporting students and teachers.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
-      <div class="card"><span class="chip"><svg class="icon"><use href="#i-cap"/></svg></span><h3 data-i18n="pg2t">Alumni</h3><p data-i18n="pg2p">Keeping graduates connected through alumni programs, ceremonies and continuing support.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-board"/></svg></span><h3 data-i18n="pg2t">Alimni</h3><p data-i18n="pg2p">An ustadh teaches mothers and fathers in their own communities, so whole families learn together.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
       <div class="card"><span class="chip"><svg class="icon"><use href="#i-bank"/></svg></span><h3 data-i18n="pg3t">Waqf</h3><p data-i18n="pg3p">Endowment projects that keep giving, with their income used for lasting community benefit.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
       <div class="card"><span class="chip"><svg class="icon"><use href="#i-drop"/></svg></span><h3 data-i18n="pg4t">Water</h3><p data-i18n="pg4p">Water tanks and wells that bring clean water to villages and schools.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
       <div class="card"><span class="chip"><svg class="icon"><use href="#i-mosque"/></svg></span><h3 data-i18n="pg5t">Mosques</h3><p data-i18n="pg5p">Building and maintaining mosques and prayer spaces for communities.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
@@ -582,7 +591,7 @@ html.lite{scroll-behavior:auto}
   <div class="container">
     <div class="head center">
       <h2 class="title" data-i18n="pj_title">Projects we have completed</h2>
-      <p class="lead" data-i18n="pj_lead">From orphan care to education, alumni, waqf, water and mosques: a record of what we have delivered, with the location, year and sponsor of each project.</p>
+      <p class="lead" data-i18n="pj_lead">From orphan care to education, Alimni, waqf, water and mosques: a record of what we have delivered, with the location, year and sponsor of each project.</p>
     </div>
 
     <div class="grid g4">
@@ -597,7 +606,7 @@ html.lite{scroll-behavior:auto}
       <button class="fbtn" type="button" data-f="all" aria-pressed="true" data-i18n="f_all">All</button>
       <button class="fbtn" type="button" data-f="orphan" aria-pressed="false" data-i18n="cat_orphan">Orphan care</button>
       <button class="fbtn" type="button" data-f="edu" aria-pressed="false" data-i18n="cat_edu">Education</button>
-      <button class="fbtn" type="button" data-f="alumni" aria-pressed="false" data-i18n="cat_alumni">Alumni</button>
+      <button class="fbtn" type="button" data-f="alimni" aria-pressed="false" data-i18n="cat_alimni">Alimni</button>
       <button class="fbtn" type="button" data-f="waqf" aria-pressed="false" data-i18n="cat_waqf">Waqf</button>
       <button class="fbtn" type="button" data-f="water" aria-pressed="false" data-i18n="cat_water">Water</button>
       <button class="fbtn" type="button" data-f="mosque" aria-pressed="false" data-i18n="cat_mosque">Mosques</button>
@@ -630,10 +639,10 @@ html.lite{scroll-behavior:auto}
         </ul>
         <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
-      <article class="card proj" data-cat="alumni">
-        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_alumni">Alumni</span><svg class="icon"><use href="#i-cap"/></svg></div>
+      <article class="card proj" data-cat="alimni">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_alimni">Alimni</span><svg class="icon"><use href="#i-board"/></svg></div>
         <span class="badge" data-i18n="pj_done">Completed</span>
-        <h3 style="margin-top:.7rem" data-i18n="pj_t3">[Alumni program and graduation]</h3>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t3">[Alimni class for mothers and fathers]</h3>
         <ul class="meta">
           <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
           <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
@@ -912,7 +921,7 @@ html.lite{scroll-behavior:auto}
     d1t:"التقرير السنوي [السنة]", d1p:"كيف عملنا وماذا أنجزنا.", d2t:"الملخص المالي", d2p:"مصادر الأموال وكيف تُستخدم.", d3t:"الترخيص والتدقيق", d3p:"ترخيصنا والجهة المشرفة وبيان التدقيق.", dl:"تنزيل PDF",  a_t1:"عن", a_t2:"مؤسسة الإنسانية الخيرية", a_lead:"[اكتب جملتين أو ثلاثًا: من أنتم، ومن تخدمون، ولماذا بدأتم.]",
     a_p:"[احكِ قصة المؤسسة: متى بدأت، وكيف نمت، ومن ساهم في ذلك.]",
     a_m:"الرسالة", a_mp:"[رسالتنا في جملة واحدة.]", a_v:"الرؤية", a_vp:"[رؤيتنا في جملة واحدة.]", a_val:"القيم", a_valp:"[النزاهة، الخصوصية، الحوكمة، الرعاية.]",
-    a_f:"بيانات المؤسسة", a_f1:"الصفة القانونية", a_f1v:"[الصفة القانونية]", a_f2:"رقم الترخيص", a_f3:"الجهة المشرفة", a_f3v:"[اسم الجهة]", a_f4:"تأسست", a_f4v:"2016م (1437هـ)", a_f5:"المقر", a_f5v:"مدينة باغاديان، الفلبين",  p_title:"ماذا نقدّم", p_lead:"رعاية الأيتام في قلب عملنا، إلى جانب برامج التعليم والخريجين والوقف والمياه والمساجد والإغاثة.",
+    a_f:"بيانات المؤسسة", a_f1:"الصفة القانونية", a_f1v:"[الصفة القانونية]", a_f2:"رقم الترخيص", a_f3:"الجهة المشرفة", a_f3v:"[اسم الجهة]", a_f4:"تأسست", a_f4v:"2016م (1437هـ)", a_f5:"المقر", a_f5v:"مدينة باغاديان، الفلبين",  p_title:"ماذا نقدّم", p_lead:"رعاية الأيتام في قلب عملنا، إلى جانب برامج التعليم وعلّمني والوقف والمياه والمساجد والإغاثة.",
     p_avail:"متاح الآن", p_a_t:"رعاية الأيتام (أيتام)", p_a_p:"نسجّل كل طفل، ونتحقق من حالته، ونربطه بشريك كافل. ثم نتابعه ليصل إلى الكافلين تقارير دورية موثوقة.",
     p_a_1:"تسجيل الحالات والتحقق منها", p_a_2:"دعم التعليم والصحة والاحتياجات اليومية", p_a_3:"متابعة منتظمة وتقارير", p_a_b:"كيف تعمل الكفالة", ph_prog:"صورة البرنامج (استبدلها)",  w_title:"من التسجيل إلى المتابعة",
     w1t:"تسجيل حالة", w1p:"تقدّم الأسرة أو الوصي طلبًا عبر نموذج التسجيل لدينا.", w2t:"نتحقق", w2p:"يراجع فريقنا المستندات ويزور الحالة عند الحاجة.", w3t:"شريك يكفل", w3p:"يؤكد شريك موثوق الكفالة.", w4t:"نتابع", w4p:"نحتفظ بالسجلات ونرسل التقارير إلى الكافلين.", w_b:"اطلب مساعدة أو سجّل حالة",  r_title:"كافلون موثوقون خلف عملنا", r_lead:"نعمل مع جمعيات خيرية راسخة تكفل وتدعم الأطفال في رعايتنا.", 
@@ -928,7 +937,7 @@ html.lite{scroll-behavior:auto}
     f_name:"الاسم الكامل", f_email:"البريد الإلكتروني", f_phone:"الهاتف (اختياري)", f_subject:"الموضوع",
     o1:"استفسار عام", o2:"طلب مساعدة", o3:"الكفالة", o4:"أن أصبح شريكًا", o5:"شكوى أو اقتراح",
     f_msg:"الرسالة", f_consent:"أوافق على التواصل معي بشأن طلبي وأقبل سياسة الخصوصية.", f_send:"إرسال الرسالة",
-    f_ok:"نموذج أوّلي فقط: لم تُرسَل رسالتك. في الموقع الفعلي تصل إلى [بريد التواصل].",  ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]",  tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع",  pj_title:"مشاريعنا المنفذة", pj_lead:"من رعاية الأيتام إلى التعليم والخريجين والوقف والمياه والمساجد: سجلّ بما أنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"نوعًا من المشاريع", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام ومشاريع تجريبية. استبدلها بالحقيقية وأضف بطاقة لكل مشروع.", f_all:"الكل", cat_edu:"التعليم", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)",  g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.",  cat_orphan:"رعاية الأيتام", cat_alumni:"الخريجون", cat_waqf:"الوقف", cat_water:"المياه", cat_mosque:"المساجد", pj_t1:"[كفالة الأيتام ورعايتهم]", pj_t2:"[بناء مدرسة (مدراسة)]", pj_t3:"[برنامج الخريجين وحفل التخرج]", pj_t4:"[مشروع وقفي]", pj_t5:"[مشروع خزان مياه]", pj_t6:"[بناء مسجد]", pj_t7:"[توزيع مواد الإغاثة]", pj_t8:"[تدريب المعلمين والطلاب]", pj_t9:"[تأهيل الفصول الدراسية]", s_label:"شريكنا الكافل", pg_more:"عرض المشاريع", pg1t:"التعليم والمدارس", pg1p:"بناء المدارس والفصول وتجهيزها، ودعم الطلاب والمعلمين.", pg2t:"الخريجون", pg2p:"إبقاء الخريجين على تواصل عبر برامج الخريجين والحفلات والدعم المستمر.", pg3t:"الوقف", pg3p:"مشاريع وقفية يتجدد عطاؤها، ويُنفق ريعها في نفع المجتمع بشكل دائم.", pg4t:"المياه", pg4p:"خزانات وآبار توفّر المياه النظيفة للقرى والمدارس.", pg5t:"المساجد", pg5p:"بناء المساجد وأماكن الصلاة وصيانتها للمجتمعات.", pg6t:"الإغاثة والتدريب", pg6p:"مواد إغاثة للأسر المحتاجة، وتدريب للمعلمين والطلاب.", pj_view:"عرض", pj_support:"ادعم هذا المشروع", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
+    f_ok:"نموذج أوّلي فقط: لم تُرسَل رسالتك. في الموقع الفعلي تصل إلى [بريد التواصل].",  ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]",  tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع",  pj_title:"مشاريعنا المنفذة", pj_lead:"من رعاية الأيتام إلى التعليم وعلّمني والوقف والمياه والمساجد: سجلّ بما أنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"نوعًا من المشاريع", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام ومشاريع تجريبية. استبدلها بالحقيقية وأضف بطاقة لكل مشروع.", f_all:"الكل", cat_edu:"التعليم", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)",  g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.",  cat_orphan:"رعاية الأيتام", cat_alimni:"علّمني", cat_waqf:"الوقف", cat_water:"المياه", cat_mosque:"المساجد", pj_t1:"[كفالة الأيتام ورعايتهم]", pj_t2:"[بناء مدرسة (مدراسة)]", pj_t3:"[حلقة علّمني للأمهات والآباء]", pj_t4:"[مشروع وقفي]", pj_t5:"[مشروع خزان مياه]", pj_t6:"[بناء مسجد]", pj_t7:"[توزيع مواد الإغاثة]", pj_t8:"[تدريب المعلمين والطلاب]", pj_t9:"[تأهيل الفصول الدراسية]", s_label:"شريكنا الكافل", pg_more:"عرض المشاريع", pg1t:"التعليم والمدارس", pg1p:"بناء المدارس والفصول وتجهيزها، ودعم الطلاب والمعلمين.", pg2t:"علّمني", pg2p:"يعلّم الأستاذ الأمهات والآباء في مجتمعاتهم، لتتعلّم الأسرة كلها معًا.", pg3t:"الوقف", pg3p:"مشاريع وقفية يتجدد عطاؤها، ويُنفق ريعها في نفع المجتمع بشكل دائم.", pg4t:"المياه", pg4p:"خزانات وآبار توفّر المياه النظيفة للقرى والمدارس.", pg5t:"المساجد", pg5p:"بناء المساجد وأماكن الصلاة وصيانتها للمجتمعات.", pg6t:"الإغاثة والتدريب", pg6p:"مواد إغاثة للأسر المحتاجة، وتدريب للمعلمين والطلاب.", pj_view:"عرض", pj_support:"ادعم هذا المشروع", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
     l1:"سياسة الخصوصية", l2:"شروط الاستخدام", l3:"حماية الأطفال", l4:"سياسة الشكاوى", rights:"جميع الحقوق محفوظة.", lic:"رقم الترخيص",
     t_title:"مؤسسة الإنسانية الخيرية | رعاية الأيتام ودعم المجتمع",
     e_req:"هذا الحقل مطلوب.", e_mail:"أدخل بريدًا إلكترونيًا صحيحًا.", e_cons:"يلزم الموافقة للمتابعة."
