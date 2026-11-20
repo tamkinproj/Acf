@@ -42,6 +42,7 @@ class RoleMatrixTest extends TestCase
             'site photo' => ['POST', '/api/site/images', [], ['president_admin']],
             'site publish' => ['POST', '/api/site/publish', [], ['president_admin']],
             'updates list' => ['GET', '/api/system/updates', [], ['system_admin']],
+            'updates auto' => ['POST', '/api/system/updates/auto', [], ['system_admin']],
             'updates check' => ['POST', '/api/system/updates/check', [], ['system_admin']],
             'first president admin' => ['POST', '/api/system/president-admin', [], ['system_admin']],
             'api keys list' => ['GET', '/api/system/api-keys', [], ['system_admin']],

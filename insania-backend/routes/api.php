@@ -50,6 +50,7 @@ Route::middleware('api.json')->group(function () {
         Route::post('system/president-admin', [\App\Http\Controllers\Api\SetupController::class, 'firstPresidentAdmin'])->middleware('permission:system.first_admin');
         Route::middleware('permission:system.updates')->group(function () {
             Route::get('system/updates', [\App\Http\Controllers\Api\UpdateController::class, 'index']);
+            Route::post('system/updates/auto', [\App\Http\Controllers\Api\UpdateController::class, 'auto']);
             Route::post('system/updates/check', [\App\Http\Controllers\Api\UpdateController::class, 'check']);
             Route::post('system/updates/{id}/apply', [\App\Http\Controllers\Api\UpdateController::class, 'apply'])->where('id', '[a-f0-9]{24}');
             Route::post('system/updates/{entry}/undo', [\App\Http\Controllers\Api\UpdateController::class, 'undo'])->where('entry', '[0-9A-Za-z-]+');

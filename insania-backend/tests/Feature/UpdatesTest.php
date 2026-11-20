@@ -248,4 +248,72 @@ class UpdatesTest extends TestCase
         $this->post('/upgrade/undo', ['token' => $token, 'id' => $latest['id']])->assertOk()->assertSee('Undone');
         $this->assertSame('B1', trim(file_get_contents("$this->site/insania_app/BUILD")));
     }
+
+    private function bundle(array $patch, ?string $sigOverride = null, array $extra = []): string
+    {
+        $path = "$this->site/bundle".bin2hex(random_bytes(3)).'.zip';
+        $z = new ZipArchive;
+        $z->open($path, ZipArchive::CREATE);
+        $z->addFromString('patch.zip', file_get_contents($patch[0]));
+        $z->addFromString('signature.sig', $sigOverride ?? $patch[1]);
+        foreach ($extra as $n => $c) {
+            $z->addFromString($n, $c);
+        }
+        $z->close();
+
+        return $path;
+    }
+
+    private function auto(string $zip, ?string $sig = null)
+    {
+        $files = ['patch' => UploadedFile::fake()->createWithContent('p.zip', file_get_contents($zip))] + ($sig === null ? [] : ['signature' => UploadedFile::fake()->createWithContent('p.sig', $sig)]);
+
+        return $this->post('/api/system/updates/auto', $files, ['Accept' => 'application/json']);
+    }
+
+    public function test_one_upload_updates_the_system_straight_away(): void
+    {
+        $this->world();
+        $this->actingAsRole('system_admin');
+
+        // a one-file bundle
+        $this->auto($this->bundle($this->good()))->assertOk()->assertJsonPath('data.status', 'applied')->assertJsonPath('data.build', 'B2');
+        $this->assertSame('B2', trim(file_get_contents("$this->site/insania_app/BUILD")));
+        $this->assertFileExists("$this->site/insania_app/app/b.php");
+        $undo = $this->getJson('/api/system/updates')->json('data.undo_id');
+        $this->postJson("/api/system/updates/$undo/undo")->assertOk();
+        $this->assertSame('B1', trim(file_get_contents("$this->site/insania_app/BUILD")));
+
+        // a plain patch zip with its signature file works in one step too
+        [$zip, $sig] = $this->good();
+        $this->auto($zip, $sig)->assertOk()->assertJsonPath('data.build', 'B2');
+    }
+
+    public function test_one_upload_refuses_what_the_two_step_way_refuses_and_changes_nothing(): void
+    {
+        $this->world();
+        $this->actingAsRole('system_admin');
+        $other = openssl_pkey_new(['curve_name' => 'prime256v1', 'private_key_type' => OPENSSL_KEYTYPE_EC]);
+        openssl_pkey_export($other, $otherPriv);
+
+        $this->auto($this->bundle($this->makeBundleInput($otherPriv)))->assertStatus(422)->assertJsonPath('code', 'UPDATE_REJECTED')->assertJsonFragment(['message' => 'The signature does not match this patch. It was not signed with the owner\'s key, or the file was changed. Nothing was done.']);
+        $this->auto($this->bundle($this->good(), null, ['extra.txt' => 'x']))->assertStatus(422);                    // a bundle holds exactly two files
+        [$zip] = $this->good();
+        $this->auto($zip)->assertStatus(422)->assertSee('no signature');                                             // plain zip with no signature
+        $this->auto($this->bundle($this->makeBundleInput(null, true)))->assertStatus(422);                         // tampered after signing
+        $this->assertSame('B1', trim(file_get_contents("$this->site/insania_app/BUILD")));
+        $this->assertFileDoesNotExist("$this->site/insania_app/app/b.php");
+
+        foreach (['president_admin', 'security_admin', 'staff:aytam'] as $role) {
+            $this->app['auth']->forgetGuards();
+            $this->actingAsRole($role);
+            $this->auto($this->bundle($this->good()))->assertForbidden();
+        }
+        $this->assertSame('B1', trim(file_get_contents("$this->site/insania_app/BUILD")));
+    }
+
+    private function makeBundleInput(?string $priv = null, bool $tamper = false): array
+    {
+        return $this->makePatch(['insania_app/app/b.php' => "<?php\nreturn 1;\n", 'insania_app/BUILD' => 'B2'], [], $priv, $tamper);
+    }
 }

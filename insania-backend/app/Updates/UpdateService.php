@@ -93,6 +93,42 @@ class UpdateService
         return $id;
     }
 
+    /**
+     * One upload. Either a bundle (a zip holding patch.zip and signature.sig, made by tools/patch-signer.html)
+     * or a plain patch zip together with its signature text.
+     */
+    public function storeUpload(string $tmp, ?string $sigText): string
+    {
+        $z = new ZipArchive;
+        if ($z->open($tmp) === true) {
+            $names = [];
+            for ($i = 0; $i < $z->numFiles; $i++) {
+                $names[] = (string) $z->getNameIndex($i);
+            }
+            if ($z->locateName('manifest.json') === false && in_array('patch.zip', $names, true) && in_array('signature.sig', $names, true) && count($names) === 2) {
+                $patch = (string) $z->getFromName('patch.zip');
+                $sig = (string) $z->getFromName('signature.sig');
+                $z->close();
+                if ($patch === '' || strlen($sig) > 4096) {
+                    throw new UpdateException('The update bundle is not valid.');
+                }
+                $t = tempnam(sys_get_temp_dir(), 'bundle');
+                file_put_contents($t, $patch);
+                try {
+                    return $this->store($t, $sig);
+                } finally {
+                    @unlink($t);
+                }
+            }
+            $z->close();
+        }
+        if ($sigText === null || trim($sigText) === '') {
+            throw new UpdateException('This patch has no signature. Sign it with patch-signer.html and upload the one-file update it makes, or add the .sig file.');
+        }
+
+        return $this->store($tmp, $sigText);
+    }
+
     public function discard(string $id): void
     {
         if (preg_match('/^[a-f0-9]{24}$/', $id)) {

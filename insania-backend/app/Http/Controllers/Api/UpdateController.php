@@ -49,6 +49,29 @@ class UpdateController extends Controller
         return ApiResponse::ok($result['summary']);
     }
 
+    /** Upload and update in one step: check the signature and the files, back up, apply. Undo stays available. */
+    public function auto(Request $request)
+    {
+        $request->validate(['patch' => ['required', 'file', 'max:61440'], 'signature' => ['nullable', 'file', 'max:16']]);
+
+        try {
+            $sig = $request->hasFile('signature') ? (string) file_get_contents($request->file('signature')->getRealPath()) : null;
+            $id = $this->updates->storeUpload($request->file('patch')->getRealPath(), $sig);
+            $this->updates->inspect($id);
+            $entry = $this->updates->apply($id, $request->user()->id);
+        } catch (UpdateException $e) {
+            if (isset($id)) {
+                $this->updates->discard($id);
+            }
+            Audit::record('update.rejected', $request, null, null, ['reason' => substr($e->getMessage(), 0, 120)]);
+
+            return ApiResponse::error(str_contains($e->getMessage(), 'undone automatically') ? 'UPDATE_FAILED' : 'UPDATE_REJECTED', $e->getMessage(), 422);
+        }
+        Audit::record('update.applied', $request, null, null, ['build' => $entry['build'], 'from' => $entry['from_build']]);
+
+        return ApiResponse::ok($entry);
+    }
+
     public function apply(Request $request, string $id)
     {
         try {

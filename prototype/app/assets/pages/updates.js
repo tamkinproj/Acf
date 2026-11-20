@@ -9,7 +9,7 @@
     upd_hist: "History", upd_none: "No updates yet.", upd_undo: "Undo this update", upd_undo_q: "Put the previous version back? The files return to how they were before this update.",
     upd_undone: "Undone. The previous version is back.", s_applied: "Applied", s_undone: "Undone", s_failed: "Failed, restored", upd_from: "from build",
     upd_backup_note: "Undo restores the program files and this update's database changes. It does not back up your records or documents.", upd_need_both: "Choose both files.",
-    upd_files: "Files", upd_no_site: "The website folder was not found next to insania_app, so website files cannot be updated here."
+    upd_auto: "Upload and update", upd_auto_busy: "Updating… do not close this page.", upd_one_note: "Choose the one-file update made by patch-signer.html. It checks, backs up, updates and can be undone.", upd_sig_opt: "Signature file (.sig), only if your zip is not a one-file update", upd_done: "Updated to {v}.", upd_pick_one: "Choose the update file.", upd_files: "Files", upd_no_site: "The website folder was not found next to insania_app, so website files cannot be updated here."
   }, {
     upd_title: "التحديثات", upd_note: "ارفع رقعة موقّعة (ملف .zip وملف التوقيع .sig). يتحقق النظام من التوقيع، وينسخ احتياطيًا ما سيغيّره، ثم يطبّقها ويمكنه التراجع. يحتاج اتصالًا.",
     upd_build: "الإصدار على هذا الخادم", upd_key: "مفتاح التوقيع الموثوق", upd_pick_zip: "ملف الرقعة (.zip)", upd_pick_sig: "ملف التوقيع (.sig)", upd_check: "افحص الرقعة",
@@ -18,7 +18,7 @@
     upd_hist: "السجل", upd_none: "لا تحديثات بعد.", upd_undo: "تراجع عن هذا التحديث", upd_undo_q: "إرجاع الإصدار السابق؟ ستعود الملفات كما كانت قبل هذا التحديث.",
     upd_undone: "تم التراجع. عاد الإصدار السابق.", s_applied: "مطبّق", s_undone: "تم التراجع", s_failed: "فشل، أُعيد", upd_from: "من الإصدار",
     upd_backup_note: "التراجع يعيد ملفات البرنامج وتغييرات قاعدة البيانات الخاصة بهذا التحديث. لا يحفظ نسخة من سجلاتك أو مستنداتك.", upd_need_both: "اختر الملفين.",
-    upd_files: "الملفات", upd_no_site: "لم يُعثر على مجلد الموقع بجوار insania_app، لذا لا يمكن تحديث ملفات الموقع من هنا."
+    upd_auto: "ارفع وحدّث", upd_auto_busy: "جارٍ التحديث… لا تغلق هذه الصفحة.", upd_one_note: "اختر ملف التحديث الواحد الذي أنشأه patch-signer.html. يفحص وينسخ احتياطيًا ويحدّث ويمكن التراجع عنه.", upd_sig_opt: "ملف التوقيع (.sig)، فقط إن لم يكن الـzip ملف تحديث واحدًا", upd_done: "تم التحديث إلى {v}.", upd_pick_one: "اختر ملف التحديث.", upd_files: "الملفات", upd_no_site: "لم يُعثر على مجلد الموقع بجوار insania_app، لذا لا يمكن تحديث ملفات الموقع من هنا."
   });
 
   function load() { return A.api.get("system/updates", { cache: false }); }
@@ -30,8 +30,8 @@
     }).join("") + "</div>" : '<p class="note">' + t("upd_none") + "</p>";
     return '<div class="head"><h1 class="title">' + t("upd_title") + '</h1></div><p class="note">' + t("upd_note") + "</p>" +
       '<div class="grid g2" style="align-items:start"><div class="card"><h3>' + t("upd_build") + "</h3>" + A.facts([[t("upd_build"), '<span dir="ltr">' + esc(d.build) + "</span>"], [t("upd_key"), '<span dir="ltr">' + esc(d.key_fingerprint) + "</span>"]]) + (d.website_folder_found ? "" : '<p class="note">' + t("upd_no_site") + "</p>") +
-      '<form id="patchForm" novalidate style="margin-top:1rem"><div><label for="pz">' + t("upd_pick_zip") + '</label><input id="pz" type="file" accept=".zip,application/zip"></div><div><label for="ps">' + t("upd_pick_sig") + '</label><input id="ps" type="file" accept=".sig,.txt,text/plain"></div>' +
-      '<div class="err" id="formErr" role="alert"></div><div class="actions"><button class="btn btn-main" type="submit" id="checkBtn">' + ic("download") + t("upd_check") + "</button></div></form></div>" +
+      '<form id="patchForm" novalidate style="margin-top:1rem"><div><label for="pz">' + t("upd_pick_zip") + '</label><input id="pz" type="file" accept=".zip,application/zip"></div><p class="note" style="margin:.2rem 0">' + t("upd_one_note") + '</p><div><label for="ps">' + t("upd_sig_opt") + '</label><input id="ps" type="file" accept=".sig,.txt,text/plain"></div>' +
+      '<div class="err" id="formErr" role="alert"></div><div class="actions"><button class="btn btn-main" type="button" data-act="autoupdate" id="autoBtn">' + ic("check") + t("upd_auto") + '</button><button class="btn btn-line" type="submit" id="checkBtn">' + ic("download") + t("upd_check") + "</button></div></form></div>" +
       '<div class="card" id="found"></div></div><div class="card" style="margin-top:1rem"><h3>' + t("upd_hist") + "</h3>" + hist + '<p class="note">' + t("upd_backup_note") + "</p></div>";
   }
   function after() { drawFound(); }
@@ -48,6 +48,16 @@
       '<div class="err" id="applyErr" role="alert"></div><div class="actions" style="margin-top:1rem"><button class="btn btn-main" data-act="applypatch">' + ic("check") + t("upd_apply") + '</button><button class="btn btn-line" data-act="cancelpatch">' + t("upd_cancel") + "</button></div>";
   }
 
+  A.act("autoupdate", function (el) {
+    var z = document.getElementById("pz").files[0], s = document.getElementById("ps").files[0], err = document.getElementById("formErr");
+    err.textContent = ""; found = null; drawFound(); if (!z) { err.textContent = t("upd_pick_one"); return; }
+    var fd = new FormData(); fd.append("patch", z); if (s) fd.append("signature", s);
+    el.disabled = true; el.lastChild.textContent = t("upd_auto_busy");
+    A.api.upload("system/updates/auto", fd).then(function (d) {
+      el.disabled = false; el.lastChild.textContent = t("upd_auto");
+      var box = document.getElementById("found"); box.style.display = ""; box.innerHTML = "<h3>✓ " + esc(t("upd_done", { v: d.version })) + '</h3><p class="note" dir="ltr" style="text-align:start">' + esc(d.from_build || "") + " → " + esc(d.build) + "</p><p>" + t("upd_ok") + '</p><div class="actions"><button class="btn btn-main" data-act="reloadpage">' + t("upd_reload") + "</button></div>";
+    }, function (e) { el.disabled = false; el.lastChild.textContent = t("upd_auto"); err.textContent = e.offline ? t("need_conn") : A.msg(e); });
+  });
   A.form("patchForm", function () {
     var z = document.getElementById("pz").files[0], s = document.getElementById("ps").files[0], err = document.getElementById("formErr"), btn = document.getElementById("checkBtn");
     err.textContent = ""; found = null; drawFound();

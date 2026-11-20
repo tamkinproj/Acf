@@ -53,9 +53,9 @@ Sign in to the API as the System Admin and use `POST /api/system/api-keys` (name
 
 ## Updates from inside the app (signed patches)
 After this is installed you no longer need File Manager for updates.
-1. Whoever maintains the system sends you two files: `something.zip` (the patch) and, once you have signed it, `something.sig`.
-2. **Signing (on your own computer or phone, never on the server).** Open `patch-signer.html` in a browser, choose your key file `insania-signing-key.json`, choose the patch zip, press **Create signature file**. Keep the key file private and offline: whoever has it can change your server. The page shows a key code; it must match the "Trusted signing key" on the Updates page.
-3. In the app sign in as System Admin, open **Updates**, choose the zip and the `.sig`, press **Check patch**, read the summary, press **Apply update**.
+1. Whoever maintains the system sends you a patch `something.zip`.
+2. **Signing (on your own computer or phone, never on the server).** Open `patch-signer.html` in a browser, choose your key file `insania-signing-key.json`, choose the patch zip, press **Create one-file update**. Keep the key file private and offline: whoever has it can change your server. The page shows a key code; it must match the "Trusted signing key" on the Updates page.
+3. In the app sign in as System Admin (only the System Admin has this), open **Updates**, choose the one-file update (`something.update.zip`) and press **Upload and update**. It checks, backs up, updates by itself, and shows **Undo** in the history. (Prefer to read the summary first? Choose the zip and the `.sig` file and press **Check patch**, then **Apply update**.)
 4. Before changing anything the system copies every file it will replace into `insania_app/storage/app/updates/backups/`. If anything fails it puts everything back by itself. Afterwards **Undo this update** brings the previous version back (files and the update's own database changes).
 5. A patch with a wrong or missing signature, a PHP mistake, an unsafe path or the wrong base version is refused before anything is written.
 
