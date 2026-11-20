@@ -172,7 +172,7 @@ class UsersFamilyPartnerAndDashboardTest extends TestCase
     {
         $this->world();
         $expect = [
-            'president_admin' => ['children', 'payments', 'projects'],
+            'president_admin' => ['children', 'payments', 'projects', 'security'],
             'staff:aytam' => ['children'],
             'staff:finance' => ['payments'],
             'staff:projects' => ['projects'],

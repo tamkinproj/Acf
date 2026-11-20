@@ -47,7 +47,6 @@ Route::middleware('api.json')->group(function () {
             Route::delete('system/api-keys/{id}', [\App\Http\Controllers\Api\ApiKeyController::class, 'destroy'])->whereNumber('id');
         });
 
-        Route::post('system/security-admin', [\App\Http\Controllers\Api\SetupController::class, 'firstSecurityAdmin'])->middleware('permission:system.first_admin');
         Route::post('system/president-admin', [\App\Http\Controllers\Api\SetupController::class, 'firstPresidentAdmin'])->middleware('permission:system.first_admin');
         Route::middleware('permission:system.updates')->group(function () {
             Route::get('system/updates', [\App\Http\Controllers\Api\UpdateController::class, 'index']);

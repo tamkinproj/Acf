@@ -44,13 +44,12 @@ class RoleMatrixTest extends TestCase
             'updates list' => ['GET', '/api/system/updates', [], ['system_admin']],
             'updates check' => ['POST', '/api/system/updates/check', [], ['system_admin']],
             'first president admin' => ['POST', '/api/system/president-admin', [], ['system_admin']],
-            'first security admin' => ['POST', '/api/system/security-admin', [], ['system_admin']],
             'api keys list' => ['GET', '/api/system/api-keys', [], ['system_admin']],
             'api keys create' => ['POST', '/api/system/api-keys', ['name' => 'Matrix'], ['system_admin']],
             'system settings update' => ['PATCH', '/api/system/settings', ['currency' => 'AED'], ['system_admin']],
-            'users list' => ['GET', '/api/users', [], ['security_admin']],
-            'users create' => ['POST', '/api/users', ['name' => 'X'], ['security_admin']],
-            'audit log' => ['GET', '/api/audit', [], ['security_admin']],
+            'users list' => ['GET', '/api/users', [], ['president_admin', 'security_admin']],
+            'users create' => ['POST', '/api/users', ['name' => 'X'], ['president_admin', 'security_admin']],
+            'audit log' => ['GET', '/api/audit', [], ['president_admin', 'security_admin']],
             'my family' => ['GET', '/api/my/family', [], ['user']],
         ];
     }

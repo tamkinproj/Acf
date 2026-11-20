@@ -45,6 +45,7 @@ return [
             'projects.view', 'projects.manage',
             'reports.view', 'reports.export',
             'site.edit', 'site.publish',
+            'users.manage', 'audit.read',      // the President creates every other account
         ],
         'staff' => [],
         'user' => ['family.view_own'],

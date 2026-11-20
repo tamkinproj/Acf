@@ -28,13 +28,11 @@ class SetupController extends Controller
 
         $steps = match ($user->role) {
             'system_admin' => [
-                ['key' => 'security_admin', 'required' => true, 'done' => $has('security_admin'), 'to' => 'sheet:security_admin'],
                 ['key' => 'president_admin', 'required' => true, 'done' => $has('president_admin'), 'to' => 'sheet:president_admin'],
                 ['key' => 'org_settings', 'required' => false, 'done' => Setting::where('key', 'org_name')->exists(), 'to' => 'system.html'],
                 ['key' => 'partner_key', 'required' => false, 'done' => ApiKey::where('foundation_id', $fid)->whereNull('revoked_at')->exists(), 'to' => 'system.html'],
             ],
             'security_admin' => [
-                ['key' => 'president_admin', 'required' => true, 'done' => $has('president_admin'), 'to' => 'users.html?add=1&role=president_admin'],
                 ['key' => 'staff_aytam', 'required' => false, 'done' => $has('staff', 'aytam'), 'to' => 'users.html?add=1&role=staff&dept=aytam'],
                 ['key' => 'staff_finance', 'required' => false, 'done' => $has('staff', 'finance'), 'to' => 'users.html?add=1&role=staff&dept=finance'],
                 ['key' => 'staff_projects', 'required' => false, 'done' => $has('staff', 'projects'), 'to' => 'users.html?add=1&role=staff&dept=projects'],
@@ -42,6 +40,11 @@ class SetupController extends Controller
             ],
             'president_admin' => [
                 ['key' => 'first_child', 'required' => true, 'done' => Child::exists(), 'to' => 'people.html?add=1'],
+                ['key' => 'staff_aytam', 'required' => false, 'done' => $has('staff', 'aytam'), 'to' => 'users.html?add=1&role=staff&dept=aytam'],
+                ['key' => 'staff_finance', 'required' => false, 'done' => $has('staff', 'finance'), 'to' => 'users.html?add=1&role=staff&dept=finance'],
+                ['key' => 'staff_projects', 'required' => false, 'done' => $has('staff', 'projects'), 'to' => 'users.html?add=1&role=staff&dept=projects'],
+                ['key' => 'security_admin', 'required' => false, 'done' => $has('security_admin'), 'to' => 'users.html?add=1&role=security_admin'],
+                ['key' => 'maintenance', 'required' => false, 'done' => $has('admin_maintenance'), 'to' => 'users.html?add=1&role=admin_maintenance'],
                 ['key' => 'first_publish', 'required' => false, 'done' => \App\Models\SiteContent::where('version', '>', 0)->exists(), 'to' => 'website.html'],
                 ['key' => 'first_project', 'required' => false, 'done' => Project::exists(), 'to' => 'projects.html'],
             ],
@@ -58,19 +61,13 @@ class SetupController extends Controller
         ]);
     }
 
-    /** The first Security Admin. After that, the Security Admin runs accounts. */
-    public function firstSecurityAdmin(Request $request)
-    {
-        return $this->firstAccount($request, 'security_admin');
-    }
-
     /** The first President Admin, who then runs every office feature (and the public website content). */
     public function firstPresidentAdmin(Request $request)
     {
         return $this->firstAccount($request, 'president_admin');
     }
 
-    /** The only accounts a System Admin may create, and only while none of that role exists. */
+    /** The only account a System Admin may create: the first President Admin, who then creates every other role. */
     private function firstAccount(Request $request, string $role)
     {
         $actor = $request->user();

@@ -19,24 +19,7 @@ class SetupTest extends TestCase
         return $this->getJson('/api/setup')->assertOk()->json('data');
     }
 
-    public function test_the_system_admin_creates_the_first_security_admin_once(): void
-    {
-        $this->world();
-        User::whereIn('role', ['security_admin', 'president_admin'])->delete();
-        $this->actingAsRole('system_admin');
-
-        $this->assertSame(2, $this->getJson('/api/setup')->json('data.required_left'));
-        $body = ['name' => 'First Security', 'email' => 'first.sec@insania.test', 'password' => 'Str0ng#Passw0rd'];
-        $this->postJson('/api/system/security-admin', ['password' => 'short'] + $body)->assertStatus(422);
-        $this->postJson('/api/system/security-admin', $body)->assertCreated()->assertJsonPath('data.role', 'security_admin');
-        $this->postJson('/api/system/security-admin', ['email' => 'second@insania.test'] + $body)->assertStatus(422)->assertJsonPath('code', 'ALREADY_EXISTS');
-        $this->assertSame(1, $this->getJson('/api/setup')->json('data.required_left'));   // the President is still to do
-
-        $login = $this->postJson('/api/login', ['email' => 'first.sec@insania.test', 'password' => 'Str0ng#Passw0rd'])->assertOk();
-        $this->assertSame('security_admin', $login->json('data.user.role'));
-    }
-
-    public function test_the_system_admin_also_creates_the_first_president_admin_once(): void
+    public function test_the_system_admin_creates_the_first_president_admin_once_and_the_president_creates_the_rest(): void
     {
         $this->world();
         User::where('role', 'president_admin')->delete();
@@ -55,32 +38,42 @@ class SetupTest extends TestCase
             $this->getJson($url)->assertOk();
         }
         $this->getJson('/api/system/health')->assertForbidden();
-        $this->getJson('/api/users')->assertForbidden();
+
+        // the President creates every other role, including the technical ones
+        foreach ([['security_admin', null], ['admin_maintenance', null], ['staff', 'finance'], ['user', null]] as $i => [$role, $dept]) {
+            $body = ['name' => "Made $i", 'email' => "made$i@insania.test", 'role' => $role, 'password' => 'Str0ng#Passw0rd'] + ($dept ? ['department_key' => $dept] : []);
+            if ($role === 'user') {
+                $this->postJson('/api/users', $body)->assertStatus(422);             // a family account needs a guardian record
+                continue;
+            }
+            $this->postJson('/api/users', $body)->assertCreated()->assertJsonPath('data.role', $role);
+        }
+        $this->postJson('/api/users', ['name' => 'Sneaky', 'email' => 'sneaky@insania.test', 'role' => 'system_admin', 'password' => 'Str0ng#Passw0rd'])->assertStatus(422);
+    }
+
+    public function test_the_system_admin_cannot_create_any_other_account_or_see_the_office(): void
+    {
+        $this->world();
+        $this->actingAsRole('system_admin');
+        $this->postJson('/api/system/security-admin', ['name' => 'X', 'email' => 'x@insania.test', 'password' => 'Str0ng#Passw0rd'])->assertStatus(404);
+        $this->postJson('/api/users', ['name' => 'X', 'email' => 'x@insania.test', 'role' => 'staff', 'department_key' => 'finance', 'password' => 'Str0ng#Passw0rd'])->assertForbidden();
+        foreach (['/api/users', '/api/audit', '/api/children', '/api/payments', '/api/projects', '/api/reports/summary', '/api/site'] as $url) {
+            $this->getJson($url)->assertForbidden();
+        }
     }
 
     public function test_steps_follow_the_role_and_use_counts_only(): void
     {
         $this->world();
-        $this->assertSame(['security_admin', 'president_admin', 'org_settings', 'partner_key'], array_column($this->stepsFor('system_admin')['steps'], 'key'));
+        $this->assertSame(['president_admin', 'org_settings', 'partner_key'], array_column($this->stepsFor('system_admin')['steps'], 'key'));
         $sec = $this->stepsFor('security_admin');
-        $this->assertSame('president_admin', $sec['steps'][0]['key']);
-        $this->assertTrue($sec['steps'][0]['done']);                 // the demo world already has a President Admin
-        $this->assertSame(['first_child', 'first_publish', 'first_project'], array_column($this->stepsFor('president_admin')['steps'], 'key'));
+        $this->assertSame('staff_aytam', $sec['steps'][0]['key']);
+        $this->assertSame(['first_child', 'staff_aytam', 'staff_finance', 'staff_projects', 'security_admin', 'maintenance', 'first_publish', 'first_project'], array_column($this->stepsFor('president_admin')['steps'], 'key'));
         foreach (['staff:aytam', 'user', 'admin_maintenance'] as $role) {
             $this->assertSame([], $this->stepsFor($role)['steps']);
         }
         // a technical role never receives anything about children or money
         $this->assertStringNotContainsString('child', json_encode($this->stepsFor('system_admin')).json_encode($this->stepsFor('security_admin')));
-    }
-
-    public function test_the_security_admin_sees_a_step_turn_done_after_creating_the_account(): void
-    {
-        $this->world();
-        User::where('role', 'president_admin')->delete();
-        $this->actingAsRole('security_admin');
-        $this->assertSame(1, $this->getJson('/api/setup')->json('data.required_left'));
-        $this->postJson('/api/users', ['name' => 'Pres', 'email' => 'p@insania.test', 'role' => 'president_admin', 'password' => 'Str0ng#Passw0rd'])->assertCreated();
-        $this->assertSame(0, $this->getJson('/api/setup')->json('data.required_left'));
     }
 
     public function test_the_first_login_flag_is_saved_in_preferences(): void

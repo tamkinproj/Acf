@@ -4,7 +4,7 @@
   A.strings({
     setup_title: "Getting started", setup_sub: "Do these in order. Each one turns green when it is done.", setup_prog: "{n} of {m} done", required: "Required", optional: "Optional",
     setup_go: "Open", setup_done_all: "Everything required is done.", setup_home: "Go to Home", setup_empty: "Nothing to set up for your role. Go to Home.",
-    st_security_admin: "Create the Security Admin", sd_security_admin: "This person creates and manages every other account. Choose someone you trust.",
+    st_security_admin: "Create a Security Admin (optional helper)", sd_security_admin: "A helper who can also manage accounts and read the activity log.",
     st_org_settings: "Set the organisation name and currency", sd_org_settings: "Shown on reports and screens.",
     st_partner_key: "Create a key for a partner", sd_partner_key: "Lets a partner such as Dar Al Ber read totals only, never names.",
     st_president_admin: "Create the President Admin", sd_president_admin: "Runs every office feature and the public website content. The System Admin cannot.",
@@ -20,7 +20,7 @@
   }, {
     setup_title: "البدء", setup_sub: "نفّذ هذه الخطوات بالترتيب. تتحول كل خطوة إلى الأخضر عند اكتمالها.", setup_prog: "اكتمل {n} من {m}", required: "مطلوب", optional: "اختياري",
     setup_go: "افتح", setup_done_all: "اكتمل كل المطلوب.", setup_home: "اذهب إلى الرئيسية", setup_empty: "لا شيء لإعداده لدورك. اذهب إلى الرئيسية.",
-    st_security_admin: "أنشئ مدير الأمان", sd_security_admin: "هذا الشخص ينشئ ويدير كل الحسابات الأخرى. اختر شخصًا تثق به.",
+    st_security_admin: "أنشئ مدير الأمان", sd_security_admin: "مساعد يستطيع أيضًا إدارة الحسابات وقراءة سجل النشاط.",
     st_org_settings: "حدّد اسم المؤسسة والعملة", sd_org_settings: "يظهران في التقارير والشاشات.",
     st_partner_key: "أنشئ مفتاحًا لشريك", sd_partner_key: "يتيح لشريك مثل دار البر قراءة المجاميع فقط دون أسماء.",
     st_president_admin: "أنشئ رئيس الإدارة", sd_president_admin: "يدير كل ميزات المكتب ومحتوى الموقع العام. لا يستطيع مدير النظام ذلك.",

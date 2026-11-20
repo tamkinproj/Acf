@@ -20,6 +20,11 @@ The API address will be `https://alinsania.com/server/api`.
 2. Upload `2-website.zip` there too. Extract it; folder name **website**. Open `website`, select everything inside (turn on hidden files to see `.htaccess`), **Move** it into `public_html`. Delete the empty `website` folder and both zips.
 3. Continue with "Step 4. Install" below.
 
+## Who creates whom
+1. **System Admin**: created by the installer (Step 4). Runs the system (health, settings, updates, partner keys). Cannot see children, money, accounts or the website.
+2. **President Admin**: created by the System Admin from the first-login checklist. Runs every office feature and the public website.
+3. **Everyone else** (Security Admin, Admin Maintenance, staff by department, family accounts): created by the President Admin in the Accounts screen.
+
 ## Step 1. Make an empty database
 hPanel → **Databases → MySQL Databases**. Create a database and a user, give the user all privileges. Write down: database name, user name, password. (Host is `localhost`.)
 

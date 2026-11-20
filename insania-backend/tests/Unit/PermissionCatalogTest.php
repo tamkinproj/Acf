@@ -43,14 +43,14 @@ class PermissionCatalogTest extends TestCase
         $this->assertNotContains('system_admin', $this->config()['assignable_by_security_admin']);
     }
 
-    public function test_only_security_admin_manages_users_and_only_system_admin_changes_settings(): void
+    public function test_only_the_president_and_security_admin_manage_users_and_only_system_admin_changes_settings(): void
     {
         $cfg = $this->config();
         $holders = fn (string $key) => array_keys(array_filter($cfg['grants'], fn ($g) => in_array($key, $g, true)));
 
-        $this->assertSame(['security_admin'], $holders('users.manage'));
+        $this->assertEqualsCanonicalizing(['president_admin', 'security_admin'], $holders('users.manage'));
         $this->assertSame(['system_admin'], $holders('system.settings'));
-        $this->assertSame(['security_admin'], $holders('audit.read'));
+        $this->assertEqualsCanonicalizing(['president_admin', 'security_admin'], $holders('audit.read'));
     }
 
     public function test_csv_cells_cannot_run_as_formulas(): void
