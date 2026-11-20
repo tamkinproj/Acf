@@ -46,6 +46,13 @@ Sign in to the API as the System Admin and use `POST /api/system/api-keys` (name
 2. Open `https://alinsania.com/server/upgrade`, paste the code from `insania_app/storage/app/install/token` (the page creates it), press **Run upgrade**.
 
 ## If something goes wrong
+The server page explains most problems itself (open `https://alinsania.com/server/`):
+- **"Move the insania_app folder"**: it is inside public_html; move it one level up, next to public_html.
+- **"The insania_app folder was not found"**: extract the zip in the folder that *contains* public_html.
+- **"Some files are missing"**: the extraction stopped part-way; extract the zip again and replace files.
+- **"Folders cannot be written"**: set permissions as described below.
+- **"PHP is too old"**: choose PHP 8.3 in hPanel.
+- **"The server stopped while starting"**: open `insania_app/storage/logs/startup-error.log` and send its last line.
 - **"NOT_INSTALLED" JSON**: you have not finished Step 4.
 - **500 error**: set permissions of `insania_app/storage` and `insania_app/bootstrap/cache` to 755 or 775 (right-click → Permissions, tick "recursive").
 - **Redirects to the home page**: that is your site's catch-all rule; make sure `server/.htaccess` was extracted.
