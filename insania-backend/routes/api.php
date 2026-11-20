@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('api.json')->group(function () {
     Route::get('ping', fn () => \App\Support\ApiResponse::ok(['installed' => \App\Install\InstallState::installed()]));
+    Route::get('public/site', \App\Http\Controllers\Api\PublicSiteController::class)->middleware('throttle:60,1');
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth_login');
 
     Route::middleware(['auth:sanctum', 'idempotent'])->group(function () {
@@ -47,6 +48,7 @@ Route::middleware('api.json')->group(function () {
         });
 
         Route::post('system/security-admin', [\App\Http\Controllers\Api\SetupController::class, 'firstSecurityAdmin'])->middleware('permission:system.first_admin');
+        Route::post('system/president-admin', [\App\Http\Controllers\Api\SetupController::class, 'firstPresidentAdmin'])->middleware('permission:system.first_admin');
         Route::middleware('permission:system.updates')->group(function () {
             Route::get('system/updates', [\App\Http\Controllers\Api\UpdateController::class, 'index']);
             Route::post('system/updates/check', [\App\Http\Controllers\Api\UpdateController::class, 'check']);
@@ -78,6 +80,13 @@ Route::middleware('api.json')->group(function () {
         Route::post('payments/{child}/mark-cash', [PaymentController::class, 'markCash'])->middleware('permission:payments.mark_cash');
         Route::get('reports/summary', [ReportController::class, 'summary'])->middleware('permission:reports.view');
         Route::get('reports/payments.csv', [ReportController::class, 'paymentsCsv'])->middleware('permission:reports.export');
+
+        // Office: the public landing page (President Admin)
+        Route::get('site', [\App\Http\Controllers\Api\SiteController::class, 'show'])->middleware('permission:site.edit');
+        Route::put('site', [\App\Http\Controllers\Api\SiteController::class, 'save'])->middleware('permission:site.edit');
+        Route::post('site/images', [\App\Http\Controllers\Api\SiteController::class, 'upload'])->middleware('permission:site.edit');
+        Route::post('site/publish', [\App\Http\Controllers\Api\SiteController::class, 'publish'])->middleware('permission:site.publish');
+        Route::post('site/revert/{version}', [\App\Http\Controllers\Api\SiteController::class, 'revert'])->middleware('permission:site.publish')->whereNumber('version');
 
         // Office: projects
         Route::get('projects', [ProjectController::class, 'index'])->middleware('permission:projects.view');

@@ -158,3 +158,17 @@ dl.facts dd{margin:0;font-weight:600;color:var(--ink);text-align:end}
 .banner.upd{background:var(--ink);color:#fff;cursor:pointer}
 @media(max-width:520px){.chip{max-width:7.5rem}.chip .icon{display:none}}
 button.item{cursor:pointer}
+
+/* website editor */
+textarea{width:100%;font:inherit;color:var(--ink);background:rgba(110,125,100,.08);border:1px solid transparent;border-radius:var(--r-sm);padding:.8rem 1rem;resize:vertical}
+textarea:focus{outline:3px solid rgba(154,205,50,.55);background:#fff;border-color:var(--accent-ink)}
+.pair{display:grid;gap:.7rem;margin:.3rem 0 .8rem}
+@media(min-width:640px){.pair{grid-template-columns:1fr 1fr}}
+.flab{display:block;color:var(--ink);margin-top:.6rem}
+.wsimg{width:3.4rem;height:3.4rem;object-fit:cover;border-radius:var(--r-sm);flex:none;background:var(--fill)}
+.wsnone{display:grid;place-items:center;color:var(--muted)}
+.phbox{display:flex;gap:.9rem;align-items:center;margin:.8rem 0}
+.phbox .wsimg{width:5rem;height:5rem}
+.ws details,#wsBody details{border:1px solid var(--line);border-radius:var(--r-md);padding:.5rem .9rem;margin:.6rem 0;background:#fff}
+#wsBody summary{display:flex;align-items:center;gap:.7rem;cursor:pointer;list-style:none;padding:.3rem 0}
+#wsBody summary::-webkit-details-marker{display:none}

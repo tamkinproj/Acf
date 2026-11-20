@@ -12,7 +12,7 @@
       login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
       login_err: "Enter your email and password.", login_fail: "Wrong email or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a minute and try again.",
-      n_home: "Home", n_people: "People", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_family: "My family",
+      n_home: "Home", n_people: "People", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
       loading: "Loading…", none: "No matches.", back: "Back", cancel: "Cancel", save: "Save", required: "This field is required.", lang_btn: "العربية", signout: "Sign out",
       noaccess: "Your role does not include this page.", per_month: "per month",
       offline_none: "Nothing is saved on this phone for this page yet. Open it once while connected.", load_err: "Could not load. Try again.",
@@ -26,7 +26,7 @@
       login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
       login_err: "أدخل بريدك وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر دقيقة ثم حاول مجددًا.",
-      n_home: "الرئيسية", n_people: "الأشخاص", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_family: "عائلتي",
+      n_home: "الرئيسية", n_people: "الأشخاص", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
       loading: "جارٍ التحميل…", none: "لا نتائج.", back: "رجوع", cancel: "إلغاء", save: "حفظ", required: "هذا الحقل مطلوب.", lang_btn: "English", signout: "تسجيل الخروج",
       noaccess: "دورك لا يشمل هذه الصفحة.", per_month: "شهريًا",
       offline_none: "لا يوجد شيء محفوظ على هذا الهاتف لهذه الصفحة بعد. افتحها مرة واحدة أثناء الاتصال.", load_err: "تعذّر التحميل. حاول مجددًا.",
@@ -88,6 +88,7 @@
     '<symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>' +
     '<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>' +
     '<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>' +
+ '<symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>' +
     '<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></symbol>' +
     "</defs></svg>";
 
@@ -95,13 +96,13 @@
   // [id, page, text key, permission needed (null = everyone), icon]
   var MENU = [
     ["dashboard", "dashboard.html", "n_home", null, "home"], ["people", "people.html", "n_people", "children.view", "users"],
-    ["payments", "payments.html", "n_pay", "payments.view", "wallet"], ["projects", "projects.html", "n_proj", "projects.view", "folder"],
+    ["payments", "payments.html", "n_pay", "payments.view", "wallet"], ["projects", "projects.html", "n_proj", "projects.view", "folder"], ["website", "website.html", "n_website", "site.edit", "globe"],
     ["reports", "reports.html", "n_rep", "reports.view", "file"], ["family", "family.html", "n_family", "family.view_own", "users"],
     ["users", "users.html", "n_users", "users.manage", "shield"], ["audit", "audit.html", "n_audit", "audit.read", "file"],
     ["system", "system.html", "n_system", "system.health", "sliders"], ["updates", "updates.html", "n_updates", "system.updates", "download"], ["settings", "settings.html", "n_set", null, "sliders"]
   ];
   function allowed() { return MENU.filter(function (m) { return !m[3] || can(m[3]); }); }
-  var spec = null, state = null, loadSeq = 0;
+  var spec = null, state = null, loadSeq = 0, moreItems = [];
 
   function chipHtml() {
     var s = API.state(), c = null;
@@ -117,8 +118,13 @@
     $("#nav").innerHTML = '<div class="row"><a class="brand" href="dashboard.html" aria-label="' + esc(t("n_home")) + '"><span class="logo" role="img" aria-hidden="true"></span><span><span>' + t("brand") + "</span><small>" + t("staff") + "</small></span></a>" +
       '<nav aria-label="Main"><ul class="menu">' + items.map(function (m) { return '<li><a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + t(m[2]) + "</a></li>"; }).join("") + "</ul></nav>" +
       '<div class="tools"><span id="chipBox">' + chipHtml() + '</span><button class="btn btn-line btn-sm round" type="button" data-act="lang" aria-label="Language">' + ic("globe") + '</button><button class="btn btn-main btn-sm round" type="button" data-act="signout" aria-label="' + esc(t("signout")) + '">' + ic("logout") + "</button></div></div>";
-    var tabs = items.filter(function (m) { return m[0] !== "settings"; }).slice(0, 4).concat(items.filter(function (m) { return m[0] === "settings"; }));
-    $("#tabbar").innerHTML = tabs.map(function (m) { return '<a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + ic(m[4]) + "<span>" + t(m[2]) + "</span></a>"; }).join("");
+    // The bottom bar holds five places. When a role has more, the first four by importance stay and the rest sit under "More".
+    var PRI = ["dashboard", "people", "payments", "website", "projects", "users", "system", "updates", "audit", "family", "reports", "settings"];
+    var sorted = items.slice().sort(function (a, b) { return PRI.indexOf(a[0]) - PRI.indexOf(b[0]); });
+    var more = sorted.length > 5 ? sorted.slice(4) : [], tabs = sorted.length > 5 ? sorted.slice(0, 4) : sorted;
+    moreItems = more;
+    $("#tabbar").innerHTML = tabs.map(function (m) { return '<a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + ic(m[4]) + "<span>" + t(m[2]) + "</span></a>"; }).join("") +
+      (more.length ? '<a href="#" data-act="more"' + (more.some(function (m) { return m[0] === cur; }) ? ' class="active"' : "") + ">" + ic("menu") + "<span>" + t("n_more") + "</span></a>" : "");
   }
   function refreshChip() { var b = $("#chipBox"); if (b) b.innerHTML = chipHtml(); }
 
@@ -179,6 +185,10 @@
 
   ACTIONS.lang = function () { lang = lang === "en" ? "ar" : "en"; try { localStorage.setItem("acf_lang", lang); } catch (x) {} paint(); };
   ACTIONS.reload = function () { load(); };
+  ACTIONS.more = function (el, e) {
+    e.preventDefault();
+    sheet(t("n_more"), '<div class="list">' + moreItems.map(function (m) { return '<a class="item" href="' + m[1] + '"><span class="grow"><b>' + t(m[2]) + "</b></span>" + ic(m[4]) + "</a>"; }).join("") + '</div><div class="actions"><button class="btn btn-line" type="button" data-act="close">' + t("cancel") + "</button></div>");
+  };
   ACTIONS.close = function (el, e) { if (e.target === el || el.tagName === "BUTTON") closeSheet(); };
   ACTIONS.tab = function (el) { UI.tab = el.getAttribute("data-v"); saveUI(); paint(); };
   ACTIONS.month = function (el) { UI.month = el.getAttribute("data-v"); saveUI(); load(); };

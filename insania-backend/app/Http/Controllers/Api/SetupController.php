@@ -29,6 +29,7 @@ class SetupController extends Controller
         $steps = match ($user->role) {
             'system_admin' => [
                 ['key' => 'security_admin', 'required' => true, 'done' => $has('security_admin'), 'to' => 'sheet:security_admin'],
+                ['key' => 'president_admin', 'required' => true, 'done' => $has('president_admin'), 'to' => 'sheet:president_admin'],
                 ['key' => 'org_settings', 'required' => false, 'done' => Setting::where('key', 'org_name')->exists(), 'to' => 'system.html'],
                 ['key' => 'partner_key', 'required' => false, 'done' => ApiKey::where('foundation_id', $fid)->whereNull('revoked_at')->exists(), 'to' => 'system.html'],
             ],
@@ -41,6 +42,7 @@ class SetupController extends Controller
             ],
             'president_admin' => [
                 ['key' => 'first_child', 'required' => true, 'done' => Child::exists(), 'to' => 'people.html?add=1'],
+                ['key' => 'first_publish', 'required' => false, 'done' => \App\Models\SiteContent::where('version', '>', 0)->exists(), 'to' => 'website.html'],
                 ['key' => 'first_project', 'required' => false, 'done' => Project::exists(), 'to' => 'projects.html'],
             ],
             default => [],
@@ -56,12 +58,24 @@ class SetupController extends Controller
         ]);
     }
 
-    /** The one account a System Admin may create: the first Security Admin. After that, the Security Admin runs accounts. */
+    /** The first Security Admin. After that, the Security Admin runs accounts. */
     public function firstSecurityAdmin(Request $request)
     {
+        return $this->firstAccount($request, 'security_admin');
+    }
+
+    /** The first President Admin, who then runs every office feature (and the public website content). */
+    public function firstPresidentAdmin(Request $request)
+    {
+        return $this->firstAccount($request, 'president_admin');
+    }
+
+    /** The only accounts a System Admin may create, and only while none of that role exists. */
+    private function firstAccount(Request $request, string $role)
+    {
         $actor = $request->user();
-        if (User::where('foundation_id', $actor->foundation_id)->where('role', 'security_admin')->exists()) {
-            return ApiResponse::error('ALREADY_EXISTS', 'A Security Admin already exists. Ask them to manage accounts.', 422);
+        if (User::where('foundation_id', $actor->foundation_id)->where('role', $role)->exists()) {
+            return ApiResponse::error('ALREADY_EXISTS', 'This role already has an account. The Security Admin manages accounts from now on.', 422);
         }
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
@@ -69,8 +83,8 @@ class SetupController extends Controller
             'password' => ['required', Password::min(12)->mixedCase()->numbers()],
         ]);
 
-        $new = User::create($data + ['role' => 'security_admin', 'foundation_id' => $actor->foundation_id, 'active' => true]);
-        Audit::record('user.created', $request, 'user', $new->id, ['role' => 'security_admin', 'first' => true]);
+        $new = User::create($data + ['role' => $role, 'foundation_id' => $actor->foundation_id, 'active' => true]);
+        Audit::record('user.created', $request, 'user', $new->id, ['role' => $role, 'first' => true]);
 
         return ApiResponse::created($new->toApi());
     }

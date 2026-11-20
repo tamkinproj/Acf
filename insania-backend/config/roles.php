@@ -44,6 +44,7 @@ return [
             'payments.view', 'payments.mark_cash',
             'projects.view', 'projects.manage',
             'reports.view', 'reports.export',
+            'site.edit', 'site.publish',
         ],
         'staff' => [],
         'user' => ['family.view_own'],

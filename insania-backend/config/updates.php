@@ -24,7 +24,7 @@ PEM,
     // Only these places may be changed by a patch. Anything else (.env, storage, vendor libraries, ...) is refused.
     'allowed' => [
         'insania_app' => ['app/', 'config/', 'routes/', 'resources/', 'database/migrations/', 'database/seeders/', 'vendor/composer/', 'BUILD', 'README.md', 'HOSTINGER.md'],
-        'public_html' => ['app/', 'server/index.php', 'server/.htaccess', 'index.html', '.htaccess'],
+        'public_html' => ['app/', 'server/index.php', 'server/.htaccess', 'index.html', 'site.js', '.htaccess'],
     ],
 
     'keep_backups' => 10,

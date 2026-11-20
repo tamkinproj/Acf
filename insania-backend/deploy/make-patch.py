@@ -11,7 +11,7 @@ import argparse, hashlib, json, os, sys, zipfile
 
 ALLOWED = {
     "insania_app": ["app/", "config/", "routes/", "resources/", "database/migrations/", "database/seeders/", "vendor/composer/", "BUILD", "README.md", "HOSTINGER.md"],
-    "public_html": ["app/", "server/index.php", "server/.htaccess", "index.html", ".htaccess"],
+    "public_html": ["app/", "server/index.php", "server/.htaccess", "index.html", "site.js", ".htaccess"],
 }
 
 def allowed(root, rel):

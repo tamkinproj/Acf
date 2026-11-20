@@ -6,13 +6,13 @@
     s_children: "Children", s_verified: "Verified bank accounts", s_paid: "Paid this month", s_pending: "Pending this month",
     s_projects: "Active projects", s_users: "Active accounts", s_locked: "Failed sign-ins (24 h)", s_php: "PHP version", s_env: "Environment", s_family: "Children in my family",
     attn: "Needs attention", attn_none: "Nothing needs attention.", unverified: "Bank account not verified",
-    setup_card: "Getting started", setup_card_sub: "{n} of {m} steps done", setup_open: "Continue setup", quick: "Quick actions", add_child: "Add child", export_csv: "Export CSV", month_rep: "Monthly report", open_users: "Manage accounts", open_system: "System health"
+    setup_card: "Getting started", setup_card_sub: "{n} of {m} steps done", setup_open: "Continue setup", quick: "Quick actions", add_child: "Add child", export_csv: "Export CSV", month_rep: "Monthly report", open_users: "Manage accounts", open_site: "Edit the website", open_system: "System health"
   }, {
     hello: "أهلًا بعودتك", hello_sub: "هذا ما يجري اليوم.",
     s_children: "الأطفال", s_verified: "حسابات بنكية موثّقة", s_paid: "مدفوع هذا الشهر", s_pending: "معلّق هذا الشهر",
     s_projects: "مشاريع قيد التنفيذ", s_users: "حسابات نشطة", s_locked: "محاولات دخول فاشلة (24 ساعة)", s_php: "إصدار PHP", s_env: "البيئة", s_family: "الأطفال في عائلتي",
     attn: "يحتاج انتباهًا", attn_none: "لا شيء يحتاج انتباهًا.", unverified: "الحساب البنكي غير موثّق",
-    setup_card: "البدء", setup_card_sub: "اكتملت {n} من {m} خطوات", setup_open: "تابع الإعداد", quick: "إجراءات سريعة", add_child: "إضافة طفل", export_csv: "تصدير CSV", month_rep: "التقرير الشهري", open_users: "إدارة الحسابات", open_system: "صحة النظام"
+    setup_card: "البدء", setup_card_sub: "اكتملت {n} من {m} خطوات", setup_open: "تابع الإعداد", quick: "إجراءات سريعة", add_child: "إضافة طفل", export_csv: "تصدير CSV", month_rep: "التقرير الشهري", open_users: "إدارة الحسابات", open_site: "تعديل الموقع", open_system: "صحة النظام"
   });
 
   function stat(icon, num, sub, label) {
@@ -31,6 +31,7 @@
     if (A.can("children.create")) actions += '<a class="btn btn-main" href="people.html?add=1">' + ic("plus") + t("add_child") + "</a>";
     if (A.can("reports.export")) actions += '<a class="btn btn-line" href="reports.html">' + ic("download") + t("export_csv") + "</a>";
     if (A.can("reports.view")) actions += '<a class="btn btn-line" href="reports.html">' + ic("file") + t("month_rep") + "</a>";
+    if (A.can("site.edit")) actions += '<a class="btn btn-line" href="website.html">' + ic("globe") + t("open_site") + "</a>";
     if (A.can("users.manage")) actions += '<a class="btn btn-main" href="users.html">' + ic("shield") + t("open_users") + "</a>";
     if (A.can("system.health")) actions += '<a class="btn btn-line" href="system.html">' + ic("sliders") + t("open_system") + "</a>";
 
