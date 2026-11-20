@@ -1,13 +1,12 @@
-# alinsania.com: send every address that does not exist to the Beta site.
-# Put this file in public_html (next to the Beta folder).
-# Visitors never see Hostinger's 404, 403 or placeholder pages.
+# alinsania.com (main site): send every address that does not exist to the home page.
+# Put this file in public_html. Visitors never see Hostinger's 404, 403 or placeholder pages.
 
 Options -Indexes
 DirectoryIndex index.html index.php
 
-# Safety net: any error page that still slips through shows the Beta page instead.
-ErrorDocument 404 /Beta/index.html
-ErrorDocument 403 /Beta/index.html
+# Safety net: any error page that still slips through shows the home page instead.
+ErrorDocument 404 /index.html
+ErrorDocument 403 /index.html
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
@@ -15,30 +14,27 @@ RewriteEngine On
 # Never touch SSL certificate checks.
 RewriteRule ^\.well-known/ - [L]
 
-# Every rule below runs only once public_html/Beta/index.html exists, so there is no redirect loop.
+# Old links from the Beta stage keep working: /Beta/anything -> /anything
+RewriteRule ^Beta/?(.*)$ /$1 [R=301,L]
+
+# Every rule below runs only once index.html exists, so there is no redirect loop.
 
 # Hostinger's placeholder page.
-RewriteCond %{DOCUMENT_ROOT}/Beta/index.html -f
-RewriteRule ^default\.php$ /Beta/? [R=302,L]
-
-# Home page with no index file of its own.
-RewriteCond %{DOCUMENT_ROOT}/Beta/index.html -f
-RewriteCond %{DOCUMENT_ROOT}/index.html !-f
-RewriteCond %{DOCUMENT_ROOT}/index.php !-f
-RewriteRule ^$ /Beta/? [R=302,L]
+RewriteCond %{DOCUMENT_ROOT}/index.html -f
+RewriteRule ^default\.php$ / [R=302,L]
 
 # A folder with no index file (would show "Forbidden").
-RewriteCond %{DOCUMENT_ROOT}/Beta/index.html -f
+RewriteCond %{DOCUMENT_ROOT}/index.html -f
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteCond %{REQUEST_FILENAME}/index.html !-f
 RewriteCond %{REQUEST_FILENAME}/index.php !-f
-RewriteRule ^. /Beta/? [R=302,L]
+RewriteRule ^. / [R=302,L]
 
 # Any address that is not a real file or folder (would show "404 Not Found").
-RewriteCond %{DOCUMENT_ROOT}/Beta/index.html -f
+RewriteCond %{DOCUMENT_ROOT}/index.html -f
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ /Beta/? [R=302,L]
+RewriteRule ^ / [R=302,L]
 </IfModule>
 
-# When the Beta stage is over and the address is final, change R=302 to R=301 above.
+# The API in the "server" folder has its own .htaccess, so these rules do not apply inside it.

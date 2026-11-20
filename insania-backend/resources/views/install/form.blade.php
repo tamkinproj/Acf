@@ -12,7 +12,7 @@
 <label>Setup code</label><input name="token" required></div>
 <div class="card"><h2>2. Foundation</h2>
 <label>Foundation name</label><input name="foundation" required value="{{ $old['foundation'] ?? 'Al Insania Charity Foundation Inc.' }}">
-<label>Website address of this API</label><input name="app_url" required placeholder="https://alinsania.com/Beta/server" value="{{ $old['app_url'] ?? '' }}">
+<label>Website address of this API</label><input name="app_url" required placeholder="https://alinsania.com/server" value="{{ $old['app_url'] ?? '' }}">
 <label>Address of the staff app (for browser access)</label><input name="cors" placeholder="https://alinsania.com" value="{{ $old['cors'] ?? '' }}"></div>
 <div class="card"><h2>3. Database</h2><small>Create an empty MySQL database in hPanel first, then type its details.</small>
 @unless($sqlite)<label>Host</label><input name="db_host" required value="{{ $old['db_host'] ?? 'localhost' }}"><label>Port</label><input name="db_port" value="{{ $old['db_port'] ?? '3306' }}">@endunless
