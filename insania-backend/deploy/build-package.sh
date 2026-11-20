@@ -7,7 +7,7 @@ OUT="${1:?usage: deploy/build-package.sh <output-folder>}"
 if [ -e "$OUT" ] && [ -n "$(ls -A "$OUT")" ]; then echo "Output folder must be empty or new: $OUT" >&2; exit 1; fi
 mkdir -p "$OUT/insania_app" "$OUT/public_html/server"
 cd "$SRC"
-tar --exclude=./vendor --exclude=./.env --exclude=./tests --exclude=./node_modules --exclude=./.git --exclude=./storage/logs/* --exclude=./storage/framework/*/* --exclude=./bootstrap/cache/*.php --exclude=./.phpunit.result.cache --exclude=./database/*.sqlite --exclude=./public --exclude=./deploy -cf - . | tar -xf - -C "$OUT/insania_app"
+tar --exclude=./vendor --exclude=./.env --exclude=./tests --exclude=./node_modules --exclude=./.git --exclude=./storage/logs/* --exclude=./storage/framework/*/* --exclude=./bootstrap/cache/*.php --exclude=./.phpunit.result.cache --exclude=./database/*.sqlite --exclude=./public --exclude=./deploy --exclude=./storage/app/updates -cf - . | tar -xf - -C "$OUT/insania_app"
 cd "$OUT/insania_app"
 rm -f phpunit.xml vite.config.js package.json
 composer install --no-dev --optimize-autoloader --no-interaction --no-scripts 2>&1 | tail -3
