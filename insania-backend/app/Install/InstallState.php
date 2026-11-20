@@ -23,7 +23,33 @@ final class InstallState
 
     public static function installed(): bool
     {
-        return is_file(self::dir().'/installed.lock');
+        return is_file(self::dir().'/installed.lock') || self::heal();
+    }
+
+    /**
+     * Re-uploading the program can remove the small "installed" marker while the settings file and the database stay.
+     * If the settings file is there and its database already holds a System Admin, the system IS installed: put the marker back.
+     * This only ever switches the installer OFF, never on.
+     */
+    private static function heal(): bool
+    {
+        static $failed = [];   // one look per request is enough (and per state folder, so tests stay independent)
+        $key = self::dir().'|'.config('install.env_path');
+        if (isset($failed[$key]) || ! is_file((string) config('install.env_path'))) {
+            return false;
+        }
+
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('users') && \Illuminate\Support\Facades\DB::table('users')->where('role', 'system_admin')->exists()) {
+                self::markInstalled();
+                self::clearInstalling();
+
+                return true;
+            }
+        } catch (\Throwable) {
+        }
+
+        return $failed[$key] = false;
     }
 
     public static function markInstalled(): void

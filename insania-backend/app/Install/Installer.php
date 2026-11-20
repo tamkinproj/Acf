@@ -61,6 +61,32 @@ final class Installer
         InstallState::clearToken();
     }
 
+    /** @return string|null a plain-language problem, or null when this database really holds an installed system */
+    public static function reconnectProblem(): ?string
+    {
+        try {
+            DB::connection('install')->getPdo();
+        } catch (\Throwable) {
+            return 'Could not connect to the database. Check the host, name, user and password.';
+        }
+        $c = DB::connection('install');
+        if (! Schema::connection('install')->hasTable('users') || ! $c->table('users')->where('role', 'system_admin')->exists()) {
+            return 'This database does not hold an installed system (no System Admin found). Use the normal install form above with an empty database instead.';
+        }
+
+        return null;
+    }
+
+    /** Writes the settings file and the installed marker again for a database that is already installed. Touches no data. */
+    public static function reconnect(array $in): void
+    {
+        $key = 'base64:'.base64_encode(random_bytes(32));       // nothing stored depends on the key: sign-in tokens are hashed
+        self::writeEnv($in, $key);
+        InstallState::markInstalled();
+        InstallState::clearInstalling();
+        InstallState::clearToken();
+    }
+
     public static function writeEnv(array $in, string $key): void
     {
         $driver = config('install.driver');
@@ -77,11 +103,11 @@ final class Installer
         if ($driver === 'sqlite') {
             $lines['DB_DATABASE'] = self::q($in['db_name']);
         } else {
-            $lines += ['DB_HOST' => self::q($in['db_host']), 'DB_PORT' => self::q($in['db_port'] ?: '3306'), 'DB_DATABASE' => self::q($in['db_name']),
-                'DB_USERNAME' => self::q($in['db_user']), 'DB_PASSWORD' => self::q($in['db_pass'] ?? '')];
+            $lines += ['DB_HOST' => self::q($in['db_host'] ?? 'localhost'), 'DB_PORT' => self::q(($in['db_port'] ?? '') ?: '3306'), 'DB_DATABASE' => self::q($in['db_name']),
+                'DB_USERNAME' => self::q($in['db_user'] ?? ''), 'DB_PASSWORD' => self::q($in['db_pass'] ?? '')];
         }
         $lines += ['CACHE_DRIVER' => 'file', 'SESSION_DRIVER' => 'file', 'QUEUE_CONNECTION' => 'sync', 'FILESYSTEM_DISK' => 'local',
-            'SANCTUM_EXPIRATION' => '720', 'CORS_ALLOWED_ORIGINS' => self::q($in['cors'] ?: '*')];
+            'SANCTUM_EXPIRATION' => '720', 'CORS_ALLOWED_ORIGINS' => self::q(($in['cors'] ?? '') ?: '*')];
 
         $text = '';
         foreach ($lines as $k => $v) {

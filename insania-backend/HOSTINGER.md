@@ -57,6 +57,7 @@ If the app itself will not open, use `https://alinsania.com/server/upgrade`: sam
 2. Open `https://alinsania.com/server/upgrade`, paste the code from `insania_app/storage/app/install/token` (the page creates it), press **Run upgrade**.
 
 ## If something goes wrong
+- **The installer page came back ("This database already has tables") after you re-uploaded the files.** Your data is safe. Re-uploading removed the small "installed" marker (and maybe the settings file). Open `https://alinsania.com/server/install`: if the settings file is still there it fixes itself and the page shows "Already installed". If not, open the box **"Already installed before? Reconnect instead"**, fill in the setup code, the API address and your database details, press **Reconnect**. It restores the settings and changes no data; your accounts keep working. **To avoid it:** when updating, always extract the zip over the existing folders and choose "replace files". Never delete the `insania_app` folder first.
 The server page explains most problems itself (open `https://alinsania.com/server/`):
 - **"Move the insania_app folder"**: it is inside public_html; move it one level up, next to public_html.
 - **"The insania_app folder was not found"**: extract the zip in the folder that *contains* public_html.

@@ -105,6 +105,7 @@ class InstallerTest extends TestCase
         $this->get('/install');
         $this->post('/install', $this->input())->assertOk();
         unlink($this->dir.'/state/installed.lock');
+        unlink($this->env);                      // marker AND settings lost: nothing says "installed" any more
         $this->post('/install', $this->input(['token' => InstallState::token(), 'admin_email' => 'other@example.org']))
             ->assertStatus(422)->assertSee('already has tables');
     }
@@ -138,5 +139,66 @@ class InstallerTest extends TestCase
     {
         $this->get('/upgrade')->assertRedirect('/install');
         $this->post('/upgrade', ['token' => 'x'])->assertNotFound();
+    }
+
+    private function installedSite(): void
+    {
+        $this->get('/install');
+        $this->post('/install', $this->input())->assertOk();
+    }
+
+    public function test_losing_only_the_installed_marker_heals_itself(): void
+    {
+        $this->installedSite();
+        unlink($this->dir.'/state/installed.lock');
+
+        $this->get('/install')->assertNotFound();                      // the installer stays switched off
+        $this->assertTrue(InstallState::installed());
+        $this->assertFileExists($this->dir.'/state/installed.lock');
+        $this->postJson('/api/login', ['email' => 'root@example.org', 'password' => 'Str0ng#Passw0rd'])->assertOk();
+    }
+
+    public function test_losing_the_settings_file_too_is_repaired_with_the_reconnect_form(): void
+    {
+        $this->installedSite();
+        unlink($this->dir.'/state/installed.lock');
+        unlink($this->env);
+
+        $page = $this->get('/install')->assertOk()->assertSee('Reconnect');
+        $this->assertSame(1, substr_count($page->getContent(), 'Already installed before'));
+        // normal installing is still refused: the database already holds tables
+        $this->post('/install', $this->input(['token' => InstallState::token(), 'admin_email' => 'other@example.org']))->assertStatus(422)->assertSee('already has tables');
+
+        $rec = fn ($over = []) => $over + ['token' => InstallState::token(), 'app_url' => 'https://example.org/api', 'db_name' => $this->db];
+        $this->post('/install/reconnect', $rec(['token' => 'wrong']))->assertStatus(403);
+        $this->assertFileDoesNotExist($this->env);
+
+        $before = \Illuminate\Support\Facades\DB::connection('install')->table('users')->count();
+        $this->post('/install/reconnect', $rec())->assertOk()->assertSee('no data was changed');
+        $this->assertSame($before, \Illuminate\Support\Facades\DB::connection('install')->table('users')->count());
+        $this->assertFileExists($this->env);
+        $this->assertTrue(InstallState::installed());
+        $this->assertStringContainsString('APP_DEBUG=false', file_get_contents($this->env));
+        $this->postJson('/api/login', ['email' => 'root@example.org', 'password' => 'Str0ng#Passw0rd'])->assertOk();
+        $this->get('/install')->assertNotFound();
+    }
+
+    public function test_reconnect_refuses_a_database_that_is_not_an_installed_system(): void
+    {
+        $this->get('/install');
+        $empty = $this->dir.'/empty.sqlite';
+        touch($empty);
+        $this->post('/install/reconnect', ['token' => InstallState::token(), 'app_url' => 'https://example.org/api', 'db_name' => $empty])
+            ->assertStatus(422)->assertSee('does not hold an installed system');
+        $this->assertFileDoesNotExist($this->env);
+        $this->assertFalse(InstallState::installed());
+
+        $this->post('/install/reconnect', ['token' => InstallState::token(), 'app_url' => 'https://example.org/api', 'db_name' => $this->dir.'/missing/none.sqlite'])->assertStatus(422);
+    }
+
+    public function test_reconnect_is_not_available_once_installed(): void
+    {
+        $this->installedSite();
+        $this->post('/install/reconnect', ['token' => 'x', 'app_url' => 'https://example.org/api', 'db_name' => $this->db])->assertNotFound();
     }
 }

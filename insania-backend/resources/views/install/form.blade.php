@@ -24,4 +24,14 @@
 <label>Password</label><input type="password" name="admin_password" required><small>At least 12 characters with upper and lower case and a number.</small>
 <label>Repeat password</label><input type="password" name="admin_password_confirmation" required></div>
 <button>Install</button></form>
+<details class="card" @if(collect($errors)->contains(fn ($e) => str_contains($e, 'already has tables'))) open @endif><summary><strong>Already installed before? Reconnect instead</strong></summary>
+<p><small>Use this if you re-uploaded the files and the installer came back although your data is still there. It restores the settings file and changes <b>no data</b>. Your existing accounts keep working.</small></p>
+<form method="post" action="install/reconnect" autocomplete="off">
+<label>Setup code</label><input name="token" required>
+<label>Website address of this API</label><input name="app_url" required placeholder="https://alinsania.com/server" value="{{ $old['app_url'] ?? '' }}">
+<label>Address of the staff app (for browser access)</label><input name="cors" placeholder="https://alinsania.com,https://www.alinsania.com" value="{{ $old['cors'] ?? '' }}">
+@unless($sqlite)<label>Database host</label><input name="db_host" required value="{{ $old['db_host'] ?? 'localhost' }}"><label>Port</label><input name="db_port" value="{{ $old['db_port'] ?? '3306' }}">@endunless
+<label>{{ $sqlite ? 'File path' : 'Database name' }}</label><input name="db_name" required value="{{ $old['db_name'] ?? '' }}">
+@unless($sqlite)<label>Database user</label><input name="db_user" required value="{{ $old['db_user'] ?? '' }}"><label>Database password</label><input type="password" name="db_pass">@endunless
+<button>Reconnect</button></form></details>
 @endsection

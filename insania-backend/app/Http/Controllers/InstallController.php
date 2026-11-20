@@ -73,6 +73,50 @@ class InstallController extends Controller
         return view('install.done', ['already' => false, 'email' => $in['admin_email'], 'api' => rtrim($in['app_url'], '/').'/api']);
     }
 
+    /** The database already holds an installed system but the settings file / marker are gone: restore them, change no data. */
+    public function reconnect(Request $request)
+    {
+        if (InstallState::installed()) {
+            abort(404);
+        }
+        $sqlite = config('install.driver') === 'sqlite';
+        $old = $request->except(['db_pass', 'token']);
+        $fail = fn (array $errors, int $code = 422) => response()->view('install.form', ['rows' => Requirements::check(), 'errors' => $errors, 'old' => $old, 'hint' => InstallState::tokenHint(), 'sqlite' => $sqlite], $code);
+
+        if (! InstallState::tokenMatches($request->input('token'))) {
+            return $fail(['The setup code is wrong. Open the file '.InstallState::tokenHint().' with File Manager and copy what is inside.'], 403);
+        }
+        $v = Validator::make($request->all(), [
+            'foundation' => ['nullable', 'string', 'max:120'],
+            'app_url' => ['required', 'url', 'max:200'],
+            'cors' => ['nullable', 'string', 'max:300'],
+            'db_host' => [$sqlite ? 'nullable' : 'required', 'string', 'max:120'],
+            'db_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'db_name' => ['required', 'string', 'max:300'],
+            'db_user' => [$sqlite ? 'nullable' : 'required', 'string', 'max:120'],
+            'db_pass' => ['nullable', 'string', 'max:200'],
+        ]);
+        if ($v->fails()) {
+            return $fail($v->errors()->all());
+        }
+        $in = $v->validated() + ['foundation' => 'Al Insania Charity Foundation Inc.'];
+        $in['foundation'] = $in['foundation'] ?: 'Al Insania Charity Foundation Inc.';
+
+        Installer::useConnection($in);
+        if ($problem = Installer::reconnectProblem()) {
+            return $fail([$problem]);
+        }
+        try {
+            Installer::reconnect($in);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return $fail(['The settings could not be saved. Check that insania_app can be written. ('.class_basename($e).')'], 500);
+        }
+
+        return view('install.done', ['already' => false, 'reconnected' => true, 'email' => 'your existing account', 'api' => rtrim($in['app_url'], '/').'/api']);
+    }
+
     public function upgradeShow()
     {
         if (! InstallState::installed()) {
