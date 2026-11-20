@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patch signer | Al Insania Charity Foundation</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/logo.jpg">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="signer">
+<main class="container" style="max-width:36rem;padding-top:1.5rem">
+<p><a class="btn btn-line btn-sm" href="updates.html">Back to Updates</a></p>
+<h1 class="title">Patch signer</h1>
+<p class="note">Runs only in this browser tab. Your key file is read here and is never uploaded or sent anywhere. Keep the key file private and offline; whoever has it can change your server.</p>
+<div id="gate" class="note" hidden>Only the System Admin can use this page. Sign in to the staff app first.</div>
+<div class="card" id="tool">
+  <div><label for="k">1. Your key file <code>insania-signing-key.json</code></label><input id="k" type="file" accept=".json,application/json"></div>
+  <div id="fp" class="note"></div>
+  <div><label for="z">2. The patch zip you want to sign</label><input id="z" type="file" accept=".zip,application/zip"></div>
+  <div class="actions" style="margin-top:1rem"><button class="btn btn-main" id="go2" type="button" disabled>Create one-file update (recommended)</button><button class="btn btn-line" id="go" type="button" disabled>Signature file only</button></div>
+  <p id="msg" role="status"></p>
+</div>
+<p class="note">Then open <b>Updates</b>, choose the one-file update and press <b>Upload and update</b>. Compare the key code above with "Trusted signing key" on the Updates page; they must be the same.</p>
+</main>
+<script src="assets/signer.js"></script>
+<script src="assets/signer-gate.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+/* Patch signer: runs only in this browser. The key file is read here and never sent anywhere. */
+(function () {
+  var $ = function (i) { return document.getElementById(i); }, jwk = null;
+  function hex(buf) { return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ("0" + b.toString(16)).slice(-2); }).join(""); }
+  function b64u(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return Uint8Array.from(atob(s), function (c) { return c.charCodeAt(0); }); }
+  function derInt(b) { var i = 0; while (i < b.length - 1 && b[i] === 0) i++; b = b.slice(i); if (b[0] & 0x80) { var n = new Uint8Array(b.length + 1); n.set(b, 1); b = n; } return Array.prototype.concat([0x02, b.length], Array.from(b)); }
+  function rawToDer(raw) { var r = derInt(raw.slice(0, 32)), s = derInt(raw.slice(32)), body = r.concat(s); return new Uint8Array([0x30, body.length].concat(body)); }
+  function ready() { var on = !(jwk && $("z").files[0]); $("go").disabled = on; $("go2").disabled = on; }
+  $("k").addEventListener("change", function () {
+    jwk = null; $("fp").textContent = ""; var f = $("k").files[0]; if (!f) return ready();
+    f.text().then(function (t) {
+      var j = JSON.parse(t); if (j.kty !== "EC" || j.crv !== "P-256" || !j.d) throw new Error("This is not a signing key file.");
+      jwk = j; var x = b64u(j.x), y = b64u(j.y), pt = new Uint8Array(65); pt[0] = 4; pt.set(x, 1); pt.set(y, 33);
+      return crypto.subtle.digest("SHA-256", pt);
+    }).then(function (d) { $("fp").innerHTML = "Key code: <b>" + hex(d).slice(0, 16).toUpperCase() + "</b>"; ready(); }, function (e) { $("fp").innerHTML = '<span class="bad">' + e.message + "</span>"; ready(); });
+  });
+  $("z").addEventListener("change", ready);
+  function signBuffer(buf) {
+    return crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]).then(function (k) { return crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, k, buf); })
+      .then(function (sig) { return btoa(String.fromCharCode.apply(null, rawToDer(new Uint8Array(sig)))); });
+  }
+  function download(name, blob) { var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+  // a plain (stored) zip with two files: no library needed
+  var CRC = (function () { var t = []; for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(u) { var c = 0xFFFFFFFF; for (var i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function makeZip(files) {
+    var enc = new TextEncoder(), parts = [], central = [], off = 0;
+    files.forEach(function (f) {
+      var name = enc.encode(f.name), crc = crc32(f.data), h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(10, 0, true); h.setUint16(12, 0x21, true); h.setUint32(14, crc, true); h.setUint32(18, f.data.length, true); h.setUint32(22, f.data.length, true); h.setUint16(26, name.length, true);
+      parts.push(new Uint8Array(h.buffer), name, f.data);
+      var c = new DataView(new ArrayBuffer(46)); c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(12, 0, true); c.setUint16(14, 0x21, true); c.setUint32(16, crc, true); c.setUint32(20, f.data.length, true); c.setUint32(24, f.data.length, true); c.setUint16(28, name.length, true); c.setUint32(42, off, true);
+      central.push(new Uint8Array(c.buffer), name); off += 30 + name.length + f.data.length;
+    });
+    var cs = central.reduce(function (a, x) { return a + x.length; }, 0), e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cs, true); e.setUint32(16, off, true);
+    return new Blob(parts.concat(central, [new Uint8Array(e.buffer)]), { type: "application/zip" });
+  }
+  function run(kind) {
+    var f = $("z").files[0], msg = $("msg"); msg.textContent = "Signing…"; msg.className = "";
+    f.arrayBuffer().then(function (buf) {
+      return signBuffer(buf).then(function (b64) {
+        var base = f.name.replace(/\.zip$/i, "");
+        if (kind === "sig") { download(base + ".sig", new Blob([b64], { type: "text/plain" })); msg.textContent = "Done. Saved " + base + ".sig"; }
+        else { download(base + ".update.zip", makeZip([{ name: "patch.zip", data: new Uint8Array(buf) }, { name: "signature.sig", data: new TextEncoder().encode(b64) }])); msg.textContent = "Done. Saved " + base + ".update.zip. Upload this one file in the app: Updates, Upload and update."; }
+        msg.className = "ok";
+      });
+    }).catch(function (e) { msg.className = "bad"; msg.textContent = "Could not sign: " + e.message; });
+  }
+  $("go").addEventListener("click", function () { run("sig"); });
+  $("go2").addEventListener("click", function () { run("bundle"); });
+})();

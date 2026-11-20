@@ -172,3 +172,5 @@ textarea:focus{outline:3px solid rgba(154,205,50,.55);background:#fff;border-col
 .ws details,#wsBody details{border:1px solid var(--line);border-radius:var(--r-md);padding:.5rem .9rem;margin:.6rem 0;background:#fff}
 #wsBody summary{display:flex;align-items:center;gap:.7rem;cursor:pointer;list-style:none;padding:.3rem 0}
 #wsBody summary::-webkit-details-marker{display:none}
+
+#msg.ok{color:var(--brand);font-weight:700}#msg.bad{color:var(--danger);font-weight:700}
