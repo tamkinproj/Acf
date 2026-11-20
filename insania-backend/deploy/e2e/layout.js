@@ -16,7 +16,7 @@ const accounts = ['system', 'security', 'president', 'aytam', 'finance', 'projec
   }
   for (const a of accounts) {
     for (const lang of ['en', 'ar']) {
-      const c = await b.newContext({ viewport: { width: 360, height: 740 } }); const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+      const c = await b.newContext({ viewport: { width: 360, height: 740 } }); const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (/Content Security Policy|Refused to/.test(m.text())) errs.push('CSP: ' + m.text().slice(0, 120)); });
       const bad = []; p.on('response', r => { if (r.status() >= 400) bad.push(r.status() + ' ' + new URL(r.url()).pathname); });
       await p.goto(B + '/app/login.html'); await p.evaluate(l => localStorage.setItem('acf_lang', l), lang); await p.reload();
       await p.fill('#lEmail', a + '@insania.test'); await p.fill('#lPass', 'DemoPass#2026'); await Promise.all([p.waitForNavigation({ url: /(dashboard|setup)\.html/ }), p.click('button[type=submit]')]);
