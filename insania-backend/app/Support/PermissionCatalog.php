@@ -17,6 +17,8 @@ final class PermissionCatalog
             'system.health' => 'See system health (no personal data)',
             'system.settings' => 'Change system settings',
             'system.api_keys' => 'Issue and revoke partner API keys',
+            'system.updates' => 'Apply signed update patches and undo them',
+            'system.first_admin' => 'Create the first Security Admin (only while none exists)',
             'users.manage' => 'Create users, assign roles and departments, reset passwords, end sessions',
             'audit.read' => 'Read the audit log',
             'children.view' => 'See children and their profiles',

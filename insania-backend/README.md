@@ -4,7 +4,7 @@ The server behind the staff app for **Al Insania Charity Foundation Inc.**
 
 It was started from the old school-management system's Laravel setup: the same infrastructure (Sanctum tokens, role middleware, one JSON response format, login throttling, security headers, unsafe-upload blocking, API keys), with the **school domain replaced by the foundation's own**: children and guardians, documents, bank accounts, sponsors and monthly sponsorship payments, projects, departments, staff and family accounts.
 
-**Status:** 81 tests, 558 assertions, all passing. Run end to end over real HTTP with seeded demo data.
+**Status:** 95 tests, 690 assertions, all passing. Run end to end over real HTTP with seeded demo data.
 
 ## Install (no terminal needed)
 
@@ -72,6 +72,14 @@ Partner keys (shown once; only the hash is stored): System Admin uses `GET/POST 
 ## Working offline (staff app)
 
 The staff app (`../prototype/app`) saves what it shows on the phone and keeps changes made offline in an outbox. Each change is sent with an `Idempotency-Key` header; if the same key arrives twice (a reply was lost), the server answers with the stored result and does nothing twice (`app/Http/Middleware/Idempotent.php`, table `idempotency_keys`). Account administration, passwords and partner keys are never queued: they need a connection. A signed-in account may make 300 requests a minute (the app saves pages for offline use).
+
+## Updates, backups and undo
+
+System Admin > Updates (and `/upgrade` as a fallback) applies signed patches: `app/Updates/UpdateService.php`. A patch is a zip plus a signature made with an ECDSA P-256 key the owner keeps offline (`../tools/patch-signer.html`); the public key is in `config/updates.php`. Checks: signature, safe paths inside an allow-list, PHP syntax, base build. Before writing, every file to be replaced is copied to `storage/app/updates/backups/<id>/`; any failure restores it automatically; the latest update can be undone (files and its migrations' `down()`). Build patches with `deploy/make-patch.py OLD NEW out.zip`; rebuild the old release exactly with `BUILD_ID=<id> deploy/build-package.sh` from the commit listed in `deploy/releases.txt`.
+
+## First-run setup
+
+`GET /api/setup` returns what each role should do first (counts only). The System Admin creates the first Security Admin with `POST /api/system/security-admin` (only while none exists); the Security Admin then creates the President Admin and staff; the President adds the first child. The staff app opens that checklist on an account's first sign-in.
 
 ## How the old system was used
 

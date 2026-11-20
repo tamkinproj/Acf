@@ -41,7 +41,18 @@ Open `https://alinsania.com/server/api/ping`. You should see `{"success":true,"d
 ## Partner keys (Dar Al Ber)
 Sign in to the API as the System Admin and use `POST /api/system/api-keys` (name = "Dar Al Ber"). The key is shown once. List with `GET /api/system/api-keys`, revoke with `DELETE /api/system/api-keys/{id}`.
 
-## Upgrading later
+## Updates from inside the app (signed patches)
+After this is installed you no longer need File Manager for updates.
+1. Whoever maintains the system sends you two files: `something.zip` (the patch) and, once you have signed it, `something.sig`.
+2. **Signing (on your own computer or phone, never on the server).** Open `patch-signer.html` in a browser, choose your key file `insania-signing-key.json`, choose the patch zip, press **Create signature file**. Keep the key file private and offline: whoever has it can change your server. The page shows a key code; it must match the "Trusted signing key" on the Updates page.
+3. In the app sign in as System Admin, open **Updates**, choose the zip and the `.sig`, press **Check patch**, read the summary, press **Apply update**.
+4. Before changing anything the system copies every file it will replace into `insania_app/storage/app/updates/backups/`. If anything fails it puts everything back by itself. Afterwards **Undo this update** brings the previous version back (files and the update's own database changes).
+5. A patch with a wrong or missing signature, a PHP mistake, an unsafe path or the wrong base version is refused before anything is written.
+
+What the backup does not hold: your records and uploaded documents. Keep a separate data backup.
+If the app itself will not open, use `https://alinsania.com/server/upgrade`: same upload, check, apply and undo, protected by the setup code in `insania_app/storage/app/install/token`.
+
+## Upgrading later (without a signed patch)
 1. Upload the new files over `insania_app` (File Manager → Upload, overwrite). Do **not** delete `.env` or the `storage` folder.
 2. Open `https://alinsania.com/server/upgrade`, paste the code from `insania_app/storage/app/install/token` (the page creates it), press **Run upgrade**.
 

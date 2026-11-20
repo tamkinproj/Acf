@@ -9,4 +9,7 @@ Route::middleware('throttle:20,1')->group(function () {
     Route::post('/install', [InstallController::class, 'run']);
     Route::get('/upgrade', [InstallController::class, 'upgradeShow']);
     Route::post('/upgrade', [InstallController::class, 'upgradeRun']);
+    Route::post('/upgrade/patch', [InstallController::class, 'patchCheck']);
+    Route::post('/upgrade/apply', [InstallController::class, 'patchApply']);
+    Route::post('/upgrade/undo', [InstallController::class, 'patchUndo']);
 });

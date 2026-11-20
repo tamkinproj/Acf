@@ -66,6 +66,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'reminders' => ['sometimes', 'boolean'],
             'show_amounts' => ['sometimes', 'boolean'],
+            'setup_seen' => ['sometimes', 'boolean'],
         ]);
 
         $user = $request->user();

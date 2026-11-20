@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Install\Installer;
 use App\Install\InstallState;
 use App\Install\Requirements;
+use App\Updates\UpdateException;
+use App\Updates\UpdateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
@@ -79,7 +81,7 @@ class InstallController extends Controller
         }
         InstallState::token();
 
-        return view('install.upgrade', ['pending' => Installer::pending(), 'hint' => InstallState::tokenHint(), 'result' => null, 'error' => null]);
+        return view('install.upgrade', ['pending' => Installer::pending(), 'hint' => InstallState::tokenHint(), 'result' => null, 'error' => null, 'undo' => app(UpdateService::class)->latestApplied(), 'build' => app(UpdateService::class)->currentBuild()]);
     }
 
     public function upgradeRun(Request $request)
@@ -99,5 +101,70 @@ class InstallController extends Controller
         }
 
         return view('install.upgrade', ['pending' => 0, 'hint' => InstallState::tokenHint(), 'result' => $out ?: 'Done.', 'error' => null]);
+    }
+
+    // ----- patches without the app (fallback when the app itself cannot open) -----
+
+    private function patchGate(Request $request)
+    {
+        if (! InstallState::installed()) {
+            abort(404);
+        }
+        if (! InstallState::tokenMatches($request->input('token'))) {
+            return response()->view('install.patch', ['error' => 'The setup code is wrong.', 'summary' => null, 'result' => null, 'token' => ''], 403);
+        }
+
+        return null;
+    }
+
+    public function patchCheck(Request $request, UpdateService $updates)
+    {
+        if ($deny = $this->patchGate($request)) {
+            return $deny;
+        }
+        $token = (string) $request->input('token');
+        if (! $request->hasFile('patch') || ! $request->hasFile('signature')) {
+            return response()->view('install.patch', ['error' => 'Choose both the patch zip and its signature file.', 'summary' => null, 'result' => null, 'token' => $token], 422);
+        }
+        try {
+            $id = $updates->store($request->file('patch')->getRealPath(), (string) file_get_contents($request->file('signature')->getRealPath()));
+            $summary = $updates->inspect($id)['summary'];
+        } catch (UpdateException $e) {
+            if (isset($id)) {
+                $updates->discard($id);
+            }
+
+            return response()->view('install.patch', ['error' => $e->getMessage(), 'summary' => null, 'result' => null, 'token' => $token], 422);
+        }
+
+        return view('install.patch', ['error' => null, 'summary' => $summary, 'result' => null, 'token' => $token]);
+    }
+
+    public function patchApply(Request $request, UpdateService $updates)
+    {
+        if ($deny = $this->patchGate($request)) {
+            return $deny;
+        }
+        try {
+            $entry = $updates->apply((string) $request->input('id'));
+        } catch (UpdateException $e) {
+            return response()->view('install.patch', ['error' => $e->getMessage(), 'summary' => null, 'result' => null, 'token' => (string) $request->input('token')], 422);
+        }
+
+        return view('install.patch', ['error' => null, 'summary' => null, 'result' => 'Updated to '.$entry['version'].' (build '.$entry['build'].').', 'token' => (string) $request->input('token')]);
+    }
+
+    public function patchUndo(Request $request, UpdateService $updates)
+    {
+        if ($deny = $this->patchGate($request)) {
+            return $deny;
+        }
+        try {
+            $r = $updates->undo((string) $request->input('id'));
+        } catch (UpdateException $e) {
+            return response()->view('install.patch', ['error' => $e->getMessage(), 'summary' => null, 'result' => null, 'token' => (string) $request->input('token')], 422);
+        }
+
+        return view('install.patch', ['error' => null, 'summary' => null, 'result' => 'Undone. Build '.$r['restored_build'].' is back.', 'token' => (string) $request->input('token')]);
     }
 }

@@ -169,6 +169,15 @@
   }
   function setPrefs(p) { var s = session(); if (s) { s.user.preferences = Object.assign({}, s.user.preferences, p); wr(SK, s); } }
 
+  /** Sends files (never queued: it needs a connection). Resolves the envelope's data, rejects with the server's message. */
+  function upload(path, formData) {
+    if (navigator.onLine === false) { var e = new Error("This needs a connection."); e.offline = true; return Promise.reject(e); }
+    var s = session(), headers = { Accept: "application/json" }; if (s && s.token) headers.Authorization = "Bearer " + s.token;
+    return fetch(base() + path, { method: "POST", headers: headers, body: formData, credentials: "omit" }).then(function (r) {
+      return r.text().then(function (txt) { var j = null; try { j = JSON.parse(txt); } catch (x) {} if (!r.ok) { var er = new Error((j && j.message) || "Upload failed."); er.status = r.status; er.code = j && j.code; throw er; } return j && j.data; });
+    }, function () { var er = new Error("network"); er.network = true; er.offline = true; er.message = "This needs a connection."; throw er; });
+  }
+
   /* ---------- public: write ---------- */
   /** opts: { label, optimistic: function(), online: true (never queue) }  -> { queued, data } */
   function write(method, path, body, opts) {
@@ -239,7 +248,7 @@
 
   window.ACFAPI = {
     base: base, session: session, user: user, can: can, login: login, logout: logout, refreshMe: refreshMe,
-    get: get, getAll: getAll, getEvery: getEvery, prefetch: prefetch, setPrefs: setPrefs, updateUser: updateUser, write: write, patchCache: patchCache, wipeCache: wipeCache,
+    get: get, getAll: getAll, upload: upload, getEvery: getEvery, prefetch: prefetch, setPrefs: setPrefs, updateUser: updateUser, write: write, patchCache: patchCache, wipeCache: wipeCache,
     outbox: mine, counts: counts, state: state, onChange: onChange, sync: sync, discard: discard, retry: retry,
     expired: function () { return !!rd(META, {}).expired; }, clearExpired: function () { setMeta({ expired: false }); }
   };

@@ -34,6 +34,7 @@ Route::middleware('api.json')->group(function () {
         Route::get('me/preferences', [AuthController::class, 'preferences']);
         Route::patch('me/preferences', [AuthController::class, 'updatePreferences']);
         Route::get('dashboard', DashboardController::class);
+        Route::get('setup', [\App\Http\Controllers\Api\SetupController::class, 'steps']);
 
         // Technical roles
         Route::get('system/health', [SystemController::class, 'health'])->middleware('permission:system.health');
@@ -43,6 +44,14 @@ Route::middleware('api.json')->group(function () {
             Route::get('system/api-keys', [\App\Http\Controllers\Api\ApiKeyController::class, 'index']);
             Route::post('system/api-keys', [\App\Http\Controllers\Api\ApiKeyController::class, 'store']);
             Route::delete('system/api-keys/{id}', [\App\Http\Controllers\Api\ApiKeyController::class, 'destroy'])->whereNumber('id');
+        });
+
+        Route::post('system/security-admin', [\App\Http\Controllers\Api\SetupController::class, 'firstSecurityAdmin'])->middleware('permission:system.first_admin');
+        Route::middleware('permission:system.updates')->group(function () {
+            Route::get('system/updates', [\App\Http\Controllers\Api\UpdateController::class, 'index']);
+            Route::post('system/updates/check', [\App\Http\Controllers\Api\UpdateController::class, 'check']);
+            Route::post('system/updates/{id}/apply', [\App\Http\Controllers\Api\UpdateController::class, 'apply'])->where('id', '[a-f0-9]{24}');
+            Route::post('system/updates/{entry}/undo', [\App\Http\Controllers\Api\UpdateController::class, 'undo'])->where('entry', '[0-9A-Za-z-]+');
         });
 
         Route::middleware('permission:users.manage')->group(function () {

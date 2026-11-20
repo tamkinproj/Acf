@@ -43,14 +43,18 @@
   function v(id) { return document.getElementById(id).value.trim(); }
   function fail(e) { if (!(e.errors && A.showErrors(e.errors, "u_"))) document.getElementById("formErr").textContent = e.offline ? t("need_conn") : A.msg(e); }
 
-  A.act("adduser", function () {
+  function adduser() {
     A.sheet(t("add_user"), '<form id="userForm" novalidate>' + A.field("u_name", t("f_uname")) + A.field("u_email", t("f_uemail"), "", "email", 'dir="ltr" autocomplete="off"') +
       '<div><label for="u_role">' + t("f_urole") + '</label><select id="u_role">' + roleOptions("staff", false) + '</select><div class="err" id="u_roleErr"></div></div>' +
       '<div id="deptBox"><label for="u_department_key">' + t("f_udept") + '</label><select id="u_department_key">' + deptOptions("aytam") + '</select><div class="err" id="u_department_keyErr"></div></div>' +
       A.field("u_password", t("f_upass"), '<div class="actions" style="margin-top:.4rem"><button class="btn btn-line btn-sm" type="button" data-act="genpass">' + t("gen_pass") + '</button></div><p class="note" style="margin:.4rem 0 0">' + t("pass_hint") + "</p>", "text", 'dir="ltr" autocomplete="off"') +
       '<p class="note" style="margin:0">' + t("family_note") + "</p>" + A.formEnd() + "</form>");
-    var sel = document.getElementById("u_role"); sel.addEventListener("change", function () { toggleDept(sel); }); toggleDept(sel);
-  });
+    var sel = document.getElementById("u_role"); sel.addEventListener("change", function () { toggleDept(sel); });
+    var m = location.search.match(/[?&]role=([a-z_]+)/), d = location.search.match(/[?&]dept=([a-z]+)/);
+    if (!adduser.done && m && ROLES.indexOf(m[1]) > -1) { sel.value = m[1]; if (d && DEPTS.indexOf(d[1]) > -1) document.getElementById("u_department_key").value = d[1]; }
+    adduser.done = true; toggleDept(sel);
+  }
+  A.act("adduser", adduser);
   A.act("genpass", function () { document.getElementById("u_password").value = genPass(); });
   A.form("userForm", function () {
     clearErr();
@@ -97,5 +101,6 @@
     A.api.write("POST", "users/" + f.getAttribute("data-id") + "/password", { password: v("u_password") }, { online: true }).then(function () { A.closeSheet(); A.toast(t("pass_changed")); }, fail);
   });
 
-  A.start({ page: "users", nav: "users", title: "n_users", needsConn: true, perm: "users.manage", shell: true, load: function () { return A.api.get("users", { cache: false }); }, render: render });
+  function openFromLink() { if (/[?&]add=1/.test(location.search) && !openFromLink.done) { openFromLink.done = true; adduser(); } }
+  A.start({ page: "users", nav: "users", title: "n_users", needsConn: true, perm: "users.manage", shell: true, load: function () { return A.api.get("users", { cache: false }); }, render: render, after: openFromLink });
 })();
