@@ -29,3 +29,6 @@ Thumbs.db
 # JS test tooling
 /tests/js/node_modules
 /tests/e2e/node_modules
+
+# Built packages
+/dist
