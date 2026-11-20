@@ -272,6 +272,62 @@ footer a:hover{color:var(--ink);text-decoration:underline;text-decoration-color:
 .social a{width:2.4rem;height:2.4rem;background:var(--fill);border-radius:50%;display:grid;place-items:center}
 .social a:hover{background:var(--accent-soft)}
 
+/* ---------- Home layout: rounded panels, two-tone headline, floating stat cards ---------- */
+main > section{max-width:calc(1200px + 2rem);margin:1.25rem auto;border-radius:2.25rem;border:1px solid var(--line);background:linear-gradient(180deg,#fbfdf4 0%,#fff 55%);padding:4.5rem 0}
+@media(max-width:700px){main > section{margin:.75rem .5rem;border-radius:1.6rem;padding:3.25rem 0}}
+main > section.hero{background:radial-gradient(55% 70% at 88% 8%,rgba(154,205,50,.22),transparent 65%),radial-gradient(45% 55% at 0% 100%,rgba(246,233,27,.14),transparent 65%),linear-gradient(180deg,#f6fbe9,#fff);padding:3.5rem 0 4.25rem}
+.hero::before,.hero::after{display:none}
+.head.center{margin-inline:auto;text-align:center}
+.eyebrow::before{content:"\2726";margin-inline-end:.4rem}
+.hero h1{font-size:clamp(2.5rem,6vw,4.4rem);font-weight:800;letter-spacing:-.04em;line-height:1.02}
+.hero h1 em,.title .accent{font-style:normal;background:linear-gradient(90deg,var(--brand),#5f9417);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1 em{display:block}
+.hero .wrap{gap:2.5rem}
+@media(min-width:960px){.hero .wrap{grid-template-columns:1.05fr .95fr}}
+
+.stack{position:relative;margin-top:2rem;display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+.fcard{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:1.25rem;padding:1rem 1.1rem;box-shadow:0 10px 30px rgba(23,48,13,.09),0 1px 0 #fff inset;transition:transform .2s}
+.fc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.fcard .num{font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.03em;line-height:1;display:flex;align-items:baseline;gap:.1rem}
+.fcard .num span{color:var(--accent-ink);font-size:1.3rem}
+.fcard .chip{width:2.4rem;height:2.4rem;margin:0;border-radius:.8rem}
+.fcard .lab{font-weight:700;color:var(--ink);margin-top:.55rem;font-size:.95rem}
+@media(min-width:760px){
+  .stack{display:block;height:18.5rem}
+  .fcard{position:absolute;width:min(14rem,47%)}
+  .fcard.s1{inset-inline-start:0;top:1.2rem;transform:rotate(-4deg)}
+  .fcard.s2{inset-inline-start:50%;top:0;transform:rotate(3deg)}
+  .fcard.s3{inset-inline-start:4%;top:9.4rem;transform:rotate(2.5deg);z-index:2}
+  .fcard.s4{inset-inline-start:53%;top:8.2rem;transform:rotate(-3deg)}
+  .fcard:hover{transform:rotate(0) translateY(-3px);z-index:3}
+}
+
+.hero-card{position:relative;padding:1.1rem;border-radius:2rem;background:rgba(255,255,255,.9);box-shadow:0 24px 60px rgba(23,48,13,.12),0 1px 0 #fff inset}
+.hero-card .photo{aspect-ratio:16/10;border-radius:1.4rem;margin-bottom:1.1rem}
+.hero-card h3{font-size:1.3rem;margin:0 .3rem .85rem}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.75rem .95rem;border:1px solid var(--line);border-radius:999px;background:#fff;font-weight:600;font-size:.9rem;color:var(--ink)}
+.opt .icon{color:#fff;background:var(--brand);border-radius:50%;padding:.22rem;width:1.35rem;height:1.35rem;min-width:1.35rem;stroke-width:3}
+.opt.wide{grid-column:1/-1;background:var(--accent-soft);border-color:transparent}
+.hero-card .cta{display:grid;grid-template-columns:auto 1fr;gap:.6rem;margin:0 0 1rem}
+.hero-card .cta .btn{width:100%}
+.hero-card .trust{justify-content:center;font-size:.82rem}
+.bubble{position:absolute;inset-inline-end:-.9rem;bottom:-.9rem;width:3.6rem;height:3.6rem;border-radius:50%;background:#fff var(--logo) center/78% no-repeat;border:1px solid var(--line);box-shadow:0 10px 24px rgba(23,48,13,.18)}
+@media(max-width:700px){.bubble{inset-inline-end:.5rem;bottom:-1.3rem}.opts,.hero-card .cta{grid-template-columns:1fr}}
+
+.filters{justify-content:center}
+.projgrid .proj{display:grid;grid-template-columns:10.5rem 1fr;column-gap:1.1rem;align-content:start;padding:1rem}
+.projgrid .proj > *{grid-column:2}
+.projgrid .proj .photo{grid-column:1;grid-row:1 / span 6;aspect-ratio:auto;height:100%;min-height:10rem;margin:0}
+.pbtns{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.projgrid .proj > .badge{justify-self:start}
+@media(max-width:959px){#projects .g4{grid-template-columns:repeat(2,1fr)}#projects .stat .num{font-size:2.2rem}}
+@media(max-width:560px){
+  .projgrid .proj{grid-template-columns:1fr}
+  .projgrid .proj > *{grid-column:1}
+  .projgrid .proj .photo{grid-row:auto;aspect-ratio:16/10;height:auto;min-height:0;margin-bottom:.9rem}
+}
+
 /* render below-the-fold sections only when they get close (faster first paint on every device) */
 section:not(.hero),footer{content-visibility:auto;contain-intrinsic-size:auto 700px}
 .linkbtn{font:inherit;font-size:.8rem;background:var(--fill);border:0;border-radius:999px;padding:.4rem .9rem;color:var(--muted);cursor:pointer}
@@ -356,30 +412,36 @@ html.lite{scroll-behavior:auto}
 <!-- ============ HOME / HERO ============ -->
 <section class="hero" id="top">
   <div class="container wrap">
-    <div>
+    <div class="hero-text">
       <span class="eyebrow" data-i18n="h_eyebrow">Orphan care and community support</span>
       <h1><span data-i18n="h_t1">Caring for every orphan,</span> <em data-i18n="h_t2">with dignity and trust.</em></h1>
       <p class="lead" data-i18n="h_sub">Al Insania Charity Foundation Inc. supports orphans and their families in the Philippines through programs sponsored by trusted partners in the UAE.</p>
+      <div class="stack">
+        <div class="fcard s1"><div class="fc-top"><div class="num"><b data-count="120">120</b><span>+</span></div><span class="chip"><svg class="icon"><use href="#i-heart"/></svg></span></div><div class="lab" data-i18n="i_s1">Orphans supported</div></div>
+        <div class="fcard s2"><div class="fc-top"><div class="num"><b data-count="85">85</b><span>+</span></div><span class="chip"><svg class="icon"><use href="#i-users"/></svg></span></div><div class="lab" data-i18n="i_s2">Families reached</div></div>
+        <div class="fcard s3"><div class="fc-top"><div class="num"><b data-count="2">2</b></div><span class="chip"><svg class="icon"><use href="#i-shield"/></svg></span></div><div class="lab" data-i18n="i_s3">Partner sponsors</div></div>
+        <div class="fcard s4"><div class="fc-top"><div class="num"><b data-count="10">10</b></div><span class="chip"><svg class="icon"><use href="#i-clock"/></svg></span></div><div class="lab" data-i18n="i_s4">Years of service</div></div>
+      </div>
+      <p class="note" data-i18n="i_note">Sample figures. Replace with real numbers and the date: "Updated [date]".</p>
+    </div>
+    <div class="hero-card card">
+      <div class="photo" role="img" aria-label="Photo placeholder"><span data-i18n="ph_hero">Hero photo (replace with a consented photo)</span></div>
+      <h3 data-i18n="f_t">Orphan care program (Aytam)</h3>
+      <div class="opts">
+        <span class="opt"><span data-i18n="f_1">Education support</span><svg class="icon"><use href="#i-check"/></svg></span>
+        <span class="opt"><span data-i18n="f_2">Health care</span><svg class="icon"><use href="#i-check"/></svg></span>
+        <span class="opt wide"><span data-i18n="f_3">Housing and daily needs</span><svg class="icon"><use href="#i-check"/></svg></span>
+      </div>
       <div class="cta">
-        <a class="btn btn-main" href="#sponsor"><span data-i18n="h_cta1">How to sponsor an orphan</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a>
         <a class="btn btn-line" href="#contact" data-i18n="h_cta2">Contact us</a>
+        <a class="btn btn-main" href="#sponsor"><span data-i18n="h_cta1">How to sponsor an orphan</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a>
       </div>
       <ul class="trust">
         <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="h_tr1">Licensed and supervised</span></li>
         <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="h_tr2">Children's privacy protected</span></li>
         <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="h_tr3">Regular reports to sponsors</span></li>
       </ul>
-    </div>
-    <div class="visual">
-      <div class="photo" role="img" aria-label="Photo placeholder"><span data-i18n="ph_hero">Hero photo (replace with a consented photo)</span></div>
-      <div class="float">
-        <strong data-i18n="f_t">Orphan care program (Aytam)</strong>
-        <ul class="ticks" style="margin:0">
-          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="f_1">Education support</span></li>
-          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="f_2">Health care</span></li>
-          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="f_3">Housing and daily needs</span></li>
-        </ul>
-      </div>
+      <span class="bubble" aria-hidden="true"></span>
     </div>
   </div>
 </section>
@@ -401,15 +463,8 @@ html.lite{scroll-behavior:auto}
       <h2 class="title" data-i18n="i_title">Numbers we report openly</h2>
       <p class="lead" data-i18n="i_lead">Every figure here comes from our own records and shows the date it was last updated.</p>
     </div>
-    <div class="grid g4">
-      <div class="card stat"><div class="num"><b data-count="120">120</b><span>+</span></div><div class="lab" data-i18n="i_s1">Orphans supported</div></div>
-      <div class="card stat"><div class="num"><b data-count="85">85</b><span>+</span></div><div class="lab" data-i18n="i_s2">Families reached</div></div>
-      <div class="card stat"><div class="num"><b data-count="2">2</b></div><div class="lab" data-i18n="i_s3">Partner sponsors</div></div>
-      <div class="card stat"><div class="num"><b data-count="10">10</b></div><div class="lab" data-i18n="i_s4">Years of service</div></div>
-    </div>
-    <p class="note" data-i18n="i_note">Sample figures. Replace with real numbers and the date: "Updated [date]".</p>
 
-    <div class="grid g3" style="margin-top:2.5rem">
+    <div class="grid g3">
       <div class="card doc"><span class="chip"><svg class="icon"><use href="#i-file"/></svg></span><div><h3 data-i18n="d1t">Annual report [year]</h3><p data-i18n="d1p">How we worked and what we achieved.</p><a class="link" href="#" data-i18n="dl">Download PDF</a></div></div>
       <div class="card doc"><span class="chip"><svg class="icon"><use href="#i-file"/></svg></span><div><h3 data-i18n="d2t">Financial summary</h3><p data-i18n="d2p">Where funds come from and how they are used.</p><a class="link" href="#" data-i18n="dl">Download PDF</a></div></div>
       <div class="card doc"><span class="chip"><svg class="icon"><use href="#i-shield"/></svg></span><div><h3 data-i18n="d3t">Licence and audit</h3><p data-i18n="d3p">Our licence, supervising authority and audit statement.</p><a class="link" href="#" data-i18n="dl">Download PDF</a></div></div>
@@ -422,7 +477,7 @@ html.lite{scroll-behavior:auto}
   <div class="container about">
     <div>
       <span class="eyebrow" data-i18n="a_eyebrow">About us</span>
-      <h2 class="title" data-i18n="a_title">About Al Insania Charity Foundation Inc.</h2>
+      <h2 class="title"><span data-i18n="a_t1">About</span> <span class="accent" data-i18n="a_t2">Al Insania Charity Foundation Inc.</span></h2>
       <p class="lead" data-i18n="a_lead">[Write 2 to 3 sentences: who you are, who you serve, and why you started.]</p>
       <p data-i18n="a_p">[Tell the story of the foundation: when it began, how it grew, and the people who made it possible.]</p>
       <div class="grid g3" style="margin-top:1.5rem">
@@ -514,7 +569,7 @@ html.lite{scroll-behavior:auto}
 <!-- ============ PROJECTS ============ -->
 <section id="projects">
   <div class="container">
-    <div class="head">
+    <div class="head center">
       <span class="eyebrow" data-i18n="pj_eyebrow">Implemented projects</span>
       <h2 class="title" data-i18n="pj_title">Projects we have completed</h2>
       <p class="lead" data-i18n="pj_lead">From orphan care to education, alumni, waqf, water and mosques: a record of what we have delivered, with the location, year and sponsor of each project.</p>
@@ -540,7 +595,7 @@ html.lite{scroll-behavior:auto}
       <button class="fbtn" type="button" data-f="train" aria-pressed="false" data-i18n="cat_train">Training and events</button>
     </div>
 
-    <div class="grid g3">
+    <div class="grid g2 projgrid">
       <article class="card proj" data-cat="orphan">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_orphan">Orphan care</span><svg class="icon"><use href="#i-heart"/></svg></div>
         <span class="badge" data-i18n="pj_done">Completed</span>
@@ -551,6 +606,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
       <article class="card proj" data-cat="edu">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_edu">Education</span><svg class="icon"><use href="#i-book"/></svg></div>
@@ -562,6 +618,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
       <article class="card proj" data-cat="alumni">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_alumni">Alumni</span><svg class="icon"><use href="#i-cap"/></svg></div>
@@ -573,6 +630,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
       <article class="card proj" data-cat="waqf">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_waqf">Waqf</span><svg class="icon"><use href="#i-bank"/></svg></div>
@@ -584,6 +642,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
       <article class="card proj" data-cat="water">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_water">Water</span><svg class="icon"><use href="#i-drop"/></svg></div>
@@ -595,6 +654,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
       <article class="card proj" data-cat="mosque">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_mosque">Mosques</span><svg class="icon"><use href="#i-mosque"/></svg></div>
@@ -606,6 +666,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
       <article class="card proj" data-cat="relief">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_relief">Relief</span><svg class="icon"><use href="#i-box"/></svg></div>
@@ -617,6 +678,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
       <article class="card proj" data-cat="train">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_train">Training and events</span><svg class="icon"><use href="#i-users"/></svg></div>
@@ -628,6 +690,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
       <article class="card proj" data-cat="edu">
         <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_edu">Education</span><svg class="icon"><use href="#i-book"/></svg></div>
@@ -639,6 +702,7 @@ html.lite{scroll-behavior:auto}
           <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
           <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
         </ul>
+        <div class="pbtns"><a class="btn btn-line btn-sm" href="#" data-i18n="pj_view">View</a><a class="btn btn-main btn-sm" href="#contact"><span data-i18n="pj_support">Support this project</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a></div>
       </article>
     </div>
 
@@ -668,7 +732,7 @@ html.lite{scroll-behavior:auto}
 <!-- ============ HOW IT WORKS ============ -->
 <section id="how">
   <div class="container">
-    <div class="head">
+    <div class="head center">
       <span class="eyebrow" data-i18n="w_eyebrow">How it works</span>
       <h2 class="title" data-i18n="w_title">From registration to follow-up</h2>
     </div>
@@ -685,7 +749,7 @@ html.lite{scroll-behavior:auto}
 <!-- ============ PARTNERS / SPONSOR ============ -->
 <section id="partners">
   <div class="container">
-    <div class="head">
+    <div class="head center">
       <span class="eyebrow" data-i18n="r_eyebrow">Our partners</span>
       <h2 class="title" data-i18n="r_title">Trusted sponsors behind our work</h2>
       <p class="lead" data-i18n="r_lead">We work with established charities that sponsor and support the children in our care.</p>
@@ -721,7 +785,7 @@ html.lite{scroll-behavior:auto}
 <!-- ============ NEWS ============ -->
 <section id="news">
   <div class="container">
-    <div class="head">
+    <div class="head center">
       <span class="eyebrow" data-i18n="nw_eyebrow">News and events</span>
       <h2 class="title" data-i18n="nw_title">Latest from the foundation</h2>
     </div>
@@ -741,7 +805,7 @@ html.lite{scroll-behavior:auto}
 <!-- ============ FAQ ============ -->
 <section id="faq">
   <div class="container" style="max-width:52rem">
-    <div class="head">
+    <div class="head center">
       <span class="eyebrow" data-i18n="fq_eyebrow">FAQ</span>
       <h2 class="title" data-i18n="fq_title">Frequently asked questions</h2>
     </div>
@@ -845,7 +909,7 @@ html.lite{scroll-behavior:auto}
     i_s1:"يتيم مكفول", i_s2:"أسرة وصلنا إليها", i_s3:"جهات كافلة شريكة", i_s4:"سنوات من العمل",
     i_note:"أرقام تجريبية. استبدلها بالأرقام الحقيقية والتاريخ: «آخر تحديث [التاريخ]».",
     d1t:"التقرير السنوي [السنة]", d1p:"كيف عملنا وماذا أنجزنا.", d2t:"الملخص المالي", d2p:"مصادر الأموال وكيف تُستخدم.", d3t:"الترخيص والتدقيق", d3p:"ترخيصنا والجهة المشرفة وبيان التدقيق.", dl:"تنزيل PDF",
-    a_eyebrow:"من نحن", a_title:"عن مؤسسة الإنسانية الخيرية", a_lead:"[اكتب جملتين أو ثلاثًا: من أنتم، ومن تخدمون، ولماذا بدأتم.]",
+    a_eyebrow:"من نحن", a_t1:"عن", a_t2:"مؤسسة الإنسانية الخيرية", a_lead:"[اكتب جملتين أو ثلاثًا: من أنتم، ومن تخدمون، ولماذا بدأتم.]",
     a_p:"[احكِ قصة المؤسسة: متى بدأت، وكيف نمت، ومن ساهم في ذلك.]",
     a_m:"الرسالة", a_mp:"[رسالتنا في جملة واحدة.]", a_v:"الرؤية", a_vp:"[رؤيتنا في جملة واحدة.]", a_val:"القيم", a_valp:"[النزاهة، الخصوصية، الحوكمة، الرعاية.]",
     a_f:"بيانات المؤسسة", a_f1:"الصفة القانونية", a_f1v:"[الصفة القانونية]", a_f2:"رقم الترخيص", a_f3:"الجهة المشرفة", a_f3v:"[اسم الجهة]", a_f4:"تأسست", a_f4v:"2016م (1437هـ)", a_f5:"المقر", a_f5v:"مدينة باغاديان، الفلبين",
@@ -871,7 +935,7 @@ html.lite{scroll-behavior:auto}
     o1:"استفسار عام", o2:"طلب مساعدة", o3:"الكفالة", o4:"أن أصبح شريكًا", o5:"شكوى أو اقتراح",
     f_msg:"الرسالة", f_consent:"أوافق على التواصل معي بشأن طلبي وأقبل سياسة الخصوصية.", f_send:"إرسال الرسالة",
     f_ok:"نموذج أوّلي فقط: لم تُرسَل رسالتك. في الموقع الفعلي تصل إلى [بريد التواصل].",
-    ld_eyebrow:"القيادة", ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]", tm_eyebrow:"فريقنا", tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع", pj_eyebrow:"المشاريع المنفذة", pj_title:"مشاريعنا المنفذة", pj_lead:"من رعاية الأيتام إلى التعليم والخريجين والوقف والمياه والمساجد: سجلّ بما أنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"نوعًا من المشاريع", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام ومشاريع تجريبية. استبدلها بالحقيقية وأضف بطاقة لكل مشروع.", f_all:"الكل", cat_edu:"التعليم", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)", g_eyebrow:"من الميدان", g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.",  cat_orphan:"رعاية الأيتام", cat_alumni:"الخريجون", cat_waqf:"الوقف", cat_water:"المياه", cat_mosque:"المساجد", pj_t1:"[كفالة الأيتام ورعايتهم]", pj_t2:"[بناء مدرسة (مدراسة)]", pj_t3:"[برنامج الخريجين وحفل التخرج]", pj_t4:"[مشروع وقفي]", pj_t5:"[مشروع خزان مياه]", pj_t6:"[بناء مسجد]", pj_t7:"[توزيع مواد الإغاثة]", pj_t8:"[تدريب المعلمين والطلاب]", pj_t9:"[تأهيل الفصول الدراسية]", s_label:"شريكنا الكافل", pg_more:"عرض المشاريع", pg1t:"التعليم والمدارس", pg1p:"بناء المدارس والفصول وتجهيزها، ودعم الطلاب والمعلمين.", pg2t:"الخريجون", pg2p:"إبقاء الخريجين على تواصل عبر برامج الخريجين والحفلات والدعم المستمر.", pg3t:"الوقف", pg3p:"مشاريع وقفية يتجدد عطاؤها، ويُنفق ريعها في نفع المجتمع بشكل دائم.", pg4t:"المياه", pg4p:"خزانات وآبار توفّر المياه النظيفة للقرى والمدارس.", pg5t:"المساجد", pg5p:"بناء المساجد وأماكن الصلاة وصيانتها للمجتمعات.", pg6t:"الإغاثة والتدريب", pg6p:"مواد إغاثة للأسر المحتاجة، وتدريب للمعلمين والطلاب.", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
+    ld_eyebrow:"القيادة", ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]", tm_eyebrow:"فريقنا", tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع", pj_eyebrow:"المشاريع المنفذة", pj_title:"مشاريعنا المنفذة", pj_lead:"من رعاية الأيتام إلى التعليم والخريجين والوقف والمياه والمساجد: سجلّ بما أنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"نوعًا من المشاريع", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام ومشاريع تجريبية. استبدلها بالحقيقية وأضف بطاقة لكل مشروع.", f_all:"الكل", cat_edu:"التعليم", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)", g_eyebrow:"من الميدان", g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.",  cat_orphan:"رعاية الأيتام", cat_alumni:"الخريجون", cat_waqf:"الوقف", cat_water:"المياه", cat_mosque:"المساجد", pj_t1:"[كفالة الأيتام ورعايتهم]", pj_t2:"[بناء مدرسة (مدراسة)]", pj_t3:"[برنامج الخريجين وحفل التخرج]", pj_t4:"[مشروع وقفي]", pj_t5:"[مشروع خزان مياه]", pj_t6:"[بناء مسجد]", pj_t7:"[توزيع مواد الإغاثة]", pj_t8:"[تدريب المعلمين والطلاب]", pj_t9:"[تأهيل الفصول الدراسية]", s_label:"شريكنا الكافل", pg_more:"عرض المشاريع", pg1t:"التعليم والمدارس", pg1p:"بناء المدارس والفصول وتجهيزها، ودعم الطلاب والمعلمين.", pg2t:"الخريجون", pg2p:"إبقاء الخريجين على تواصل عبر برامج الخريجين والحفلات والدعم المستمر.", pg3t:"الوقف", pg3p:"مشاريع وقفية يتجدد عطاؤها، ويُنفق ريعها في نفع المجتمع بشكل دائم.", pg4t:"المياه", pg4p:"خزانات وآبار توفّر المياه النظيفة للقرى والمدارس.", pg5t:"المساجد", pg5p:"بناء المساجد وأماكن الصلاة وصيانتها للمجتمعات.", pg6t:"الإغاثة والتدريب", pg6p:"مواد إغاثة للأسر المحتاجة، وتدريب للمعلمين والطلاب.", pj_view:"عرض", pj_support:"ادعم هذا المشروع", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
     l1:"سياسة الخصوصية", l2:"شروط الاستخدام", l3:"حماية الأطفال", l4:"سياسة الشكاوى", rights:"جميع الحقوق محفوظة.", lic:"رقم الترخيص",
     t_title:"مؤسسة الإنسانية الخيرية | رعاية الأيتام ودعم المجتمع",
     e_req:"هذا الحقل مطلوب.", e_mail:"أدخل بريدًا إلكترونيًا صحيحًا.", e_cons:"يلزم الموافقة للمتابعة."
