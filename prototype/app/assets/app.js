@@ -36,7 +36,7 @@
       add_title: "Add child", cancel: "Cancel", save: "Save", saved: "Child added", f_name_en: "Name (English)", f_name_ar: "Name (Arabic)",
       required: "This field is required.", lang_btn: "العربية", cash_marked: "Marked as received", ver_on: "Bank account verified",
       ver_off: "Verification removed", exported: "CSV downloaded", per_month: "per month", cash_only: "Cash payment", bank_pay: "Bank transfer",
-      direct: "Direct donor", partner: "Partner sponsorship", child_title: "Child profile", ph_loading: "Loading"
+      direct: "Direct donor", partner: "Partner sponsorship", child_title: "Child profile", ph_loading: "Loading", back_site: "Back to website"
     },
     ar: {
       brand: "مؤسسة الإنسانية الخيرية", staff: "بوابة الموظفين", signin: "تسجيل الدخول", email: "البريد الإلكتروني", password: "كلمة المرور",
@@ -67,7 +67,7 @@
       add_title: "إضافة طفل", cancel: "إلغاء", save: "حفظ", saved: "تمت إضافة الطفل", f_name_en: "الاسم (بالإنجليزية)", f_name_ar: "الاسم (بالعربية)",
       required: "هذا الحقل مطلوب.", lang_btn: "English", cash_marked: "تم تسجيل الاستلام", ver_on: "تم توثيق الحساب البنكي",
       ver_off: "أُلغي التوثيق", exported: "تم تنزيل CSV", per_month: "شهريًا", cash_only: "دفع نقدي", bank_pay: "حوالة بنكية",
-      direct: "متبرع مباشر", partner: "كفالة عبر شريك", child_title: "ملف الطفل", ph_loading: "جارٍ التحميل"
+      direct: "متبرع مباشر", partner: "كفالة عبر شريك", child_title: "ملف الطفل", ph_loading: "جارٍ التحميل", back_site: "العودة إلى الموقع"
     }
   };
   var lang = "en";

@@ -144,3 +144,5 @@ dl.facts dd{margin:0;font-weight:600;color:var(--ink);text-align:end}
 @media(min-width:1120px){.toast{bottom:2rem}}
 .lite *{transition:none!important}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+.link-back{display:block;text-align:center;font-weight:600;font-size:.9rem;color:var(--brand);text-decoration:none}
+.link-back:hover{text-decoration:underline}
