@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[Foundation Name] | Orphan care and community support</title>
+<meta name="description" content="[Foundation Name] supports orphans and families through programs sponsored by trusted partners across the UAE.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111827'/%3E%3Cpath d='M16 24s-7-4.4-7-9.6A4 4 0 0 1 16 12a4 4 0 0 1 7 2.4C23 19.6 16 24 16 24z' fill='%239acd32'/%3E%3C/svg%3E">
+<style>
+/* ---------- Design tokens: change the look here only ---------- */
+:root{
+  --bg:#ffffff;            /* page background: always white */
+  --ink:#111827;           /* headings, main buttons */
+  --text:#374151;          /* body text */
+  --muted:#6b7280;
+  --line:#e5e7eb;          /* borders */
+  --accent:#9acd32;        /* yellow-green: SECONDARY accent only */
+  --accent-ink:#4d6b00;    /* accent used as text on white (readable) */
+  --accent-soft:#f4f9e1;   /* tint for small chips and photo placeholders */
+  --radius:.5rem;
+  --shadow:0 1px 2px rgba(17,24,39,.06);
+  --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Noto Sans Arabic",Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:5rem}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:1rem;line-height:1.65;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+h1,h2,h3,h4{color:var(--ink);line-height:1.2;margin:0 0 .6rem;font-weight:700}
+p{margin:0 0 1rem}
+.container{width:100%;max-width:1200px;margin-inline:auto;padding-inline:1rem}
+@media(min-width:640px){.container{padding-inline:1.5rem}}
+.skip{position:absolute;inset-inline-start:1rem;top:-4rem;background:var(--ink);color:#fff;padding:.6rem 1rem;border-radius:var(--radius);z-index:100}
+.skip:focus{top:1rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.icon{width:1.25rem;height:1.25rem;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* prototype bar */
+.proto{border-bottom:1px solid var(--line);font-size:.8rem;text-align:center;padding:.35rem 1rem;color:var(--muted)}
+.proto b{color:var(--accent-ink)}
+
+/* ---------- Navbar ---------- */
+.nav{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line)}
+.nav .row{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:4.25rem}
+.brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;font-weight:700;color:var(--ink);font-size:1.15rem}
+.logo{width:2.25rem;height:2.25rem;border-radius:.6rem;background:var(--ink);display:grid;place-items:center;color:var(--accent)}
+.menu{display:none;list-style:none;margin:0;padding:0;gap:1.6rem}
+.menu a{font-size:.9rem;font-weight:500;color:#4b5563;text-decoration:none;padding:.25rem 0;border-bottom:2px solid transparent}
+.menu a:hover{color:var(--ink);border-color:var(--accent)}
+.tools{display:flex;align-items:center;gap:.5rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font:inherit;font-weight:600;font-size:.92rem;line-height:1;padding:.8rem 1.2rem;border-radius:var(--radius);border:1px solid transparent;text-decoration:none;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.btn-main{background:var(--ink);color:#fff}
+.btn-main:hover{background:#1f2937}
+.btn-line{background:#fff;color:var(--ink);border-color:#d1d5db}
+.btn-line:hover{border-color:var(--accent);background:var(--accent-soft)}
+.btn-sm{padding:.6rem .9rem;font-size:.85rem}
+.burger{display:inline-grid;place-items:center;width:2.5rem;height:2.5rem;border:1px solid var(--line);border-radius:var(--radius);background:#fff;cursor:pointer;color:var(--ink)}
+.mobile{display:none;border-top:1px solid var(--line);background:#fff}
+.mobile.open{display:block}
+.mobile ul{list-style:none;margin:0;padding:.5rem 0}
+.mobile a{display:block;padding:.7rem 0;text-decoration:none;font-weight:500;color:var(--ink);border-bottom:1px solid #f3f4f6}
+@media(min-width:960px){.menu{display:flex}.burger,.mobile{display:none!important}}
+.signin{display:none}
+@media(min-width:640px){.signin{display:inline-flex}}
+
+/* ---------- Sections ---------- */
+section{padding:4.5rem 0;border-top:1px solid var(--line)}
+.eyebrow{display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:.8rem}
+[dir=rtl] .eyebrow{letter-spacing:0}
+.title{font-size:clamp(1.6rem,3.2vw,2.2rem)}
+.title::after{content:"";display:block;width:3rem;height:4px;border-radius:2px;background:var(--accent);margin-top:.7rem}
+.head{max-width:42rem;margin-bottom:2.5rem}
+.lead{font-size:1.1rem;color:var(--muted)}
+.grid{display:grid;gap:1.25rem}
+@media(min-width:640px){.g2{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:960px){.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.5rem}
+.card h3{font-size:1.1rem}
+.card p:last-child{margin-bottom:0}
+.chip{flex:none;width:2.75rem;height:2.75rem;border-radius:.65rem;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;margin-bottom:1rem}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink);border:1px solid #dfeaa8}
+.badge.soon{background:#fff;color:var(--muted);border-color:var(--line)}
+.ticks{list-style:none;margin:0 0 1rem;padding:0;display:grid;gap:.5rem}
+.ticks li{display:flex;gap:.6rem;align-items:flex-start}
+.ticks .icon{color:var(--accent-ink);margin-top:.2rem}
+
+/* ---------- Hero ---------- */
+.hero{border-top:0;padding:4rem 0 4.5rem}
+.hero .wrap{display:grid;gap:3rem;align-items:center}
+@media(min-width:960px){.hero .wrap{grid-template-columns:1.1fr .9fr}}
+.hero h1{font-size:clamp(2.1rem,5vw,3.4rem);letter-spacing:-.02em}
+.hero h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--accent) 62% 92%,transparent 92%)}
+.hero .cta{display:flex;flex-wrap:wrap;gap:.75rem;margin:1.75rem 0 1.25rem}
+.trust{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem;font-size:.88rem;color:var(--muted);list-style:none;margin:0;padding:0}
+.trust li{display:flex;gap:.4rem;align-items:center}
+.trust .icon{color:var(--accent-ink);width:1rem;height:1rem}
+.visual{position:relative}
+.photo{aspect-ratio:4/3;border-radius:1rem;border:1px solid var(--line);background:
+  radial-gradient(circle at 20% 20%,rgba(154,205,50,.25),transparent 45%),
+  repeating-linear-gradient(45deg,var(--accent-soft) 0 12px,#fff 12px 24px);
+  display:grid;place-items:center;text-align:center;color:var(--muted);font-size:.85rem;padding:1rem}
+.float{position:absolute;inset-inline-start:-.5rem;bottom:-1.5rem;width:min(18rem,85%);background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 10px 25px rgba(17,24,39,.1);padding:1rem 1.1rem}
+.float strong{display:block;color:var(--ink);margin-bottom:.4rem}
+
+/* partner strip */
+.strip{padding:1.75rem 0;border-top:1px solid var(--line)}
+.strip .row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1rem 2.5rem}
+.strip small{color:var(--muted);font-weight:600}
+.pname{font-weight:700;color:#4b5563;font-size:1.05rem;display:flex;align-items:center;gap:.5rem}
+.pname::before{content:"";width:.55rem;height:.55rem;border-radius:50%;background:var(--accent)}
+
+/* stats */
+.stat{text-align:start}
+.stat .num{font-size:2.4rem;font-weight:800;color:var(--ink);line-height:1;margin-bottom:.5rem;display:flex;align-items:baseline;gap:.15rem}
+.stat .num span{color:var(--accent-ink);font-size:1.6rem}
+.stat .lab{font-weight:600;color:var(--ink)}
+.note{font-size:.82rem;color:var(--muted);margin-top:1rem}
+
+/* steps */
+.step{position:relative}
+.step .n{width:2.25rem;height:2.25rem;border-radius:50%;background:var(--ink);color:var(--accent);display:grid;place-items:center;font-weight:700;margin-bottom:1rem}
+
+/* about */
+.about{display:grid;gap:2.5rem}
+@media(min-width:960px){.about{grid-template-columns:1.2fr .8fr}}
+dl.facts{margin:0;display:grid;gap:.9rem}
+dl.facts div{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px solid #f3f4f6;padding-bottom:.7rem}
+dl.facts dt{color:var(--muted)}
+dl.facts dd{margin:0;font-weight:600;color:var(--ink);text-align:end}
+
+/* programs */
+.feature{display:grid;gap:1.5rem;border-color:#dfeaa8}
+@media(min-width:960px){.feature{grid-template-columns:1.3fr 1fr;padding:2rem}}
+.feature .photo{aspect-ratio:16/10}
+
+/* partners */
+.partner h3{display:flex;align-items:center;gap:.6rem}
+.logo-ph{height:3.5rem;border:1px dashed #cbd5e1;border-radius:var(--radius);display:grid;place-items:center;font-size:.78rem;color:var(--muted);margin-bottom:1rem}
+.link{color:var(--accent-ink);font-weight:600;text-decoration:none;display:inline-flex;gap:.35rem;align-items:center}
+.link:hover{text-decoration:underline}
+.safe{display:flex;gap:1rem;align-items:flex-start;border-color:#dfeaa8;background:#fff;margin-top:1.25rem}
+
+/* docs, news */
+.doc{display:flex;gap:1rem;align-items:flex-start}
+.doc .chip{margin:0}
+.news .photo{aspect-ratio:16/9;border-radius:var(--radius);margin-bottom:1rem}
+.news time{font-size:.8rem;color:var(--muted)}
+.quote{font-size:1.25rem;color:var(--ink);font-weight:500;line-height:1.5;margin-bottom:1rem}
+.quote::before{content:"“";color:var(--accent);font-size:3rem;line-height:0;vertical-align:-.9rem;margin-inline-end:.25rem}
+
+/* faq */
+details{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-bottom:.75rem}
+summary{cursor:pointer;list-style:none;padding:1rem 1.25rem;font-weight:600;color:var(--ink);display:flex;justify-content:space-between;gap:1rem;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary .icon{transition:transform .2s}
+details[open] summary .icon{transform:rotate(180deg);color:var(--accent-ink)}
+details[open]{border-color:#dfeaa8}
+details p{padding:0 1.25rem 1.1rem;margin:0}
+
+/* contact */
+.contact{display:grid;gap:2rem}
+@media(min-width:960px){.contact{grid-template-columns:.9fr 1.1fr}}
+.info{list-style:none;margin:0;padding:0;display:grid;gap:1.1rem}
+.info li{display:flex;gap:.9rem;align-items:flex-start}
+.info .chip{margin:0;width:2.5rem;height:2.5rem}
+.info b{display:block;color:var(--ink)}
+form{display:grid;gap:1rem}
+.row2{display:grid;gap:1rem}
+@media(min-width:640px){.row2{grid-template-columns:1fr 1fr}}
+label{font-weight:600;font-size:.9rem;color:var(--ink);display:block;margin-bottom:.35rem}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:#fff;border:1px solid #d1d5db;border-radius:var(--radius);padding:.7rem .85rem}
+input:focus,select:focus,textarea:focus{outline:3px solid rgba(154,205,50,.55);border-color:var(--accent-ink)}
+textarea{min-height:8rem;resize:vertical}
+.check{display:flex;gap:.6rem;align-items:flex-start;font-size:.88rem}
+.check input{width:auto;margin-top:.3rem}
+.check label{font-weight:400;margin:0}
+.msg{display:none;padding:.9rem 1rem;border-radius:var(--radius);border:1px solid #dfeaa8;background:var(--accent-soft);color:#33470a}
+.msg.show{display:block}
+.err{color:#b91c1c;font-size:.82rem;margin-top:.25rem}
+.err:empty{display:none}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:3.5rem 0 2rem}
+.fgrid{display:grid;gap:2rem}
+@media(min-width:760px){.fgrid{grid-template-columns:1.4fr 1fr 1fr 1fr}}
+footer h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink)}
+[dir=rtl] footer h4{letter-spacing:0}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
+footer a{text-decoration:none;color:#4b5563}
+footer a:hover{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:4px}
+.bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.75rem;margin-top:2.5rem;padding-top:1.25rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.social{display:flex;gap:.5rem;margin-top:1rem}
+.social a{width:2.25rem;height:2.25rem;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center}
+.social a:hover{border-color:var(--accent);background:var(--accent-soft)}
+
+[dir=rtl] .flip{transform:scaleX(-1)}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+  </defs>
+</svg>
+
+<div class="proto"><b data-i18n="proto1">Prototype</b> <span data-i18n="proto2">· sample content and placeholders. Replace everything in [brackets].</span></div>
+
+<!-- ============ NAVBAR ============ -->
+<header class="nav">
+  <div class="container row">
+    <a class="brand" href="#top" aria-label="[Foundation Name]">
+      <span class="logo" aria-hidden="true"><svg class="icon"><use href="#i-heart"/></svg></span>
+      <span data-i18n="brand">[Foundation Name]</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="menu">
+        <li><a href="#top" data-i18n="n_home">Home</a></li>
+        <li><a href="#about" data-i18n="n_about">About</a></li>
+        <li><a href="#programs" data-i18n="n_programs">Programs</a></li>
+        <li><a href="#partners" data-i18n="n_partners">Partners</a></li>
+        <li><a href="#impact" data-i18n="n_impact">Impact</a></li>
+        <li><a href="#news" data-i18n="n_news">News</a></li>
+        <li><a href="#contact" data-i18n="n_contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="tools">
+      <button class="btn btn-line btn-sm" id="lang" type="button" aria-label="Switch language">
+        <svg class="icon"><use href="#i-globe"/></svg><span id="langLabel">العربية</span>
+      </button>
+      <a class="btn btn-main btn-sm signin" id="signin" href="#" data-i18n="signin">Sign in</a>
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mobile" aria-label="Menu"><svg class="icon"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+  <div class="mobile" id="mobile">
+    <div class="container">
+      <ul>
+        <li><a href="#top" data-i18n="n_home">Home</a></li>
+        <li><a href="#about" data-i18n="n_about">About</a></li>
+        <li><a href="#programs" data-i18n="n_programs">Programs</a></li>
+        <li><a href="#partners" data-i18n="n_partners">Partners</a></li>
+        <li><a href="#impact" data-i18n="n_impact">Impact</a></li>
+        <li><a href="#news" data-i18n="n_news">News</a></li>
+        <li><a href="#contact" data-i18n="n_contact">Contact</a></li>
+        <li><a href="#" data-i18n="signin">Sign in</a></li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<!-- ============ HOME / HERO ============ -->
+<section class="hero" id="top">
+  <div class="container wrap">
+    <div>
+      <span class="eyebrow" data-i18n="h_eyebrow">Orphan care and community support</span>
+      <h1><span data-i18n="h_t1">Caring for every orphan,</span> <em data-i18n="h_t2">with dignity and trust.</em></h1>
+      <p class="lead" data-i18n="h_sub">[Foundation Name] supports orphans and their families through programs sponsored by trusted partners across the UAE.</p>
+      <div class="cta">
+        <a class="btn btn-main" href="#sponsor"><span data-i18n="h_cta1">How to sponsor an orphan</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-line" href="#contact" data-i18n="h_cta2">Contact us</a>
+      </div>
+      <ul class="trust">
+        <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="h_tr1">Licensed and supervised</span></li>
+        <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="h_tr2">Children's privacy protected</span></li>
+        <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="h_tr3">Regular reports to sponsors</span></li>
+      </ul>
+    </div>
+    <div class="visual">
+      <div class="photo" role="img" aria-label="Photo placeholder"><span data-i18n="ph_hero">Hero photo (replace with a consented photo)</span></div>
+      <div class="float">
+        <strong data-i18n="f_t">Orphan care program (Aytam)</strong>
+        <ul class="ticks" style="margin:0">
+          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="f_1">Education support</span></li>
+          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="f_2">Health care</span></li>
+          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="f_3">Housing and daily needs</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- partners strip -->
+<div class="strip">
+  <div class="container row">
+    <small data-i18n="s_label">Proudly supported by</small>
+    <span class="pname">Dar Al Ber</span>
+    <span class="pname">Dubai Charity</span>
+    <span class="pname">Sharjah Charity</span>
+  </div>
+</div>
+
+<!-- ============ IMPACT ============ -->
+<section id="impact">
+  <div class="container">
+    <div class="head">
+      <span class="eyebrow" data-i18n="i_eyebrow">Our impact</span>
+      <h2 class="title" data-i18n="i_title">Numbers we report openly</h2>
+      <p class="lead" data-i18n="i_lead">Every figure here comes from our own records and shows the date it was last updated.</p>
+    </div>
+    <div class="grid g4">
+      <div class="card stat"><div class="num"><b data-count="120">120</b><span>+</span></div><div class="lab" data-i18n="i_s1">Orphans supported</div></div>
+      <div class="card stat"><div class="num"><b data-count="85">85</b><span>+</span></div><div class="lab" data-i18n="i_s2">Families reached</div></div>
+      <div class="card stat"><div class="num"><b data-count="3">3</b></div><div class="lab" data-i18n="i_s3">Partner sponsors</div></div>
+      <div class="card stat"><div class="num"><b data-count="12">12</b></div><div class="lab" data-i18n="i_s4">Years of service</div></div>
+    </div>
+    <p class="note" data-i18n="i_note">Sample figures. Replace with real numbers and the date: "Updated [date]".</p>
+
+    <div class="grid g3" style="margin-top:2.5rem">
+      <div class="card doc"><span class="chip"><svg class="icon"><use href="#i-file"/></svg></span><div><h3 data-i18n="d1t">Annual report [year]</h3><p data-i18n="d1p">How we worked and what we achieved.</p><a class="link" href="#" data-i18n="dl">Download PDF</a></div></div>
+      <div class="card doc"><span class="chip"><svg class="icon"><use href="#i-file"/></svg></span><div><h3 data-i18n="d2t">Financial summary</h3><p data-i18n="d2p">Where funds come from and how they are used.</p><a class="link" href="#" data-i18n="dl">Download PDF</a></div></div>
+      <div class="card doc"><span class="chip"><svg class="icon"><use href="#i-shield"/></svg></span><div><h3 data-i18n="d3t">Licence and audit</h3><p data-i18n="d3p">Our licence, supervising authority and audit statement.</p><a class="link" href="#" data-i18n="dl">Download PDF</a></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <div class="container about">
+    <div>
+      <span class="eyebrow" data-i18n="a_eyebrow">About us</span>
+      <h2 class="title" data-i18n="a_title">About [Foundation Name]</h2>
+      <p class="lead" data-i18n="a_lead">[Write 2 to 3 sentences: who you are, who you serve, and why you started.]</p>
+      <p data-i18n="a_p">[Tell the story of the foundation: when it began, how it grew, and the people who made it possible.]</p>
+      <div class="grid g3" style="margin-top:1.5rem">
+        <div class="card"><span class="chip"><svg class="icon"><use href="#i-heart"/></svg></span><h3 data-i18n="a_m">Mission</h3><p data-i18n="a_mp">[Our mission in one sentence.]</p></div>
+        <div class="card"><span class="chip"><svg class="icon"><use href="#i-globe"/></svg></span><h3 data-i18n="a_v">Vision</h3><p data-i18n="a_vp">[Our vision in one sentence.]</p></div>
+        <div class="card"><span class="chip"><svg class="icon"><use href="#i-shield"/></svg></span><h3 data-i18n="a_val">Values</h3><p data-i18n="a_valp">[Integrity, privacy, governance, care.]</p></div>
+      </div>
+    </div>
+    <aside class="card" aria-label="Facts">
+      <h3 data-i18n="a_f">Foundation details</h3>
+      <dl class="facts">
+        <div><dt data-i18n="a_f1">Registered as</dt><dd data-i18n="a_f1v">[Legal status]</dd></div>
+        <div><dt data-i18n="a_f2">Licence number</dt><dd>[000000]</dd></div>
+        <div><dt data-i18n="a_f3">Supervised by</dt><dd data-i18n="a_f3v">[Authority name]</dd></div>
+        <div><dt data-i18n="a_f4">Founded</dt><dd>[Year]</dd></div>
+        <div><dt data-i18n="a_f5">Based in</dt><dd data-i18n="a_f5v">[City, UAE]</dd></div>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ PROGRAMS ============ -->
+<section id="programs">
+  <div class="container">
+    <div class="head">
+      <span class="eyebrow" data-i18n="p_eyebrow">Programs</span>
+      <h2 class="title" data-i18n="p_title">What we do</h2>
+      <p class="lead" data-i18n="p_lead">Our first program is orphan care. More programs open as we grow.</p>
+    </div>
+
+    <article class="card feature">
+      <div>
+        <span class="badge" data-i18n="p_avail">Available now</span>
+        <h3 style="font-size:1.5rem;margin-top:.8rem" data-i18n="p_a_t">Orphan care (Aytam)</h3>
+        <p data-i18n="p_a_p">We register each child, verify the case, and connect the child with a sponsoring partner. We then follow up so sponsors receive regular, trustworthy updates.</p>
+        <ul class="ticks">
+          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="p_a_1">Case registration and verification</span></li>
+          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="p_a_2">Education, health and daily-needs support</span></li>
+          <li><svg class="icon"><use href="#i-check"/></svg><span data-i18n="p_a_3">Regular follow-up and reports</span></li>
+        </ul>
+        <a class="btn btn-main" href="#sponsor" data-i18n="p_a_b">How sponsorship works</a>
+      </div>
+      <div class="photo" role="img" aria-label="Photo placeholder"><span data-i18n="ph_prog">Program photo (replace)</span></div>
+    </article>
+
+    <div class="grid g3" style="margin-top:1.25rem">
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-users"/></svg></span><span class="badge soon" data-i18n="p_soon">Coming soon</span><h3 style="margin-top:.7rem" data-i18n="p_b_t">Family support</h3><p data-i18n="p_b_p">Help for families in need, with verified cases.</p></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-book"/></svg></span><span class="badge soon" data-i18n="p_soon">Coming soon</span><h3 style="margin-top:.7rem" data-i18n="p_c_t">Education support</h3><p data-i18n="p_c_p">School fees, supplies and learning support.</p></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-home"/></svg></span><span class="badge soon" data-i18n="p_soon">Coming soon</span><h3 style="margin-top:.7rem" data-i18n="p_d_t">Health and housing</h3><p data-i18n="p_d_p">Medical care and safe housing for those who need it.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how">
+  <div class="container">
+    <div class="head">
+      <span class="eyebrow" data-i18n="w_eyebrow">How it works</span>
+      <h2 class="title" data-i18n="w_title">From registration to follow-up</h2>
+    </div>
+    <div class="grid g4">
+      <div class="card step"><div class="n">1</div><h3 data-i18n="w1t">Register a case</h3><p data-i18n="w1p">A family or guardian submits a request using our registration form.</p></div>
+      <div class="card step"><div class="n">2</div><h3 data-i18n="w2t">We verify</h3><p data-i18n="w2p">Our team checks the documents and visits where needed.</p></div>
+      <div class="card step"><div class="n">3</div><h3 data-i18n="w3t">A partner sponsors</h3><p data-i18n="w3p">A trusted partner confirms the sponsorship.</p></div>
+      <div class="card step"><div class="n">4</div><h3 data-i18n="w4t">We follow up</h3><p data-i18n="w4p">We keep records and send reports to sponsors.</p></div>
+    </div>
+    <p style="margin-top:1.5rem"><a class="btn btn-line" href="#contact" data-i18n="w_b">Request help or register a case</a></p>
+  </div>
+</section>
+
+<!-- ============ PARTNERS / SPONSOR ============ -->
+<section id="partners">
+  <div class="container">
+    <div class="head">
+      <span class="eyebrow" data-i18n="r_eyebrow">Our partners</span>
+      <h2 class="title" data-i18n="r_title">Trusted sponsors behind our work</h2>
+      <p class="lead" data-i18n="r_lead">We work with established charities that sponsor and support the children in our care.</p>
+    </div>
+    <div class="grid g3">
+      <article class="card partner">
+        <div class="logo-ph" data-i18n="r_logo">[Logo: use only with written permission]</div>
+        <h3>Dar Al Ber Society</h3>
+        <p data-i18n="r1p">A Dubai charity established in 1979, working under the supervision of Islamic Affairs and Charitable Activities in Dubai.</p>
+        <p class="note" data-i18n="r_conf">What they provide for our children: [confirm with partner].</p>
+        <a class="link" href="https://www.daralber.ae" target="_blank" rel="noopener noreferrer"><span data-i18n="r_visit">Visit official site</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a>
+      </article>
+      <article class="card partner">
+        <div class="logo-ph" data-i18n="r_logo">[Logo: use only with written permission]</div>
+        <h3>Dubai Charity Association</h3>
+        <p data-i18n="r2p">A Dubai association with orphan sponsorship programs inside and outside the UAE.</p>
+        <p class="note" data-i18n="r_conf">What they provide for our children: [confirm with partner].</p>
+        <a class="link" href="https://dubaicharity.ae" target="_blank" rel="noopener noreferrer"><span data-i18n="r_visit">Visit official site</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a>
+      </article>
+      <article class="card partner">
+        <div class="logo-ph" data-i18n="r_logo">[Logo: use only with written permission]</div>
+        <h3>Sharjah Charity International</h3>
+        <p data-i18n="r3p">A Sharjah-based charity with orphan sponsorship programs in many countries.</p>
+        <p class="note" data-i18n="r_conf">What they provide for our children: [confirm with partner].</p>
+        <a class="link" href="https://www.shjc.ae" target="_blank" rel="noopener noreferrer"><span data-i18n="r_visit">Visit official site</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a>
+      </article>
+    </div>
+
+    <div class="card safe" id="sponsor">
+      <span class="chip" style="margin:0"><svg class="icon"><use href="#i-shield"/></svg></span>
+      <div>
+        <h3 data-i18n="sp_t">Sponsoring a child, safely</h3>
+        <p data-i18n="sp_p">Sponsorship is arranged through our partners' official channels. We never publish a child's name or photo without guardian consent, and full profiles are shown only to registered sponsors.</p>
+        <p style="margin:0"><a class="btn btn-main btn-sm" href="#contact" data-i18n="sp_b">Ask about sponsorship</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEWS ============ -->
+<section id="news">
+  <div class="container">
+    <div class="head">
+      <span class="eyebrow" data-i18n="nw_eyebrow">News and events</span>
+      <h2 class="title" data-i18n="nw_title">Latest from the foundation</h2>
+    </div>
+    <div class="grid g3">
+      <article class="card news"><div class="photo"><span data-i18n="ph_news">Photo</span></div><time>[DD Month YYYY]</time><h3 data-i18n="nw1">[News headline one]</h3><p data-i18n="nwp">[Two lines summarising the news item.]</p><a class="link" href="#" data-i18n="rm">Read more</a></article>
+      <article class="card news"><div class="photo"><span data-i18n="ph_news">Photo</span></div><time>[DD Month YYYY]</time><h3 data-i18n="nw2">[News headline two]</h3><p data-i18n="nwp">[Two lines summarising the news item.]</p><a class="link" href="#" data-i18n="rm">Read more</a></article>
+      <article class="card news"><div class="photo"><span data-i18n="ph_news">Photo</span></div><time>[DD Month YYYY]</time><h3 data-i18n="nw3">[Event: Orphans Day]</h3><p data-i18n="nwp">[Two lines summarising the news item.]</p><a class="link" href="#" data-i18n="rm">Read more</a></article>
+    </div>
+
+    <figure class="card" style="margin:2.5rem 0 0">
+      <blockquote class="quote" style="margin:0 0 1rem" data-i18n="q">[A short testimonial from a guardian, sponsor or partner, with their permission.]</blockquote>
+      <figcaption style="color:var(--muted)" data-i18n="q_by">[Name, role]</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="container" style="max-width:52rem">
+    <div class="head">
+      <span class="eyebrow" data-i18n="fq_eyebrow">FAQ</span>
+      <h2 class="title" data-i18n="fq_title">Frequently asked questions</h2>
+    </div>
+    <details><summary><span data-i18n="fq1">Who can apply for help?</span><svg class="icon"><use href="#i-down"/></svg></summary><p data-i18n="fq1a">[Describe who is eligible and the documents needed.]</p></details>
+    <details><summary><span data-i18n="fq2">How do I sponsor an orphan?</span><svg class="icon"><use href="#i-down"/></svg></summary><p data-i18n="fq2a">[Explain the steps and which partner channel to use.]</p></details>
+    <details><summary><span data-i18n="fq3">Are children's photos published?</span><svg class="icon"><use href="#i-down"/></svg></summary><p data-i18n="fq3a">Not without guardian consent. Full profiles are visible only to registered sponsors.</p></details>
+    <details><summary><span data-i18n="fq4">How do I know my sponsorship is genuine?</span><svg class="icon"><use href="#i-down"/></svg></summary><p data-i18n="fq4a">[Explain how a sponsor can verify and receive reports.]</p></details>
+    <details><summary><span data-i18n="fq5">How can I make a complaint or suggestion?</span><svg class="icon"><use href="#i-down"/></svg></summary><p data-i18n="fq5a">Use the contact form below or email [complaints@email].</p></details>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact">
+  <div class="container contact">
+    <div>
+      <span class="eyebrow" data-i18n="c_eyebrow">Contact</span>
+      <h2 class="title" data-i18n="c_title">Get in touch</h2>
+      <p class="lead" data-i18n="c_lead">Request help, ask about sponsorship, or become a partner.</p>
+      <ul class="info">
+        <li><span class="chip"><svg class="icon"><use href="#i-phone"/></svg></span><div><b data-i18n="c_ph">Phone</b><span dir="ltr">+971 0 000 0000</span></div></li>
+        <li><span class="chip"><svg class="icon"><use href="#i-chat"/></svg></span><div><b>WhatsApp</b><span dir="ltr">+971 00 000 0000</span></div></li>
+        <li><span class="chip"><svg class="icon"><use href="#i-mail"/></svg></span><div><b data-i18n="c_em">Email</b><span dir="ltr">info@your-domain.ae</span></div></li>
+        <li><span class="chip"><svg class="icon"><use href="#i-pin"/></svg></span><div><b data-i18n="c_ad">Address</b><span data-i18n="c_adv">[Building, street, area, emirate, UAE]</span></div></li>
+        <li><span class="chip"><svg class="icon"><use href="#i-clock"/></svg></span><div><b data-i18n="c_hr">Opening hours</b><span data-i18n="c_hrv">[Sunday to Thursday, 8:00 to 16:00]</span></div></li>
+      </ul>
+    </div>
+    <div class="card">
+      <form id="form" novalidate>
+        <div class="row2">
+          <div><label for="fn" data-i18n="f_name">Full name</label><input id="fn" name="name" autocomplete="name" required><div class="err" id="e_fn"></div></div>
+          <div><label for="fe" data-i18n="f_email">Email</label><input id="fe" name="email" type="email" autocomplete="email" required><div class="err" id="e_fe"></div></div>
+        </div>
+        <div class="row2">
+          <div><label for="fp" data-i18n="f_phone">Phone (optional)</label><input id="fp" name="phone" type="tel" autocomplete="tel" dir="ltr"></div>
+          <div><label for="fs" data-i18n="f_subject">Subject</label>
+            <select id="fs" name="subject">
+              <option data-i18n="o1">General inquiry</option>
+              <option data-i18n="o2">Request help</option>
+              <option data-i18n="o3">Sponsorship</option>
+              <option data-i18n="o4">Become a partner</option>
+              <option data-i18n="o5">Complaint or suggestion</option>
+            </select></div>
+        </div>
+        <div><label for="fm" data-i18n="f_msg">Message</label><textarea id="fm" name="message" required></textarea><div class="err" id="e_fm"></div></div>
+        <div class="check"><input id="fc" type="checkbox" required><label for="fc" data-i18n="f_consent">I agree to be contacted about my request and accept the privacy policy.</label></div>
+        <div class="err" id="e_fc"></div>
+        <button class="btn btn-main" type="submit" data-i18n="f_send">Send message</button>
+        <div class="msg" id="ok" role="status" data-i18n="f_ok">Prototype only: your message was not sent. In the real site it goes to [contact email].</div>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="fgrid">
+      <div>
+        <a class="brand" href="#top"><span class="logo" aria-hidden="true"><svg class="icon"><use href="#i-heart"/></svg></span><span data-i18n="brand">[Foundation Name]</span></a>
+        <p style="margin-top:1rem;max-width:22rem" data-i18n="ft_p">[One sentence about the foundation.]</p>
+        <div class="social" aria-label="Social media">
+          <a href="#" aria-label="Facebook"><svg class="icon"><use href="#i-globe"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg class="icon"><use href="#i-globe"/></svg></a>
+          <a href="#" aria-label="X"><svg class="icon"><use href="#i-globe"/></svg></a>
+        </div>
+      </div>
+      <div><h4 data-i18n="ft_q">Quick links</h4><ul>
+        <li><a href="#about" data-i18n="n_about">About</a></li><li><a href="#programs" data-i18n="n_programs">Programs</a></li><li><a href="#partners" data-i18n="n_partners">Partners</a></li><li><a href="#impact" data-i18n="n_impact">Impact</a></li></ul></div>
+      <div><h4 data-i18n="ft_h">Get involved</h4><ul>
+        <li><a href="#sponsor" data-i18n="ft_h1">Sponsor an orphan</a></li><li><a href="#contact" data-i18n="ft_h2">Request help</a></li><li><a href="#contact" data-i18n="ft_h3">Become a partner</a></li><li><a href="#faq">FAQ</a></li></ul></div>
+      <div><h4 data-i18n="ft_l">Legal</h4><ul>
+        <li><a href="#" data-i18n="l1">Privacy policy</a></li><li><a href="#" data-i18n="l2">Terms of use</a></li><li><a href="#" data-i18n="l3">Child safeguarding</a></li><li><a href="#" data-i18n="l4">Complaints policy</a></li></ul></div>
+    </div>
+    <div class="bottom">
+      <span>© <span id="year">2026</span> <span data-i18n="brand">[Foundation Name]</span>. <span data-i18n="rights">All rights reserved.</span></span>
+      <span><span data-i18n="lic">Licence no.</span> [000000]</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  // Where the "Sign in" button goes (the foundation system). Change this one value.
+  var LOGIN_URL = "#";
+
+  var AR = {
+    skip:"تخطَّ إلى المحتوى", proto1:"نموذج أوّلي", proto2:"· محتوى تجريبي وعناصر نائبة. استبدل كل ما بين [أقواس].",
+    brand:"[اسم المؤسسة]", n_home:"الرئيسية", n_about:"من نحن", n_programs:"البرامج", n_partners:"الشركاء", n_impact:"الأثر", n_news:"الأخبار", n_contact:"تواصل معنا", signin:"تسجيل الدخول",
+    h_eyebrow:"رعاية الأيتام ودعم المجتمع", h_t1:"نرعى كل يتيم،", h_t2:"بكرامة وثقة.",
+    h_sub:"تدعم [اسم المؤسسة] الأيتام وأسرهم عبر برامج يكفلها شركاء موثوقون في الإمارات.",
+    h_cta1:"كيف تكفل يتيمًا", h_cta2:"تواصل معنا", h_tr1:"مرخّصة وتحت إشراف جهة رسمية", h_tr2:"حماية خصوصية الأطفال", h_tr3:"تقارير دورية للكافلين",
+    ph_hero:"صورة رئيسية (استبدلها بصورة موافَق عليها)", f_t:"برنامج رعاية الأيتام (أيتام)", f_1:"دعم التعليم", f_2:"الرعاية الصحية", f_3:"السكن والاحتياجات اليومية",
+    s_label:"بدعم فخور من",
+    i_eyebrow:"أثرنا", i_title:"أرقام نعلنها بشفافية", i_lead:"كل رقم هنا من سجلاتنا، ويظهر معه تاريخ آخر تحديث.",
+    i_s1:"يتيم مكفول", i_s2:"أسرة وصلنا إليها", i_s3:"جهات كافلة شريكة", i_s4:"سنوات من العمل",
+    i_note:"أرقام تجريبية. استبدلها بالأرقام الحقيقية والتاريخ: «آخر تحديث [التاريخ]».",
+    d1t:"التقرير السنوي [السنة]", d1p:"كيف عملنا وماذا أنجزنا.", d2t:"الملخص المالي", d2p:"مصادر الأموال وكيف تُستخدم.", d3t:"الترخيص والتدقيق", d3p:"ترخيصنا والجهة المشرفة وبيان التدقيق.", dl:"تنزيل PDF",
+    a_eyebrow:"من نحن", a_title:"عن [اسم المؤسسة]", a_lead:"[اكتب جملتين أو ثلاثًا: من أنتم، ومن تخدمون، ولماذا بدأتم.]",
+    a_p:"[احكِ قصة المؤسسة: متى بدأت، وكيف نمت، ومن ساهم في ذلك.]",
+    a_m:"الرسالة", a_mp:"[رسالتنا في جملة واحدة.]", a_v:"الرؤية", a_vp:"[رؤيتنا في جملة واحدة.]", a_val:"القيم", a_valp:"[النزاهة، الخصوصية، الحوكمة، الرعاية.]",
+    a_f:"بيانات المؤسسة", a_f1:"الصفة القانونية", a_f1v:"[الصفة القانونية]", a_f2:"رقم الترخيص", a_f3:"الجهة المشرفة", a_f3v:"[اسم الجهة]", a_f4:"تأسست", a_f5:"المقر", a_f5v:"[المدينة، الإمارات]",
+    p_eyebrow:"البرامج", p_title:"ماذا نقدّم", p_lead:"برنامجنا الأول هو رعاية الأيتام، وتُفتح برامج أخرى مع نمونا.",
+    p_avail:"متاح الآن", p_a_t:"رعاية الأيتام (أيتام)", p_a_p:"نسجّل كل طفل، ونتحقق من حالته، ونربطه بشريك كافل. ثم نتابعه ليصل إلى الكافلين تقارير دورية موثوقة.",
+    p_a_1:"تسجيل الحالات والتحقق منها", p_a_2:"دعم التعليم والصحة والاحتياجات اليومية", p_a_3:"متابعة منتظمة وتقارير", p_a_b:"كيف تعمل الكفالة", ph_prog:"صورة البرنامج (استبدلها)",
+    p_soon:"قريبًا", p_b_t:"دعم الأسر", p_b_p:"مساعدة الأسر المحتاجة بعد التحقق من حالاتها.", p_c_t:"دعم التعليم", p_c_p:"رسوم دراسية ومستلزمات ودعم تعليمي.", p_d_t:"الصحة والسكن", p_d_p:"رعاية طبية وسكن آمن لمن يحتاجه.",
+    w_eyebrow:"آلية العمل", w_title:"من التسجيل إلى المتابعة",
+    w1t:"تسجيل حالة", w1p:"تقدّم الأسرة أو الوصي طلبًا عبر نموذج التسجيل لدينا.", w2t:"نتحقق", w2p:"يراجع فريقنا المستندات ويزور الحالة عند الحاجة.", w3t:"شريك يكفل", w3p:"يؤكد شريك موثوق الكفالة.", w4t:"نتابع", w4p:"نحتفظ بالسجلات ونرسل التقارير إلى الكافلين.", w_b:"اطلب مساعدة أو سجّل حالة",
+    r_eyebrow:"شركاؤنا", r_title:"كافلون موثوقون خلف عملنا", r_lead:"نعمل مع جمعيات خيرية راسخة تكفل وتدعم الأطفال في رعايتنا.",
+    r_logo:"[الشعار: لا يُستخدم إلا بإذن كتابي]",
+    r1p:"جمعية خيرية في دبي تأسست عام 1979، وتعمل تحت إشراف الشؤون الإسلامية والعمل الخيري في دبي.",
+    r2p:"جمعية في دبي لديها برامج كفالة أيتام داخل الإمارات وخارجها.", r3p:"جمعية خيرية في الشارقة لديها برامج كفالة أيتام في دول عديدة.",
+    r_conf:"ما تقدّمه لأطفالنا: [يُؤكَّد مع الشريك].", r_visit:"زيارة الموقع الرسمي",
+    sp_t:"كفالة الطفل بأمان", sp_p:"تتم الكفالة عبر القنوات الرسمية لشركائنا. لا ننشر اسم الطفل أو صورته دون موافقة الوصي، ولا تُعرض الملفات الكاملة إلا للكافلين المسجّلين.", sp_b:"اسأل عن الكفالة",
+    nw_eyebrow:"الأخبار والفعاليات", nw_title:"آخر أخبار المؤسسة", ph_news:"صورة", nw1:"[عنوان الخبر الأول]", nw2:"[عنوان الخبر الثاني]", nw3:"[فعالية: يوم اليتيم]", nwp:"[سطران يلخّصان الخبر.]", rm:"اقرأ المزيد",
+    q:"[شهادة قصيرة من وصي أو كافل أو شريك، بإذنه.]", q_by:"[الاسم، الصفة]",
+    fq_eyebrow:"الأسئلة الشائعة", fq_title:"أسئلة يطرحها الناس",
+    fq1:"من يحق له طلب المساعدة؟", fq1a:"[اشرح شروط الأهلية والمستندات المطلوبة.]", fq2:"كيف أكفل يتيمًا؟", fq2a:"[اشرح الخطوات وقناة الشريك المعتمدة.]",
+    fq3:"هل تُنشر صور الأطفال؟", fq3a:"لا، إلا بموافقة الوصي. الملفات الكاملة تظهر للكافلين المسجّلين فقط.",
+    fq4:"كيف أتأكد أن كفالتي حقيقية؟", fq4a:"[اشرح كيف يتحقق الكافل ويستلم التقارير.]", fq5:"كيف أقدّم شكوى أو اقتراحًا؟", fq5a:"استخدم نموذج التواصل أدناه أو راسلنا على [بريد الشكاوى].",
+    c_eyebrow:"التواصل", c_title:"تواصل معنا", c_lead:"اطلب مساعدة، أو اسأل عن الكفالة، أو كن شريكًا.",
+    c_ph:"الهاتف", c_em:"البريد الإلكتروني", c_ad:"العنوان", c_adv:"[المبنى، الشارع، المنطقة، الإمارة، الإمارات]", c_hr:"ساعات العمل", c_hrv:"[الأحد إلى الخميس، 8:00 إلى 16:00]",
+    f_name:"الاسم الكامل", f_email:"البريد الإلكتروني", f_phone:"الهاتف (اختياري)", f_subject:"الموضوع",
+    o1:"استفسار عام", o2:"طلب مساعدة", o3:"الكفالة", o4:"أن أصبح شريكًا", o5:"شكوى أو اقتراح",
+    f_msg:"الرسالة", f_consent:"أوافق على التواصل معي بشأن طلبي وأقبل سياسة الخصوصية.", f_send:"إرسال الرسالة",
+    f_ok:"نموذج أوّلي فقط: لم تُرسَل رسالتك. في الموقع الفعلي تصل إلى [بريد التواصل].",
+    ft_p:"[جملة واحدة عن المؤسسة.]", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
+    l1:"سياسة الخصوصية", l2:"شروط الاستخدام", l3:"حماية الأطفال", l4:"سياسة الشكاوى", rights:"جميع الحقوق محفوظة.", lic:"رقم الترخيص",
+    t_title:"[اسم المؤسسة] | رعاية الأيتام ودعم المجتمع",
+    e_req:"هذا الحقل مطلوب.", e_mail:"أدخل بريدًا إلكترونيًا صحيحًا.", e_cons:"يلزم الموافقة للمتابعة."
+  };
+  var EN_ERR = { e_req:"This field is required.", e_mail:"Enter a valid email address.", e_cons:"Consent is required to continue." };
+  var EN_TITLE = document.title;
+  var lang = "en";
+
+  var nodes = document.querySelectorAll("[data-i18n]");
+  nodes.forEach(function (n) { n.setAttribute("data-en", n.textContent); });
+
+  function apply(l) {
+    lang = l;
+    var rtl = l === "ar";
+    document.documentElement.lang = l;
+    document.documentElement.dir = rtl ? "rtl" : "ltr";
+    nodes.forEach(function (n) {
+      var k = n.getAttribute("data-i18n");
+      n.textContent = rtl && AR[k] ? AR[k] : n.getAttribute("data-en");
+    });
+    document.title = rtl ? AR.t_title : EN_TITLE;
+    document.getElementById("langLabel").textContent = rtl ? "English" : "العربية";
+    try { localStorage.setItem("lang", l); } catch (e) {}
+    Array.prototype.forEach.call(document.querySelectorAll(".err"), function (e) { e.textContent = ""; });
+  }
+  document.getElementById("lang").addEventListener("click", function () { apply(lang === "en" ? "ar" : "en"); });
+  try { if (localStorage.getItem("lang") === "ar") apply("ar"); } catch (e) {}
+
+  document.querySelectorAll("#signin, #mobile a[data-i18n=signin]").forEach(function (a) { a.setAttribute("href", LOGIN_URL); });
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // mobile menu
+  var burger = document.getElementById("burger"), mobile = document.getElementById("mobile");
+  burger.addEventListener("click", function () {
+    var open = mobile.classList.toggle("open");
+    burger.setAttribute("aria-expanded", String(open));
+  });
+  mobile.addEventListener("click", function (e) {
+    if (e.target.tagName === "A") { mobile.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); }
+  });
+
+  // count-up numbers
+  var counters = document.querySelectorAll("[data-count]");
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if ("IntersectionObserver" in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var el = en.target, end = +el.getAttribute("data-count"), t0 = null;
+        io.unobserve(el);
+        (function step(t) {
+          if (t0 === null) t0 = t;
+          var p = Math.min((t - t0) / 900, 1);
+          el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
+          if (p < 1) requestAnimationFrame(step);
+        })(performance.now());
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(function (c) { io.observe(c); });
+  }
+
+  // contact form (front-end only in the prototype)
+  var form = document.getElementById("form");
+  function msg(k) { return lang === "ar" ? AR[k] : EN_ERR[k]; }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var bad = false;
+    function set(id, text) { document.getElementById(id).textContent = text || ""; if (text) bad = true; }
+    set("e_fn", document.getElementById("fn").value.trim() ? "" : msg("e_req"));
+    set("e_fe", !document.getElementById("fe").value.trim() ? msg("e_req") : (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById("fe").value) ? "" : msg("e_mail")));
+    set("e_fm", document.getElementById("fm").value.trim() ? "" : msg("e_req"));
+    set("e_fc", document.getElementById("fc").checked ? "" : msg("e_cons"));
+    var ok = document.getElementById("ok");
+    if (bad) { ok.classList.remove("show"); return; }
+    ok.classList.add("show");
+    form.reset();
+  });
+})();
+</script>
+</body>
+</html>
