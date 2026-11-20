@@ -270,25 +270,6 @@ footer a:hover{color:var(--ink);text-decoration:underline;text-decoration-color:
 .social a{width:2.4rem;height:2.4rem;background:var(--fill);border-radius:50%;display:grid;place-items:center}
 .social a:hover{background:var(--accent-soft)}
 
-/* ---------- Flat header and bottom bar (Hostinger-style): full width, white, hairline borders ---------- */
-.nav{top:0;padding:0;margin:0;background:#fff;border-bottom:1px solid var(--line)}
-.nav .row{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;border:0;border-radius:0;box-shadow:none;min-height:4rem;padding:.4rem 1rem}
-@media(min-width:640px){.nav .row{padding-inline:1.5rem}}
-.brand{font-size:.95rem}
-.logo{width:2.8rem;height:2.8rem}
-.menu{gap:.25rem}
-.menu a{border-radius:0;padding:.5rem .65rem;border-bottom:2px solid transparent}
-.menu a:hover{background:none;color:var(--brand);border-bottom-color:var(--accent)}
-.menu a.active{background:none;color:var(--brand);border-bottom-color:var(--accent)}
-.nav .btn{border-radius:.5rem}
-@media(max-width:520px){#langLabel{display:none}}
-body{padding-bottom:4.75rem}
-@media(min-width:1120px){body{padding-bottom:0}}
-.tabbar{inset-inline:0;bottom:0;max-width:none;margin:0;border-radius:0;border:0;border-top:1px solid var(--line);background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 -2px 12px rgba(23,48,13,.06);gap:0;padding:.35rem .25rem calc(.35rem + env(safe-area-inset-bottom))}
-.tabbar a{position:relative;border-radius:.5rem;padding:.45rem .2rem;font-size:.68rem}
-.tabbar a.active{background:none;color:var(--brand)}
-.tabbar a.active::before{content:"";position:absolute;top:-.4rem;inset-inline:30%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
-
 /* render below-the-fold sections only when they get close (faster first paint on every device) */
 section:not(.hero),footer{content-visibility:auto;contain-intrinsic-size:auto 700px}
 .linkbtn{font:inherit;font-size:.8rem;background:var(--fill);border:0;border-radius:999px;padding:.4rem .9rem;color:var(--muted);cursor:pointer}
