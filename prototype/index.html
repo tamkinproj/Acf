@@ -341,7 +341,7 @@ main > section.hero{background:radial-gradient(55% 70% at 88% 8%,rgba(154,205,50
 /* hero photo behind the whole hero, faded on the text side */
 main > section.hero{background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.88) 38%,rgba(255,255,255,.4) 68%,rgba(255,255,255,.15) 100%),var(--hero-photo) center/cover no-repeat,#fff}
 [dir=rtl] main > section.hero{background:linear-gradient(270deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.88) 38%,rgba(255,255,255,.4) 68%,rgba(255,255,255,.15) 100%),var(--hero-photo) center/cover no-repeat,#fff}
-@media(max-width:959px){main > section.hero,[dir=rtl] main > section.hero{background:linear-gradient(180deg,#fff 60%,#f8fcee);padding-top:0}.hero::before{content:"";display:block;position:relative;inset:auto;width:auto;height:auto;border-radius:0;filter:none;z-index:0;aspect-ratio:460/314;background:linear-gradient(180deg,rgba(255,255,255,0) 68%,#fff 100%),var(--hero-photo) center/cover no-repeat}.hero .wrap{margin-top:-1.75rem}}
+@media(max-width:959px){main > section.hero,[dir=rtl] main > section.hero{background:linear-gradient(180deg,#fff 60%,#f8fcee);padding-top:0}.hero-intro{display:flex;flex-direction:column;justify-content:flex-end;min-height:min(calc(100vh - 6.5rem),44rem);min-height:min(calc(100svh - 6.5rem),44rem);margin-inline:-1rem;padding:2rem 1rem 1.75rem;background:linear-gradient(180deg,rgba(12,28,6,0) 18%,rgba(12,28,6,.4) 38%,rgba(12,28,6,.88) 52%,#0c1c06 60%),var(--hero-photo) 36% top/auto 60% no-repeat,#0c1c06}.hero-intro .eyebrow{align-self:flex-start;background:rgba(255,255,255,.9)}.hero-intro h1{color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.25)}.hero-intro h1 em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--accent)}.hero-intro .lead{color:rgba(255,255,255,.92);margin-bottom:0}}@media(min-width:640px) and (max-width:959px){.hero-intro{margin-inline:-1.5rem;padding-inline:1.5rem}}
 .hero-card{background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%)}
 
 /* render below-the-fold sections only when they get close (faster first paint on every device) */
@@ -429,9 +429,11 @@ html.lite{scroll-behavior:auto}
 <section class="hero" id="top" aria-label="Children studying at a madrasa" data-ar="أطفال يدرسون في مدرسة">
   <div class="container wrap">
     <div class="hero-text">
+      <div class="hero-intro">
       <span class="eyebrow" data-i18n="h_eyebrow">Orphan care and community support</span>
       <h1><span data-i18n="h_t1">Caring for every orphan,</span> <em data-i18n="h_t2">with dignity and trust.</em></h1>
       <p class="lead" data-i18n="h_sub">Al Insania Charity Foundation Inc. supports orphans and their families in the Philippines through programs sponsored by trusted partners in the UAE.</p>
+      </div>
       <div class="stack">
         <div class="fcard s1"><div class="fc-top"><div class="num"><b data-count="120">120</b><span>+</span></div><span class="chip"><svg class="icon"><use href="#i-heart"/></svg></span></div><div class="lab" data-i18n="i_s1">Orphans supported</div></div>
         <div class="fcard s2"><div class="fc-top"><div class="num"><b data-count="85">85</b><span>+</span></div><span class="chip"><svg class="icon"><use href="#i-users"/></svg></span></div><div class="lab" data-i18n="i_s2">Families reached</div></div>
