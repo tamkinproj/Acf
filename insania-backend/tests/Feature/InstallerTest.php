@@ -46,10 +46,17 @@ class InstallerTest extends TestCase
         $this->get('/')->assertRedirect('/install');
     }
 
-    public function test_the_home_address_is_friendly_once_installed(): void
+    public function test_once_installed_the_server_shows_nothing_to_a_browser(): void
     {
         InstallState::markInstalled();
-        $this->get('/')->assertOk()->assertSee('Insania server is running');
+        foreach (['/', '/install', '/upgrade', '/upgrade?code=wrong', '/install/reconnect', '/upgrade/patch', '/upgrade/apply', '/upgrade/undo'] as $url) {
+            $r = $this->get($url)->assertNotFound();
+            $this->assertStringNotContainsString('Insania', $r->getContent());      // no name, no PHP version, no hint that an installer exists
+            $this->assertStringNotContainsString('PHP', $r->getContent());
+        }
+        foreach (['/install', '/install/reconnect', '/upgrade', '/upgrade/patch', '/upgrade/apply', '/upgrade/undo'] as $url) {
+            $this->post($url, ['token' => 'wrong'])->assertNotFound();                // wrong code: the same plain 404, not "wrong code"
+        }
     }
 
     public function test_forms_post_back_to_their_own_address_so_a_subfolder_works(): void
@@ -57,7 +64,7 @@ class InstallerTest extends TestCase
         // The server lives at /server/ on the real site; a form pointing at "/install" would leave that folder.
         $this->assertDoesNotMatchRegularExpression('/<form[^>]*action="\//', $this->get('/install')->getContent());
         InstallState::markInstalled();
-        $this->assertDoesNotMatchRegularExpression('/<form[^>]*action="\//', $this->get('/upgrade')->getContent());
+        $this->assertDoesNotMatchRegularExpression('/<form[^>]*action="\//', $this->get('/upgrade?code='.InstallState::token())->getContent());
     }
 
     public function test_page_shows_and_creates_the_token_file(): void
@@ -88,7 +95,7 @@ class InstallerTest extends TestCase
         $this->post('/install', $this->input())->assertOk()->assertSee('Installed');
 
         $this->assertTrue(InstallState::installed());
-        $this->assertFileDoesNotExist($this->dir.'/state/token');
+        $this->assertNotSame($token ?? '', InstallState::token());                  // a fresh code replaced the used one
         $env = file_get_contents($this->env);
         $this->assertStringContainsString('APP_DEBUG=false', $env);
         $this->assertStringContainsString('APP_KEY="base64:', str_replace('APP_KEY=base64:', 'APP_KEY="base64:', $env));
@@ -129,10 +136,12 @@ class InstallerTest extends TestCase
     public function test_upgrade_needs_the_token(): void
     {
         InstallState::markInstalled();
-        $this->get('/upgrade')->assertOk()->assertSee('Upgrade');
-        $this->post('/upgrade', ['token' => 'wrong'])->assertStatus(403);
-        $this->post('/upgrade', ['token' => InstallState::token()])->assertOk()->assertSee('Done');
-        $this->assertFileDoesNotExist($this->dir.'/state/token');
+        $code = InstallState::token();
+        $this->get('/upgrade')->assertNotFound();
+        $this->get('/upgrade?code=nope')->assertNotFound();
+        $this->get('/upgrade?code='.$code)->assertOk()->assertSee('Upgrade');
+        $this->post('/upgrade', ['token' => 'wrong'])->assertNotFound();
+        $this->post('/upgrade', ['token' => $code])->assertOk()->assertSee('Done');
     }
 
     public function test_upgrade_is_not_available_before_install(): void

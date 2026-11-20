@@ -90,6 +90,13 @@ final class InstallState
         return is_string($given) && $given !== '' && hash_equals(self::token(), trim($given));
     }
 
+    /** A new secret code replaces the used one. It stays in the file, for the day /upgrade is needed. */
+    public static function rotateToken(): void
+    {
+        @unlink(self::dir().'/token');
+        self::token();
+    }
+
     public static function clearToken(): void
     {
         @unlink(self::dir().'/token');

@@ -1,0 +1,32 @@
+const { chromium } = require('playwright');
+const fs = require('fs');
+const B = 'http://127.0.0.1:8090';
+const tokenFile = '/srv/apxtest/site/insania_app/storage/app/install/token';
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+  await p.goto(B + '/server/'); console.log('1. /server/ opened ->', p.url().replace(B, ''), '|', await p.locator('h1').first().innerText());
+  const token = fs.readFileSync(tokenFile, 'utf8').trim();
+  await p.fill('[name=token]', token);
+  await p.fill('[name=app_url]', 'https://alinsania.com/server');
+  await p.fill('[name=cors]', 'https://alinsania.com,https://www.alinsania.com');
+  await p.fill('[name=db_host]', '127.0.0.1'); await p.fill('[name=db_port]', '3307');
+  await p.fill('[name=db_name]', 'insania'); await p.fill('[name=db_user]', 'ins'); await p.fill('[name=db_pass]', 'DbP@ss#1');
+  await p.fill('[name=admin_name]', 'Root Admin'); await p.fill('[name=admin_email]', 'admin@alinsania.test');
+  // first a wrong repeat password: the form must come back with the typed fields kept and a clear message
+  await p.fill('[name=admin_password]', 'Str0ng#Passw0rd'); await p.fill('[name=admin_password_confirmation]', 'Different#123');
+  await Promise.all([p.waitForNavigation(), p.click('button:has-text("Install")')]);
+  console.log('2. mismatch ->', p.url().replace(B, ''), '| message:', (await p.locator('.err').innerText()).split('\n')[0], '| email kept:', await p.inputValue('[name=admin_email]'), '| db name kept:', await p.inputValue('[name=db_name]'));
+  await p.fill('[name=token]', token);
+  await p.fill('[name=db_pass]', 'DbP@ss#1'); await p.fill('[name=admin_password]', 'Str0ng#Passw0rd'); await p.fill('[name=admin_password_confirmation]', 'Str0ng#Passw0rd');
+  await Promise.all([p.waitForNavigation(), p.click('button:has-text("Install")')]);
+  console.log('3. install ->', p.url().replace(B, ''), '|', await p.locator('h1').first().innerText());
+  await p.screenshot({ path: process.argv[2] + '/installed_old.png' });
+  const ping = await (await p.request.get(B + '/server/api/ping')).json(); console.log('4. ping:', JSON.stringify(ping.data));
+  const login = await (await p.request.post(B + '/server/api/login', { data: { email: 'admin@alinsania.test', password: 'Str0ng#Passw0rd' } })).json(); console.log('5. login:', login.success, login.data && login.data.user.role);
+  const r6 = await p.goto(B + '/server/install'); console.log('6. install again ->', r6.status());
+  const r7 = await p.goto(B + '/server/'); console.log('7. /server/ ->', r7.status(), (await p.locator('body').innerText()).replace(/\s+/g, ' ').slice(0, 40));
+  const t0 = await p.goto(B + '/server/upgrade'); console.log('8a. upgrade without the code ->', t0.status());
+  const t2 = fs.readFileSync(tokenFile, 'utf8').trim(); await p.goto(B + '/server/upgrade?code=' + t2); await Promise.all([p.waitForNavigation(), p.click('button:has-text("Run upgrade")')]);
+  console.log('8. upgrade with the code ->', p.url().replace(B, ''), '|', await p.locator('strong').first().innerText());
+  await b.close();
+})().catch(e => { console.error('FAILED', e.message); process.exit(1); });

@@ -20,6 +20,9 @@ The API address will be `https://alinsania.com/server/api`.
 2. Upload `2-website.zip` there too. Extract it; folder name **website**. Open `website`, select everything inside (turn on hidden files to see `.htaccess`), **Move** it into `public_html`. Delete the empty `website` folder and both zips.
 3. Continue with "Step 4. Install" below.
 
+## After installing: what visitors can see
+Once installed, `/server/install`, `/server/` and every setup address answer a plain "404 Not Found" to everyone. `/server/upgrade` also answers 404 unless the address carries the secret code (`?code=...`, the text in `insania_app/storage/app/install/token`, which only someone with File Manager access can read). So nobody can see that an installer exists, nor your PHP version or server details.
+
 ## Who creates whom
 1. **System Admin**: created by the installer (Step 4). Runs the system (health, settings, updates, partner keys). Cannot see children, money, accounts or the website.
 2. **President Admin**: created by the System Admin from the first-login checklist. Runs every office feature and the public website.
@@ -60,11 +63,11 @@ After this is installed you no longer need File Manager for updates.
 5. A patch with a wrong or missing signature, a PHP mistake, an unsafe path or the wrong base version is refused before anything is written.
 
 What the backup does not hold: your records and uploaded documents. Keep a separate data backup.
-If the app itself will not open, use `https://alinsania.com/server/upgrade`: same upload, check, apply and undo, protected by the setup code in `insania_app/storage/app/install/token`.
+If the app itself will not open, use `https://alinsania.com/server/upgrade?code=THE-CODE`: same upload, check, apply and undo, protected by the setup code in `insania_app/storage/app/install/token`.
 
 ## Upgrading later (without a signed patch)
 1. Upload the new files over `insania_app` (File Manager → Upload, overwrite). Do **not** delete `.env` or the `storage` folder.
-2. Open `https://alinsania.com/server/upgrade`, paste the code from `insania_app/storage/app/install/token` (the page creates it), press **Run upgrade**.
+2. Open `https://alinsania.com/server/upgrade?code=THE-CODE`, (THE-CODE is the text inside `insania_app/storage/app/install/token`), press **Run upgrade**.
 
 ## If something goes wrong
 - **The installer page came back ("This database already has tables") after you re-uploaded the files.** Your data is safe. Re-uploading removed the small "installed" marker (and maybe the settings file). Open `https://alinsania.com/server/install`: if the settings file is still there it fixes itself and the page shows "Already installed". If not, open the box **"Already installed before? Reconnect instead"**, fill in the setup code, the API address and your database details, press **Reconnect**. It restores the settings and changes no data; your accounts keep working. **To avoid it:** when updating, always extract the zip over the existing folders and choose "replace files". Never delete the `insania_app` folder first.

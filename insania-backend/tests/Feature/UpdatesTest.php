@@ -233,18 +233,18 @@ class UpdatesTest extends TestCase
         [$zip, $sig] = $this->good();
         $files = fn () => ['patch' => UploadedFile::fake()->createWithContent('p.zip', file_get_contents($zip)), 'signature' => UploadedFile::fake()->createWithContent('p.sig', $sig)];
 
-        $this->post('/upgrade/patch', ['token' => 'wrong'] + $files())->assertStatus(403);
+        $this->post('/upgrade/patch', ['token' => 'wrong'] + $files())->assertNotFound();
         $this->post('/upgrade/patch', ['token' => $token, 'signature' => UploadedFile::fake()->createWithContent('p.sig', 'bogus'), 'patch' => UploadedFile::fake()->createWithContent('p.zip', file_get_contents($zip))])
             ->assertStatus(422)->assertSee('signature');
 
         $page = $this->post('/upgrade/patch', ['token' => $token] + $files())->assertOk()->assertSee('Apply update');
         preg_match('/name="id" value="([a-f0-9]{24})"/', $page->getContent(), $m);
-        $this->post('/upgrade/apply', ['token' => 'wrong', 'id' => $m[1]])->assertStatus(403);
+        $this->post('/upgrade/apply', ['token' => 'wrong', 'id' => $m[1]])->assertNotFound();
         $this->post('/upgrade/apply', ['token' => $token, 'id' => $m[1]])->assertOk()->assertSee('Updated to');
         $this->assertSame('B2', trim(file_get_contents("$this->site/insania_app/BUILD")));
 
         $latest = app(UpdateService::class)->latestApplied();
-        $this->get('/upgrade')->assertOk()->assertSee('Undo last update');
+        $this->get('/upgrade?code='.$token)->assertOk()->assertSee('Undo last update');
         $this->post('/upgrade/undo', ['token' => $token, 'id' => $latest['id']])->assertOk()->assertSee('Undone');
         $this->assertSame('B1', trim(file_get_contents("$this->site/insania_app/BUILD")));
     }

@@ -58,7 +58,7 @@ final class Installer
 
         InstallState::markInstalled();
         InstallState::clearInstalling();
-        InstallState::clearToken();
+        InstallState::rotateToken();
     }
 
     /** @return string|null a plain-language problem, or null when this database really holds an installed system */
@@ -84,7 +84,7 @@ final class Installer
         self::writeEnv($in, $key);
         InstallState::markInstalled();
         InstallState::clearInstalling();
-        InstallState::clearToken();
+        InstallState::rotateToken();
     }
 
     public static function writeEnv(array $in, string $key): void
@@ -136,7 +136,7 @@ final class Installer
             } catch (\Throwable) {
             }
         }
-        InstallState::clearToken();
+        InstallState::rotateToken();
 
         return trim(Artisan::output());
     }

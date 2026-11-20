@@ -16,7 +16,7 @@ class InstallController extends Controller
     public function show()
     {
         if (InstallState::installed()) {
-            return response()->view('install.done', ['already' => true], 404);
+            abort(404);                                   // once installed, this page does not exist for anyone
         }
         InstallState::token();
 
@@ -117,15 +117,17 @@ class InstallController extends Controller
         return view('install.done', ['already' => false, 'reconnected' => true, 'email' => 'your existing account', 'api' => rtrim($in['app_url'], '/').'/api']);
     }
 
-    public function upgradeShow()
+    public function upgradeShow(Request $request)
     {
         if (! InstallState::installed()) {
-            // Relative address: keeps the /server folder and the page's own http/https.
-            return new \Illuminate\Http\RedirectResponse(request()->getBaseUrl().'/install', 302);
+            return redirect()->to($request->getBaseUrl().'/install');
         }
-        InstallState::token();
+        // Invisible to everyone who does not hold the secret code (kept in storage/app/install/token, readable in File Manager).
+        if (! InstallState::tokenMatches($request->query('code'))) {
+            abort(404);
+        }
 
-        return view('install.upgrade', ['pending' => Installer::pending(), 'hint' => InstallState::tokenHint(), 'result' => null, 'error' => null, 'undo' => app(UpdateService::class)->latestApplied(), 'build' => app(UpdateService::class)->currentBuild()]);
+        return view('install.upgrade', ['pending' => Installer::pending(), 'hint' => InstallState::tokenHint(), 'result' => null, 'error' => null, 'code' => (string) $request->query('code'), 'undo' => app(UpdateService::class)->latestApplied(), 'build' => app(UpdateService::class)->currentBuild()]);
     }
 
     public function upgradeRun(Request $request)
@@ -134,7 +136,7 @@ class InstallController extends Controller
             abort(404);
         }
         if (! InstallState::tokenMatches($request->input('token'))) {
-            return response()->view('install.upgrade', ['pending' => Installer::pending(), 'hint' => InstallState::tokenHint(), 'result' => null, 'error' => 'The setup code is wrong.'], 403);
+            abort(404);
         }
         try {
             $out = Installer::upgrade();
@@ -155,7 +157,7 @@ class InstallController extends Controller
             abort(404);
         }
         if (! InstallState::tokenMatches($request->input('token'))) {
-            return response()->view('install.patch', ['error' => 'The setup code is wrong.', 'summary' => null, 'result' => null, 'token' => ''], 403);
+            abort(404);
         }
 
         return null;
