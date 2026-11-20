@@ -95,7 +95,7 @@ p{margin:0 0 1rem}
 .tabbar a.active{background:var(--fill);color:var(--ink)}
 .tabbar a.active .icon{color:var(--accent-ink)}
 .tabbar{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
-.tabbar a.active{background:none;color:var(--brand)}
+.tabbar a.active,.tabbar a.active .icon{background:none;color:#111}
 .tabbar a.active .icon{stroke-width:2.5}
 @media(max-width:639px){#langLabel{display:none}}
 @media(min-width:1120px){.tabbar{display:none}}
@@ -327,6 +327,14 @@ main > section.hero{background:radial-gradient(55% 70% at 88% 8%,rgba(154,205,50
   .projgrid .proj{grid-template-columns:1fr}
   .projgrid .proj > *{grid-column:1}
   .projgrid .proj .photo{grid-row:auto;aspect-ratio:16/10;height:auto;min-height:0;margin-bottom:.9rem}
+}
+
+/* app-style bars: slide away while scrolling down, come back when scrolling up */
+@media(max-width:1119px){
+  .nav,.tabbar{transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+  html.bars-hidden .nav{transform:translateY(calc(-100% - 1rem))}
+  html.bars-hidden .tabbar{transform:translateY(calc(100% + 1.5rem))}
+  html.bars-hidden .nav:focus-within,html.bars-hidden .tabbar:focus-within{transform:none}
 }
 
 /* render below-the-fold sections only when they get close (faster first paint on every device) */
@@ -1012,6 +1020,21 @@ html.lite{scroll-behavior:auto}
       pcards.forEach(function (c) { c.hidden = !(f === "all" || c.getAttribute("data-cat") === f); });
     });
   });
+
+  // phones and tablets: hide the bars while scrolling down, show them when scrolling up
+  (function () {
+    var lastY = window.scrollY, ticking = false;
+    function update() {
+      var y = window.scrollY, d = y - lastY;
+      if (y < 80 || d < -6) root.classList.remove("bars-hidden");
+      else if (d > 6) root.classList.add("bars-hidden");
+      if (Math.abs(d) > 6 || y < 80) lastY = y;
+      ticking = false;
+    }
+    window.addEventListener("scroll", function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+  })();
 
   // count-up numbers
   var counters = document.querySelectorAll("[data-count]");
