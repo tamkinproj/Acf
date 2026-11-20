@@ -65,7 +65,7 @@ class SetupController extends Controller
         }
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'email', 'max:190', 'unique:users,email'],
+            'email' => ['required', 'email:rfc,filter', 'max:190', 'unique:users,email'],
             'password' => ['required', Password::min(12)->mixedCase()->numbers()],
         ]);
 

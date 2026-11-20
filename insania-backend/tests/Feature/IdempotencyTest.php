@@ -77,4 +77,13 @@ class IdempotencyTest extends TestCase
         $this->postJson("/api/payments/$cash/mark-cash", ['month' => '2026-11'], $h)->assertOk()->assertHeader('Idempotent-Replayed', 'true');
         $this->assertSame(1, \App\Models\SponsorshipPayment::where('month', '2026-11')->where('status', 'paid')->whereHas('sponsorship', fn ($q) => $q->where('child_id', $cash))->count());
     }
+
+    public function test_a_new_partner_key_is_never_stored_for_replay(): void
+    {
+        $this->world();
+        $this->actingAsRole('system_admin');
+        $raw = $this->postJson('/api/system/api-keys', ['name' => 'Partner'], ['Idempotency-Key' => 'key-secret-0007'])->assertCreated()->json('data.key');
+        $this->assertSame(0, \Illuminate\Support\Facades\DB::table('idempotency_keys')->count());
+        $this->assertFalse(\Illuminate\Support\Facades\DB::table('idempotency_keys')->where('body', 'like', '%'.$raw.'%')->exists());
+    }
 }

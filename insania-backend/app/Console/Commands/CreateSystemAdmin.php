@@ -23,7 +23,7 @@ class CreateSystemAdmin extends Command
         $password = $this->option('password') ?: $this->secret('Password (at least 12 characters, mixed case, with a number)');
 
         $v = Validator::make(['email' => $this->argument('email'), 'password' => $password], [
-            'email' => ['required', 'email', 'unique:users,email'],
+            'email' => ['required', 'email:rfc,filter', 'unique:users,email'],
             'password' => [Password::min(12)->mixedCase()->numbers()],
         ]);
         if ($v->fails()) {

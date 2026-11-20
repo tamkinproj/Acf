@@ -147,7 +147,7 @@ class UserAdminController extends Controller
 
         return [
             'name' => [$req, 'string', 'max:150'],
-            'email' => [$req, 'email', 'max:190', 'unique:users,email'.($ignoreId ? ",$ignoreId" : '')],
+            'email' => [$req, 'email:rfc,filter', 'max:190', 'unique:users,email'.($ignoreId ? ",$ignoreId" : '')],
             'password' => $creating ? ['required', Password::min(12)->mixedCase()->numbers()] : ['prohibited'],
             'role' => [$req, 'in:'.implode(',', config('roles.assignable_by_security_admin'))],
             'department_key' => ['nullable', 'string', 'in:'.implode(',', array_keys(config('roles.departments')))],

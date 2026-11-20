@@ -46,7 +46,7 @@ class InstallController extends Controller
             'db_user' => [$sqlite ? 'nullable' : 'required', 'string', 'max:120'],
             'db_pass' => ['nullable', 'string', 'max:200'],
             'admin_name' => ['required', 'string', 'max:120'],
-            'admin_email' => ['required', 'email', 'max:190'],
+            'admin_email' => ['required', 'email:rfc,filter', 'max:190'],
             'admin_password' => ['required', 'confirmed', Password::min(12)->mixedCase()->numbers()],
         ]);
         if ($v->fails()) {

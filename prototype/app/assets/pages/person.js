@@ -11,7 +11,7 @@
     male: "Male", female: "Female", good: "Good", needs_followup: "Needs follow-up", doc_on: "On file", doc_missing: "Missing", doc_upload: "Document upload opens in the next phase",
     verify: "Verified", direct: "Direct donor", partner: "Partner sponsorship", cash_only: "Cash payment", bank_pay: "Bank transfer", active: "Active", pending: "Pending", ended: "Ended",
     d_birth_certificate: "Birth certificate", d_father_death_certificate: "Father's death certificate", d_school_record: "School record", d_guardian_id: "Guardian ID",
-    ver_on: "Bank account verified", ver_off: "Verification removed", waiting: "Waiting to send", wait_note: "This child was added offline. Details appear once it has been sent."
+    notver: "Not verified", ver_on: "Bank account verified", ver_off: "Verification removed", waiting: "Waiting to send", wait_note: "This child was added offline. Details appear once it has been sent."
   }, {
     child_title: "ملف الطفل", sec_personal: "المعلومات الشخصية", sec_mother: "الأم والأسرة", sec_resp: "المسؤول المباشر", sec_docs: "المستندات",
     sec_bank: "البيانات البنكية", sec_channel: "القناة والمصدر", sec_hist: "سجل القناة",
@@ -21,7 +21,7 @@
     male: "ذكر", female: "أنثى", good: "جيدة", needs_followup: "تحتاج متابعة", doc_on: "موجود", doc_missing: "ناقص", doc_upload: "رفع المستندات يفتح في المرحلة التالية",
     verify: "موثّق", direct: "متبرع مباشر", partner: "كفالة عبر شريك", cash_only: "دفع نقدي", bank_pay: "حوالة بنكية", active: "نشط", pending: "معلّق", ended: "منتهٍ",
     d_birth_certificate: "شهادة الميلاد", d_father_death_certificate: "شهادة وفاة الأب", d_school_record: "السجل المدرسي", d_guardian_id: "هوية الوصي",
-    ver_on: "تم توثيق الحساب البنكي", ver_off: "أُلغي التوثيق", waiting: "بانتظار الإرسال", wait_note: "أُضيف هذا الطفل بدون اتصال. تظهر التفاصيل بعد إرساله."
+    notver: "غير موثّق", ver_on: "تم توثيق الحساب البنكي", ver_off: "أُلغي التوثيق", waiting: "بانتظار الإرسال", wait_note: "أُضيف هذا الطفل بدون اتصال. تظهر التفاصيل بعد إرساله."
   });
 
   function dash(v) { return v === null || v === undefined || v === "" ? "-" : esc(v); }
