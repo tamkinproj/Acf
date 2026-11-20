@@ -15,6 +15,11 @@ The zip holds two folders. They go **side by side**, in the folder that contains
 
 The API address will be `https://alinsania.com/server/api`.
 
+## Fresh install with two zips (Hostinger File Manager always extracts into a new folder)
+1. Upload `1-insania_app.zip` to the folder that contains `public_html`. Extract it; folder name **insania_app**; destination: that same folder.
+2. Upload `2-website.zip` there too. Extract it; folder name **website**. Open `website`, select everything inside (turn on hidden files to see `.htaccess`), **Move** it into `public_html`. Delete the empty `website` folder and both zips.
+3. Continue with "Step 4. Install" below.
+
 ## Step 1. Make an empty database
 hPanel → **Databases → MySQL Databases**. Create a database and a user, give the user all privileges. Write down: database name, user name, password. (Host is `localhost`.)
 
