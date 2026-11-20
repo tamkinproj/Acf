@@ -47,7 +47,7 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:6rem}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:1rem;line-height:1.6;-webkit-font-smoothing:antialiased;padding-bottom:6rem}
-@media(min-width:960px){body{padding-bottom:0}}
+@media(min-width:1120px){body{padding-bottom:0}}
 img,svg{max-width:100%}
 a{color:inherit}
 h1,h2,h3,h4{color:var(--ink);line-height:1.15;margin:0 0 .6rem;font-weight:700;letter-spacing:-.02em}
@@ -72,13 +72,13 @@ p{margin:0 0 1rem}
 .brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;font-weight:700;color:var(--ink);font-size:1rem;line-height:1.2;letter-spacing:-.01em}
 .logo{width:3.2rem;height:3.2rem;flex:none;background:var(--logo) center/contain no-repeat}
 .menu{display:none;list-style:none;margin:0;padding:0;gap:.15rem}
-.menu a{display:block;font-size:.9rem;font-weight:600;color:#4a5545;text-decoration:none;padding:.5rem .85rem;border-radius:999px;transition:background .15s,color .15s}
+.menu a{display:block;font-size:.9rem;font-weight:600;color:#4a5545;text-decoration:none;padding:.5rem .7rem;border-radius:999px;transition:background .15s,color .15s}
 .menu a:hover{background:rgba(23,48,13,.06);color:var(--ink)}
 .menu a.active{background:var(--fill);color:var(--ink)}
 .tools{display:flex;align-items:center;gap:.4rem}
-@media(min-width:960px){.menu{display:flex}}
+@media(min-width:1120px){.menu{display:flex}}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font:inherit;font-weight:600;font-size:.95rem;line-height:1;padding:.9rem 1.5rem;border-radius:999px;border:0;text-decoration:none;cursor:pointer;transition:background .15s,transform .12s}
+.btn{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font:inherit;font-weight:600;font-size:.95rem;line-height:1;padding:.9rem 1.5rem;border-radius:999px;border:0;text-decoration:none;cursor:pointer;transition:background .15s,transform .12s}
 .btn:active{transform:scale(.97)}
 .btn-main{background:var(--accent);color:var(--ink);box-shadow:0 6px 16px rgba(154,205,50,.45)}
 .btn-main:hover{background:#8cbf22}
@@ -93,7 +93,7 @@ p{margin:0 0 1rem}
 .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:.15rem;font-size:.66rem;font-weight:600;padding:.45rem .2rem;border-radius:999px;color:#6b7565;text-decoration:none}
 .tabbar a.active{background:var(--fill);color:var(--ink)}
 .tabbar a.active .icon{color:var(--accent-ink)}
-@media(min-width:960px){.tabbar{display:none}}
+@media(min-width:1120px){.tabbar{display:none}}
 
 /* ---------- Sections ---------- */
 section{padding:5rem 0}
@@ -188,6 +188,27 @@ dl.facts dd{margin:0;font-weight:600;color:var(--ink);text-align:end}
 .link:hover{text-decoration:underline}
 .safe{display:flex;gap:1rem;align-items:flex-start;margin-top:1.25rem}
 
+/* projects */
+.filters{display:flex;flex-wrap:wrap;gap:.5rem;margin:2.25rem 0 1.5rem}
+.fbtn{font:inherit;font-weight:600;font-size:.9rem;padding:.55rem 1.1rem;border:0;border-radius:999px;background:var(--fill);color:var(--ink);cursor:pointer}
+.fbtn[aria-pressed=true]{background:var(--accent);color:var(--ink)}
+.proj .photo{aspect-ratio:16/10;border-radius:var(--r-md);margin-bottom:1rem;position:relative}
+.proj .photo .badge{position:absolute;inset-inline-start:.75rem;top:.75rem;background:#fff}
+.proj .photo .icon{width:2rem;height:2rem;color:var(--accent-ink);opacity:.7}
+.proj h3{margin-bottom:.4rem}
+.meta{list-style:none;margin:.75rem 0 0;padding:0;display:grid;gap:.4rem;font-size:.88rem;color:var(--muted)}
+.meta li{display:flex;gap:.5rem;align-items:flex-start}
+.meta .icon{width:1rem;height:1rem;margin-top:.25rem;color:var(--accent-ink)}
+.bento{display:grid;gap:.75rem;grid-template-columns:repeat(2,1fr);grid-auto-rows:7.5rem}
+@media(min-width:760px){.bento{grid-template-columns:repeat(4,1fr);grid-auto-rows:9.5rem}}
+.bento .t{border-radius:var(--r-md);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent-ink);background:
+  radial-gradient(circle at 25% 20%,rgba(154,205,50,.28),transparent 50%),
+  repeating-linear-gradient(45deg,var(--accent-soft) 0 10px,#fff 10px 20px)}
+.bento .t .icon{width:1.75rem;height:1.75rem;opacity:.7}
+.bento .w2{grid-column:span 2}
+@media(min-width:760px){.bento .h2{grid-row:span 2}}
+.lite .bento .t{background:var(--accent-soft)}
+
 /* docs, news */
 .doc{display:flex;gap:1rem;align-items:flex-start}
 .doc .chip{margin:0}
@@ -280,6 +301,7 @@ html.lite{scroll-behavior:auto}
     <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
   </defs>
 </svg>
@@ -298,6 +320,7 @@ html.lite{scroll-behavior:auto}
         <li><a href="#top" data-i18n="n_home">Home</a></li>
         <li><a href="#about" data-i18n="n_about">About</a></li>
         <li><a href="#programs" data-i18n="n_programs">Programs</a></li>
+        <li><a href="#projects" data-i18n="n_projects">Projects</a></li>
         <li><a href="#partners" data-i18n="n_partners">Partners</a></li>
         <li><a href="#impact" data-i18n="n_impact">Impact</a></li>
         <li><a href="#news" data-i18n="n_news">News</a></li>
@@ -469,6 +492,123 @@ html.lite{scroll-behavior:auto}
   </div>
 </section>
 
+<!-- ============ PROJECTS ============ -->
+<section id="projects">
+  <div class="container">
+    <div class="head">
+      <span class="eyebrow" data-i18n="pj_eyebrow">Implemented projects</span>
+      <h2 class="title" data-i18n="pj_title">Projects we have completed</h2>
+      <p class="lead" data-i18n="pj_lead">A record of what we have built and delivered, with the location, year and sponsor of each project.</p>
+    </div>
+
+    <div class="grid g4">
+      <div class="card stat"><div class="num"><b data-count="24">24</b><span>+</span></div><div class="lab" data-i18n="pj_s1">Projects completed</div></div>
+      <div class="card stat"><div class="num"><b data-count="9">9</b></div><div class="lab" data-i18n="pj_s2">Schools and madrasas</div></div>
+      <div class="card stat"><div class="num"><b data-count="15">15</b></div><div class="lab" data-i18n="pj_s3">Communities reached</div></div>
+      <div class="card stat"><div class="num"><b data-count="800">800</b><span>+</span></div><div class="lab" data-i18n="pj_s4">People benefiting</div></div>
+    </div>
+    <p class="note" data-i18n="pj_note">Sample figures. Replace with the real numbers.</p>
+
+    <div class="filters" role="group" aria-label="Filter projects">
+      <button class="fbtn" type="button" data-f="all" aria-pressed="true" data-i18n="f_all">All</button>
+      <button class="fbtn" type="button" data-f="edu" aria-pressed="false" data-i18n="cat_edu">Education</button>
+      <button class="fbtn" type="button" data-f="ground" aria-pressed="false" data-i18n="cat_ground">Construction</button>
+      <button class="fbtn" type="button" data-f="train" aria-pressed="false" data-i18n="cat_train">Training and events</button>
+      <button class="fbtn" type="button" data-f="relief" aria-pressed="false" data-i18n="cat_relief">Relief</button>
+    </div>
+
+    <div class="grid g3">
+      <article class="card proj" data-cat="edu">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_edu">Education</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t1">[Madrasa construction]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+      <article class="card proj" data-cat="edu">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_edu">Education</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t2">[Classroom rehabilitation]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+      <article class="card proj" data-cat="ground">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_ground">Construction</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t3">[Groundbreaking: new school building]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+      <article class="card proj" data-cat="train">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_train">Training and events</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t4">[Graduation and alumni program]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+      <article class="card proj" data-cat="relief">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_relief">Relief</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t5">[Relief goods distribution]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+      <article class="card proj" data-cat="train">
+        <div class="photo" role="img" aria-label="Project photo placeholder"><span class="badge" data-i18n="cat_train">Training and events</span><svg class="icon"><use href="#i-image"/></svg></div>
+        <span class="badge" data-i18n="pj_done">Completed</span>
+        <h3 style="margin-top:.7rem" data-i18n="pj_t6">[Teacher and student training]</h3>
+        <ul class="meta">
+          <li><svg class="icon"><use href="#i-pin"/></svg><span data-i18n="pj_loc">[Village, municipality, province]</span></li>
+          <li><svg class="icon"><use href="#i-clock"/></svg><span data-i18n="pj_year">Completed [Year]</span></li>
+          <li><svg class="icon"><use href="#i-users"/></svg><span data-i18n="pj_ben">[000] beneficiaries</span></li>
+          <li><svg class="icon"><use href="#i-heart"/></svg><span data-i18n="pj_sp">Sponsored by [partner]</span></li>
+        </ul>
+      </article>
+    </div>
+
+    <p style="margin-top:2rem;display:flex;flex-wrap:wrap;gap:.75rem">
+      <a class="btn btn-main" href="#contact" data-i18n="pj_b1">Partner on a project</a>
+      <a class="btn btn-line" href="#" data-i18n="pj_b2">Download the project report (PDF)</a>
+    </p>
+
+    <div class="head" style="margin:4rem 0 1.5rem">
+      <span class="eyebrow" data-i18n="g_eyebrow">From the field</span>
+      <h3 class="title sm" data-i18n="g_title">Moments from our projects</h3>
+    </div>
+    <div class="bento">
+      <div class="t w2 h2" role="img" aria-label="Photo placeholder"><svg class="icon"><use href="#i-image"/></svg></div>
+      <div class="t" role="img" aria-label="Photo placeholder"><svg class="icon"><use href="#i-image"/></svg></div>
+      <div class="t" role="img" aria-label="Photo placeholder"><svg class="icon"><use href="#i-image"/></svg></div>
+      <div class="t" role="img" aria-label="Photo placeholder"><svg class="icon"><use href="#i-image"/></svg></div>
+      <div class="t" role="img" aria-label="Photo placeholder"><svg class="icon"><use href="#i-image"/></svg></div>
+      <div class="t w2" role="img" aria-label="Photo placeholder"><svg class="icon"><use href="#i-image"/></svg></div>
+      <div class="t" role="img" aria-label="Photo placeholder"><svg class="icon"><use href="#i-image"/></svg></div>
+      <div class="t" role="img" aria-label="Photo placeholder"><svg class="icon"><use href="#i-image"/></svg></div>
+    </div>
+    <p class="note" data-i18n="g_note">Photos are published with the consent of the people shown. Children's faces appear only with guardian consent.</p>
+  </div>
+</section>
+
 <!-- ============ HOW IT WORKS ============ -->
 <section id="how">
   <div class="container">
@@ -616,7 +756,7 @@ html.lite{scroll-behavior:auto}
         </div>
       </div>
       <div><h4 data-i18n="ft_q">Quick links</h4><ul>
-        <li><a href="#about" data-i18n="n_about">About</a></li><li><a href="#programs" data-i18n="n_programs">Programs</a></li><li><a href="#partners" data-i18n="n_partners">Partners</a></li><li><a href="#impact" data-i18n="n_impact">Impact</a></li></ul></div>
+        <li><a href="#about" data-i18n="n_about">About</a></li><li><a href="#programs" data-i18n="n_programs">Programs</a></li><li><a href="#projects" data-i18n="n_projects">Projects</a></li><li><a href="#partners" data-i18n="n_partners">Partners</a></li><li><a href="#impact" data-i18n="n_impact">Impact</a></li></ul></div>
       <div><h4 data-i18n="ft_h">Get involved</h4><ul>
         <li><a href="#sponsor" data-i18n="ft_h1">Sponsor an orphan</a></li><li><a href="#contact" data-i18n="ft_h2">Request help</a></li><li><a href="#contact" data-i18n="ft_h3">Become a partner</a></li><li><a href="#faq">FAQ</a></li></ul></div>
       <div><h4 data-i18n="ft_l">Legal</h4><ul>
@@ -678,7 +818,7 @@ html.lite{scroll-behavior:auto}
     o1:"استفسار عام", o2:"طلب مساعدة", o3:"الكفالة", o4:"أن أصبح شريكًا", o5:"شكوى أو اقتراح",
     f_msg:"الرسالة", f_consent:"أوافق على التواصل معي بشأن طلبي وأقبل سياسة الخصوصية.", f_send:"إرسال الرسالة",
     f_ok:"نموذج أوّلي فقط: لم تُرسَل رسالتك. في الموقع الفعلي تصل إلى [بريد التواصل].",
-    ld_eyebrow:"القيادة", ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]", tm_eyebrow:"فريقنا", tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
+    ld_eyebrow:"القيادة", ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]", tm_eyebrow:"فريقنا", tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع", pj_eyebrow:"المشاريع المنفذة", pj_title:"مشاريعنا المنفذة", pj_lead:"سجلّ بما بنيناه وأنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"مدارس ومعاهد", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام تجريبية. استبدلها بالأرقام الحقيقية.", f_all:"الكل", cat_edu:"التعليم", cat_ground:"الإنشاءات", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_t1:"[بناء مدرسة (مدراسة)]", pj_t2:"[تأهيل الفصول الدراسية]", pj_t3:"[وضع حجر الأساس: مبنى مدرسة جديد]", pj_t4:"[حفل التخرج وبرنامج الخريجين]", pj_t5:"[توزيع مواد الإغاثة]", pj_t6:"[تدريب المعلمين والطلاب]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)", g_eyebrow:"من الميدان", g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
     l1:"سياسة الخصوصية", l2:"شروط الاستخدام", l3:"حماية الأطفال", l4:"سياسة الشكاوى", rights:"جميع الحقوق محفوظة.", lic:"رقم الترخيص",
     t_title:"مؤسسة الإنسانية الخيرية | رعاية الأيتام ودعم المجتمع",
     e_req:"هذا الحقل مطلوب.", e_mail:"أدخل بريدًا إلكترونيًا صحيحًا.", e_cons:"يلزم الموافقة للمتابعة."
@@ -732,10 +872,20 @@ html.lite{scroll-behavior:auto}
         links.forEach(function (a) { a.classList.toggle("active", a.getAttribute("href") === "#" + en.target.id); });
       });
     }, { rootMargin: "-40% 0px -55% 0px" });
-    ["top", "about", "programs", "partners", "contact"].forEach(function (id) {
+    ["top", "about", "programs", "projects", "partners", "contact"].forEach(function (id) {
       var el = document.getElementById(id); if (el) spy.observe(el);
     });
   }
+
+  // project filter
+  var fbtns = document.querySelectorAll(".fbtn"), pcards = document.querySelectorAll("[data-cat]");
+  fbtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var f = b.getAttribute("data-f");
+      fbtns.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      pcards.forEach(function (c) { c.hidden = !(f === "all" || c.getAttribute("data-cat") === f); });
+    });
+  });
 
   // count-up numbers
   var counters = document.querySelectorAll("[data-count]");
