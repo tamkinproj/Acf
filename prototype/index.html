@@ -334,6 +334,9 @@ html.lite{scroll-behavior:auto}
     <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 10l9-6 9 6"/><line x1="5" y1="10" x2="5" y2="18"/><line x1="12" y1="10" x2="12" y2="18"/><line x1="19" y1="10" x2="19" y2="18"/><line x1="3" y1="21" x2="21" y2="21"/></symbol>
     <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><polyline points="3 8 12 13 21 8"/><line x1="12" y1="13" x2="12" y2="21"/></symbol>
     <symbol id="i-cap" viewBox="0 0 24 24"><path d="M22 9l-10-5L2 9l10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/></symbol>
+    <symbol id="i-facebook" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></symbol>
+    <symbol id="i-youtube" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
   </defs>
 </svg>
@@ -344,7 +347,7 @@ html.lite{scroll-behavior:auto}
 <header class="nav">
   <div class="container row">
     <a class="brand" href="#top" aria-label="Al Insania Charity Foundation Inc.">
-      <span class="logo" role="img" aria-label="Al Insania Charity Foundation logo"></span>
+      <span class="logo" role="img" aria-label="Al Insania Charity Foundation logo" data-ar="شعار مؤسسة الإنسانية الخيرية"></span>
       <span data-i18n="brand">Al Insania Charity Foundation</span>
     </a>
     <nav aria-label="Main">
@@ -404,8 +407,8 @@ html.lite{scroll-behavior:auto}
 <div class="strip">
   <div class="container row">
     <small class="supp" data-i18n="s_label">Our sponsored partner</small>
-    <span class="pname"><span class="plogo l-dar" role="img" aria-label="Dar Al Ber Society"></span></span>
-    <span class="pname"><span class="plogo l-dub" role="img" aria-label="Dubai Charity Association"></span></span>
+    <span class="pname"><span class="plogo l-dar" role="img" aria-label="Dar Al Ber Society" data-ar="جمعية دار البر"></span></span>
+    <span class="pname"><span class="plogo l-dub" role="img" aria-label="Dubai Charity Association" data-ar="جمعية دبي الخيرية"></span></span>
   </div>
 </div>
 
@@ -498,7 +501,7 @@ html.lite{scroll-behavior:auto}
     <div class="head">
       <span class="eyebrow" data-i18n="p_eyebrow">Programs</span>
       <h2 class="title" data-i18n="p_title">What we do</h2>
-      <p class="lead" data-i18n="p_lead">Our first program is orphan care. More programs open as we grow.</p>
+      <p class="lead" data-i18n="p_lead">Orphan care is at the heart of our work, alongside education, alumni, waqf, water, mosque and relief programs.</p>
     </div>
 
     <article class="card feature">
@@ -517,9 +520,12 @@ html.lite{scroll-behavior:auto}
     </article>
 
     <div class="grid g3" style="margin-top:1.25rem">
-      <div class="card"><span class="chip"><svg class="icon"><use href="#i-users"/></svg></span><span class="badge soon" data-i18n="p_soon">Coming soon</span><h3 style="margin-top:.7rem" data-i18n="p_b_t">Family support</h3><p data-i18n="p_b_p">Help for families in need, with verified cases.</p></div>
-      <div class="card"><span class="chip"><svg class="icon"><use href="#i-book"/></svg></span><span class="badge soon" data-i18n="p_soon">Coming soon</span><h3 style="margin-top:.7rem" data-i18n="p_c_t">Education support</h3><p data-i18n="p_c_p">School fees, supplies and learning support.</p></div>
-      <div class="card"><span class="chip"><svg class="icon"><use href="#i-home"/></svg></span><span class="badge soon" data-i18n="p_soon">Coming soon</span><h3 style="margin-top:.7rem" data-i18n="p_d_t">Health and housing</h3><p data-i18n="p_d_p">Medical care and safe housing for those who need it.</p></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-book"/></svg></span><h3 data-i18n="pg1t">Education and madrasas</h3><p data-i18n="pg1p">Building and equipping madrasas and classrooms, and supporting students and teachers.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-cap"/></svg></span><h3 data-i18n="pg2t">Alumni</h3><p data-i18n="pg2p">Keeping graduates connected through alumni programs, ceremonies and continuing support.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-bank"/></svg></span><h3 data-i18n="pg3t">Waqf</h3><p data-i18n="pg3p">Endowment projects that keep giving, with their income used for lasting community benefit.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-drop"/></svg></span><h3 data-i18n="pg4t">Water</h3><p data-i18n="pg4p">Water tanks and wells that bring clean water to villages and schools.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-mosque"/></svg></span><h3 data-i18n="pg5t">Mosques</h3><p data-i18n="pg5p">Building and maintaining mosques and prayer spaces for communities.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
+      <div class="card"><span class="chip"><svg class="icon"><use href="#i-box"/></svg></span><h3 data-i18n="pg6t">Relief and training</h3><p data-i18n="pg6p">Relief goods for families in need, and training for teachers and students.</p><a class="link" href="#projects" data-i18n="pg_more">See projects</a></div>
     </div>
   </div>
 </section>
@@ -705,14 +711,14 @@ html.lite{scroll-behavior:auto}
     </div>
     <div class="grid g2">
       <article class="card partner">
-        <div class="logo-box"><span class="plogo l-dar" role="img" aria-label="Dar Al Ber Society"></span></div>
+        <div class="logo-box"><span class="plogo l-dar" role="img" aria-label="Dar Al Ber Society" data-ar="جمعية دار البر"></span></div>
         <h3>Dar Al Ber Society</h3>
         <p data-i18n="r1p">A Dubai charity established in 1979, working under the supervision of Islamic Affairs and Charitable Activities in Dubai.</p>
         <p class="note" data-i18n="r_conf">What they provide for our children: [confirm with partner].</p>
         <a class="link" href="https://www.daralber.ae" target="_blank" rel="noopener noreferrer"><span data-i18n="r_visit">Visit official site</span> <svg class="icon flip"><use href="#i-arrow"/></svg></a>
       </article>
       <article class="card partner">
-        <div class="logo-box"><span class="plogo l-dub" role="img" aria-label="Dubai Charity Association"></span></div>
+        <div class="logo-box"><span class="plogo l-dub" role="img" aria-label="Dubai Charity Association" data-ar="جمعية دبي الخيرية"></span></div>
         <h3>Dubai Charity Association</h3>
         <p data-i18n="r2p">A Dubai association with orphan sponsorship programs inside and outside the UAE.</p>
         <p class="note" data-i18n="r_conf">What they provide for our children: [confirm with partner].</p>
@@ -814,14 +820,14 @@ html.lite{scroll-behavior:auto}
   <div class="container">
     <div class="fgrid">
       <div>
-        <a class="brand" href="#top"><span class="logo" role="img" aria-label="Al Insania Charity Foundation logo"></span><span data-i18n="brand">Al Insania Charity Foundation</span></a>
+        <a class="brand" href="#top"><span class="logo" role="img" aria-label="Al Insania Charity Foundation logo" data-ar="شعار مؤسسة الإنسانية الخيرية"></span><span data-i18n="brand">Al Insania Charity Foundation</span></a>
         <p class="verse" lang="ar">وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا وَلَا تَفَرَّقُوا</p>
         <p class="note" style="margin:0 0 1rem" data-i18n="verse">"And hold firmly to the rope of Allah all together and do not become divided." (Quran 3:103)</p>
         <p style="max-width:22rem" data-i18n="ft_p">[One sentence about the foundation.]</p>
         <div class="social" aria-label="Social media">
-          <a href="#" aria-label="Facebook"><svg class="icon"><use href="#i-globe"/></svg></a>
-          <a href="#" aria-label="Instagram"><svg class="icon"><use href="#i-globe"/></svg></a>
-          <a href="#" aria-label="X"><svg class="icon"><use href="#i-globe"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg class="icon"><use href="#i-facebook"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg class="icon"><use href="#i-instagram"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg class="icon"><use href="#i-youtube"/></svg></a>
         </div>
       </div>
       <div><h4 data-i18n="ft_q">Quick links</h4><ul>
@@ -862,10 +868,9 @@ html.lite{scroll-behavior:auto}
     a_p:"[احكِ قصة المؤسسة: متى بدأت، وكيف نمت، ومن ساهم في ذلك.]",
     a_m:"الرسالة", a_mp:"[رسالتنا في جملة واحدة.]", a_v:"الرؤية", a_vp:"[رؤيتنا في جملة واحدة.]", a_val:"القيم", a_valp:"[النزاهة، الخصوصية، الحوكمة، الرعاية.]",
     a_f:"بيانات المؤسسة", a_f1:"الصفة القانونية", a_f1v:"[الصفة القانونية]", a_f2:"رقم الترخيص", a_f3:"الجهة المشرفة", a_f3v:"[اسم الجهة]", a_f4:"تأسست", a_f4v:"2016م (1437هـ)", a_f5:"المقر", a_f5v:"مدينة باغاديان، الفلبين",
-    p_eyebrow:"البرامج", p_title:"ماذا نقدّم", p_lead:"برنامجنا الأول هو رعاية الأيتام، وتُفتح برامج أخرى مع نمونا.",
+    p_eyebrow:"البرامج", p_title:"ماذا نقدّم", p_lead:"رعاية الأيتام في قلب عملنا، إلى جانب برامج التعليم والخريجين والوقف والمياه والمساجد والإغاثة.",
     p_avail:"متاح الآن", p_a_t:"رعاية الأيتام (أيتام)", p_a_p:"نسجّل كل طفل، ونتحقق من حالته، ونربطه بشريك كافل. ثم نتابعه ليصل إلى الكافلين تقارير دورية موثوقة.",
     p_a_1:"تسجيل الحالات والتحقق منها", p_a_2:"دعم التعليم والصحة والاحتياجات اليومية", p_a_3:"متابعة منتظمة وتقارير", p_a_b:"كيف تعمل الكفالة", ph_prog:"صورة البرنامج (استبدلها)",
-    p_soon:"قريبًا", p_b_t:"دعم الأسر", p_b_p:"مساعدة الأسر المحتاجة بعد التحقق من حالاتها.", p_c_t:"دعم التعليم", p_c_p:"رسوم دراسية ومستلزمات ودعم تعليمي.", p_d_t:"الصحة والسكن", p_d_p:"رعاية طبية وسكن آمن لمن يحتاجه.",
     w_eyebrow:"آلية العمل", w_title:"من التسجيل إلى المتابعة",
     w1t:"تسجيل حالة", w1p:"تقدّم الأسرة أو الوصي طلبًا عبر نموذج التسجيل لدينا.", w2t:"نتحقق", w2p:"يراجع فريقنا المستندات ويزور الحالة عند الحاجة.", w3t:"شريك يكفل", w3p:"يؤكد شريك موثوق الكفالة.", w4t:"نتابع", w4p:"نحتفظ بالسجلات ونرسل التقارير إلى الكافلين.", w_b:"اطلب مساعدة أو سجّل حالة",
     r_eyebrow:"شركاؤنا", r_title:"كافلون موثوقون خلف عملنا", r_lead:"نعمل مع جمعيات خيرية راسخة تكفل وتدعم الأطفال في رعايتنا.", 
@@ -885,7 +890,7 @@ html.lite{scroll-behavior:auto}
     o1:"استفسار عام", o2:"طلب مساعدة", o3:"الكفالة", o4:"أن أصبح شريكًا", o5:"شكوى أو اقتراح",
     f_msg:"الرسالة", f_consent:"أوافق على التواصل معي بشأن طلبي وأقبل سياسة الخصوصية.", f_send:"إرسال الرسالة",
     f_ok:"نموذج أوّلي فقط: لم تُرسَل رسالتك. في الموقع الفعلي تصل إلى [بريد التواصل].",
-    ld_eyebrow:"القيادة", ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]", tm_eyebrow:"فريقنا", tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع", pj_eyebrow:"المشاريع المنفذة", pj_title:"مشاريعنا المنفذة", pj_lead:"من رعاية الأيتام إلى التعليم والخريجين والوقف والمياه والمساجد: سجلّ بما أنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"نوعًا من المشاريع", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام ومشاريع تجريبية. استبدلها بالحقيقية وأضف بطاقة لكل مشروع.", f_all:"الكل", cat_edu:"التعليم", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)", g_eyebrow:"من الميدان", g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.",  cat_orphan:"رعاية الأيتام", cat_alumni:"الخريجون", cat_waqf:"الوقف", cat_water:"المياه", cat_mosque:"المساجد", pj_t1:"[كفالة الأيتام ورعايتهم]", pj_t2:"[بناء مدرسة (مدراسة)]", pj_t3:"[برنامج الخريجين وحفل التخرج]", pj_t4:"[مشروع وقفي]", pj_t5:"[مشروع خزان مياه]", pj_t6:"[بناء مسجد]", pj_t7:"[توزيع مواد الإغاثة]", pj_t8:"[تدريب المعلمين والطلاب]", pj_t9:"[تأهيل الفصول الدراسية]", s_label:"شريكنا الكافل", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
+    ld_eyebrow:"القيادة", ld_title:"تعرّف على رئيسنا", ld_name:"[الاسم الكامل للرئيس]", ld_role:"الرئيس", ld_msg:"[كلمة قصيرة من الرئيس: من نخدم ولماذا يهمّ هذا العمل. من 2 إلى 4 جمل.]", tm_eyebrow:"فريقنا", tm_title:"من يخدمون أطفالنا", tm_lead:"العاملون الذين يخدمون كل يوم الأطفال في رعايتنا.", tm_name:"[الاسم الكامل]", tm_role:"[المسمّى الوظيفي]", tm_note:"أضف بطاقة لكل موظف. تُنشر الصور بموافقة كل شخص فقط.", n_projects:"المشاريع", pj_eyebrow:"المشاريع المنفذة", pj_title:"مشاريعنا المنفذة", pj_lead:"من رعاية الأيتام إلى التعليم والخريجين والوقف والمياه والمساجد: سجلّ بما أنجزناه، مع موقع كل مشروع وسنته وجهة الكفالة.", pj_s1:"مشروع منجز", pj_s2:"نوعًا من المشاريع", pj_s3:"مجتمع وصلنا إليه", pj_s4:"شخص مستفيد", pj_note:"أرقام ومشاريع تجريبية. استبدلها بالحقيقية وأضف بطاقة لكل مشروع.", f_all:"الكل", cat_edu:"التعليم", cat_train:"التدريب والفعاليات", cat_relief:"الإغاثة", pj_done:"مكتمل", pj_loc:"[القرية، البلدية، المقاطعة]", pj_year:"اكتمل عام [السنة]", pj_ben:"[000] مستفيد", pj_sp:"برعاية [الشريك]", pj_b1:"شاركنا في مشروع", pj_b2:"حمّل تقرير المشاريع (PDF)", g_eyebrow:"من الميدان", g_title:"لحظات من مشاريعنا", g_note:"تُنشر الصور بموافقة أصحابها. لا تظهر وجوه الأطفال إلا بموافقة الوصي.",  cat_orphan:"رعاية الأيتام", cat_alumni:"الخريجون", cat_waqf:"الوقف", cat_water:"المياه", cat_mosque:"المساجد", pj_t1:"[كفالة الأيتام ورعايتهم]", pj_t2:"[بناء مدرسة (مدراسة)]", pj_t3:"[برنامج الخريجين وحفل التخرج]", pj_t4:"[مشروع وقفي]", pj_t5:"[مشروع خزان مياه]", pj_t6:"[بناء مسجد]", pj_t7:"[توزيع مواد الإغاثة]", pj_t8:"[تدريب المعلمين والطلاب]", pj_t9:"[تأهيل الفصول الدراسية]", s_label:"شريكنا الكافل", pg_more:"عرض المشاريع", pg1t:"التعليم والمدارس", pg1p:"بناء المدارس والفصول وتجهيزها، ودعم الطلاب والمعلمين.", pg2t:"الخريجون", pg2p:"إبقاء الخريجين على تواصل عبر برامج الخريجين والحفلات والدعم المستمر.", pg3t:"الوقف", pg3p:"مشاريع وقفية يتجدد عطاؤها، ويُنفق ريعها في نفع المجتمع بشكل دائم.", pg4t:"المياه", pg4p:"خزانات وآبار توفّر المياه النظيفة للقرى والمدارس.", pg5t:"المساجد", pg5p:"بناء المساجد وأماكن الصلاة وصيانتها للمجتمعات.", pg6t:"الإغاثة والتدريب", pg6p:"مواد إغاثة للأسر المحتاجة، وتدريب للمعلمين والطلاب.", ft_p:"[جملة واحدة عن المؤسسة.]", verse:"(سورة آل عمران، الآية 103)", ft_q:"روابط سريعة", ft_h:"شارك معنا", ft_h1:"اكفل يتيمًا", ft_h2:"اطلب مساعدة", ft_h3:"كن شريكًا", ft_l:"قانوني",
     l1:"سياسة الخصوصية", l2:"شروط الاستخدام", l3:"حماية الأطفال", l4:"سياسة الشكاوى", rights:"جميع الحقوق محفوظة.", lic:"رقم الترخيص",
     t_title:"مؤسسة الإنسانية الخيرية | رعاية الأيتام ودعم المجتمع",
     e_req:"هذا الحقل مطلوب.", e_mail:"أدخل بريدًا إلكترونيًا صحيحًا.", e_cons:"يلزم الموافقة للمتابعة."
@@ -917,6 +922,10 @@ html.lite{scroll-behavior:auto}
       var k = n.getAttribute("data-i18n");
       n.textContent = rtl && AR[k] ? AR[k] : n.getAttribute("data-en");
     });
+    document.querySelectorAll("[data-ar]").forEach(function (el) {
+      if (!el.hasAttribute("data-en-label")) el.setAttribute("data-en-label", el.getAttribute("aria-label"));
+      el.setAttribute("aria-label", rtl ? el.getAttribute("data-ar") : el.getAttribute("data-en-label"));
+    });
     document.title = rtl ? AR.t_title : EN_TITLE;
     document.getElementById("langLabel").textContent = rtl ? "English" : "العربية";
     liteLabel();
@@ -936,7 +945,11 @@ html.lite{scroll-behavior:auto}
     var spy = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
-        links.forEach(function (a) { a.classList.toggle("active", a.getAttribute("href") === "#" + en.target.id); });
+        links.forEach(function (a) {
+          var on = a.getAttribute("href") === "#" + en.target.id;
+          a.classList.toggle("active", on);
+          if (on) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
+        });
       });
     }, { rootMargin: "-40% 0px -55% 0px" });
     ["top", "about", "programs", "projects", "partners", "contact"].forEach(function (id) {
