@@ -341,7 +341,7 @@ main > section.hero{background:radial-gradient(55% 70% at 88% 8%,rgba(154,205,50
 /* hero photo behind the whole hero, faded on the text side */
 main > section.hero{background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.88) 38%,rgba(255,255,255,.4) 68%,rgba(255,255,255,.15) 100%),var(--hero-photo) center/cover no-repeat,#fff}
 [dir=rtl] main > section.hero{background:linear-gradient(270deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.88) 38%,rgba(255,255,255,.4) 68%,rgba(255,255,255,.15) 100%),var(--hero-photo) center/cover no-repeat,#fff}
-@media(max-width:959px){main > section.hero,[dir=rtl] main > section.hero{background:linear-gradient(180deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,.86) 30%,#fff 58%),var(--hero-photo) top center/cover no-repeat,#fff;background-size:auto,auto 62%}}
+@media(max-width:959px){main > section.hero,[dir=rtl] main > section.hero{background:linear-gradient(180deg,#fff 60%,#f8fcee);padding-top:0}.hero::before{content:"";display:block;position:relative;inset:auto;width:auto;height:auto;border-radius:0;filter:none;z-index:0;aspect-ratio:460/314;background:linear-gradient(180deg,rgba(255,255,255,0) 68%,#fff 100%),var(--hero-photo) center/cover no-repeat}.hero .wrap{margin-top:-1.75rem}}
 .hero-card{background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%)}
 
 /* render below-the-fold sections only when they get close (faster first paint on every device) */
