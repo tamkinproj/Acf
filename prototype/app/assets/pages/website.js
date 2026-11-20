@@ -13,7 +13,7 @@
     ws_projects: "Projects we have completed", ws_team: "Team and staff", ws_news: "News and announcements",
     f_title_en: "Title (English)", f_title_ar: "Title (Arabic)", f_category: "Category", f_location_en: "Place (English)", f_location_ar: "Place (Arabic)", f_year: "Year completed", f_ben: "Beneficiaries", f_sponsor_en: "Sponsored by (English)", f_sponsor_ar: "Sponsored by (Arabic)",
     f_name_en: "Name (English)", f_name_ar: "Name (Arabic)", f_role_en: "Position (English)", f_role_ar: "Position (Arabic)", f_summary_en: "Summary (English)", f_summary_ar: "Summary (Arabic)", f_date: "Date",
-    cat_orphan: "Orphan care", cat_edu: "Education", cat_alimni: "Alimni", cat_waqf: "Waqf", cat_water: "Water", cat_mosque: "Mosques", cat_relief: "Relief", cat_train: "Training and events", ws_open: "Open the public page"
+    cat_orphan: "Orphan care", cat_edu: "Education", cat_alimni: "Alimni", cat_waqf: "Waqf", cat_water: "Water", cat_mosque: "Mosques", cat_relief: "Relief", cat_train: "Training and events", ws_open: "Open the public page", ws_edit_page: "Edit on the page"
   }, {
     ws_title: "الموقع", ws_note: "هنا تعدّل الصفحة العامة. تبقى التغييرات مسودة حتى تضغط نشر. يحتاج اتصالًا بالإنترنت.",
     ws_status: "الحالة", ws_pub: "الإصدار المنشور {n}", ws_never: "لم يُنشر بعد", ws_at: "آخر نشر {d}", ws_unsaved: "تغييرات غير محفوظة", ws_draft_changes: "المسودة تختلف عن الصفحة المنشورة", ws_in_sync: "المسودة والصفحة المنشورة متطابقتان",
@@ -25,7 +25,7 @@
     ws_projects: "المشاريع التي أنجزناها", ws_team: "الفريق والموظفون", ws_news: "الأخبار والإعلانات",
     f_title_en: "العنوان (بالإنجليزية)", f_title_ar: "العنوان (بالعربية)", f_category: "التصنيف", f_location_en: "المكان (بالإنجليزية)", f_location_ar: "المكان (بالعربية)", f_year: "سنة الإنجاز", f_ben: "عدد المستفيدين", f_sponsor_en: "برعاية (بالإنجليزية)", f_sponsor_ar: "برعاية (بالعربية)",
     f_name_en: "الاسم (بالإنجليزية)", f_name_ar: "الاسم (بالعربية)", f_role_en: "المنصب (بالإنجليزية)", f_role_ar: "المنصب (بالعربية)", f_summary_en: "الملخص (بالإنجليزية)", f_summary_ar: "الملخص (بالعربية)", f_date: "التاريخ",
-    cat_orphan: "رعاية الأيتام", cat_edu: "التعليم", cat_alimni: "علّمني", cat_waqf: "الوقف", cat_water: "المياه", cat_mosque: "المساجد", cat_relief: "الإغاثة", cat_train: "التدريب والفعاليات", ws_open: "افتح الصفحة العامة"
+    cat_orphan: "رعاية الأيتام", cat_edu: "التعليم", cat_alimni: "علّمني", cat_waqf: "الوقف", cat_water: "المياه", cat_mosque: "المساجد", cat_relief: "الإغاثة", cat_train: "التدريب والفعاليات", ws_open: "افتح الصفحة العامة", ws_edit_page: "تعديل على الصفحة نفسها"
   });
   // Arabic names of the page's own fields (the server sends English labels)
   var AR = { home: "الصفحة الرئيسية", about: "من نحن", facts: "بيانات المؤسسة", president: "الرئيس", contact: "التواصل والتذييل", testimonial: "شهادة",
@@ -58,7 +58,7 @@
     var pub = S.version ? t("ws_pub", { n: S.version }) + (S.published_at ? " · " + t("ws_at", { d: new Date(S.published_at).toLocaleString(A.lang() === "ar" ? "ar" : "en-GB") }) : "") : t("ws_never");
     return '<div class="card"><h3>' + t("ws_status") + '</h3><p id="wsState" style="margin:.2rem 0 .8rem"><b>' + esc(pub) + "</b><br><span class=\"note\" id=\"wsDraft\"></span></p>" +
       '<div class="actions"><button class="btn btn-main" data-act="savedraft">' + ic("check") + t("ws_save") + '</button><button class="btn btn-line" data-act="preview">' + t("ws_preview") + '</button><button class="btn btn-main" data-act="publish">' + ic("globe") + t("ws_publish") + "</button>" +
-      '<a class="btn btn-line" href="../index.html" target="_blank" rel="noopener">' + t("ws_open") + "</a></div></div>";
+      '<a class="btn btn-line" href="../index.html?edit=1" target="_blank" rel="noopener">' + t("ws_edit_page") + '</a><a class="btn btn-line" href="../index.html" target="_blank" rel="noopener">' + t("ws_open") + "</a></div></div>";
   }
   function groups() {
     var sc = S.schema, order = Object.keys(sc.groups);

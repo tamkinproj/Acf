@@ -65,6 +65,8 @@ final class SiteImages
         // a safety net: nothing in this folder may ever be run as a program
         @file_put_contents($dir.'/.htaccess', "Options -Indexes -ExecCGI\n<FilesMatch \"\\.(php|phtml|phar|pl|py|cgi)$\">\n  Require all denied\n</FilesMatch>\n");
 
+        imagealphablending($src, false);
+        imagesavealpha($src, true);                                   // keep transparent logos transparent
         $webp = function_exists('imagewebp');
         $name = bin2hex(random_bytes(12)).($webp ? '.webp' : '.jpg');
         ob_start();

@@ -59,7 +59,13 @@ return [
         'proj_people' => ['label' => 'People benefiting', 'default' => 800],
     ],
 
-    'images' => ['president_photo' => ['label' => 'President photo']],
+    'images' => [
+        'president_photo' => ['label' => 'President photo'],
+        'brand_logo' => ['label' => 'Foundation logo'],
+        'partner_dar' => ['label' => 'Partner logo: Dar Al Ber'],
+        'partner_dub' => ['label' => 'Partner logo: Dubai Charity'],
+        'hero_photo' => ['label' => 'Home page main photo'],
+    ],
 
     'categories' => ['orphan', 'edu', 'alimni', 'waqf', 'water', 'mosque', 'relief', 'train'],
 

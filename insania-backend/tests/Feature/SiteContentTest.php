@@ -197,4 +197,33 @@ class SiteContentTest extends TestCase
         $this->assertContains('site.photo_uploaded', $actions);
         $this->assertStringNotContainsString('headline', $log->getContent());
     }
+
+    public function test_any_text_of_the_page_can_be_edited_in_place_but_only_real_ones(): void
+    {
+        $this->president();
+        $d = $this->draft();
+        $d['texts']['fq1a'] = ['en' => "  Anyone in need.\nSecond  ", 'ar' => 'أي محتاج.'];
+        $d['texts']['n_about'] = ['en' => 'Who we are', 'ar' => ''];
+        $saved = $this->putJson('/api/site', ['content' => $d])->assertOk()->json('data.content.texts');
+        $this->assertSame('Anyone in need. Second', $saved['fq1a']['en']);
+        $this->assertSame('Who we are', $saved['n_about']['en']);
+        $this->assertArrayNotHasKey('fq2a', $saved);                      // untouched texts are not stored: the page keeps its own
+
+        $d['texts']['not_a_real_text'] = ['en' => 'x', 'ar' => 'y'];
+        $this->putJson('/api/site', ['content' => $d])->assertStatus(422)->assertJsonStructure(['errors' => ['texts.not_a_real_text']]);
+    }
+
+    public function test_logos_and_the_main_photo_are_image_slots(): void
+    {
+        $this->president();
+        $id = $this->post('/api/site/images', ['image' => $this->png()], ['Accept' => 'application/json'])->assertCreated()->json('data.id');
+        $d = $this->draft();
+        foreach (['brand_logo', 'partner_dar', 'partner_dub', 'hero_photo'] as $slot) {
+            $d['images'][$slot] = $id;
+        }
+        $this->putJson('/api/site', ['content' => $d])->assertOk()->assertJsonPath('data.content.images.brand_logo', $id);
+        $this->postJson('/api/site/publish')->assertOk();
+        $this->app['auth']->forgetGuards();
+        $this->assertSame($id, $this->getJson('/api/public/site')->json('data.content.images.hero_photo'));
+    }
 }

@@ -49,6 +49,22 @@ final class SiteContentRules
                 $out['texts'][$k][$l] = $v;
             }
         }
+        // any other text of the page, edited in place: only ids the page really has, and only those that were changed
+        $page = config('site_page');
+        $n = 0;
+        foreach ((array) ($in['texts'] ?? []) as $k => $v) {
+            if (isset($c['texts'][$k])) {
+                continue;
+            }
+            if (! isset($page[$k]) || ! is_array($v) || ++$n > 300) {
+                if (! isset($page[$k])) {
+                    $err["texts.$k"] = 'Unknown text.';
+                }
+
+                continue;
+            }
+            $out['texts'][$k] = ['en' => self::text($v['en'] ?? '', 1500, false), 'ar' => self::text($v['ar'] ?? '', 1500, false)];
+        }
         foreach ($c['singles'] as $k => $f) {
             $v = self::text($in['singles'][$k] ?? $f['default'], 200, false);
             if ($v !== '' && $f['type'] === 'url' && ! preg_match('#^https://[^\s<>"\']{3,190}$#i', $v)) {
