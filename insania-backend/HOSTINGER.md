@@ -49,7 +49,7 @@ hPanel → **Advanced → PHP Configuration**: choose **PHP 8.1 or newer** (8.3 
 If it stops part-way, fix what it says and press Install again; it continues.
 
 ## Step 5. Check
-Open `https://alinsania.com/server/api/ping`. You should see `{"success":true,"data":{"installed":true}}`.
+Open `https://alinsania.com/app/` and sign in as the System Admin. There is no public "ping" page on purpose: from outside, the server shows nothing.
 
 ## Partner keys (Dar Al Ber)
 Sign in to the API as the System Admin and use `POST /api/system/api-keys` (name = "Dar Al Ber"). The key is shown once. List with `GET /api/system/api-keys`, revoke with `DELETE /api/system/api-keys/{id}`.

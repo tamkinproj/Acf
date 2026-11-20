@@ -67,7 +67,7 @@ All routes are under `/api`, return one envelope (`{success, data, meta}` or `{s
 | GET | `/my/family` | family.view_own |
 | GET | `/partner/summary?month=` | an **API key** (`X-Api-Key`), totals only, no names |
 
-Partner keys (shown once; only the hash is stored): System Admin uses `GET/POST /api/system/api-keys`, `DELETE /api/system/api-keys/{id}` (or the command `insania:create-api-key`). `GET /api/ping` is public and says whether the system is installed.
+Partner keys (shown once; only the hash is stored): System Admin uses `GET/POST /api/system/api-keys`, `DELETE /api/system/api-keys/{id}` (or the command `insania:create-api-key`).
 
 ## Working offline (staff app)
 

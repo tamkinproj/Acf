@@ -24,7 +24,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('api.json')->group(function () {
-    Route::get('ping', fn () => \App\Support\ApiResponse::ok(['installed' => \App\Install\InstallState::installed()]));
     Route::get('public/site', \App\Http\Controllers\Api\PublicSiteController::class)->middleware('throttle:60,1');
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth_login');
 

@@ -38,7 +38,7 @@ class InstallerTest extends TestCase
     public function test_api_says_not_installed_until_installed(): void
     {
         $this->getJson('/api/me')->assertStatus(503)->assertJsonPath('code', 'NOT_INSTALLED');
-        $this->getJson('/api/ping')->assertOk()->assertJsonPath('data.installed', false);
+        $this->getJson('/api/ping')->assertStatus(503);
     }
 
     public function test_a_browser_visit_before_install_goes_to_the_installer(): void

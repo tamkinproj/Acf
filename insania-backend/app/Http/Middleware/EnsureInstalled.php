@@ -12,7 +12,7 @@ class EnsureInstalled
 {
     public function handle(Request $request, Closure $next)
     {
-        if (InstallState::installed() || $request->is('install', 'install/*', 'upgrade', 'upgrade/*', 'api/ping')) {
+        if (InstallState::installed() || $request->is('install', 'install/*', 'upgrade', 'upgrade/*')) {
             return $next($request);
         }
 

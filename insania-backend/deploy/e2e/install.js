@@ -21,7 +21,7 @@ const tokenFile = '/srv/apxtest/site/insania_app/storage/app/install/token';
   await Promise.all([p.waitForNavigation(), p.click('button:has-text("Install")')]);
   console.log('3. install ->', p.url().replace(B, ''), '|', await p.locator('h1').first().innerText());
   await p.screenshot({ path: process.argv[2] + '/installed_old.png' });
-  const ping = await (await p.request.get(B + '/server/api/ping')).json(); console.log('4. ping:', JSON.stringify(ping.data));
+  const ping = await p.request.get(B + '/server/api/ping'); console.log('4. ping hidden:', ping.status());
   const login = await (await p.request.post(B + '/server/api/login', { data: { email: 'admin@alinsania.test', password: 'Str0ng#Passw0rd' } })).json(); console.log('5. login:', login.success, login.data && login.data.user.role);
   const r6 = await p.goto(B + '/server/install'); console.log('6. install again ->', r6.status());
   const r7 = await p.goto(B + '/server/'); console.log('7. /server/ ->', r7.status(), (await p.locator('body').innerText()).replace(/\s+/g, ' ').slice(0, 40));
