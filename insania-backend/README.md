@@ -4,7 +4,7 @@ The server behind the staff app for **Al Insania Charity Foundation Inc.**
 
 It was started from the old school-management system's Laravel setup: the same infrastructure (Sanctum tokens, role middleware, one JSON response format, login throttling, security headers, unsafe-upload blocking, API keys), with the **school domain replaced by the foundation's own**: children and guardians, documents, bank accounts, sponsors and monthly sponsorship payments, projects, departments, staff and family accounts.
 
-**Status:** 71 tests, 522 assertions, all passing. Run end to end over real HTTP with seeded demo data.
+**Status:** 81 tests, 558 assertions, all passing. Run end to end over real HTTP with seeded demo data.
 
 ## Install (no terminal needed)
 
@@ -68,6 +68,10 @@ All routes are under `/api`, return one envelope (`{success, data, meta}` or `{s
 | GET | `/partner/summary?month=` | an **API key** (`X-Api-Key`), totals only, no names |
 
 Partner keys (shown once; only the hash is stored): System Admin uses `GET/POST /api/system/api-keys`, `DELETE /api/system/api-keys/{id}` (or the command `insania:create-api-key`). `GET /api/ping` is public and says whether the system is installed.
+
+## Working offline (staff app)
+
+The staff app (`../prototype/app`) saves what it shows on the phone and keeps changes made offline in an outbox. Each change is sent with an `Idempotency-Key` header; if the same key arrives twice (a reply was lost), the server answers with the stored result and does nothing twice (`app/Http/Middleware/Idempotent.php`, table `idempotency_keys`). Account administration, passwords and partner keys are never queued: they need a connection. A signed-in account may make 300 requests a minute (the app saves pages for offline use).
 
 ## How the old system was used
 

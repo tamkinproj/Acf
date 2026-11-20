@@ -31,7 +31,7 @@
 /* Entry point: signed-in staff go to the dashboard, everyone else to the sign-in page. */
 (function () {
   var ok = false;
-  try { ok = sessionStorage.getItem("acf_auth") === "1"; } catch (e) {}
+  try { ok = !!JSON.parse(localStorage.getItem("acf_session")).token; } catch (e) {}
   location.replace(ok ? "dashboard.html" : "login.html");
 })();
 </script>

@@ -44,6 +44,19 @@ class ChildrenAndPaymentsTest extends TestCase
         $this->assertCount(4, $p['documents']);
     }
 
+    public function test_a_new_child_shows_its_payment_type_in_the_list_straight_away(): void
+    {
+        $this->world();
+        $this->actingAsRole('president_admin');
+        $this->postJson('/api/children', ['name_en' => 'Fresh Child', 'pay_type' => 'cash', 'monthly_amount' => 175])->assertCreated();
+
+        $row = collect($this->getJson('/api/children?per_page=100')->json('data'))->firstWhere('name_en', 'Fresh Child');
+        $this->assertSame('cash', $row['pay_type']);
+        $this->assertEquals(175, $row['monthly_amount']);
+        $this->getJson('/api/children?pay_type=cash&per_page=100')->assertOk();
+        $this->assertNotNull(collect($this->getJson('/api/children?pay_type=cash&per_page=100')->json('data'))->firstWhere('name_en', 'Fresh Child'));
+    }
+
     public function test_registering_a_child_creates_the_guardian_bank_account_and_sponsorship(): void
     {
         $this->world();

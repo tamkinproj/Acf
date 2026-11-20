@@ -46,7 +46,8 @@ class Child extends Model
 
     public function sponsorship()
     {
-        return $this->hasOne(Sponsorship::class)->where('status', 'active')->latestOfMany();
+        // The current arrangement: active, or pending while a new child is still being set up.
+        return $this->hasOne(Sponsorship::class)->whereIn('status', ['active', 'pending'])->latestOfMany();
     }
 
     public function scopeSearch(Builder $q, ?string $term): Builder

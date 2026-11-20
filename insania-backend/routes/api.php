@@ -27,7 +27,7 @@ Route::middleware('api.json')->group(function () {
     Route::get('ping', fn () => \App\Support\ApiResponse::ok(['installed' => \App\Install\InstallState::installed()]));
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth_login');
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'idempotent'])->group(function () {
         // Any signed-in account
         Route::get('me', [AuthController::class, 'me'])->name('me');
         Route::post('logout', [AuthController::class, 'logout'])->name('auth_logout');

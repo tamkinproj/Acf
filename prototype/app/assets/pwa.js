@@ -10,6 +10,11 @@
       }).catch(function () {});
     });
   }
+  // A new version of the app was installed in the background: tell the page so it can offer a reload.
+  if ("serviceWorker" in navigator) {
+    var had = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", function () { if (had) document.dispatchEvent(new Event("acf-update")); had = true; });
+  }
   var deferred = null;
   window.addEventListener("beforeinstallprompt", function (ev) {
     ev.preventDefault(); deferred = ev; window.ACF_PWA.canInstall = true;

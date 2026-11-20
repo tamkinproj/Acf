@@ -28,7 +28,8 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
 
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            // The staff app saves pages on the phone for offline use, so a signed-in account gets a generous allowance.
+            return $request->user() ? Limit::perMinute(300)->by('u'.$request->user()->id) : Limit::perMinute(60)->by($request->ip());
         });
 
         $this->routes(function () {
