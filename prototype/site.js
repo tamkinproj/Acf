@@ -110,6 +110,8 @@
     if (!data || !data.content) return; remember(); dyn = [];
     var c = data.content; applyTexts(c);
     setList("projects", c.projects, buildProject); setList("team", c.team, buildMember); setList("news", c.news, buildNews);
+    // the builder's reminders ("sample figures, replace them...") do not belong on a page that has real content
+    ["i_note", "pj_note", "tm_note"].forEach(function (k) { $$('[data-cms-key="' + k + '"]').forEach(function (n) { n.hidden = true; }); });
     showLang();
   }
   new MutationObserver(function () { if (data && data.content) showLang(); }).observe(root, { attributes: true, attributeFilter: ["lang"] });
