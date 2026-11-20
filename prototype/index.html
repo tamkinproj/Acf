@@ -95,6 +95,9 @@ p{margin:0 0 1rem}
 .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:.15rem;font-size:.66rem;font-weight:600;padding:.45rem .2rem;border-radius:999px;color:#6b7565;text-decoration:none}
 .tabbar a.active{background:var(--fill);color:var(--ink)}
 .tabbar a.active .icon{color:var(--accent-ink)}
+.tabbar{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
+.tabbar a.active{background:var(--accent-soft);color:var(--brand)}
+@media(max-width:520px){#langLabel{display:none}}
 @media(min-width:1120px){.tabbar{display:none}}
 
 /* ---------- Sections ---------- */
