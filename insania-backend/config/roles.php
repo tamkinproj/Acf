@@ -35,7 +35,7 @@ return [
 
     // Permissions held by each role. Staff get theirs from their department (below).
     'grants' => [
-        'system_admin' => ['system.health', 'system.settings'],
+        'system_admin' => ['system.health', 'system.settings', 'system.api_keys'],
         'admin_maintenance' => ['system.health'],
         'security_admin' => ['users.manage', 'audit.read'],
         'president_admin' => [

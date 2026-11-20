@@ -16,6 +16,7 @@ final class PermissionCatalog
         return [
             'system.health' => 'See system health (no personal data)',
             'system.settings' => 'Change system settings',
+            'system.api_keys' => 'Issue and revoke partner API keys',
             'users.manage' => 'Create users, assign roles and departments, reset passwords, end sessions',
             'audit.read' => 'Read the audit log',
             'children.view' => 'See children and their profiles',

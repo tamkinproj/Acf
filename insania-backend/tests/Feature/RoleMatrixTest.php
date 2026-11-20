@@ -37,6 +37,8 @@ class RoleMatrixTest extends TestCase
             'project create' => ['POST', '/api/projects', ['name_en' => 'Matrix Project'], ['president_admin', 'staff:projects']],
             'system health' => ['GET', '/api/system/health', [], ['system_admin', 'admin_maintenance']],
             'system settings' => ['GET', '/api/system/settings', [], ['system_admin']],
+            'api keys list' => ['GET', '/api/system/api-keys', [], ['system_admin']],
+            'api keys create' => ['POST', '/api/system/api-keys', ['name' => 'Matrix'], ['system_admin']],
             'system settings update' => ['PATCH', '/api/system/settings', ['currency' => 'AED'], ['system_admin']],
             'users list' => ['GET', '/api/users', [], ['security_admin']],
             'users create' => ['POST', '/api/users', ['name' => 'X'], ['security_admin']],

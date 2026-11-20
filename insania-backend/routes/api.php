@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('api.json')->group(function () {
+    Route::get('ping', fn () => \App\Support\ApiResponse::ok(['installed' => \App\Install\InstallState::installed()]));
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth_login');
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -38,6 +39,11 @@ Route::middleware('api.json')->group(function () {
         Route::get('system/health', [SystemController::class, 'health'])->middleware('permission:system.health');
         Route::get('system/settings', [SystemController::class, 'settings'])->middleware('permission:system.settings');
         Route::patch('system/settings', [SystemController::class, 'updateSettings'])->middleware('permission:system.settings');
+        Route::middleware('permission:system.api_keys')->group(function () {
+            Route::get('system/api-keys', [\App\Http\Controllers\Api\ApiKeyController::class, 'index']);
+            Route::post('system/api-keys', [\App\Http\Controllers\Api\ApiKeyController::class, 'store']);
+            Route::delete('system/api-keys/{id}', [\App\Http\Controllers\Api\ApiKeyController::class, 'destroy'])->whereNumber('id');
+        });
 
         Route::middleware('permission:users.manage')->group(function () {
             Route::get('users', [UserAdminController::class, 'index']);

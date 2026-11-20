@@ -4,25 +4,18 @@ The server behind the staff app for **Al Insania Charity Foundation Inc.**
 
 It was started from the old school-management system's Laravel setup: the same infrastructure (Sanctum tokens, role middleware, one JSON response format, login throttling, security headers, unsafe-upload blocking, API keys), with the **school domain replaced by the foundation's own**: children and guardians, documents, bank accounts, sponsors and monthly sponsorship payments, projects, departments, staff and family accounts.
 
-**Status:** 59 tests, 461 assertions, all passing. Run end to end over real HTTP with seeded demo data.
+**Status:** 71 tests, 522 assertions, all passing. Run end to end over real HTTP with seeded demo data.
 
-## Run it
+## Install (no terminal needed)
 
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-# set DB_* in .env (MySQL/MariaDB), or use SQLite: DB_CONNECTION=sqlite and create database/database.sqlite
-php artisan migrate --seed          # demo data, local only
-php artisan serve                   # http://127.0.0.1:8000/api
-php artisan test
-```
+On Hostinger with File Manager only, follow **[HOSTINGER.md](HOSTINGER.md)**: upload the package, open `/install` in the browser, fill in the form. Upgrades use `/upgrade`. Partner keys are issued through the API (`/api/system/api-keys`).
 
-On a real server, never seed. Create the first System Admin instead (asks for the password, so it stays out of shell history):
+Developers with a terminal can still run it locally:
 
 ```bash
-php artisan migrate --force
-php artisan insania:create-system-admin "Full Name" you@example.org
+composer install && cp .env.example .env && php artisan key:generate
+php artisan migrate --seed   # demo data, local only
+php artisan serve && php artisan test
 ```
 
 **Demo accounts** (local only; every one uses the password `DemoPass#2026`; the seeder refuses to run in production):
@@ -51,7 +44,7 @@ Defined in one file, `config/roles.php`, and checked on every route before any c
 | **Staff** | only their department: **Aytam** = children, documents, bank verification; **Finance** = payments, reports; **Projects** = projects. Relief, Teaching, HR and Administration have none yet | anything outside their department |
 | **User (family)** | see their own family's children and document status | other families, bank or money details |
 
-A System Admin account can only be created from the command line, never through the API.
+A System Admin account can only be created by the web installer or the command line, never through the API.
 
 ## API
 
@@ -74,7 +67,7 @@ All routes are under `/api`, return one envelope (`{success, data, meta}` or `{s
 | GET | `/my/family` | family.view_own |
 | GET | `/partner/summary?month=` | an **API key** (`X-Api-Key`), totals only, no names |
 
-Issue a partner key (shown once; only its hash is stored): `php artisan insania:create-api-key "Dar Al Ber" 1`
+Partner keys (shown once; only the hash is stored): System Admin uses `GET/POST /api/system/api-keys`, `DELETE /api/system/api-keys/{id}` (or the command `insania:create-api-key`). `GET /api/ping` is public and says whether the system is installed.
 
 ## How the old system was used
 
@@ -101,4 +94,4 @@ Issue a partner key (shown once; only its hash is stored): `php artisan insania:
 ## Not done yet
 
 - The staff app prototype still uses its own fictional data. Connecting it means replacing that with calls to this API.
-- PDF reports (CSV works), backups and restore, an install wizard, email sending, Aytam visit reports, teachers and relief goods modules.
+- PDF reports (CSV works), backups and restore, email sending, Aytam visit reports, teachers and relief goods modules.
