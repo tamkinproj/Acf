@@ -533,3 +533,11 @@
         left: -.1rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .dp-head .pchip,html[dir=ltr] .dp-head .pchip.warn {
+        margin-right: 1.2rem
+    }
+    html[dir=rtl] .dp-head .pchip,html[dir=rtl] .dp-head .pchip.warn {
+        margin-left: 1.2rem
+    }
+}

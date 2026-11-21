@@ -918,3 +918,16 @@ button.dp-avatar.has-photo{color:transparent}
 .dp-inrow{display:grid;gap:.7rem;padding:.8rem 1rem}
 .dp-inrow label{margin-bottom:.3rem}
 .dp-inbtns{display:flex;justify-content:flex-end;gap:.5rem}
+
+/* ---- profile: stay inside the screen (a grid column never grows past it), yellow-green picture, plain chips ---- */
+.dp{grid-template-columns:minmax(0,1fr)}
+.dp-grid{grid-template-columns:minmax(0,1fr)}
+@media(min-width:760px){.dp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.dp>*,.dp-grid>*{min-width:0}
+.dp-head .phead>.grow{min-width:0;overflow-wrap:anywhere}
+.dp-avatar{background-color:var(--accent)}
+.dp-avatar.has-photo{background-color:var(--accent)}
+.dp-cam{background:var(--accent);border-color:#fff}
+.dp-cam .icon{stroke:var(--ink)}
+.dp-head .pchip,.dp-head .pchip.warn{background:none;padding:.2rem 0;min-width:0;margin-inline-end:1.2rem}
+.dp-head .pchips{gap:.3rem}
