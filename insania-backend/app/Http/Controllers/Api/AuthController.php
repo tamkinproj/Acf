@@ -9,6 +9,7 @@ use App\Support\Audit;
 use App\Support\LoginThrottle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -54,6 +55,31 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()?->delete();
 
         return ApiResponse::deleted('Signed out.');
+    }
+
+    /** Anyone changes their own password. Needs the current one; every other device is signed out, this one stays. */
+    public function changePassword(Request $request)
+    {
+        $data = $request->validate([
+            'current_password' => ['required', 'string', 'max:200'],
+            'password' => ['required', 'string', 'max:200', Password::min(12)->mixedCase()->numbers()],
+        ]);
+        $user = $request->user();
+
+        if (! Hash::check($data['current_password'], $user->password)) {
+            Audit::record('password.change_failed', $request, 'user', $user->id);
+
+            return ApiResponse::error('WRONG_PASSWORD', 'The current password is not right.', 422, ['current_password' => ['The current password is not right.']]);
+        }
+        if (Hash::check($data['password'], $user->password)) {
+            return ApiResponse::error('VALIDATION_ERROR', 'Choose a password you have not used just now.', 422, ['password' => ['Choose a password you have not used just now.']]);
+        }
+
+        $user->update(['password' => $data['password']]);
+        $user->tokens()->where('id', '!=', $user->currentAccessToken()?->id)->delete();
+        Audit::record('password.changed', $request, 'user', $user->id);
+
+        return ApiResponse::deleted('Password changed. Other devices were signed out.');
     }
 
     public function preferences(Request $request)

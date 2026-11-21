@@ -83,4 +83,69 @@ class SetupTest extends TestCase
         $this->patchJson('/api/me/preferences', ['setup_seen' => true])->assertOk();
         $this->assertTrue($this->getJson('/api/me')->json('data.preferences.setup_seen'));
     }
+
+    public function test_anyone_changes_their_own_password_and_other_devices_are_signed_out(): void
+    {
+        $this->world();
+        $user = User::where('role', 'staff')->first();
+        $user->update(['password' => 'Old#Passw0rd123']);
+        $other = $this->postJson('/api/login', ['email' => $user->email, 'password' => 'Old#Passw0rd123'])->assertOk()->json('data.token');
+        $mine = $this->postJson('/api/login', ['email' => $user->email, 'password' => 'Old#Passw0rd123'])->assertOk()->json('data.token');
+        $this->app['auth']->forgetGuards();
+        $this->withHeader('Authorization', 'Bearer '.$mine);
+
+        $this->postJson('/api/me/password', ['current_password' => 'wrong', 'password' => 'New#Passw0rd456'])->assertStatus(422)->assertJsonPath('code', 'WRONG_PASSWORD');
+        $this->postJson('/api/me/password', ['current_password' => 'Old#Passw0rd123', 'password' => 'weak'])->assertStatus(422);
+        $this->postJson('/api/me/password', ['current_password' => 'Old#Passw0rd123', 'password' => 'Old#Passw0rd123'])->assertStatus(422);
+        $this->postJson('/api/me/password', ['current_password' => 'Old#Passw0rd123', 'password' => 'New#Passw0rd456'])->assertOk();
+
+        $this->getJson('/api/me')->assertOk();                                  // this device stays signed in
+        $this->assertSame(1, $user->tokens()->count());                         // the other one was ended
+        $this->app['auth']->forgetGuards();
+        $this->withHeader('Authorization', 'Bearer '.$other)->getJson('/api/me')->assertUnauthorized();
+        $this->postJson('/api/login', ['email' => $user->email, 'password' => 'Old#Passw0rd123'])->assertStatus(401);
+        $this->postJson('/api/login', ['email' => $user->email, 'password' => 'New#Passw0rd456'])->assertOk();
+    }
+
+    public function test_the_system_admin_changes_the_president_admin_only_with_their_own_password(): void
+    {
+        $this->world();
+        $pres = User::where('role', 'president_admin')->first();
+        $pres->update(['password' => 'Old#Passw0rd123']);
+        $old = $this->postJson('/api/login', ['email' => $pres->email, 'password' => 'Old#Passw0rd123'])->assertOk()->json('data.token');
+        $sys = User::where('role', 'system_admin')->first();
+        $sys->update(['password' => 'Sys#Passw0rd123']);
+        $this->app['auth']->forgetGuards();
+        $this->actingAsRole('system_admin');
+        $sys = User::where('role', 'system_admin')->first();
+        $sys->update(['password' => 'Sys#Passw0rd123']);
+
+        $this->getJson('/api/system/president-admin')->assertOk()->assertJsonPath('data.email', $pres->email)->assertJsonMissingPath('data.password');
+        $this->patchJson('/api/system/president-admin', ['name' => 'X'])->assertStatus(422);                                              // needs the confirm password
+        $this->patchJson('/api/system/president-admin', ['admin_password' => 'nope', 'name' => 'X'])->assertStatus(422)->assertJsonPath('code', 'WRONG_PASSWORD');
+        $this->patchJson('/api/system/president-admin', ['admin_password' => 'Sys#Passw0rd123'])->assertStatus(422);                       // nothing to change
+        $this->patchJson('/api/system/president-admin', ['admin_password' => 'Sys#Passw0rd123', 'email' => $sys->email])->assertStatus(422); // email already used
+        $this->patchJson('/api/system/president-admin', ['admin_password' => 'Sys#Passw0rd123', 'password' => 'weak'])->assertStatus(422);
+
+        $this->patchJson('/api/system/president-admin', ['admin_password' => 'Sys#Passw0rd123', 'name' => 'New President', 'email' => 'new.pres@insania.test', 'password' => 'Fresh#Passw0rd789'])
+            ->assertOk()->assertJsonPath('data.name', 'New President')->assertJsonPath('data.id', $pres->id);
+
+        $this->app['auth']->forgetGuards();
+        $this->withHeader('Authorization', 'Bearer '.$old)->getJson('/api/me')->assertUnauthorized();                                       // the old person is out
+        $this->postJson('/api/login', ['email' => $pres->email, 'password' => 'Old#Passw0rd123'])->assertStatus(401);
+        $this->postJson('/api/login', ['email' => 'new.pres@insania.test', 'password' => 'Fresh#Passw0rd789'])->assertOk()->assertJsonPath('data.user.role', 'president_admin');
+        $this->assertDatabaseHas('audit_logs', ['action' => 'president.changed']);
+        $this->assertStringNotContainsString('Fresh#Passw0rd789', json_encode(\DB::table('audit_logs')->get()));
+    }
+
+    public function test_no_other_role_can_read_or_change_the_president_admin(): void
+    {
+        $this->world();
+        foreach (['president_admin', 'security_admin', 'admin_maintenance', 'staff:finance', 'user'] as $role) {
+            $this->app['auth']->forgetGuards();
+            $this->actingAsRole($role);
+            $this->getJson('/api/system/president-admin')->assertForbidden();
+            $this->patchJson('/api/system/president-admin', ['admin_password' => 'x', 'name' => 'Y'])->assertForbidden();
+        }
+    }
 }

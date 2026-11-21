@@ -30,6 +30,7 @@ Route::middleware('api.json')->group(function () {
     Route::middleware(['auth:sanctum', 'idempotent'])->group(function () {
         // Any signed-in account
         Route::get('me', [AuthController::class, 'me'])->name('me');
+        Route::post('me/password', [AuthController::class, 'changePassword'])->middleware('throttle:6,1');
         Route::post('logout', [AuthController::class, 'logout'])->name('auth_logout');
         Route::get('me/preferences', [AuthController::class, 'preferences']);
         Route::patch('me/preferences', [AuthController::class, 'updatePreferences']);
@@ -46,6 +47,8 @@ Route::middleware('api.json')->group(function () {
             Route::delete('system/api-keys/{id}', [\App\Http\Controllers\Api\ApiKeyController::class, 'destroy'])->whereNumber('id');
         });
 
+        Route::get('system/president-admin', [\App\Http\Controllers\Api\SetupController::class, 'president'])->middleware('permission:system.first_admin');
+        Route::patch('system/president-admin', [\App\Http\Controllers\Api\SetupController::class, 'changePresident'])->middleware(['permission:system.first_admin', 'throttle:6,1']);
         Route::post('system/president-admin', [\App\Http\Controllers\Api\SetupController::class, 'firstPresidentAdmin'])->middleware('permission:system.first_admin');
         Route::middleware('permission:system.updates')->group(function () {
             Route::get('system/updates', [\App\Http\Controllers\Api\UpdateController::class, 'index']);

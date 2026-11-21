@@ -28,6 +28,11 @@ Once installed, `/server/install`, `/server/` and every setup address answer a p
 2. **President Admin**: created by the System Admin from the first-login checklist. Runs every office feature and the public website.
 3. **Everyone else** (Security Admin, Admin Maintenance, staff by department, family accounts): created by the President Admin in the Accounts screen.
 
+## Passwords and changing the President Admin
+- **Everyone** can change their own password: Settings → **Change password** (needs the current one; their other devices are signed out).
+- **System Admin** → **System** page → **President Admin** card → **Change President Admin**: change the name, email or password, or hand the post to another person. It is the same account, so every record stays; the old person is signed out at once. The System Admin types their own password to confirm.
+- The System Admin sees only the President's name and email, never any office data.
+
 ## Step 1. Make an empty database
 hPanel → **Databases → MySQL Databases**. Create a database and a user, give the user all privileges. Write down: database name, user name, password. (Host is `localhost`.)
 

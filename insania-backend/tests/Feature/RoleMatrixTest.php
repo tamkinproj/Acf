@@ -45,6 +45,8 @@ class RoleMatrixTest extends TestCase
             'updates auto' => ['POST', '/api/system/updates/auto', [], ['system_admin']],
             'updates check' => ['POST', '/api/system/updates/check', [], ['system_admin']],
             'first president admin' => ['POST', '/api/system/president-admin', [], ['system_admin']],
+            'president read' => ['GET', '/api/system/president-admin', [], ['system_admin']],
+            'president change' => ['PATCH', '/api/system/president-admin', [], ['system_admin']],
             'api keys list' => ['GET', '/api/system/api-keys', [], ['system_admin']],
             'api keys create' => ['POST', '/api/system/api-keys', ['name' => 'Matrix'], ['system_admin']],
             'system settings update' => ['PATCH', '/api/system/settings', ['currency' => 'AED'], ['system_admin']],

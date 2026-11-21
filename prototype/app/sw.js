@@ -1,6 +1,6 @@
 /* Service worker: the whole staff app is stored on the device, so it opens and works with no connection.
    Change VERSION whenever any file of the app changes; old copies are removed on the next visit. */
-var VERSION = "insania-app-v6";
+var VERSION = "insania-app-v7";
 var FILES = [
   "./", "index.html", "login.html", "dashboard.html", "people.html", "person.html", "payments.html", "projects.html", "reports.html", "settings.html", "family.html", "users.html", "audit.html", "system.html", "setup.html", "updates.html", "signer.html", "website.html",
   "assets/style.css", "assets/api.js", "assets/gate.js", "assets/signer.js", "assets/signer-gate.js", "assets/app.js",

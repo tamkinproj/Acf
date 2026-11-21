@@ -11,6 +11,8 @@ use App\Models\User;
 use App\Support\ApiResponse;
 use App\Support\Audit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -65,6 +67,53 @@ class SetupController extends Controller
     public function firstPresidentAdmin(Request $request)
     {
         return $this->firstAccount($request, 'president_admin');
+    }
+
+    /** The current President Admin (name, email, state only: nothing from the office). */
+    public function president(Request $request)
+    {
+        $u = User::where('foundation_id', $request->user()->foundation_id)->where('role', 'president_admin')->first();
+
+        return ApiResponse::ok($u ? ['id' => $u->id, 'name' => $u->name, 'email' => $u->email, 'active' => (bool) $u->active] : null);
+    }
+
+    /**
+     * The System Admin changes who the President Admin is, or the President's sign-in details.
+     * Same account, so every record and the activity log stay; the old person's sessions end at once.
+     * The System Admin must type their own password to confirm.
+     */
+    public function changePresident(Request $request)
+    {
+        $actor = $request->user();
+        $u = User::where('foundation_id', $actor->foundation_id)->where('role', 'president_admin')->first();
+        if (! $u) {
+            return ApiResponse::error('NOT_FOUND', 'There is no President Admin yet. Create one first.', 404);
+        }
+        $data = $request->validate([
+            'admin_password' => ['required', 'string', 'max:200'],
+            'name' => ['sometimes', 'string', 'max:150'],
+            'email' => ['sometimes', 'email:rfc,filter', 'max:190', Rule::unique('users', 'email')->ignore($u->id)],
+            'password' => ['sometimes', 'string', 'max:200', Password::min(12)->mixedCase()->numbers()],
+            'active' => ['sometimes', 'boolean'],
+        ]);
+        if (! Hash::check($data['admin_password'], $actor->password)) {
+            Audit::record('president.change_denied', $request, 'user', $u->id);
+
+            return ApiResponse::error('WRONG_PASSWORD', 'Your own password is not right.', 422, ['admin_password' => ['Your own password is not right.']]);
+        }
+        unset($data['admin_password']);
+        if (! $data) {
+            return ApiResponse::error('VALIDATION_ERROR', 'Nothing to change.', 422);
+        }
+
+        $changed = array_keys($data);
+        $u->update($data);
+        if (isset($data['password']) || isset($data['email']) || (array_key_exists('active', $data) && ! $data['active'])) {
+            $u->tokens()->delete();
+        }
+        Audit::record('president.changed', $request, 'user', $u->id, ['fields' => $changed]);
+
+        return ApiResponse::ok(['id' => $u->id, 'name' => $u->name, 'email' => $u->email, 'active' => (bool) $u->active]);
     }
 
     /** The only account a System Admin may create: the first President Admin, who then creates every other role. */
