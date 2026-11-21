@@ -145,3 +145,8 @@ The server page explains most problems itself (open `https://alinsania.com/serve
 
 ## Safety
 Never put `insania_app` inside `public_html`. Keep `.env` private. Keep the demo seeder off (it refuses to run in production anyway).
+
+## Older phones (maintainers)
+`public_html/app/assets/legacy.css` and `legacy-site.css` are generated: after changing `style.css` or the landing page styles, run
+`node deploy/legacy-css.cjs prototype/app/assets/style.css > prototype/app/assets/legacy.css` (and `--html prototype/index.html > .../legacy-site.css`; needs `npm install postcss`).
+Browsers from before about 2021 use them; newer ones ignore them.
