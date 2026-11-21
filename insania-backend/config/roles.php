@@ -46,6 +46,7 @@ return [
             'reports.view', 'reports.export',
             'site.edit', 'site.publish',
             'users.manage', 'audit.read',      // the President creates every other account
+            'orphans.accounts',
             'chat.use',                         // office chat
         ],
         'staff' => [],
@@ -56,7 +57,7 @@ return [
     'departments' => [
         'aytam' => [
             'name_en' => 'Aytam (orphan care)', 'name_ar' => 'الأيتام',
-            'grants' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'applications.review', 'chat.use'],
+            'grants' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'applications.review', 'orphans.accounts', 'chat.use'],
         ],
         'finance' => [
             'name_en' => 'Finance', 'name_ar' => 'المالية',

@@ -144,7 +144,7 @@ final class OrphanSheetImport
             } else {
                 $info['new']++;
                 if (! $dryRun) {
-                    $child = ChildRecords::create(['name_en' => mb_substr($name, 0, 150), 'name_ar' => mb_substr($name, 0, 150), 'status' => 'active', 'pay_type' => $pay] + $data, $foundationId);
+                    $child = ChildRecords::create(['name_en' => mb_substr(\App\Support\ArabicNames::toEnglish($name), 0, 150), 'name_ar' => mb_substr($name, 0, 150), 'status' => 'active', 'pay_type' => $pay] + $data, $foundationId);
                     $child->forceFill(['external_no' => $ext])->save();
                     $child->sponsorship()->first()?->update(['status' => 'active']);
                 }

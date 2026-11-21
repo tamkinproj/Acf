@@ -383,6 +383,9 @@
       }
       if (!API.session()) { location.replace("login.html"); return; }
       if (API.expired() && navigator.onLine !== false) { location.replace("login.html?expired=1"); return; }
+      var mustChange = !!(user() || {}).must_change_password;
+      if (s.page === "welcome") { if (!mustChange) { location.replace("dashboard.html"); return; } chrome(); if (s.after) s.after(); return; }
+      if (mustChange) { location.replace("welcome.html"); return; }
       if (s.perm && !can(s.perm)) { chrome(); $("#view").innerHTML = '<p class="note">' + t("noaccess") + "</p>"; return; }
       load();
       if (s.shell && !s.bare) pollUnread();

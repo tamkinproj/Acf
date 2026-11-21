@@ -61,6 +61,11 @@ class Child extends Model
         return $this->hasOne(Sponsorship::class)->whereIn('status', ['active', 'pending'])->latestOfMany();
     }
 
+    public function account()
+    {
+        return $this->hasOne(User::class, 'child_id')->withoutGlobalScopes();
+    }
+
     public function scopeSearch(Builder $q, ?string $term): Builder
     {
         $term = trim((string) $term);
@@ -86,6 +91,7 @@ class Child extends Model
             'id' => $this->id,
             'ref' => $this->ref,
             'external_no' => $this->external_no,
+            'account' => $this->relationLoaded('account') ? $this->account?->username : null,
             'name_en' => $this->name_en,
             'name_ar' => $this->name_ar,
             'guardian' => $this->guardian?->name,

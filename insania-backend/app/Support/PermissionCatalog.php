@@ -37,6 +37,7 @@ final class PermissionCatalog
             'reports.view' => 'See report summaries',
             'reports.export' => 'Export reports',
             'chat.use' => 'Use the office chat (General group and one-to-one chats) and share cards into it',
+            'orphans.accounts' => 'Create sign-in accounts for orphans and reset their passwords',
             'family.view_own' => 'See your own family\'s information',
         ];
     }

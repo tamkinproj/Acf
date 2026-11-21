@@ -32,8 +32,8 @@ class FeatureSwitchesTest extends TestCase
             $expected = [
                 'children' => ['staff', 'president_admin'], 'applications' => ['staff', 'president_admin'], 'payments' => ['staff', 'president_admin'],
                 'projects' => ['staff', 'president_admin'], 'reports' => ['staff', 'president_admin'], 'website' => ['president_admin'],
-                'accounts' => ['president_admin'], 'activity_log' => ['president_admin'], 'chat' => ['staff', 'president_admin'],
-            ][$feature] ?? false;   // family accounts stay off
+                'accounts' => ['president_admin'], 'activity_log' => ['president_admin'], 'chat' => ['staff', 'president_admin'], 'family' => ['user'],
+            ][$feature] ?? false;   // orphans' and families' own accounts are on for the User role only
             $this->assertSame($expected, $on, "$feature switch as shipped");
         }
     }
@@ -46,12 +46,13 @@ class FeatureSwitchesTest extends TestCase
             ['GET', '/api/children'], ['POST', '/api/children'], ['GET', '/api/payments'], ['GET', '/api/projects'], ['GET', '/api/reports/summary'],
             ['GET', '/api/site'], ['POST', '/api/site/publish'], ['GET', '/api/users'], ['POST', '/api/users'], ['GET', '/api/audit'], ['GET', '/api/my/family'],
         ];
-        // which office addresses each role may reach (the rest must be refused with 403); family accounts are off for everyone
+        // which office addresses each role may reach (the rest must be refused with 403); the User role (orphans and families) reaches only its own page
         $open = [
             'president_admin' => ['/api/children', '/api/payments', '/api/projects', '/api/reports', '/api/site', '/api/users', '/api/audit'],
             'staff:aytam' => ['/api/children'],
             'staff:finance' => ['/api/payments', '/api/reports'],
             'staff:projects' => ['/api/projects'],
+            'user' => ['/api/my/family'],
         ];
         foreach (['president_admin', 'security_admin', 'staff:aytam', 'staff:finance', 'staff:projects', 'user', 'system_admin', 'admin_maintenance'] as $role) {
             $this->as($role);

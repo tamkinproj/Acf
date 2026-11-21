@@ -108,7 +108,7 @@ class AuthController extends Controller
             return ApiResponse::error('VALIDATION_ERROR', 'Choose a password you have not used just now.', 422, ['password' => ['Choose a password you have not used just now.']]);
         }
 
-        $user->update(['password' => $data['password']]);
+        $user->update(['password' => $data['password'], 'must_change_password' => false]);
         $user->tokens()->where('id', '!=', $user->currentAccessToken()?->id)->delete();
         Audit::record('password.changed', $request, 'user', $user->id);
 

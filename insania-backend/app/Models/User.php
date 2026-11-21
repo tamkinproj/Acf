@@ -12,7 +12,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'username', 'password', 'role', 'foundation_id', 'department_id', 'guardian_id', 'phone', 'active', 'preferences', 'avatar_path', 'avatar_v',
+        'name', 'email', 'username', 'password', 'role', 'foundation_id', 'department_id', 'guardian_id', 'phone', 'active', 'preferences', 'avatar_path', 'avatar_v', 'child_id', 'must_change_password',
     ];
 
     protected $hidden = ['password', 'remember_token', 'avatar_path'];
@@ -37,6 +37,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'active' => 'boolean',
+        'must_change_password' => 'boolean',
         'preferences' => 'array',
     ];
 
@@ -53,6 +54,11 @@ class User extends Authenticatable
     public function guardian()
     {
         return $this->belongsTo(Guardian::class)->withoutGlobalScopes();
+    }
+
+    public function child()
+    {
+        return $this->belongsTo(Child::class)->withoutGlobalScopes();
     }
 
     public function getDepartmentKeyAttribute(): ?string
@@ -80,6 +86,7 @@ class User extends Authenticatable
             'department' => $this->department_key,
             'foundation_id' => $this->foundation_id,
             'active' => $this->active,
+            'must_change_password' => (bool) $this->must_change_password,
             'permissions' => \App\Support\PermissionCatalog::forUser($this),
             'preferences' => $this->preferences ?? ['reminders' => true, 'show_amounts' => true],
         ];

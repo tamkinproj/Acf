@@ -14,13 +14,21 @@ class FamilyController extends Controller
     {
         $user = $request->user();
 
-        if (! $user->guardian_id) {
+        if (! $user->guardian_id && ! $user->child_id) {
             return ApiResponse::collection([]);
         }
 
-        $children = Child::query()->with('documents')->where('guardian_id', $user->guardian_id)->orderBy('ref')->get()->map(fn (Child $c) => [
-            'id' => $c->id, 'ref' => $c->ref, 'name_en' => $c->name_en, 'name_ar' => $c->name_ar,
-            'grade' => $c->grade, 'status' => $c->status,
+        // a family account sees its guardian's children; an orphan's own account sees that orphan
+        $children = Child::query()->with('documents')->where(function ($w) use ($user) {
+            if ($user->guardian_id) {
+                $w->orWhere('guardian_id', $user->guardian_id);
+            }
+            if ($user->child_id) {
+                $w->orWhere('id', $user->child_id);
+            }
+        })->orderBy('ref')->get()->map(fn (Child $c) => [
+            'id' => $c->id, 'ref' => $c->ref, 'external_no' => $c->external_no, 'name_en' => $c->name_en, 'name_ar' => $c->name_ar,
+            'grade' => $c->grade, 'madrasa_grade' => $c->madrasa_grade, 'age' => $c->birth_date?->age, 'status' => $c->status, 'is_self' => $user->child_id === $c->id,
             'documents' => collect(Child::DOCUMENT_TYPES)->map(fn ($t) => [
                 'type' => $t, 'on_file' => (bool) ($c->documents->firstWhere('type', $t)?->path),
             ])->values(),

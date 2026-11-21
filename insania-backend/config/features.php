@@ -28,7 +28,7 @@ return [
                                                       // The Security Admin's account tools stay off until decided.
         'activity_log' => ['president_admin'],        // reading the activity (audit) log (President only)
         'chat' => ['staff', 'president_admin'],        // the office chat: General group and one-to-one chats (President + all staff; never the system roles)
-        'family' => false,                            // a family's own account: off for now
+        'family' => ['user'],                         // the orphans' own accounts (and family accounts): they see their own information
     ],
 
     // The public application form (alinsania.com/apply): true = people can send applications, false = the form says it is closed.
@@ -36,7 +36,7 @@ return [
 
     // Which permissions each feature brings. A permission listed here exists only while its feature is on.
     'permissions' => [
-        'children' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload'],
+        'children' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'orphans.accounts'],
         'applications' => ['applications.review'],
         'payments' => ['payments.view', 'payments.mark_cash'],
         'projects' => ['projects.view', 'projects.manage'],

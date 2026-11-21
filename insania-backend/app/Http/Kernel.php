@@ -59,6 +59,7 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\EnsureRole::class,
         'permission' => \App\Http\Middleware\RequirePermission::class,
         'api_key' => \App\Http\Middleware\ApiKeyAuth::class,
+        'password.fresh' => \App\Http\Middleware\PasswordChangeRequired::class,
         'idempotent' => \App\Http\Middleware\Idempotent::class,
         'block.uploads' => \App\Http\Middleware\BlockUnsafeUploads::class,
         'auth' => \App\Http\Middleware\Authenticate::class,

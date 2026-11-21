@@ -30,7 +30,7 @@ Route::middleware('api.json')->group(function () {
     Route::post('public/apply', [\App\Http\Controllers\Api\PublicApplyController::class, 'store'])->middleware(['throttle:apply', 'block.uploads']);
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth_login');
 
-    Route::middleware(['auth:sanctum', 'idempotent'])->group(function () {
+    Route::middleware(['auth:sanctum', 'password.fresh', 'idempotent'])->group(function () {
         // Any signed-in account
         Route::get('me', [AuthController::class, 'me'])->name('me');
         Route::post('me/password', [AuthController::class, 'changePassword'])->middleware('throttle:6,1');
@@ -101,11 +101,14 @@ Route::middleware('api.json')->group(function () {
         // Office: children (Aytam)
         Route::get('children', [ChildController::class, 'index'])->middleware('permission:children.view');
         Route::delete('children/samples', [ChildController::class, 'removeSamples'])->middleware('permission:children.update');
+        Route::get('children/accounts', [\App\Http\Controllers\Api\OrphanAccountController::class, 'summary'])->middleware('permission:orphans.accounts');
         Route::get('children/{child}', [ChildController::class, 'show'])->middleware('permission:children.view');
         Route::get('children/{child}/photos/{photo}', [ChildController::class, 'photo'])->middleware('permission:children.view')->whereNumber('photo');
         Route::post('children/{child}/photos', [ChildController::class, 'addPhoto'])->middleware(['permission:children.update', 'block.uploads']);
         Route::delete('children/{child}/photos/{photo}', [ChildController::class, 'removePhoto'])->middleware('permission:children.update')->whereNumber('photo');
         Route::get('applications/{application}/documents/{n}', [\App\Http\Controllers\Api\ApplicationController::class, 'document'])->middleware('permission:applications.review')->whereNumber('n');
+        Route::post('children/accounts', [\App\Http\Controllers\Api\OrphanAccountController::class, 'store'])->middleware(['permission:orphans.accounts', 'throttle:60,1']);
+        Route::post('children/{child}/account', [\App\Http\Controllers\Api\OrphanAccountController::class, 'reset'])->middleware(['permission:orphans.accounts', 'throttle:30,1']);
         Route::post('children/import', [\App\Http\Controllers\Api\ChildImportController::class, 'store'])->middleware(['permission:children.create', 'block.uploads', 'throttle:20,1']);
         Route::post('children', [ChildController::class, 'store'])->middleware('permission:children.create');
         Route::patch('children/{child}', [ChildController::class, 'update'])->middleware('permission:children.update');

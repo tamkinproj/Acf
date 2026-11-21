@@ -68,7 +68,7 @@ class DashboardController extends Controller
             ];
         }
         if ($can('family.view_own')) {
-            $out['family'] = ['children' => $user->guardian_id ? Child::where('guardian_id', $user->guardian_id)->count() : 0];
+            $out['family'] = ['children' => ($user->guardian_id ? Child::where('guardian_id', $user->guardian_id)->count() : 0) + ($user->child_id ? 1 : 0)];
         }
 
         return ApiResponse::ok($out);
