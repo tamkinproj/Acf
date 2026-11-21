@@ -123,7 +123,7 @@
     ["system", "system.html", "n_system", "system.health", "sliders"], ["updates", "updates.html", "n_updates", "system.updates", "download"], ["settings", "settings.html", "n_set", null, "sliders"]
   ];
   function allowed() { return MENU.filter(function (m) { return !m[3] || can(m[3]); }); }
-  var spec = null, state = null, loadSeq = 0, moreItems = [];
+  var spec = null, state = null, loadSeq = 0, moreItems = [], menuItems = [], menuHasChat = false;
 
   function chipHtml() {
     var s = API.state(), c = null;
@@ -140,9 +140,15 @@
     var cur = spec.nav, items = allowed();
     var PRI = ["dashboard", "people", "applications", "payments", "website", "projects", "education", "users", "system", "updates", "audit", "family", "reports", "settings"];
     var sorted = items.slice().sort(function (a, b) { return PRI.indexOf(a[0]) - PRI.indexOf(b[0]); });
+    /* the top bar keeps only three core places (Home first); everything else, Chat and Education included, sits under More */
+    var CORE = ["dashboard", "people", "payments", "applications", "projects", "users", "system", "family", "reports", "education", "website"], core = [];
+    CORE.forEach(function (k) { var m = sorted.filter(function (x) { return x[0] === k; })[0]; if (m && core.length < 3) core.push(m); });
+    core.sort(function (a, b) { return PRI.indexOf(a[0]) - PRI.indexOf(b[0]); });
+    menuItems = sorted.filter(function (m) { return core.indexOf(m) < 0 && m[0] !== "settings"; }); menuHasChat = menuItems.some(function (m) { return m[0] === "chat"; });
     /* top bar: brand left, sections as pills in the middle, round tools and the account on the right */
     $("#nav").innerHTML = '<div class="row"><a class="brand" href="dashboard.html" aria-label="' + esc(t("n_home")) + '"><span class="logo" role="img" aria-hidden="true"></span><span><span>' + t("brand") + "</span><small>" + t("staff") + "</small></span></a>" +
-      '<nav class="mo-tabs" aria-label="Main"><ul class="menu">' + sorted.map(function (m) { return '<li><a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + t(m[2]) + "</a></li>"; }).join("") + "</ul></nav>" +
+            '<nav class="mo-tabs" aria-label="Main"><ul class="menu">' + core.map(function (m) { return '<li><a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + t(m[2]) + "</a></li>"; }).join("") +
+      (menuItems.length ? '<li><button type="button" class="mo-more' + (menuItems.some(function (m) { return m[0] === cur; }) ? " active" : "") + '" data-act="topmore" aria-haspopup="true" aria-expanded="false"><span>' + t("n_more") + "</span>" + ic("chev", "mo-more-i") + "</button></li>" : "") + "</ul></nav>" +
       '<div class="tools"><span id="chipBox">' + chipHtml() + '</span>' +
       '<a class="mo-circle" id="bellBtn" href="notifications.html" aria-label="' + esc(t("notif_title")) + '">' + ic("bell") + bellBadge() + "</a>" +
       '<button class="mo-circle" type="button" data-act="lang" aria-label="Language">' + ic("globe") + "</button>" +
@@ -235,6 +241,18 @@
   ACTIONS.more = function (el, e) {
     e.preventDefault();
     sheet(t("n_more"), '<div class="list">' + moreItems.map(function (m) { return '<a class="item" href="' + m[1] + '"><span class="grow"><b>' + t(m[2]) + "</b></span>" + ic(m[4]) + "</a>"; }).join("") + '</div><div class="actions"><button class="btn btn-line" type="button" data-act="close">' + t("cancel") + "</button></div>");
+  };
+  ACTIONS.topmore = function (el, e) {
+    e.preventDefault(); e.stopPropagation();
+    var old = $("#topMenu"); if (old) { old.remove(); el.setAttribute("aria-expanded", "false"); return; }
+    var r = el.getBoundingClientRect(), cur = spec && spec.nav, pop = document.createElement("div"); pop.id = "topMenu"; pop.className = "topmenu"; pop.setAttribute("role", "menu");
+    pop.innerHTML = menuItems.map(function (m) { return '<a role="menuitem" href="' + m[1] + '"' + (cur === m[0] ? ' class="active"' : "") + '><span class="tm-i">' + ic(m[4]) + '</span><span class="grow">' + t(m[2]) + "</span>" + ic("chev", "tm-c") + "</a>"; }).join("");
+    document.body.appendChild(pop);
+    var rtl = root.dir === "rtl", w = pop.offsetWidth; pop.style.top = Math.round(r.bottom + 8) + "px";
+    pop.style[rtl ? "left" : "right"] = "auto"; pop.style[rtl ? "right" : "left"] = Math.max(8, Math.round(rtl ? window.innerWidth - r.right : Math.min(r.left, window.innerWidth - w - 8))) + "px";
+    el.setAttribute("aria-expanded", "true"); applyBadge();
+    var close = function (ev) { if (ev && ev.type === "keydown" && ev.key !== "Escape") return; if (ev && ev.type === "click" && pop.contains(ev.target)) return; pop.remove(); el.setAttribute("aria-expanded", "false"); document.removeEventListener("click", close); document.removeEventListener("keydown", close); };
+    setTimeout(function () { document.addEventListener("click", close); document.addEventListener("keydown", close); }, 0);
   };
   ACTIONS.close = function (el, e) { if (e.target === el || el.tagName === "BUTTON") closeSheet(); };
   ACTIONS.tab = function (el) { UI.tab = el.getAttribute("data-v"); saveUI(); paint(); };
@@ -368,6 +386,7 @@
       var b = a.querySelector(".nbadge"); if (!UNREAD) { if (b) b.remove(); return; }
       if (!b) { b = document.createElement("i"); b.className = "nbadge"; a.appendChild(b); } b.textContent = UNREAD > 99 ? "99+" : String(UNREAD);
     });
+    var mm = document.querySelector(".mo-more"); if (mm) { var dot = mm.querySelector(".sdot"); if (UNREAD && menuHasChat) { if (!dot) mm.insertAdjacentHTML("beforeend", '<i class="sdot"></i>'); } else if (dot) dot.remove(); }
   }
   function pollUnread() {
     if (!can("chat.use") || unreadTimer) return;

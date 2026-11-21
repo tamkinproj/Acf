@@ -1035,3 +1035,19 @@ html[dir=rtl] .grp.you .pop{transform-origin:100% 100%}
 .nt-list{grid-template-columns:minmax(0,1fr)}
 .nt-row{min-width:0;overflow:hidden}
 .au-list{display:block}
+
+/* ---- top bar: three core places and a More menu ---- */
+.menu button.mo-more{display:inline-flex;align-items:center;gap:.3rem;position:relative;font:inherit;font-size:.86rem;font-weight:600;color:#3a3a3a;background:#fff;border:1px solid rgba(0,0,0,.04);padding:.6rem 1.05rem;border-radius:999px;box-shadow:0 1px 2px rgba(0,0,0,.04);white-space:nowrap;cursor:pointer}
+.menu button.mo-more:hover{color:var(--ink)}
+.menu button.mo-more.active,.menu button.mo-more[aria-expanded=true]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700}
+.mo-more-i{width:.9rem;height:.9rem;transform:rotate(90deg)}
+.menu button.mo-more .sdot{top:.35rem;inset-inline-end:.45rem}
+.topmenu{position:fixed;z-index:80;min-width:15rem;padding:.4rem;background:#fff;border-radius:1.2rem;box-shadow:0 14px 40px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.05)}
+.topmenu a{display:flex;align-items:center;gap:.75rem;padding:.65rem .8rem;border-radius:.9rem;color:var(--ink);text-decoration:none;font-weight:600;font-size:.95rem}
+.topmenu a:hover,.topmenu a:focus-visible{background:#f2f3ef}
+.topmenu a.active{background:var(--accent-soft)}
+.topmenu .grow{flex:1}
+.tm-i .icon{width:1.2rem;height:1.2rem}
+.tm-c{width:.9rem;height:.9rem;color:#b4b9ae}
+html[dir=rtl] .tm-c{transform:scaleX(-1)}
+.topmenu .nbadge{position:static;margin-inline-start:.2rem;min-width:1.2rem;height:1.2rem;padding:0 .35rem;font-size:.7rem;line-height:1.2rem;text-align:center;border-radius:999px;background:var(--accent);color:var(--ink);font-weight:800}

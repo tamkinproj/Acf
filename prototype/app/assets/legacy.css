@@ -557,3 +557,19 @@
         left: -.25rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .menu button.mo-more .sdot {
+        right: .45rem
+    }
+    html[dir=rtl] .menu button.mo-more .sdot {
+        left: .45rem
+    }
+}
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .topmenu .nbadge {
+        margin-left: .2rem
+    }
+    html[dir=rtl] .topmenu .nbadge {
+        margin-right: .2rem
+    }
+}
