@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Child;
 use App\Models\Foundation;
+use App\Models\Project;
+use App\Models\Sponsor;
 use App\Models\SiteContent;
 use App\Support\ApiResponse;
 
@@ -20,11 +22,28 @@ class PublicSiteController extends Controller
             ? ['version' => $row->version, 'published_at' => $row->published_at?->toIso8601String()] + SiteController::withImages($row->published, $fid)
             : ['version' => 0, 'published_at' => null, 'content' => null, 'images' => []];
 
-        // One public number: how many orphans the foundation looks after. A bare count, nothing about any child.
-        // Demo (sample) records are not counted; with no real records the page keeps its own figure.
-        $n = $fid ? Child::withoutGlobalScopes()->where('foundation_id', $fid)->where('status', 'active')->where('is_sample', false)->count() : 0;
-        $body['stats'] = $n > 0 ? ['orphans' => $n] : null;
+        // Live figures for the landing page: bare counts, nothing about any child or family.
+        // Demo (sample) records are not counted. A figure with no real data behind it is left out,
+        // and the page keeps its own temporary number for it.
+        $body['stats'] = $fid ? self::stats($fid) : null;
 
         return ApiResponse::ok($body)->header('Cache-Control', 'public, max-age=60')->header('Access-Control-Allow-Origin', '*');
+    }
+
+    /** Keys are the landing page's number slots. Only figures above zero are returned. */
+    public static function stats(int $fid): ?array
+    {
+        $kids = Child::withoutGlobalScopes()->where('foundation_id', $fid)->where('status', 'active')->where('is_sample', false);
+        $projects = Project::withoutGlobalScopes()->where('foundation_id', $fid);
+        $all = [
+            'hero_orphans' => (clone $kids)->count(),
+            'hero_families' => (clone $kids)->whereNotNull('guardian_id')->distinct()->count('guardian_id'),
+            'hero_partners' => Sponsor::withoutGlobalScopes()->where('foundation_id', $fid)->count(),
+            'proj_done' => (clone $projects)->where('status', 'completed')->count(),
+            'proj_communities' => (clone $projects)->whereNotNull('location')->where('location', '!=', '')->distinct()->count('location'),
+        ];
+        $real = array_filter($all, fn ($n) => $n > 0);
+
+        return $real ?: null;
     }
 }

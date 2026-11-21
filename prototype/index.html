@@ -1032,25 +1032,36 @@ html.lite{scroll-behavior:auto}
     }, { passive: true });
   })();
 
-  // count-up numbers
+  // count-up numbers: every figure counts from 0 up to its value the moment it comes into view.
+  // The staff-app content script (site.js) calls window.__countUp(el) again when real figures arrive.
   var counters = document.querySelectorAll("[data-count]");
   var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if ("IntersectionObserver" in window && !reduce && !root.classList.contains("lite")) {
-    var io = new IntersectionObserver(function (entries) {
+  function runCount(el) {
+    var end = +el.getAttribute("data-count"), t0 = null, tok = (el._cn = (el._cn || 0) + 1);
+    el.textContent = "0";
+    (function step(t) {
+      if (el._cn !== tok) return;
+      if (t0 === null) t0 = t;
+      var p = Math.min((t - t0) / 1600, 1);
+      el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    })(performance.now());
+  }
+  var io = null;
+  if ("IntersectionObserver" in window && !reduce) {   // cheap enough to run in low-end mode too
+    io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
-        var el = en.target, end = +el.getAttribute("data-count"), t0 = null;
-        io.unobserve(el);
-        (function step(t) {
-          if (t0 === null) t0 = t;
-          var p = Math.min((t - t0) / 900, 1);
-          el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
-          if (p < 1) requestAnimationFrame(step);
-        })(performance.now());
+        io.unobserve(en.target); runCount(en.target);
       });
     }, { threshold: 0.4 });
-    counters.forEach(function (c) { io.observe(c); });
+    counters.forEach(function (c) { c.textContent = "0"; io.observe(c); });
   }
+  window.__countUp = function (el) {
+    el._cn = (el._cn || 0) + 1;                       // stops a count that is still running
+    if (!io) { el.textContent = el.getAttribute("data-count"); return; }
+    el.textContent = "0"; io.unobserve(el); io.observe(el);   // counts when in view (at once if it already is)
+  };
 
   // contact form (front-end only in the prototype)
   var form = document.getElementById("form");

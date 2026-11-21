@@ -262,6 +262,10 @@ class SiteContentTest extends TestCase
     public function test_public_orphan_count_ignores_samples_and_shows_only_a_number(): void
     {
         $stats = $this->getJson('/api/public/site')->assertOk()->json('data.stats');
-        $this->assertTrue($stats === null || (is_array($stats) && array_keys($stats) === ['orphans']));
+        $this->assertTrue($stats === null || (is_array($stats) && ! array_diff(array_keys($stats), ['hero_orphans', 'hero_families', 'hero_partners', 'proj_done', 'proj_communities'])));
+        foreach ((array) $stats as $n) {
+            $this->assertIsInt($n);
+            $this->assertGreaterThan(0, $n);
+        }
     }
 }

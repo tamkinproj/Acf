@@ -42,8 +42,7 @@
     $$("[data-cms]").forEach(function (n) { var v = (c.singles || {})[n.getAttribute("data-cms")]; if (typeof v === "string" && v !== "") n.textContent = v; });
     $$("[data-cms-num]").forEach(function (n) {
       var v = (c.numbers || {})[n.getAttribute("data-cms-num")]; if (typeof v !== "number") return;
-      n.setAttribute("data-count", String(v)); n.textContent = String(v);
-      setTimeout(function () { n.textContent = String(v); }, 2200);          // after the page's count-up has finished
+      n.setAttribute("data-count", String(v));
     });
     $$("[data-cms-href]").forEach(function (a) {
       var u = ((c.singles || {})[a.getAttribute("data-cms-href")] || ""); if (/^https:\/\/[^\s"'<>]+$/i.test(u)) { a.href = u; a.target = "_blank"; a.rel = "noopener noreferrer"; }
@@ -106,23 +105,35 @@
   function showLang() {
     texts.concat(dyn).forEach(function (t) { t.n.textContent = rt(t.en, t.ar); });
   }
-  /* the number of orphans the foundation looks after, counted live by the server (a bare count, nothing about any child) */
+  /* Live figures counted by the server (bare counts, nothing about any child). A figure with no real data behind it
+     is not sent, and the page keeps its temporary number. Every figure then counts up from 0 when it comes into view. */
   function applyStats() {
-    var n = data && data.stats && data.stats.orphans; if (typeof n !== "number" || n < 1) return;
-    $$('[data-cms-num="hero_orphans"]').forEach(function (b) {
-      b.setAttribute("data-count", String(n)); b.textContent = String(n); setTimeout(function () { b.textContent = String(n); }, 2200);
-      var plus = b.nextElementSibling; if (plus && plus.tagName === "SPAN") plus.hidden = true;
+    if (editing) return;
+    var st = data && data.stats; if (!st || typeof st !== "object") return;
+    Object.keys(st).forEach(function (k) {
+      var n = st[k]; if (typeof n !== "number" || n < 1) return;
+      $$('[data-cms-num="' + k + '"]').forEach(function (b) {
+        b.setAttribute("data-count", String(n)); b.setAttribute("data-live", "1");
+        var plus = b.nextElementSibling; if (plus && plus.tagName === "SPAN") plus.hidden = true;   // an exact figure needs no "+"
+      });
+    });
+  }
+  function countAll() {
+    if (editing) return;
+    $$("[data-cms-num]").forEach(function (b) {
+      var v = b.getAttribute("data-count"); if (b._shown === v) return; b._shown = v;
+      if (window.__countUp) window.__countUp(b); else b.textContent = v;
     });
   }
   function render() {
-    applyStats();
+    applyStats(); countAll();
     if (!data || !data.content) return; remember(); dyn = [];
     var c = data.content; applyTexts(c);
     setList("projects", c.projects, buildProject); setList("team", c.team, buildMember); setList("news", c.news, buildNews);
     // the builder's reminders ("sample figures, replace them...") do not belong on a page that has real content
     ["i_note", "pj_note", "tm_note"].forEach(function (k) { $$('[data-cms-key="' + k + '"]').forEach(function (n) { n.hidden = true; }); });
     applySlots(c);
-    applyStats();
+    applyStats(); countAll();
     showLang();
   }
   // logos and the main photo are CSS pictures of the page; swapping the variable swaps them everywhere they are used
@@ -143,7 +154,7 @@
     r.style.cssText = "position:fixed;z-index:200;inset-inline:0;bottom:0;padding:.7rem 1rem;background:#17300d;color:#fff;font:600 14px system-ui;text-align:center";
     document.body.appendChild(r);
   }
-  function load(url, headers) { return fetch(url, { headers: headers || {}, credentials: "omit" }).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); }); }
+  function load(url, headers) { return fetch(url, { headers: headers || {}, credentials: "omit", cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); }); }
 
   /* ---- editing on the page itself (President Admin only) ----
      A signed-in staff member with the right to edit sees "Edit this page". Texts, contact details, numbers and logos
@@ -227,10 +238,10 @@
     if (tok) load(API + "site", { Accept: "application/json", Authorization: "Bearer " + tok }).then(function (j) { data = { content: j.data.content, images: j.data.images }; render(); }, function () { ribbon("Could not load the draft. Sign in to the staff app first."); });
   } else {
     try { var cached = JSON.parse(localStorage.getItem(CK)); if (cached && cached.content) { data = cached; render(); } } catch (e) {}   // last published copy first, no waiting
-    load(API + "public/site", { Accept: "application/json" }).then(function (j) {
+    load(API + "public/site?_=" + Date.now(), { Accept: "application/json" }).then(function (j) {
       var d = j.data;
       if (editing) return;                                              // the editor is showing the draft
-      if (d && !d.content && d.stats) { data = { content: null, images: {}, stats: d.stats }; applyStats(); }
+      if (d && !d.content && d.stats) { data = { content: null, images: {}, stats: d.stats }; render(); }
       if (d && d.content) { data = { content: d.content, images: d.images || {}, version: d.version, stats: d.stats || null }; try { localStorage.setItem(CK, JSON.stringify(data)); } catch (e) {} render(); }
       else { try { localStorage.removeItem(CK); } catch (e) {} if (data && data.content) location.reload(); }        // was unpublished: back to the page's own text
     }, function () { /* offline or server down: whatever is shown stays */ });
