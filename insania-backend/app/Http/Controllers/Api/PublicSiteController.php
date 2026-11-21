@@ -12,7 +12,7 @@ class PublicSiteController extends Controller
 {
     public function __invoke()
     {
-        $fid = Foundation::query()->orderBy('id')->value('id');
+        $fid = Foundation::primary()?->id;   // the foundation the staff work in, the same one the President publishes to
         $row = $fid ? SiteContent::withoutGlobalScopes()->where('foundation_id', $fid)->first() : null;
 
         $body = ($row && $row->version > 0 && $row->published)

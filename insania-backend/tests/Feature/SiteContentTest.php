@@ -64,6 +64,18 @@ class SiteContentTest extends TestCase
         $this->assertSame(1, $pub->json('data.version'));
     }
 
+    public function test_visitors_get_the_published_page_of_the_foundation_the_staff_work_in_even_with_two_foundations(): void
+    {
+        \Illuminate\Support\Facades\DB::table('foundations')->insert(['id' => 0, 'name' => 'Empty older foundation', 'slug' => 'empty', 'created_at' => now(), 'updated_at' => now()]);   // lowest id, but no staff
+        $this->president();
+        $d = $this->draft();
+        $d['texts']['h_t1']['en'] = 'Headline of the working foundation';
+        $this->putJson('/api/site', ['content' => $d])->assertOk();
+        $this->postJson('/api/site/publish')->assertOk();
+        $this->app['auth']->forgetGuards();
+        $this->getJson('/api/public/site')->assertOk()->assertJsonPath('data.content.texts.h_t1.en', 'Headline of the working foundation');
+    }
+
     public function test_edits_after_publishing_stay_in_the_draft_until_published_again(): void
     {
         $this->president();

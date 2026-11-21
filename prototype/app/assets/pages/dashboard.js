@@ -10,7 +10,7 @@
     c_orphans: "Orphans overview", c_age: "Age", c_city: "City", c_status: "Status", c_all: "All records", ages: "years",
     q_latest_orphans: "Latest orphans", q_latest_sub: "The most recently added records",
     dk_form: "Application form", dk_new: "New", dk_total: "Orphans", b_copy: "Copy link", b_open: "Open form", copied: "Link copied",
-    qa: "Quick Action", qa_add: "Add", qa_apps: "Review", qa_more: "More",
+    qa: "Quick Action", qa_add: "Add", qa_apps: "Review", qa_site: "Edit website", qa_more: "More",
     pl_samples: "Sample data", pl_samples_txt: "{n} sample orphans are in the system so the screens are not empty. Remove them before real use.", pl_samples_btn: "Go to Orphans",
     pl_soon: "More features soon", pl_soon_txt: "Office features are switched on one by one. Each one appears here when it is ready.", pl_soon_btn: "Open Settings",
     w_latest: "Latest orphans", w_all: "View all", w_name: "Name", w_status: "Status", w_added: "Added", st_active: "Active", st_pending: "Pending", st_ended: "Ended", w_none: "Nothing here yet.",
@@ -36,7 +36,7 @@
     c_orphans: "نظرة على الأيتام", c_age: "العمر", c_city: "المدينة", c_status: "الحالة", c_all: "كل السجلات", ages: "سنة",
     q_latest_orphans: "آخر الأيتام", q_latest_sub: "آخر السجلات المضافة",
     dk_form: "نموذج التقديم", dk_new: "جديد", dk_total: "الأيتام", b_copy: "انسخ الرابط", b_open: "افتح النموذج", copied: "تم نسخ الرابط",
-    qa: "إجراء سريع", qa_add: "إضافة", qa_apps: "مراجعة", qa_more: "المزيد",
+    qa: "إجراء سريع", qa_site: "تعديل الموقع", qa_add: "إضافة", qa_apps: "مراجعة", qa_more: "المزيد",
     pl_samples: "بيانات تجريبية", pl_samples_txt: "يوجد {n} يتيمًا تجريبيًا حتى لا تكون الشاشات فارغة. احذفهم قبل الاستخدام الحقيقي.", pl_samples_btn: "اذهب إلى الأيتام",
     pl_soon: "ميزات قادمة", pl_soon_txt: "تُفعَّل ميزات المكتب واحدة تلو الأخرى، وتظهر كل ميزة هنا عندما تجهز.", pl_soon_btn: "افتح الإعدادات",
     w_latest: "آخر الأيتام", w_all: "عرض الكل", w_name: "الاسم", w_status: "الحالة", w_added: "أُضيف", st_active: "نشط", st_pending: "معلّق", st_ended: "منتهٍ", w_none: "لا شيء هنا بعد.",
@@ -143,7 +143,7 @@
       L.push(chartCard(t("c_accounts"), s.active_users, [{ label: t("c_role"), bars: order.map(function (r) { return [t("r_" + r), br[r] || 0]; }) }]));
       R.push(people(t("q_latest_accounts"), t("q_latest_acc_sub"), (s.latest_users || []).map(function (x) { return { name: x.name, href: "users.html" }; }), "users.html"));
       R.push(dark({ icon: "shield", brand: t("dk_me"), number: esc(u.role_label || ""), foot: [[t("h_accounts"), num(s.active_users)], [t("s_failed"), num(s.failed_logins_24h)]],
-        buttons: [["settings.html", t("b_password")], ["users.html", t("b_accounts")]], actions: [["users.html?add=1", "plus", t("qa_add")], ["users.html", "users", t("t_accounts")], ["settings.html", "dots", t("qa_more")]] }));
+        buttons: [["settings.html", t("b_password")], ["users.html", t("b_accounts")]], actions: [["users.html?add=1", "plus", t("qa_add")], ["users.html", "users", t("t_accounts")]].concat(A.can("site.edit") ? [["../index.html?edit=1", "globe", t("qa_site")]] : [["settings.html", "dots", t("qa_more")]]) }));
       R.push(d.setup && d.setup.steps.length && d.setup.done < d.setup.total ? plan(t("pl_setup"), t("pl_setup_txt", { n: d.setup.done, m: d.setup.total }), ["setup.html", t("pl_setup_btn")]) : plan(t("pl_soon"), t("pl_soon_txt"), ["settings.html", t("pl_soon_btn")]));
       below.push(table(t("w_latest_acc"), [t("w_name"), t("w_status"), t("w_added")], (s.latest_users || []).map(function (x) { return "<tr>" + who(x.name, t("r_" + x.role), "users.html") + "<td>" + badge(x.active ? "active" : "ended", x.active ? null : t("w_off")) + '</td><td class="muted">' + fmtDate(x.added) + "</td></tr>"; }), "users.html"));
     } else if (d.health) {   // ---- System Admin / Maintenance ----
