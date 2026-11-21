@@ -20,8 +20,8 @@
     if (!items.length) return '<p class="note">' + t("ap_none") + "</p>";
     return items.map(function (a) {
       var nm = A.lang() === "ar" && a.name_ar ? a.name_ar : (a.name_en || a.name_ar || "-");
-      return '<a class="item" href="application.html?id=' + a.id + '"><span class="avatar">' + esc(String(nm).charAt(0)) + '</span><span class="grow"><b>' + esc(nm) + '</b><span class="sub" dir="ltr" style="text-align:start">' + esc(a.reference) + " · " + esc(a.submitted_at || "") + (a.photos ? " · " + t("ap_photos", { n: a.photos }) : "") +
-        '</span></span><span class="right"><span class="badge ' + (a.status === "new" ? "warn" : a.status === "approved" ? "" : "grey") + '">' + t("ap_" + a.status) + "</span></span></a>";
+      return '<div class="orow"><a class="item" href="application.html?id=' + a.id + '"><span class="avatar">' + esc(String(nm).charAt(0)) + '</span><span class="grow"><b>' + esc(nm) + '</b><span class="sub" dir="ltr" style="text-align:start">' + esc(a.reference) + " · " + esc(a.submitted_at || "") + (a.photos ? " · " + t("ap_photos", { n: a.photos }) : "") +
+        '</span></span><span class="right"><span class="badge ' + (a.status === "new" ? "warn" : a.status === "approved" ? "" : "grey") + '">' + t("ap_" + a.status) + "</span></span></a>" + A.shareBtn("application", a.id, null, true) + "</div>";
     }).join("");
   }
   function render(d) {

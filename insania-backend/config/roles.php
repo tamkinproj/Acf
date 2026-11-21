@@ -46,6 +46,7 @@ return [
             'reports.view', 'reports.export',
             'site.edit', 'site.publish',
             'users.manage', 'audit.read',      // the President creates every other account
+            'chat.use',                         // office chat
         ],
         'staff' => [],
         'user' => ['family.view_own'],
@@ -55,20 +56,20 @@ return [
     'departments' => [
         'aytam' => [
             'name_en' => 'Aytam (orphan care)', 'name_ar' => 'الأيتام',
-            'grants' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'applications.review'],
+            'grants' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'applications.review', 'chat.use'],
         ],
         'finance' => [
             'name_en' => 'Finance', 'name_ar' => 'المالية',
-            'grants' => ['payments.view', 'payments.mark_cash', 'reports.view', 'reports.export'],
+            'grants' => ['payments.view', 'payments.mark_cash', 'reports.view', 'reports.export', 'chat.use'],
         ],
         'projects' => [
             'name_en' => 'Projects', 'name_ar' => 'المشاريع',
-            'grants' => ['projects.view', 'projects.manage'],
+            'grants' => ['projects.view', 'projects.manage', 'chat.use'],
         ],
-        'relief' => ['name_en' => 'Relief', 'name_ar' => 'الإغاثة', 'grants' => []],
-        'teaching' => ['name_en' => 'Teaching', 'name_ar' => 'التعليم', 'grants' => []],
-        'hr' => ['name_en' => 'HR', 'name_ar' => 'الموارد البشرية', 'grants' => []],
-        'administration' => ['name_en' => 'Administration', 'name_ar' => 'الإدارة', 'grants' => []],
+        'relief' => ['name_en' => 'Relief', 'name_ar' => 'الإغاثة', 'grants' => ['chat.use']],
+        'teaching' => ['name_en' => 'Teaching', 'name_ar' => 'التعليم', 'grants' => ['chat.use']],
+        'hr' => ['name_en' => 'HR', 'name_ar' => 'الموارد البشرية', 'grants' => ['chat.use']],
+        'administration' => ['name_en' => 'Administration', 'name_ar' => 'الإدارة', 'grants' => ['chat.use']],
     ],
 
     // Roles that may be handed out on the Accounts screen (by the President Admin, or a Security Admin once their accounts

@@ -58,7 +58,7 @@
     var pub = S.version ? t("ws_pub", { n: S.version }) + (S.published_at ? " · " + t("ws_at", { d: new Date(S.published_at).toLocaleString(A.lang() === "ar" ? "ar" : "en-GB") }) : "") : t("ws_never");
     return '<div class="card"><h3>' + t("ws_status") + '</h3><p id="wsState" style="margin:.2rem 0 .8rem"><b>' + esc(pub) + "</b><br><span class=\"note\" id=\"wsDraft\"></span></p>" +
       '<div class="actions"><button class="btn btn-main" data-act="savedraft">' + ic("check") + t("ws_save") + '</button><button class="btn btn-line" data-act="preview">' + t("ws_preview") + '</button><button class="btn btn-main" data-act="publish">' + ic("globe") + t("ws_publish") + "</button>" +
-      '<a class="btn btn-line" href="../index.html?edit=1" target="_blank" rel="noopener">' + t("ws_edit_page") + '</a><a class="btn btn-line" href="../index.html" target="_blank" rel="noopener">' + t("ws_open") + "</a></div></div>";
+      '<a class="btn btn-line" href="../index.html?edit=1" target="_blank" rel="noopener">' + t("ws_edit_page") + '</a><a class="btn btn-line" href="../index.html" target="_blank" rel="noopener">' + t("ws_open") + "</a>" + A.shareBtn("site") + "</div></div>";
   }
   function groups() {
     var sc = S.schema, order = Object.keys(sc.groups);

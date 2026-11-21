@@ -32,7 +32,7 @@ class FeatureSwitchesTest extends TestCase
             $expected = [
                 'children' => ['staff', 'president_admin'], 'applications' => ['staff', 'president_admin'], 'payments' => ['staff', 'president_admin'],
                 'projects' => ['staff', 'president_admin'], 'reports' => ['staff', 'president_admin'], 'website' => ['president_admin'],
-                'accounts' => ['president_admin'], 'activity_log' => ['president_admin'],
+                'accounts' => ['president_admin'], 'activity_log' => ['president_admin'], 'chat' => ['staff', 'president_admin'],
             ][$feature] ?? false;   // family accounts stay off
             $this->assertSame($expected, $on, "$feature switch as shipped");
         }

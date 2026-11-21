@@ -70,6 +70,17 @@ Route::middleware('api.json')->group(function () {
         });
         Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.read');
 
+        // Office chat: the General group and one-to-one chats (President Admin and staff). Cards are links, opened by each person's own access.
+        Route::middleware('permission:chat.use')->group(function () {
+            Route::get('chat/conversations', [\App\Http\Controllers\Api\ChatController::class, 'conversations']);
+            Route::get('chat/unread', [\App\Http\Controllers\Api\ChatController::class, 'unread']);
+            Route::get('chat/people', [\App\Http\Controllers\Api\ChatController::class, 'people']);
+            Route::post('chat/direct', [\App\Http\Controllers\Api\ChatController::class, 'direct']);
+            Route::get('chat/conversations/{conversation}/messages', [\App\Http\Controllers\Api\ChatController::class, 'messages']);
+            Route::get('chat/conversations/{conversation}/audience', [\App\Http\Controllers\Api\ChatController::class, 'audience']);
+            Route::post('chat/conversations/{conversation}/messages', [\App\Http\Controllers\Api\ChatController::class, 'send'])->middleware('throttle:90,1');
+        });
+
         // Applications from the public form (Aytam staff)
         Route::middleware('permission:applications.review')->group(function () {
             Route::get('applications', [\App\Http\Controllers\Api\ApplicationController::class, 'index']);

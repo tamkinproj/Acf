@@ -1,5 +1,6 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc;
+  var qm = (location.search.match(/[?&]month=(\d{4}-\d{2})/) || [])[1]; if (qm) { A.ui.month = qm; A.saveUI(); }   // a shared card opens the month it was shared for
 
   A.strings({
     pay_title: "Payments for the month", paid: "Paid", pending: "Pending", mark_cash: "Mark cash received", total_paid: "Total paid", total_due: "Total due",
@@ -31,7 +32,7 @@
         var isPaid = r.status === "paid", right = isPaid ? '<span class="badge">' + t("paid") + "</span>" : '<span class="badge warn">' + t("pending") + "</span>";
         var act = !isPaid && r.method === "cash" && A.can("payments.mark_cash") ? '<button class="btn btn-line btn-sm" data-act="cash" data-id="' + r.child_id + '">' + t("mark_cash") + "</button>" : "";
         var wait = queued[r.child_id] ? '<span class="badge grey">' + t("wait_pay") + "</span>" : "";
-        return '<div class="item"><a class="avatar" href="person.html?id=' + r.child_id + '" aria-label="' + esc(A.name(r)) + '" style="text-decoration:none">' + esc(A.name(r).charAt(0)) + '</a><span class="grow"><b>' + esc(A.name(r)) + '</b><span class="sub">' + esc(r.ref) + " · " + t(r.method === "bank" ? "bank_pay" : "cash_only") + " · " + A.money(r.amount) + '</span></span><span class="right">' + right + wait + act + "</span></div>";
+        return '<div class="item" data-focus="' + r.child_id + '"><a class="avatar" href="person.html?id=' + r.child_id + '" aria-label="' + esc(A.name(r)) + '" style="text-decoration:none">' + esc(A.name(r).charAt(0)) + '</a><span class="grow"><b>' + esc(A.name(r)) + '</b><span class="sub">' + esc(r.ref) + " · " + t(r.method === "bank" ? "bank_pay" : "cash_only") + " · " + A.money(r.amount) + '</span></span><span class="right">' + right + wait + act + A.shareBtn("payment", r.child_id, A.ui.month, true) + "</span></div>";
       }).join("") : '<p class="note">' + t("none") + "</p>") + "</div>";
   }
 

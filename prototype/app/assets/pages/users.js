@@ -26,7 +26,7 @@
     list = rows; var me = A.user();
     return '<div class="head"><h1 class="title">' + t("users_title") + '</h1></div><p class="note">' + t("users_note") + '</p><div class="list">' + rows.map(function (u) {
       var meta = t("role_" + u.role) + (u.department ? " · " + t("dept_" + u.department) : "");
-      return '<button class="item" type="button" data-act="edituser" data-id="' + u.id + '"><span class="avatar">' + esc(u.name.charAt(0)) + '</span><span class="grow"><b>' + esc(u.name) + (me && me.id === u.id ? " (" + t("you") + ")" : "") + '</b><span class="sub">' + esc(u.email) + " · " + esc(meta) + '</span></span><span class="right"><span class="badge ' + (u.active ? "" : "warn") + '">' + t(u.active ? "active" : "inactive") + "</span></span></button>";
+      return '<button class="item" type="button" data-focus="' + u.id + '" data-act="edituser" data-id="' + u.id + '"><span class="avatar">' + esc(u.name.charAt(0)) + '</span><span class="grow"><b>' + esc(u.name) + (me && me.id === u.id ? " (" + t("you") + ")" : "") + '</b><span class="sub">' + esc(u.email) + " · " + esc(meta) + '</span></span><span class="right"><span class="badge ' + (u.active ? "" : "warn") + '">' + t(u.active ? "active" : "inactive") + "</span></span></button>";
     }).join("") + '</div><button class="btn btn-main fab" data-act="adduser">' + ic("plus") + t("add_user") + "</button>";
   }
   function roleOptions(sel, withUser) {
@@ -75,7 +75,7 @@
       '<div id="deptBox"><label for="u_department_key">' + t("f_udept") + '</label><select id="u_department_key">' + deptOptions(u.department || "aytam") + '</select><div class="err" id="u_department_keyErr"></div></div>' +
       (self ? "" : '<div class="setrow"><b>' + t("f_uactive") + '</b><button class="switch" type="button" role="switch" id="u_active" aria-checked="' + !!u.active + '" data-act="flip"></button></div>') +
       A.formEnd("save_changes") + '</form><div class="actions" style="margin-top:1rem"><button class="btn btn-line btn-sm" type="button" data-act="newpass" data-id="' + u.id + '">' + t("reset_pass") + '</button>' +
-      '<button class="btn btn-line btn-sm" type="button" data-act="endsessions" data-id="' + u.id + '">' + t("revoke") + "</button></div>");
+      '<button class="btn btn-line btn-sm" type="button" data-act="endsessions" data-id="' + u.id + '">' + t("revoke") + "</button>" + A.shareBtn("user", u.id) + "</div>");
     var sel = document.getElementById("u_role"); sel.addEventListener("change", function () { toggleDept(sel); }); toggleDept(sel);
   });
   A.act("flip", function (el) { el.setAttribute("aria-checked", String(el.getAttribute("aria-checked") !== "true")); });

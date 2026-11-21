@@ -1,5 +1,6 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic, rowsNow = [];
+  var qm = (location.search.match(/[?&]month=(\d{4}-\d{2})/) || [])[1]; if (qm) { A.ui.month = qm; A.saveUI(); }   // a shared card opens the month it was shared for
 
   A.strings({
     rep_title: "Reports", rep_scope: "Scope", rep_month: "Month", rep_pdf: "Download PDF", pdf_next: "PDF export arrives in the next phase", rep_sum: "Summary",
@@ -20,7 +21,7 @@
       '<p class="note" style="margin:0 0 .4rem">' + t("rep_month") + "</p>" + pills +
       '<div class="card"><h3>' + t("rep_sum") + " · " + esc(A.monthLabel(A.ui.month)) + "</h3>" +
       A.facts([[t("s_children"), rowsNow.length], [t("paid"), paid.length + " / " + rowsNow.length], [t("total_paid"), A.money(sum(paid))], [t("total_due"), A.money(sum(rowsNow) - sum(paid))]]) +
-      '<div class="actions" style="margin-top:1rem"><button class="btn btn-main" data-act="pdf">' + ic("file") + t("rep_pdf") + "</button>" +
+      '<div class="actions" style="margin-top:1rem"><button class="btn btn-main" data-act="pdf">' + ic("file") + t("rep_pdf") + "</button>" + A.shareBtn("report", null, A.ui.month) +
       (A.can("reports.export") ? '<button class="btn btn-line" data-act="csv-pay">' + ic("download") + t("export_csv") + "</button>" : "") + "</div></div>";
   }
 

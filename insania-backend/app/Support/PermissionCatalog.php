@@ -36,6 +36,7 @@ final class PermissionCatalog
             'projects.manage' => 'Create and edit projects',
             'reports.view' => 'See report summaries',
             'reports.export' => 'Export reports',
+            'chat.use' => 'Use the office chat (General group and one-to-one chats) and share cards into it',
             'family.view_own' => 'See your own family\'s information',
         ];
     }

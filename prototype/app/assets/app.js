@@ -12,7 +12,7 @@
       login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
       login_err: "Enter your email and password.", login_fail: "Wrong email or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a minute and try again.",
-      n_home: "Home", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
+      n_home: "Home", n_chat: "Chat", chat_general: "General", chat_new: "New chat", chat_share: "Share to chat", chat_send: "Send", chat_attach: "Attach a card", chat_type: "Write a message…", chat_pick_chat: "Send to…", chat_people: "Start a chat with", chat_shared: "Shared in chat", chat_empty: "No messages yet. Say hello.", chat_nolist: "No one else is in the office chat yet.", chat_cant: "{n} people in this chat cannot open it. They will see only the kind of card.", chat_cant_one: "{names} cannot open it and will see only the kind of card.", chat_sendany: "Send anyway", chat_noaccess: "You do not have access to this.", chat_gone: "No longer available.", chat_offline: "Chat needs an internet connection.", chat_pick_kind: "What do you want to attach?", chat_pick_item: "Choose one", chat_search: "Search", chat_today: "Today", chat_yesterday: "Yesterday", chat_you: "You", chat_none_item: "Nothing to choose.", chat_open: "Open", k_child: "Orphan", k_application: "Application", k_project: "Project", k_payment: "Payment", k_user: "Account", k_report: "Report", k_site: "Landing page", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
       loading: "Loading…", none: "No matches.", back: "Back", cancel: "Cancel", save: "Save", required: "This field is required.", lang_btn: "العربية", signout: "Sign out",
       noaccess: "Your role does not include this page.", per_month: "per month",
       offline_none: "Nothing is saved on this phone for this page yet. Open it once while connected.", load_err: "Could not load. Try again.",
@@ -26,7 +26,7 @@
       login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
       login_err: "أدخل بريدك وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر دقيقة ثم حاول مجددًا.",
-      n_home: "الرئيسية", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
+      n_home: "الرئيسية", n_chat: "المحادثات", chat_general: "العام", chat_new: "محادثة جديدة", chat_share: "مشاركة في المحادثة", chat_send: "إرسال", chat_attach: "إرفاق بطاقة", chat_type: "اكتب رسالة…", chat_pick_chat: "أرسل إلى…", chat_people: "ابدأ محادثة مع", chat_shared: "تمت المشاركة في المحادثة", chat_empty: "لا رسائل بعد. ابدأ بالسلام.", chat_nolist: "لا أحد آخر في محادثة المكتب بعد.", chat_cant: "{n} أشخاص في هذه المحادثة لا يستطيعون فتحها. سيرون نوع البطاقة فقط.", chat_cant_one: "{names} لا يستطيع فتحها وسيرى نوع البطاقة فقط.", chat_sendany: "أرسل على أي حال", chat_noaccess: "ليس لديك صلاحية لهذا.", chat_gone: "لم تعد متاحة.", chat_offline: "المحادثة تحتاج إلى اتصال بالإنترنت.", chat_pick_kind: "ماذا تريد أن ترفق؟", chat_pick_item: "اختر واحدًا", chat_search: "بحث", chat_today: "اليوم", chat_yesterday: "أمس", chat_you: "أنت", chat_none_item: "لا شيء للاختيار.", chat_open: "فتح", k_child: "يتيم", k_application: "طلب", k_project: "مشروع", k_payment: "دفعة", k_user: "حساب", k_report: "تقرير", k_site: "الصفحة الرئيسية للموقع", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
       loading: "جارٍ التحميل…", none: "لا نتائج.", back: "رجوع", cancel: "إلغاء", save: "حفظ", required: "هذا الحقل مطلوب.", lang_btn: "English", signout: "تسجيل الخروج",
       noaccess: "دورك لا يشمل هذه الصفحة.", per_month: "شهريًا",
       offline_none: "لا يوجد شيء محفوظ على هذا الهاتف لهذه الصفحة بعد. افتحها مرة واحدة أثناء الاتصال.", load_err: "تعذّر التحميل. حاول مجددًا.",
@@ -98,13 +98,17 @@
     '<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>' +
     '<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>' +
  '<symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>' +
+    '<symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.2-4.4A8 8 0 1 1 21 12z"/></symbol>' +
+    '<symbol id="i-share" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></symbol>' +
+    '<symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>' +
+    '<symbol id="i-clip" viewBox="0 0 24 24"><path d="M21.4 11.1 12.2 20.3a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></symbol>' +
     '<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></symbol>' +
     "</defs></svg>";
 
   /* ---------------- menus by role ---------------- */
   // [id, page, text key, permission needed (null = everyone), icon]
   var MENU = [
-    ["dashboard", "dashboard.html", "n_home", null, "grid"], ["people", "people.html", "n_people", "children.view", "users"],
+    ["dashboard", "dashboard.html", "n_home", null, "grid"], ["chat", "chat.html", "n_chat", "chat.use", "chat"], ["people", "people.html", "n_people", "children.view", "users"],
     ["applications", "applications.html", "n_apps", "applications.review", "file"], ["payments", "payments.html", "n_pay", "payments.view", "wallet"], ["projects", "projects.html", "n_proj", "projects.view", "folder"], ["website", "website.html", "n_website", "site.edit", "globe"],
     ["reports", "reports.html", "n_rep", "reports.view", "file"], ["family", "family.html", "n_family", "family.view_own", "users"],
     ["users", "users.html", "n_users", "users.manage", "shield"], ["audit", "audit.html", "n_audit", "audit.read", "file"],
@@ -156,6 +160,13 @@
     Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function (n) { n.textContent = t(n.getAttribute("data-t")); });
     root.classList.toggle("bare", !!spec.bare);
     if (spec.shell && !spec.bare) shell();
+    applyBadge();
+  }
+  var focused = false;
+  function focusFromUrl() {   // a shared card can open a list at its row: ?focus=ID
+    if (focused) return; var m = location.search.match(/[?&]focus=(\d+)/); if (!m) return;
+    var el = document.querySelector('[data-focus="' + m[1] + '"]'); if (!el) return; focused = true;
+    el.scrollIntoView({ block: "center" }); el.classList.add("focus-flash");
   }
   function paint() {
     chrome();
@@ -165,6 +176,7 @@
     if (!state || state.loading) { v.innerHTML = '<p class="note">' + t("loading") + "</p>"; return; }
     v.innerHTML = (state.stale ? '<p class="banner">' + ic("cloud") + t("stale") + "</p>" : "") + spec.render(state.data, state);
     if (spec.after) spec.after(state.data, state);
+    focusFromUrl();
   }
   function load(quiet) {
     if (!spec.load) { state = { data: null }; paint(); return; }
@@ -256,10 +268,68 @@
     b.onclick = function () { location.reload(); }; var v = $("#view"); if (v) v.parentNode.insertBefore(b, v);
   });
 
+
+  /* ---------------- sharing a card to the office chat ---------------- */
+  // A shared card is only a link: whoever taps it opens the page with their OWN access. You can only share what you can open yourself.
+  var KIND_PERM = { child: "children.view", application: "applications.review", project: "projects.view", payment: "payments.view", user: "users.manage", report: "reports.view", site: "site.edit" };
+  function shareBtn(kind, id, month, compact) {
+    if (!can("chat.use") || !can(KIND_PERM[kind])) return "";
+    var a = ' data-act="share" data-kind="' + kind + '" data-id="' + (id == null ? "" : id) + '" data-month="' + (month || "") + '"';
+    return compact ? '<button type="button" class="orow-edit share-ic"' + a + ' aria-label="' + esc(t("chat_share")) + '">' + ic("share") + "</button>"
+      : '<button type="button" class="btn btn-line btn-sm share-btn"' + a + ">" + ic("share") + "<span>" + esc(t("chat_share")) + "</span></button>";
+  }
+  var SH = null;
+  function shareErr(m) { var e = $("#shareErr"); if (e) e.textContent = m; }
+  ACTIONS.share = function (el) {
+    SH = { kind: el.getAttribute("data-kind"), id: parseInt(el.getAttribute("data-id"), 10) || null, month: el.getAttribute("data-month") || null };
+    if (navigator.onLine === false) { sheet(t("chat_share"), '<p class="err">' + esc(t("chat_offline")) + "</p>"); return; }
+    sheet(t("chat_share"), '<p class="note">' + esc(t("loading")) + "</p>");
+    Promise.all([API.get("chat/conversations", { cache: false }), API.get("chat/people", { cache: false })]).then(function (r) {
+      var convs = r[0].data, people = r[1].data, have = {};
+      convs.forEach(function (c) { if (c.other) have[c.other.id] = 1; });
+      var rows = convs.map(function (c) { return '<button class="item" type="button" data-act="sharepick" data-conv="' + c.id + '"><span class="avatar">' + esc((c.type === "general" ? t("chat_general") : c.title).charAt(0)) + '</span><span class="grow"><b>' + esc(c.type === "general" ? t("chat_general") : c.title) + "</b></span>" + ic("send") + "</button>"; }).join("") +
+        people.filter(function (p) { return !have[p.id]; }).map(function (p) { return '<button class="item" type="button" data-act="sharepick" data-user="' + p.id + '"><span class="avatar">' + esc(p.name.charAt(0)) + '</span><span class="grow"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.role_label + (p.department ? " · " + p.department : "")) + "</span></span>" + ic("send") + "</button>"; }).join("");
+      sheet(t("chat_share"), '<p class="note">' + esc(t("chat_pick_chat")) + '</p><div class="list">' + rows + '</div><div class="err" id="shareErr"></div>');
+    }, function (e) { sheet(t("chat_share"), '<p class="err">' + esc(msg(e)) + "</p>"); });
+  };
+  function shareSend() {
+    var body = { card: { kind: SH.kind } }; if (SH.id) body.card.id = SH.id; if (SH.month) body.card.month = SH.month;
+    return API.write("POST", "chat/conversations/" + SH.conv + "/messages", body, { online: true }).then(function () { closeSheet(); toast(t("chat_shared")); }, function (e) { shareErr(e.offline ? t("chat_offline") : msg(e)); });
+  }
+  ACTIONS.sharepick = function (el) {
+    var conv = el.getAttribute("data-conv"), uid = el.getAttribute("data-user");
+    var check = function (cid) {
+      SH.conv = cid;
+      return API.get("chat/conversations/" + cid + "/audience?kind=" + SH.kind, { cache: false }).then(function (r) {
+        var d = r.data; if (!d.cannot_open) return shareSend();
+        var txt = d.names && d.names.length ? t("chat_cant_one", { names: d.names.join(", ") }) : t("chat_cant", { n: d.cannot_open });
+        sheet(t("chat_share"), '<p>' + esc(txt) + '</p><div class="actions"><button class="btn btn-main" type="button" data-act="sharego">' + esc(t("chat_sendany")) + '</button><button class="btn btn-line" type="button" data-act="close">' + esc(t("cancel")) + '</button></div><div class="err" id="shareErr"></div>');
+      });
+    };
+    var run = uid ? API.write("POST", "chat/direct", { user_id: parseInt(uid, 10) }, { online: true }).then(function (r) { return check(r.data.id); }) : check(conv);
+    run.catch(function (e) { shareErr(e.offline ? t("chat_offline") : msg(e)); });
+  };
+  ACTIONS.sharego = function () { shareSend(); };
+
+  /* unread count on the Chat menu item */
+  var UNREAD = 0, unreadTimer = null;
+  function applyBadge() {
+    Array.prototype.forEach.call(document.querySelectorAll('a[href="chat.html"]'), function (a) {
+      var b = a.querySelector(".nbadge"); if (!UNREAD) { if (b) b.remove(); return; }
+      if (!b) { b = document.createElement("i"); b.className = "nbadge"; a.appendChild(b); } b.textContent = UNREAD > 99 ? "99+" : String(UNREAD);
+    });
+  }
+  function pollUnread() {
+    if (!can("chat.use") || unreadTimer) return;
+    var go = function () { if (document.hidden || navigator.onLine === false) return; API.get("chat/unread", { cache: false }).then(function (r) { UNREAD = r.data.unread || 0; applyBadge(); }, function () {}); };
+    go(); unreadTimer = setInterval(go, 45000);
+  }
+  function setUnread(n) { UNREAD = n; applyBadge(); }
+
   /* ---------------- start a page ---------------- */
   window.ACF = {
     t: t, strings: strings, esc: esc, ic: ic, name: name, money: money, facts: facts, months: months, monthLabel: monthLabel, toast: toast, msg: msg,
-    can: can, user: user, api: API, ui: UI, saveUI: saveUI, sheet: sheet, closeSheet: closeSheet, field: field, formEnd: formEnd, showErrors: showErrors,
+    can: can, user: user, api: API, shareBtn: shareBtn, setUnread: setUnread, kindPerm: KIND_PERM, ui: UI, saveUI: saveUI, sheet: sheet, closeSheet: closeSheet, field: field, formEnd: formEnd, showErrors: showErrors,
     act: act, form: form, lang: function () { return lang; }, paint: paint, reload: function (q) { load(q); }, $: $, CUR: CUR,
     start: function (s) {
       spec = s;
@@ -272,6 +342,7 @@
       if (API.expired() && navigator.onLine !== false) { location.replace("login.html?expired=1"); return; }
       if (s.perm && !can(s.perm)) { chrome(); $("#view").innerHTML = '<p class="note">' + t("noaccess") + "</p>"; return; }
       load();
+      if (s.shell && !s.bare) pollUnread();
       var before = JSON.stringify((user() || {}).permissions || []);
       API.refreshMe().then(function (u) {
         if (u && JSON.stringify(u.permissions || []) !== before) location.reload();

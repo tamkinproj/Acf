@@ -22,7 +22,7 @@
       '<div class="actions" style="margin-top:1rem">' +
       (a.status === "new" ? '<button class="btn btn-main" type="button" data-act="approve">' + ic("check") + t("ad_approve") + '</button><button class="btn btn-line" type="button" data-act="reject">' + t("ad_reject") + "</button>" : "") +
       (a.status === "approved" && a.child_id ? '<a class="btn btn-main" href="person.html?id=' + a.child_id + '">' + t("ad_open") + "</a>" : "") +
-      (d.guardian_phone ? '<a class="btn btn-line" href="tel:' + esc(String(d.guardian_phone).replace(/[^0-9+]/g, "")) + '">' + ic("phone") + t("ad_call") + "</a>" : "") + "</div>" +
+      (d.guardian_phone ? '<a class="btn btn-line" href="tel:' + esc(String(d.guardian_phone).replace(/[^0-9+]/g, "")) + '">' + ic("phone") + t("ad_call") + "</a>" : "") + A.shareBtn("application", a.id) + "</div>" +
       (a.note ? '<p class="note" style="margin-bottom:0">' + esc(a.note) + "</p>" : "") + "</div>" +
       '<div class="grid g2" style="align-items:start">' + A.orphan.view(d, { bank: true, skipStaff: true }) + docs + photos + "</div>";
   }

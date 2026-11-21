@@ -27,6 +27,7 @@ return [
         'accounts' => ['president_admin'],            // creating every other account, changing roles, resetting passwords, ending sessions.
                                                       // The Security Admin's account tools stay off until decided.
         'activity_log' => ['president_admin'],        // reading the activity (audit) log (President only)
+        'chat' => ['staff', 'president_admin'],        // the office chat: General group and one-to-one chats (President + all staff; never the system roles)
         'family' => false,                            // a family's own account: off for now
     ],
 
@@ -43,6 +44,7 @@ return [
         'website' => ['site.edit', 'site.publish'],
         'accounts' => ['users.manage'],
         'activity_log' => ['audit.read'],
+        'chat' => ['chat.use'],
         'family' => ['family.view_own'],
     ],
 ];

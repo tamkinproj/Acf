@@ -12,9 +12,9 @@
   function render(list) {
     return '<div class="head"><h1 class="title">' + t("proj_title") + '</h1></div><div class="grid g2">' + (list.length ? list.map(function (p) {
       var done = p.status === "completed";
-      return '<div class="card"><span class="badge ' + (done ? "grey" : "") + '">' + t(done ? "st_completed" : "st_active") + "</span>" + (p._pending ? ' <span class="badge grey">' + t("waiting") + "</span>" : "") +
+      return '<div class="card" data-focus="' + p.id + '"><span class="badge ' + (done ? "grey" : "") + '">' + t(done ? "st_completed" : "st_active") + "</span>" + (p._pending ? ' <span class="badge grey">' + t("waiting") + "</span>" : "") +
         '<h3 style="margin-top:.7rem">' + esc(A.lang() === "ar" && p.name_ar ? p.name_ar : p.name_en) + '</h3><p class="note" style="margin-top:0">' + esc(p.location || "") + "</p>" +
-        '<div class="bar"><i style="width:' + Math.min(100, p.progress) + '%"></i></div>' + A.facts([[t("budget"), A.money(p.budget)], [t("spent"), A.money(p.spent)], [t("progress"), p.progress + "%"]]) + "</div>";
+        '<div class="bar"><i style="width:' + Math.min(100, p.progress) + '%"></i></div>' + A.facts([[t("budget"), A.money(p.budget)], [t("spent"), A.money(p.spent)], [t("progress"), p.progress + "%"]]) + (p._pending ? "" : '<div class="actions" style="margin-top:.8rem">' + A.shareBtn("project", p.id) + "</div>") + "</div>";
     }).join("") : '<p class="note">' + t("none") + "</p>") + "</div>" +
       (A.can("projects.manage") ? '<button class="btn btn-main fab" data-act="addproj">' + ic("plus") + t("add_proj") + "</button>" : "");
   }
