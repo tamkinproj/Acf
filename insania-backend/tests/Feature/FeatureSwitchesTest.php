@@ -24,17 +24,21 @@ class FeatureSwitchesTest extends TestCase
         $this->actingAsRole($role);
     }
 
-    public function test_office_features_ship_off_except_accounts_for_the_president_and_orphans_for_staff(): void
+    public function test_office_features_ship_on_for_the_president_and_for_the_departments_that_hold_them(): void
     {
         $file = require base_path('config/features.php');
         $this->assertNotEmpty($file['switches']);
         foreach ($file['switches'] as $feature => $on) {
-            $expected = ['accounts' => ['president_admin'], 'children' => ['staff'], 'applications' => ['staff']][$feature] ?? false;
+            $expected = [
+                'children' => ['staff', 'president_admin'], 'applications' => ['staff', 'president_admin'], 'payments' => ['staff', 'president_admin'],
+                'projects' => ['staff', 'president_admin'], 'reports' => ['staff', 'president_admin'], 'website' => ['president_admin'],
+                'accounts' => ['president_admin'], 'activity_log' => ['president_admin'],
+            ][$feature] ?? false;   // family accounts stay off
             $this->assertSame($expected, $on, "$feature switch as shipped");
         }
     }
 
-    public function test_switched_off_features_are_refused_by_the_server_for_every_role(): void
+    public function test_features_are_open_only_to_the_roles_they_are_switched_on_for(): void
     {
         $this->world();
         $this->shipped();
@@ -42,21 +46,29 @@ class FeatureSwitchesTest extends TestCase
             ['GET', '/api/children'], ['POST', '/api/children'], ['GET', '/api/payments'], ['GET', '/api/projects'], ['GET', '/api/reports/summary'],
             ['GET', '/api/site'], ['POST', '/api/site/publish'], ['GET', '/api/users'], ['POST', '/api/users'], ['GET', '/api/audit'], ['GET', '/api/my/family'],
         ];
+        // which office addresses each role may reach (the rest must be refused with 403); family accounts are off for everyone
+        $open = [
+            'president_admin' => ['/api/children', '/api/payments', '/api/projects', '/api/reports', '/api/site', '/api/users', '/api/audit'],
+            'staff:aytam' => ['/api/children'],
+            'staff:finance' => ['/api/payments', '/api/reports'],
+            'staff:projects' => ['/api/projects'],
+        ];
         foreach (['president_admin', 'security_admin', 'staff:aytam', 'staff:finance', 'staff:projects', 'user', 'system_admin', 'admin_maintenance'] as $role) {
             $this->as($role);
             foreach ($office as [$m, $url]) {
-                if ($role === 'president_admin' && str_starts_with($url, '/api/users')) {
-                    continue;   // accounts are on for the President (checked below)
+                $allowed = false;
+                foreach ($open[$role] ?? [] as $prefix) {
+                    $allowed = $allowed || str_starts_with($url, $prefix);
                 }
-                if ($role === 'staff:aytam' && str_starts_with($url, '/api/children')) {
-                    continue;   // orphan records are on for Aytam staff (checked below)
-                }
-                $this->json($m, $url)->assertForbidden();
+                $status = $this->json($m, $url)->getStatusCode();
+                $allowed ? $this->assertNotSame(403, $status, "$role $m $url") : $this->assertSame(403, $status, "$role $m $url");
             }
             $me = $this->getJson('/api/me')->assertOk()->json('data.permissions');
-            $this->assertSame($role === 'staff:aytam', in_array('children.view', $me, true), "$role children.view");
-            $this->assertNotContains('site.edit', $me);
+            $this->assertSame(in_array($role, ['staff:aytam', 'president_admin'], true), in_array('children.view', $me, true), "$role children.view");
+            $this->assertSame($role === 'president_admin', in_array('site.edit', $me, true), "$role site.edit");
             $this->assertSame($role === 'president_admin', in_array('users.manage', $me, true), "$role users.manage");
+            $this->assertSame($role === 'president_admin', in_array('audit.read', $me, true), "$role audit.read");
+            $this->assertNotContains('family.view_own', array_diff($me, $role === 'user' ? ['family.view_own'] : []));
         }
     }
 
@@ -73,7 +85,7 @@ class FeatureSwitchesTest extends TestCase
         $this->getJson('/api/system/health')->assertOk();
     }
 
-    public function test_the_president_signs_in_sees_an_empty_office_and_can_change_their_password(): void
+    public function test_the_president_signs_in_sees_every_office_feature_but_no_system_tool_and_can_change_their_password(): void
     {
         $this->world();
         $this->shipped();
@@ -81,34 +93,46 @@ class FeatureSwitchesTest extends TestCase
         $p->update(['password' => 'Old#Passw0rd123']);
         $token = $this->postJson('/api/login', ['email' => $p->email, 'password' => 'Old#Passw0rd123'])->assertOk()->json('data.token');
         $this->withHeader('Authorization', 'Bearer '.$token);
-        $this->getJson('/api/me')->assertOk()->assertJsonPath('data.permissions', ['users.manage']);
-        $d = $this->getJson('/api/dashboard')->assertOk()->assertJsonPath('data.features_off', true)->json('data');
-        foreach (['children', 'payments', 'projects', 'family'] as $part) {
-            $this->assertArrayNotHasKey($part, $d);
+        $me = $this->getJson('/api/me')->assertOk()->json('data.permissions');
+        foreach (['users.manage', 'children.view', 'applications.review', 'payments.view', 'projects.manage', 'reports.export', 'site.publish', 'audit.read'] as $perm) {
+            $this->assertContains($perm, $me);
         }
-        $this->assertArrayHasKey('security', $d);   // account counts, for the Accounts feature
+        foreach ($me as $perm) {
+            $this->assertStringStartsNotWith('system.', $perm);
+        }
+        $this->assertNotContains('family.view_own', $me);
+        $this->getJson('/api/system/health')->assertForbidden();
+        $this->getJson('/api/system/updates')->assertForbidden();
+        $d = $this->getJson('/api/dashboard')->assertOk()->json('data');
+        $this->assertArrayHasKey('security', $d);
+        $this->assertArrayHasKey('children', $d);
+        $this->assertArrayNotHasKey('family', $d);
         $steps = collect($this->getJson('/api/setup')->assertOk()->assertJsonPath('data.required_left', 0)->json('data.steps'))->pluck('key')->all();
-        $this->assertSame(['staff_aytam', 'staff_finance', 'staff_projects', 'security_admin', 'maintenance'], $steps);
+        foreach (['staff_aytam', 'staff_finance', 'staff_projects', 'security_admin', 'maintenance'] as $k) {
+            $this->assertContains($k, $steps);
+        }
         $this->postJson('/api/me/password', ['current_password' => 'Old#Passw0rd123', 'password' => 'New#Passw0rd456'])->assertOk();
     }
 
-    public function test_switching_one_feature_on_brings_back_only_that_feature(): void
+    public function test_switching_one_feature_off_takes_away_only_that_feature(): void
     {
         $this->world();
         $this->shipped();
-        config(['features.switches.projects' => true]);
+        config(['features.switches.website' => false]);
         $this->as('president_admin');
-        $this->getJson('/api/projects')->assertOk();
-        $this->getJson('/api/children')->assertForbidden();
         $this->getJson('/api/site')->assertForbidden();
+        $this->getJson('/api/projects')->assertOk();
+        $this->getJson('/api/children')->assertOk();
         $steps = collect($this->getJson('/api/setup')->assertOk()->json('data.steps'))->pluck('key')->all();
         $this->assertContains('first_project', $steps);
-        $this->assertNotContains('first_child', $steps);
+        $this->assertContains('first_child', $steps);
         $this->assertNotContains('first_publish', $steps);
         $this->as('staff:projects');
         $this->getJson('/api/projects')->assertOk();
-        $this->as('staff:finance');
         $this->getJson('/api/payments')->assertForbidden();
+        $this->as('staff:finance');
+        $this->getJson('/api/payments')->assertOk();
+        $this->getJson('/api/projects')->assertForbidden();
     }
 
     public function test_published_website_content_stays_visible_to_visitors(): void
@@ -168,10 +192,10 @@ class FeatureSwitchesTest extends TestCase
         $this->patchJson("/api/children/{$made['id']}", ['grade' => 'Grade 4', 'status' => 'active', 'guardian' => ['name' => 'Aunt T', 'relation' => 'Aunt', 'phone' => '0917111111']])
             ->assertOk()->assertJsonPath('data.personal.grade', 'Grade 4')->assertJsonPath('data.guardian_detail.phone', '0917111111');
         $this->getJson('/api/children?q=Zyxwv')->assertOk()->assertJsonCount(1, 'data');
-        $this->getJson('/api/payments')->assertForbidden();          // money is Finance's, still off
+        $this->getJson('/api/payments')->assertForbidden();          // money is Finance's (and the President's), not Aytam's
         $this->getJson('/api/reports/summary')->assertForbidden();
 
-        foreach (['president_admin', 'security_admin', 'staff:finance', 'staff:projects', 'user', 'admin_maintenance', 'system_admin'] as $role) {
+        foreach (['security_admin', 'staff:finance', 'staff:projects', 'user', 'admin_maintenance', 'system_admin'] as $role) {
             $this->as($role);
             $this->getJson("/api/children/{$made['id']}")->assertForbidden();
             $this->patchJson("/api/children/{$made['id']}", ['grade' => 'X'])->assertForbidden();
@@ -195,7 +219,7 @@ class FeatureSwitchesTest extends TestCase
 
         $this->as('president_admin');
         $d = $this->getJson('/api/dashboard')->assertOk()->json('data');
-        $this->assertArrayNotHasKey('children', $d);
+        $this->assertArrayHasKey('children', $d);
         $this->assertGreaterThan(0, array_sum($d['security']['by_role']));
         $this->assertArrayHasKey('role', $d['security']['latest_users'][0]);
         $this->assertStringNotContainsString('password', json_encode($d));

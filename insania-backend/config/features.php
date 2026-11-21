@@ -17,18 +17,17 @@
 return [
 
     'switches' => [
-        'children' => ['staff'],   // ON for staff: only the Aytam department holds these permissions. Orphan records, profile pages,
-                                   // bank account checks, documents. The President and other departments stay off until decided.
-        'applications' => ['staff'], // ON for staff (Aytam only): the public application form's review queue and the orphan photos
-        'payments' => false,       // monthly sponsorship payments, cash received
-        'projects' => false,       // projects and their progress
-        'reports' => false,        // report summaries and exports
-        'website' => false,        // editing and publishing the public landing page (visitors still see what was published)
-        'accounts' => ['president_admin'],  // ON for the President Admin: creating every other account (Security Admin, Admin Maintenance,
-                                            // staff by department), changing roles, resetting passwords, ending sessions.
-                                            // The Security Admin's account tools stay off until decided.
-        'activity_log' => false,   // reading the activity (audit) log
-        'family' => false,         // a family's own account
+        'children' => ['staff', 'president_admin'],   // orphan records, profile pages, bank account checks, documents. Staff: only the Aytam
+                                                     // department holds these permissions. The President holds them too.
+        'applications' => ['staff', 'president_admin'], // the public application form's review queue and the orphan photos (Aytam + President)
+        'payments' => ['staff', 'president_admin'],   // monthly sponsorship payments, cash received (Finance department + President)
+        'projects' => ['staff', 'president_admin'],   // projects and their progress (Projects department + President)
+        'reports' => ['staff', 'president_admin'],    // report summaries and exports (Finance department + President)
+        'website' => ['president_admin'],             // editing and publishing the public landing page (President only)
+        'accounts' => ['president_admin'],            // creating every other account, changing roles, resetting passwords, ending sessions.
+                                                      // The Security Admin's account tools stay off until decided.
+        'activity_log' => ['president_admin'],        // reading the activity (audit) log (President only)
+        'family' => false,                            // a family's own account: off for now
     ],
 
     // The public application form (alinsania.com/apply): true = people can send applications, false = the form says it is closed.

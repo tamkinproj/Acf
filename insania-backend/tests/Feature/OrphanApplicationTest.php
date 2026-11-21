@@ -112,7 +112,10 @@ class OrphanApplicationTest extends TestCase
         $this->postJson('/api/public/apply', $this->body(['name_en' => 'Second Applicant']))->assertCreated();
         [$first, $second] = ChildApplication::withoutGlobalScopes()->orderBy('id')->get()->all();
 
-        foreach (['president_admin', 'security_admin', 'staff:finance', 'staff:projects', 'user', 'system_admin', 'admin_maintenance'] as $role) {
+        $this->app['auth']->forgetGuards();
+        $this->actingAsRole('president_admin');
+        $this->getJson('/api/applications')->assertOk();   // the President reviews applications too
+        foreach (['security_admin', 'staff:finance', 'staff:projects', 'user', 'system_admin', 'admin_maintenance'] as $role) {
             $this->app['auth']->forgetGuards();
             $this->actingAsRole($role);
             $this->getJson('/api/applications')->assertForbidden();
@@ -162,7 +165,7 @@ class OrphanApplicationTest extends TestCase
         $this->assertSame($real, Child::count());
         $this->assertNotNull(Child::find($id));
 
-        foreach (['president_admin', 'staff:finance', 'system_admin'] as $role) {
+        foreach (['staff:finance', 'system_admin'] as $role) {
             $this->app['auth']->forgetGuards();
             $this->actingAsRole($role);
             $this->deleteJson('/api/children/samples')->assertForbidden();

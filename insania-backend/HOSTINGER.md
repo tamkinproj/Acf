@@ -36,15 +36,18 @@ Once installed, `/server/install`, `/server/` and every setup address answer a p
 ## If the staff app shows a blank or half-loaded page
 A phone can keep an old copy of the app. Open `https://alinsania.com/app/repair.html`: it removes the old saved copy (your sign-in and unsent changes stay), then press **Open the app**. The app itself also shows a **Load a fresh copy** button whenever it could not start.
 
-## Office features: switched on one by one
-Every office feature has an on/off switch in `insania_app/config/features.php`. A switch is off, on, or on for chosen roles only.
-- **On for the President Admin:** accounts. The President creates every other role (Security Admin, Admin Maintenance, staff by department), changes roles, resets passwords and ends sessions. The President's own account is managed only by the System Admin.
-- **On for Aytam staff:** orphan records. List with search and status filters, add an orphan, and a profile page for each one. Everything about an orphan can be changed:
+## Office features: switched on by role
+Every office feature has a switch in `insania_app/config/features.php`. A switch is off, on, or on for chosen roles only.
+- **On for the President Admin: every office feature.** Orphan records and applications, payments, projects, reports, the website editor, the activity log, and the Accounts screen (the President creates every other role, changes roles, resets passwords and ends sessions; the President's own account is managed only by the System Admin). The President has no system tools.
+- **On for staff by department:** Aytam (orphan records, applications), Finance (payments, reports), Projects (projects). Other departments hold nothing yet.
+- **Only the President:** the website editor, the activity log, the Accounts screen.
+- **Still off:** family accounts, and the Security Admin's account tools.
+- **Orphan records (Aytam staff and the President):** List with search and status filters, add an orphan, and a profile page for each one. Everything about an orphan can be changed:
   - On the list, the **pencil** beside each orphan opens the whole record for a quick edit.
   - The profile page is a page of its own: only a **Back** button and the orphan (no logo, no menus). Each part (about, school and health, where the child lives, mother and family, guardian, bank account, foundation notes) has its own **Edit** button; **Edit all** opens everything at once.
   - Bank account: the Aytam staff can correct it. A corrected account goes back to **Not checked** until someone checks it again.
   - Photos: add (up to 8) or remove. Documents: view, add or replace.
-  - Only the Aytam department holds these; the President and other departments do not see them yet.
+  - Only the Aytam department and the President hold these; other departments do not see them.
 - **Phone layout:** on a phone the menu sits at the **bottom** of the screen (up to 5 buttons; with more, the last is **More**). Computers keep the top pills and the left rail.
 - **Public application form (Aytam):** `https://alinsania.com/apply` is a link you can send to any family (WhatsApp, SMS, print). No sign-in. It opens with two choices:
   1. **Fill in the form:** a step-by-step form (information, health and study, where the child lives, mother and family, guardian, bank account, photos). A step cannot be passed while a required answer is missing or wrong. At the end the family sees every answer, can change any part, ticks that the answers are true, and sends.
@@ -54,7 +57,7 @@ Every office feature has an on/off switch in `insania_app/config/features.php`. 
   - Answers go to **Applications** (Aytam menu): open one, read it (the sent documents are shown there), then **Approve** (it becomes an orphan record, photos included) or **Reject**. Nothing becomes a record until approved. Photos and documents are private. Fields only the foundation fills in (status, channel, source, sponsor, performance, notes) are not on the public form; the Aytam staff add them on the orphan's profile.
 - **Sample orphans:** twenty made-up orphans (AY-001 to AY-020, marked "Sample") are added so the screens are not empty. On the Orphans page, **Remove sample orphans** deletes exactly those and nothing else. Do this before real use.
 - To close the public form, set `'public_apply' => false` in `config/features.php`.
-- **Off for now:** payments, projects, reports, website editing, activity log, family accounts, and the Security Admin's account tools.
+- **Off for now:** family accounts and the Security Admin's account tools.
 - Off means gone for everyone: no menu, no screen, and the server refuses it. Nothing is deleted; records stay in the database.
 - The System Admin keeps every tool (health, settings, partner keys, updates, creating and changing the President Admin). Everyone can sign in and change their own password.
 - The public website keeps showing what was last published.

@@ -40,7 +40,7 @@ return [
         'security_admin' => ['users.manage', 'audit.read'],
         'president_admin' => [
             'children.view', 'children.create', 'children.update', 'bank.verify',
-            'documents.view', 'documents.upload',
+            'documents.view', 'documents.upload', 'applications.review',
             'payments.view', 'payments.mark_cash',
             'projects.view', 'projects.manage',
             'reports.view', 'reports.export',
