@@ -141,9 +141,10 @@
     var PRI = ["dashboard", "people", "applications", "payments", "website", "projects", "education", "users", "system", "updates", "audit", "family", "reports", "settings"];
     var sorted = items.slice().sort(function (a, b) { return PRI.indexOf(a[0]) - PRI.indexOf(b[0]); });
     /* the top bar keeps only three core places (Home first); everything else, Chat and Education included, sits under More */
-    var CORE = ["dashboard", "people", "payments", "applications", "projects", "users", "system", "family", "reports", "education", "website"], core = [];
-    CORE.forEach(function (k) { var m = sorted.filter(function (x) { return x[0] === k; })[0]; if (m && core.length < 3) core.push(m); });
-    core.sort(function (a, b) { return PRI.indexOf(a[0]) - PRI.indexOf(b[0]); });
+    var find = function (k) { return sorted.filter(function (x) { return x[0] === k; })[0]; }, core = [], FILL = ["people", "payments", "applications", "projects", "education", "system", "updates", "audit", "reports", "website", "family"];
+    var home = find("dashboard"), chatI = find("chat"), acc = find("users");
+    var middle = acc ? [acc] : []; FILL.forEach(function (k) { var m = find(k); if (m && middle.length < 3 - (home ? 1 : 0) - (chatI ? 1 : 0) && middle.indexOf(m) < 0) middle.push(m); });
+    if (home) core.push(home); core = core.concat(middle); if (chatI) core.push(chatI);   // Home, Accounts (or the first place you work in), Chat
     menuItems = sorted.filter(function (m) { return core.indexOf(m) < 0 && m[0] !== "settings"; }); menuHasChat = menuItems.some(function (m) { return m[0] === "chat"; });
     /* top bar: brand left, sections as pills in the middle, round tools and the account on the right */
     $("#nav").innerHTML = '<div class="row"><a class="brand" href="dashboard.html" aria-label="' + esc(t("n_home")) + '"><span class="logo" role="img" aria-hidden="true"></span><span><span>' + t("brand") + "</span><small>" + t("staff") + "</small></span></a>" +
