@@ -26,6 +26,7 @@ final class PermissionCatalog
             'children.view' => 'See children and their profiles',
             'children.create' => 'Register children',
             'children.update' => 'Edit children',
+            'applications.review' => 'Review applications sent through the public form, and turn them into orphan records',
             'bank.verify' => 'Verify or un-verify a child\'s bank account',
             'documents.view' => 'See a child\'s documents',
             'documents.upload' => 'Upload a child\'s documents',

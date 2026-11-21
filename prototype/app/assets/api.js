@@ -178,6 +178,13 @@
     }, function () { var er = new Error("network"); er.network = true; er.offline = true; er.message = "This needs a connection."; throw er; });
   }
 
+  /** Fetches a private file (a photo) with the sign-in token and resolves a blob: address an <img> can show. Never saved on the phone. */
+  function blobUrl(path) {
+    if (navigator.onLine === false) return Promise.reject(new Error("offline"));
+    var s = session(), headers = {}; if (s && s.token) headers.Authorization = "Bearer " + s.token;
+    return fetch(base() + path, { headers: headers, credentials: "omit" }).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.blob(); }).then(function (b) { return URL.createObjectURL(b); });
+  }
+
   /* ---------- public: write ---------- */
   /** opts: { label, optimistic: function(), online: true (never queue) }  -> { queued, data } */
   function write(method, path, body, opts) {
@@ -247,7 +254,7 @@
   window.addEventListener("load", function () { setTimeout(sync, 600); });
 
   window.ACFAPI = {
-    base: base, session: session, user: user, can: can, login: login, logout: logout, refreshMe: refreshMe,
+    base: base, session: session, user: user, can: can, blobUrl: blobUrl, login: login, logout: logout, refreshMe: refreshMe,
     get: get, getAll: getAll, upload: upload, getEvery: getEvery, prefetch: prefetch, setPrefs: setPrefs, updateUser: updateUser, write: write, patchCache: patchCache, wipeCache: wipeCache,
     outbox: mine, counts: counts, state: state, onChange: onChange, sync: sync, discard: discard, retry: retry,
     expired: function () { return !!rd(META, {}).expired; }, clearExpired: function () { setMeta({ expired: false }); }

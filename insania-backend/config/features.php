@@ -19,6 +19,7 @@ return [
     'switches' => [
         'children' => ['staff'],   // ON for staff: only the Aytam department holds these permissions. Orphan records, profile pages,
                                    // bank account checks, documents. The President and other departments stay off until decided.
+        'applications' => ['staff'], // ON for staff (Aytam only): the public application form's review queue and the orphan photos
         'payments' => false,       // monthly sponsorship payments, cash received
         'projects' => false,       // projects and their progress
         'reports' => false,        // report summaries and exports
@@ -30,9 +31,13 @@ return [
         'family' => false,         // a family's own account
     ],
 
+    // The public application form (alinsania.com/apply): true = people can send applications, false = the form says it is closed.
+    'public_apply' => true,
+
     // Which permissions each feature brings. A permission listed here exists only while its feature is on.
     'permissions' => [
         'children' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload'],
+        'applications' => ['applications.review'],
         'payments' => ['payments.view', 'payments.mark_cash'],
         'projects' => ['projects.view', 'projects.manage'],
         'reports' => ['reports.view', 'reports.export'],

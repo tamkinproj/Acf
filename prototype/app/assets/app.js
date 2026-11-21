@@ -12,7 +12,7 @@
       login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
       login_err: "Enter your email and password.", login_fail: "Wrong email or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a minute and try again.",
-      n_home: "Home", n_people: "Orphans", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
+      n_home: "Home", n_people: "Orphans", n_apps: "Applications", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
       loading: "Loading…", none: "No matches.", back: "Back", cancel: "Cancel", save: "Save", required: "This field is required.", lang_btn: "العربية", signout: "Sign out",
       noaccess: "Your role does not include this page.", per_month: "per month",
       offline_none: "Nothing is saved on this phone for this page yet. Open it once while connected.", load_err: "Could not load. Try again.",
@@ -26,7 +26,7 @@
       login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
       login_err: "أدخل بريدك وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر دقيقة ثم حاول مجددًا.",
-      n_home: "الرئيسية", n_people: "الأيتام", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
+      n_home: "الرئيسية", n_people: "الأيتام", n_apps: "الطلبات", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
       loading: "جارٍ التحميل…", none: "لا نتائج.", back: "رجوع", cancel: "إلغاء", save: "حفظ", required: "هذا الحقل مطلوب.", lang_btn: "English", signout: "تسجيل الخروج",
       noaccess: "دورك لا يشمل هذه الصفحة.", per_month: "شهريًا",
       offline_none: "لا يوجد شيء محفوظ على هذا الهاتف لهذه الصفحة بعد. افتحها مرة واحدة أثناء الاتصال.", load_err: "تعذّر التحميل. حاول مجددًا.",
@@ -98,7 +98,7 @@
   // [id, page, text key, permission needed (null = everyone), icon]
   var MENU = [
     ["dashboard", "dashboard.html", "n_home", null, "home"], ["people", "people.html", "n_people", "children.view", "users"],
-    ["payments", "payments.html", "n_pay", "payments.view", "wallet"], ["projects", "projects.html", "n_proj", "projects.view", "folder"], ["website", "website.html", "n_website", "site.edit", "globe"],
+    ["applications", "applications.html", "n_apps", "applications.review", "file"], ["payments", "payments.html", "n_pay", "payments.view", "wallet"], ["projects", "projects.html", "n_proj", "projects.view", "folder"], ["website", "website.html", "n_website", "site.edit", "globe"],
     ["reports", "reports.html", "n_rep", "reports.view", "file"], ["family", "family.html", "n_family", "family.view_own", "users"],
     ["users", "users.html", "n_users", "users.manage", "shield"], ["audit", "audit.html", "n_audit", "audit.read", "file"],
     ["system", "system.html", "n_system", "system.health", "sliders"], ["updates", "updates.html", "n_updates", "system.updates", "download"], ["settings", "settings.html", "n_set", null, "sliders"]
@@ -121,7 +121,7 @@
       '<nav aria-label="Main"><ul class="menu">' + items.map(function (m) { return '<li><a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + t(m[2]) + "</a></li>"; }).join("") + "</ul></nav>" +
       '<div class="tools"><span id="chipBox">' + chipHtml() + '</span><button class="btn btn-line btn-sm round" type="button" data-act="lang" aria-label="Language">' + ic("globe") + '</button><button class="btn btn-main btn-sm round" type="button" data-act="signout" aria-label="' + esc(t("signout")) + '">' + ic("logout") + "</button></div></div>";
     // The bottom bar holds five places. When a role has more, the first four by importance stay and the rest sit under "More".
-    var PRI = ["dashboard", "people", "payments", "website", "projects", "users", "system", "updates", "audit", "family", "reports", "settings"];
+    var PRI = ["dashboard", "people", "applications", "payments", "website", "projects", "users", "system", "updates", "audit", "family", "reports", "settings"];
     var sorted = items.slice().sort(function (a, b) { return PRI.indexOf(a[0]) - PRI.indexOf(b[0]); });
     var more = sorted.length > 5 ? sorted.slice(4) : [], tabs = sorted.length > 5 ? sorted.slice(0, 4) : sorted;
     moreItems = more;

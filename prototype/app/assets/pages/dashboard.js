@@ -13,7 +13,7 @@
     w_accounts: "Accounts overview", w_accounts_sub: "Active accounts by role", w_latest_accounts: "Latest accounts", w_role: "Role",
     r_system_admin: "System Admin", r_president_admin: "President Admin", r_security_admin: "Security Admin", r_admin_maintenance: "Admin Maintenance", r_staff: "Staff", r_user: "Family",
     w_system: "System status", w_database: "Database", w_storage: "Storage", w_ok: "OK", w_problem: "Problem", w_president: "President Admin", w_manage: "Manage", w_no_pres: "Not created yet",
-    w_active: "Active", w_off: "Switched off", w_of: "of {m}", w_quick_sub: "Go straight to what you do most"
+    ap_stat: "New applications", w_active: "Active", w_off: "Switched off", w_of: "of {m}", w_quick_sub: "Go straight to what you do most"
   }, {
     hello: "أهلًا بعودتك", hello_sub: "هذا ما يجري اليوم.",
     s_children: "الأيتام", s_verified: "حسابات بنكية موثّقة", s_paid: "مدفوع هذا الشهر", s_pending: "معلّق هذا الشهر",
@@ -26,7 +26,7 @@
     w_accounts: "نظرة على الحسابات", w_accounts_sub: "الحسابات النشطة حسب الدور", w_latest_accounts: "آخر الحسابات", w_role: "الدور",
     r_system_admin: "مدير النظام", r_president_admin: "رئيس الإدارة", r_security_admin: "مدير الأمان", r_admin_maintenance: "مشرف الصيانة", r_staff: "موظف", r_user: "عائلة",
     w_system: "حالة النظام", w_database: "قاعدة البيانات", w_storage: "التخزين", w_ok: "سليم", w_problem: "مشكلة", w_president: "رئيس الإدارة", w_manage: "إدارة", w_no_pres: "لم يُنشأ بعد",
-    w_active: "نشط", w_off: "متوقف", w_of: "من {m}", w_quick_sub: "اذهب مباشرة إلى ما تفعله كثيرًا"
+    ap_stat: "طلبات جديدة", w_active: "نشط", w_off: "متوقف", w_of: "من {m}", w_quick_sub: "اذهب مباشرة إلى ما تفعله كثيرًا"
   });
 
   var COLORS = { active: "#4f9d12", pending: "#e0a400", ended: "#9aa595" };
@@ -66,6 +66,7 @@
       stats.push(stat("users", d.children.total, t("s_children")));
       stats.push(stat("shield", d.children.bank_verified, t("s_verified"), { of: d.children.bank_accounts, pct: d.children.bank_accounts ? d.children.bank_verified / d.children.bank_accounts * 100 : 0 }));
     }
+    if (d.applications) stats.push('<a class="fb-stat-link" href="applications.html">' + stat("file", d.applications.new, t("ap_stat"), { warn: d.applications.new > 0 }) + "</a>");
     if (d.payments) { stats.push(stat("check", d.payments.paid_count, t("s_paid"), { of: d.payments.children, pct: d.payments.children ? d.payments.paid_count / d.payments.children * 100 : 0 })); stats.push(stat("wallet", d.payments.pending_count, t("s_pending"))); }
     if (d.projects) stats.push(stat("folder", d.projects.active, t("s_projects"), { of: d.projects.total }));
     if (d.security) {

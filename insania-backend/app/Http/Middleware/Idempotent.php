@@ -21,7 +21,7 @@ class Idempotent
             return $next($request);
         }
         // Answers that carry a secret shown once (a new partner key) are never stored for replay.
-        if ($request->is('api/system/api-keys', 'api/system/api-keys/*', 'api/users/*/password', 'api/me/password', 'api/system/president-admin')) {
+        if ($request->is('api/system/api-keys', 'api/system/api-keys/*', 'api/users/*/password', 'api/me/password', 'api/system/president-admin', 'api/public/apply')) {
             return $next($request);
         }
         if (! preg_match('/^[A-Za-z0-9_-]{8,100}$/', $key)) {

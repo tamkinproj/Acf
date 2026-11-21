@@ -29,7 +29,7 @@ class FeatureSwitchesTest extends TestCase
         $file = require base_path('config/features.php');
         $this->assertNotEmpty($file['switches']);
         foreach ($file['switches'] as $feature => $on) {
-            $expected = ['accounts' => ['president_admin'], 'children' => ['staff']][$feature] ?? false;
+            $expected = ['accounts' => ['president_admin'], 'children' => ['staff'], 'applications' => ['staff']][$feature] ?? false;
             $this->assertSame($expected, $on, "$feature switch as shipped");
         }
     }

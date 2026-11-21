@@ -1,74 +1,92 @@
-/* Shared by the Orphans list (add) and the orphan profile (edit): the form, and reading it back. */
+/* Shared by the Orphans list (add), the profile (view and edit) and the application review: the form, reading it back, and showing a record.
+   Everything comes from ORPHAN_SCHEMA (orphan-schema.js), so a field added there appears everywhere. */
 (function () {
-  var A = ACF, t = A.t;
+  var A = ACF, t = A.t, S = window.ORPHAN_SCHEMA || [];
 
   A.strings({
-    o_sec_basic: "About the child", o_sec_school: "School and health", o_sec_family: "Mother and family", o_sec_guardian: "Direct responsible person", o_sec_bank: "Bank account (optional)",
-    f_name_en: "Name (English)", f_name_ar: "Name (Arabic)", f_gender: "Gender", male: "Male", female: "Female", f_dob: "Date of birth", f_city: "City",
-    f_grade: "Grade / school level", f_health: "Health status", good: "Good", needs_followup: "Needs follow-up",
-    f_mother: "Mother name", f_mstatus: "Mother marital status", f_fdeath: "Father death date", f_bro: "Number of brothers", f_sis: "Number of sisters",
-    f_guardian: "Guardian name", f_rel: "Relationship", f_phone: "Guardian phone", f_paytype: "Payment type", bank_pay: "Bank transfer", cash_only: "Cash payment",
-    f_holder: "Account holder", f_bankname: "Bank", f_last4: "Last 4 digits of the account", f_status: "Status",
-    active: "Active", pending: "Pending", ended: "Ended", bank_all_or_none: "Fill in all three bank fields, or none."
+    f_status: "Status", active: "Active", pending: "Pending", ended: "Ended", bank_all_or_none: "Fill in all three bank fields, or none.", o_none: "-", o_yes_note: ""
   }, {
-    o_sec_basic: "عن الطفل", o_sec_school: "الدراسة والصحة", o_sec_family: "الأم والأسرة", o_sec_guardian: "المسؤول المباشر", o_sec_bank: "الحساب البنكي (اختياري)",
-    f_name_en: "الاسم (بالإنجليزية)", f_name_ar: "الاسم (بالعربية)", f_gender: "الجنس", male: "ذكر", female: "أنثى", f_dob: "تاريخ الميلاد", f_city: "المدينة",
-    f_grade: "الصف / المستوى الدراسي", f_health: "الحالة الصحية", good: "جيدة", needs_followup: "تحتاج متابعة",
-    f_mother: "اسم الأم", f_mstatus: "الحالة الاجتماعية للأم", f_fdeath: "تاريخ وفاة الأب", f_bro: "عدد الإخوة", f_sis: "عدد الأخوات",
-    f_guardian: "اسم الوصي", f_rel: "صلة القرابة", f_phone: "هاتف الوصي", f_paytype: "طريقة الدفع", bank_pay: "حوالة بنكية", cash_only: "دفع نقدي",
-    f_holder: "صاحب الحساب", f_bankname: "البنك", f_last4: "آخر 4 أرقام من الحساب", f_status: "الحالة",
-    active: "نشط", pending: "معلّق", ended: "منتهٍ", bank_all_or_none: "املأ حقول البنك الثلاثة كلها أو اتركها فارغة."
+    f_status: "الحالة", active: "نشط", pending: "معلّق", ended: "منتهٍ", bank_all_or_none: "املأ حقول البنك الثلاثة كلها أو اتركها فارغة.", o_none: "-", o_yes_note: ""
   });
 
+  function ar() { return A.lang() === "ar"; }
+  function lab(x) { return ar() ? x.ar : x.en; }
   function esc(s) { return A.esc(s === null || s === undefined ? "" : String(s)); }
-  function val(v) { return v === null || v === undefined ? "" : 'value="' + esc(v) + '"'; }
-  function sel(id, label, opts, cur) {
-    return '<div><label for="' + id + '">' + label + '</label><select id="' + id + '">' + opts.map(function (o) { return '<option value="' + o[0] + '"' + (String(cur === null || cur === undefined ? "" : cur) === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + '</select><div class="err" id="' + id + 'Err"></div></div>';
-  }
-  function sec(k) { return '<h4 class="fsec">' + t(k) + "</h4>"; }
+  function optLabel(o) { return ar() ? o[2] : o[1]; }
 
-  /* c = the profile being edited (or nothing, for a new child). */
+  function control(f, val) {
+    var id = "f_" + f.k, v = val === null || val === undefined ? "" : String(val), dir = f.dir ? ' dir="' + f.dir + '"' : "";
+    var inp;
+    if (f.t === "sel") {
+      var has = false, opts = f.o.map(function (o) { var on = o[0] === v; if (on) has = true; return '<option value="' + esc(o[0]) + '"' + (on ? " selected" : "") + ">" + esc(optLabel(o)) + "</option>"; });
+      if (v && !has) opts.push('<option value="' + esc(v) + '" selected>' + esc(v) + "</option>");   // an older free-text value is kept, never lost
+      inp = '<select id="' + id + '">' + opts.join("") + "</select>";
+    } else if (f.t === "long") inp = '<textarea id="' + id + '" rows="3"' + dir + ">" + esc(v) + "</textarea>";
+    else {
+      var type = f.t === "date" ? "date" : f.t === "num" || f.t === "dec" ? "number" : f.t === "tel" ? "tel" : "text";
+      inp = '<input id="' + id + '" type="' + type + '"' + dir + (f.t === "num" ? ' min="0" max="30" inputmode="numeric"' : "") + (f.t === "dec" ? ' min="0" step="0.01" inputmode="decimal"' : "") + (f.t === "tel" ? ' inputmode="tel"' : "") + (f.max ? ' maxlength="' + f.max + '"' : "") + (f.k === "bank_last4" ? ' inputmode="numeric"' : "") + ' value="' + esc(v) + '">';
+    }
+    return '<div><label for="' + id + '">' + esc(lab(f)) + "</label>" + inp + '<div class="err" id="' + id + 'Err"></div></div>';
+  }
+
+  /* c = the profile being edited (nothing = a new orphan). */
   function formHtml(c) {
-    c = c || {}; var p = c.personal || {}, f = c.family || {}, g = c.guardian_detail || {}, edit = !!c.id;
-    return sec("o_sec_basic") +
-      A.field("f_name_en", t("f_name_en"), "", "text", 'dir="ltr" autocomplete="off" ' + val(c.name_en)) + A.field("f_name_ar", t("f_name_ar"), "", "text", 'dir="rtl" ' + val(c.name_ar)) +
-      sel("f_gender", t("f_gender"), [["", "-"], ["f", t("female")], ["m", t("male")]], p.gender) +
-      A.field("f_birth_date", t("f_dob"), "", "date", val(p.birth_date)) + A.field("f_city", t("f_city"), "", "text", val(p.city)) +
-      (edit ? sel("f_status", t("f_status"), [["active", t("active")], ["pending", t("pending")], ["ended", t("ended")]], c.status) : "") +
-      sec("o_sec_school") + A.field("f_grade", t("f_grade"), "", "text", val(p.grade)) +
-      sel("f_health_status", t("f_health"), [["", "-"], ["good", t("good")], ["needs_followup", t("needs_followup")]], p.health_status) +
-      sec("o_sec_family") + A.field("f_mother_name", t("f_mother"), "", "text", val(f.mother_name)) + A.field("f_mother_marital_status", t("f_mstatus"), "", "text", val(f.mother_marital_status)) +
-      A.field("f_father_death_date", t("f_fdeath"), "", "date", val(f.father_death_date)) +
-      '<div class="two">' + A.field("f_brothers", t("f_bro"), "", "number", 'min="0" max="30" inputmode="numeric" ' + val(f.brothers)) + A.field("f_sisters", t("f_sis"), "", "number", 'min="0" max="30" inputmode="numeric" ' + val(f.sisters)) + "</div>" +
-      sec("o_sec_guardian") + A.field("f_guardian_name", t("f_guardian"), "", "text", val(g.name)) + A.field("f_guardian_relation", t("f_rel"), "", "text", val(g.relation)) +
-      A.field("f_guardian_phone", t("f_phone"), "", "tel", 'dir="ltr" inputmode="tel" ' + val(g.phone)) +
-      (edit ? "" : sec("o_sec_bank") + sel("f_pay_type", t("f_paytype"), [["bank", t("bank_pay")], ["cash", t("cash_only")]], "bank") +
-        '<div id="bankBox">' + A.field("f_bank_holder", t("f_holder")) + A.field("f_bank_bank_name", t("f_bankname")) + A.field("f_bank_last4", t("f_last4"), "", "text", 'inputmode="numeric" maxlength="4" dir="ltr"') + "</div>");
+    c = c || {}; var d = c.details || {}, edit = !!c.id, html = "";
+    if (edit) html += '<div><label for="f_status">' + t("f_status") + '</label><select id="f_status">' + [["active", "active"], ["pending", "pending"], ["ended", "ended"]].map(function (s) { return '<option value="' + s[0] + '"' + (c.status === s[0] ? " selected" : "") + ">" + t(s[1]) + "</option>"; }).join("") + "</select></div>";
+    S.forEach(function (g, i) {
+      var fields = g.fields.filter(function (f) { return !(edit && f.create); });                  // the bank account is set when the orphan is added; staff verify it on the profile
+      if (!fields.length) return;
+      html += '<details class="fsd"' + (i === 0 ? " open" : "") + "><summary>" + esc(lab(g)) + "</summary><div class=\"fsd-body\">" + fields.map(function (f) { return control(f, d[f.k]); }).join("") + "</div></details>";
+    });
+    return html;
   }
-  function wire() {
-    var pt = document.getElementById("f_pay_type"); if (pt) pt.addEventListener("change", function () { document.getElementById("bankBox").style.display = this.value === "bank" ? "" : "none"; });
-  }
+  function wire() {}
   function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
 
   /* Returns the request body, or { error: [fieldId, message] }. */
   function readBody(edit) {
-    var body = { name_en: v("f_name_en") };
-    if (!body.name_en) return { error: ["f_name_en", t("required")] };
-    ["name_ar", "gender", "birth_date", "city", "grade", "health_status", "mother_name", "mother_marital_status", "father_death_date"].forEach(function (k) {
-      if (edit) body[k] = v("f_" + k) || null; else if (v("f_" + k)) body[k] = v("f_" + k);
+    var body = {}, g = {}, b = {};
+    if (!v("f_name_en") && !v("f_name_ar")) return { error: ["f_name_en", t("required")] };
+    S.forEach(function (grp) {
+      grp.fields.forEach(function (f) {
+        var raw = v("f_" + f.k); if (edit && f.create) return;
+        var val = raw === "" ? null : (f.t === "num" ? parseInt(raw, 10) : f.t === "dec" ? Number(raw) : raw);
+        if (f.k.indexOf("guardian_") === 0) { if (val !== null) g[f.k.slice(9)] = val; return; }
+        if (f.k.indexOf("bank_") === 0) { if (val !== null) b[f.k === "bank_name" ? "bank_name" : f.k.slice(5)] = val; return; }
+        if (edit) body[f.k] = val; else if (val !== null) body[f.k] = val;
+      });
     });
-    ["brothers", "sisters"].forEach(function (k) { if (v("f_" + k) !== "") body[k] = parseInt(v("f_" + k), 10); else if (edit) body[k] = null; });
+    if (!body.name_en) { if (edit) body.name_en = body.name_ar || v("f_name_ar"); else body.name_en = body.name_ar; }   // the record is listed under the English name; fall back to Arabic
     if (edit) body.status = v("f_status");
-    if (v("f_guardian_name")) { body.guardian = { name: v("f_guardian_name") }; if (v("f_guardian_relation")) body.guardian.relation = v("f_guardian_relation"); if (v("f_guardian_phone")) body.guardian.phone = v("f_guardian_phone"); }
+    if (g.name) body.guardian = g;
     if (!edit) {
-      body.pay_type = v("f_pay_type");
-      if (body.pay_type === "bank") {
-        var b = { holder: v("f_bank_holder"), bank_name: v("f_bank_bank_name"), last4: v("f_bank_last4") }, filled = [b.holder, b.bank_name, b.last4].filter(Boolean).length;
-        if (filled && filled < 3) return { error: ["formErr", t("bank_all_or_none")] };
-        if (filled === 3) body.bank = b;
-      }
+      var filled = ["holder", "bank_name", "last4"].filter(function (k) { return b[k]; }).length;
+      if (filled && filled < 3) return { error: ["formErr", t("bank_all_or_none")] };
+      body.pay_type = filled === 3 ? "bank" : "cash"; if (filled === 3) body.bank = b;
     }
     return body;
   }
-  A.orphan = { formHtml: formHtml, wire: wire, readBody: readBody };
+
+  /* ---- showing a record: one card per group, only with what the viewer may see ---- */
+  function dateText(x) { try { return new Date(x + "T00:00:00").toLocaleDateString(ar() ? "ar" : "en-GB", { day: "numeric", month: "long", year: "numeric" }); } catch (e) { return esc(x); } }
+  function show(f, val) {
+    if (val === null || val === undefined || val === "") return "-";
+    if (f.t === "sel") { for (var i = 0; i < f.o.length; i++) if (f.o[i][0] === String(val)) return esc(optLabel(f.o[i])); return esc(val); }
+    if (f.t === "date") return esc(dateText(val));
+    if (f.t === "tel") return '<a dir="ltr" href="tel:' + esc(String(val).replace(/[^0-9+]/g, "")) + '">' + esc(val) + "</a>";
+    if (f.k === "bank_last4") return '<span dir="ltr">•••• ' + esc(val) + "</span>";
+    if (f.t === "dec") return esc(Number(val).toLocaleString("en-US", { maximumFractionDigits: 2 }));
+    if (f.t === "long") return '<span style="white-space:pre-line">' + esc(val) + "</span>";
+    return f.dir === "ltr" || f.t === "num" ? '<span dir="ltr">' + esc(val) + "</span>" : esc(val);
+  }
+  /* d = flat details. opts.bank = also show the bank group (the profile shows it in its own card, with the Verified switch). */
+  function view(d, opts) {
+    opts = opts || {}; d = d || {};
+    return S.filter(function (g) { return opts.bank || g.id !== "bank"; }).map(function (g) {
+      var fields = g.fields.filter(function (f) { return !(opts.skipStaff && f.staff); });
+      if (!fields.length) return "";
+      return '<div class="card"><h3>' + esc(lab(g)) + "</h3>" + A.facts(fields.map(function (f) { return [esc(lab(f)), show(f, d[f.k])]; })) + "</div>";
+    }).join("");
+  }
+  A.orphan = { formHtml: formHtml, wire: wire, readBody: readBody, view: view, show: show, schema: S };
 })();

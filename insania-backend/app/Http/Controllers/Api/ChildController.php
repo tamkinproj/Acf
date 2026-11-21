@@ -11,6 +11,7 @@ use App\Models\Sponsor;
 use App\Models\Sponsorship;
 use App\Support\ApiResponse;
 use App\Support\Audit;
+use App\Support\OrphanFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -40,6 +41,28 @@ class ChildController extends Controller
         return ApiResponse::collection($page);
     }
 
+    /** One photo of a child, for staff who may see the child. */
+    public function photo(Child $child, int $photo)
+    {
+        $p = $child->photos()->where('id', $photo)->first();
+
+        return ApplicationController::file($p?->path, $p?->mime ?? 'image/jpeg');
+    }
+
+    /** Removes the sample orphans that came with the system (and only those). */
+    public function removeSamples(Request $request)
+    {
+        $ids = Child::where('is_sample', true)->pluck('id');
+        $guardianIds = Child::where('is_sample', true)->whereNotNull('guardian_id')->pluck('guardian_id');
+        DB::transaction(function () use ($ids, $guardianIds) {
+            Child::whereIn('id', $ids)->delete();
+            Guardian::whereIn('id', $guardianIds)->whereDoesntHave('children')->delete();
+        });
+        Audit::record('child.samples_removed', $request, null, null, ['count' => $ids->count()]);
+
+        return ApiResponse::ok(['removed' => $ids->count()]);
+    }
+
     public function show(Child $child)
     {
         return ApiResponse::ok($child->toProfileApi());
@@ -50,37 +73,7 @@ class ChildController extends Controller
         $data = $request->validate($this->rules(true));
         $user = $request->user();
 
-        $child = DB::transaction(function () use ($data, $user) {
-            $guardian = null;
-            if (! empty($data['guardian']['name'])) {
-                $guardian = Guardian::create(['foundation_id' => $user->foundation_id] + $data['guardian']);
-            }
-
-            $child = Child::create([
-                'foundation_id' => $user->foundation_id,
-                'ref' => 'TMP-'.Str::random(12),
-                'guardian_id' => $guardian?->id,
-            ] + collect($data)->except(['guardian', 'bank', 'pay_type', 'monthly_amount', 'channel', 'sponsor_id'])->all());
-            $child->update(['ref' => 'ACF-'.str_pad((string) $child->id, 4, '0', STR_PAD_LEFT)]);
-
-            $channel = $data['channel'] ?? 'direct';
-            $sponsorId = $channel === 'partner' && ! empty($data['sponsor_id'])
-                ? Sponsor::where('id', $data['sponsor_id'])->value('id')   // scoped: only this foundation's sponsors
-                : null;
-
-            Sponsorship::create([
-                'foundation_id' => $user->foundation_id, 'child_id' => $child->id, 'sponsor_id' => $sponsorId,
-                'channel' => $channel, 'status' => 'pending', 'pay_type' => $data['pay_type'] ?? 'bank',
-                'monthly_amount' => $data['monthly_amount'] ?? 0, 'start_date' => now()->toDateString(),
-            ]);
-            ChannelHistory::create(['foundation_id' => $user->foundation_id, 'child_id' => $child->id, 'channel' => $channel, 'since' => now()->toDateString()]);
-
-            if (($data['pay_type'] ?? 'bank') === 'bank' && ! empty($data['bank'])) {
-                BankAccount::create(['foundation_id' => $user->foundation_id, 'child_id' => $child->id] + $data['bank']);
-            }
-
-            return $child;
-        });
+        $child = \App\Services\ChildRecords::create($data, $user->foundation_id);
 
         Audit::record('child.created', $request, 'child', $child->id);
 
@@ -109,19 +102,11 @@ class ChildController extends Controller
     {
         $req = $creating ? 'required' : 'sometimes';
 
-        return [
+        $flat = collect(OrphanFields::rules())->only(OrphanFields::childKeys())->all();
+        unset($flat['name_en']);
+
+        return $flat + [
             'name_en' => [$req, 'string', 'max:150'],
-            'name_ar' => ['nullable', 'string', 'max:150'],
-            'gender' => ['nullable', 'in:m,f'],
-            'birth_date' => ['nullable', 'date', 'before:today'],
-            'city' => ['nullable', 'string', 'max:100'],
-            'health_status' => ['nullable', 'in:good,needs_followup'],
-            'grade' => ['nullable', 'string', 'max:40'],
-            'mother_name' => ['nullable', 'string', 'max:150'],
-            'mother_marital_status' => ['nullable', 'string', 'max:40'],
-            'father_death_date' => ['nullable', 'date'],
-            'brothers' => ['nullable', 'integer', 'min:0', 'max:30'],
-            'sisters' => ['nullable', 'integer', 'min:0', 'max:30'],
             'status' => ['sometimes', 'in:active,pending,ended'],
             'guardian' => ['nullable', 'array'],
             'guardian.name' => ['required_with:guardian', 'string', 'max:150'],

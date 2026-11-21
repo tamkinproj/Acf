@@ -27,6 +27,9 @@ class RouteServiceProvider extends ServiceProvider
         // Broad per-address cap on the sign-in route; LoginThrottle adds the per-account cap.
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
 
+        // The public application form: a few per hour for each address (config/orphan_fields.php).
+        RateLimiter::for('apply', fn (Request $request) => Limit::perHour((int) config('orphan_fields.apply.per_hour', 6))->by($request->ip()));
+
         RateLimiter::for('api', function (Request $request) {
             // The staff app saves pages on the phone for offline use, so a signed-in account gets a generous allowance.
             return $request->user() ? Limit::perMinute(300)->by('u'.$request->user()->id) : Limit::perMinute(60)->by($request->ip());

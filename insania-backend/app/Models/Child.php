@@ -12,12 +12,23 @@ class Child extends Model
 
     public const DOCUMENT_TYPES = ['birth_certificate', 'father_death_certificate', 'school_record', 'guardian_id'];
 
-    protected $fillable = [
-        'foundation_id', 'ref', 'name_en', 'name_ar', 'gender', 'birth_date', 'city', 'health_status', 'grade',
-        'mother_name', 'mother_marital_status', 'father_death_date', 'brothers', 'sisters', 'guardian_id', 'status',
+    protected $fillable = ['foundation_id', 'ref', 'guardian_id', 'status', 'form_submitted_at', 'is_sample'];
+
+    protected $casts = [
+        'birth_date' => 'date:Y-m-d', 'father_death_date' => 'date:Y-m-d', 'responsible_since' => 'date:Y-m-d', 'expected_send_date' => 'date:Y-m-d',
+        'form_submitted_at' => 'datetime', 'is_sample' => 'boolean', 'mother_salary' => 'decimal:2',
     ];
 
-    protected $casts = ['birth_date' => 'date:Y-m-d', 'father_death_date' => 'date:Y-m-d'];
+    public function getFillable()
+    {
+        // every information field of config/orphan_fields.php that is a column of this table
+        return array_merge($this->fillable, \App\Support\OrphanFields::childKeys());
+    }
+
+    public function photos()
+    {
+        return $this->hasMany(ChildPhoto::class);
+    }
 
     public function guardian()
     {
@@ -82,18 +93,22 @@ class Child extends Model
             'bank_verified' => $this->bankAccount?->verified,
             'status' => $this->status,
             'age' => $this->birth_date?->age,
+            'is_sample' => (bool) $this->is_sample,
         ];
     }
 
     /** Full profile, in the sections the staff app shows. */
     public function toProfileApi(bool $withDocuments = true): array
     {
-        $this->loadMissing(['guardian', 'bankAccount', 'histories', 'sponsorship.sponsor', 'documents']);
+        $this->loadMissing(['guardian', 'bankAccount', 'histories', 'sponsorship.sponsor', 'documents', 'photos']);
         $s = $this->sponsorship;
         $docs = $this->documents->keyBy('type');
 
         return $this->toListApi() + [
             'created_at' => $this->created_at?->toDateString(), 'updated_at' => $this->updated_at?->toDateString(),
+            'form_submitted_at' => $this->form_submitted_at?->format('Y-m-d H:i'),
+            'details' => \App\Support\OrphanFields::details($this),
+            'photos' => $this->photos->pluck('id')->values(),
             'personal' => [
                 'gender' => $this->gender, 'birth_date' => $this->birth_date?->toDateString(), 'city' => $this->city,
                 'health_status' => $this->health_status, 'grade' => $this->grade,

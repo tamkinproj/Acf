@@ -3,10 +3,10 @@
 
   A.strings({
     people: "Orphans", search: "Search name, reference or guardian", all: "All", unverified: "Bank not verified",
-    add_child: "Add orphan", add_title: "Add orphan", waiting: "Waiting to send", child_saved: "Orphan saved", yrs: "{n} yrs", total_n: "{n} orphans"
+    add_child: "Add orphan", add_title: "Add orphan", waiting: "Waiting to send", child_saved: "Orphan saved", yrs: "{n} yrs", total_n: "{n} orphans", sample_tag: "Sample", rm_samples: "Remove sample orphans", rm_q: "Remove all {n} sample orphans? Real records are not touched. This cannot be undone.", rm_done: "Sample orphans removed.", apps_btn: "Applications"
   }, {
     people: "الأيتام", search: "ابحث بالاسم أو الرقم المرجعي أو الوصي", all: "الكل", unverified: "الحساب البنكي غير موثّق",
-    add_child: "إضافة يتيم", add_title: "إضافة يتيم", waiting: "بانتظار الإرسال", child_saved: "تم حفظ اليتيم", yrs: "{n} سنة", total_n: "{n} يتيمًا"
+    add_child: "إضافة يتيم", add_title: "إضافة يتيم", waiting: "بانتظار الإرسال", child_saved: "تم حفظ اليتيم", yrs: "{n} سنة", total_n: "{n} يتيمًا", sample_tag: "تجريبي", rm_samples: "احذف الأيتام التجريبيين", rm_q: "حذف كل الأيتام التجريبيين ({n})؟ لن تُمس السجلات الحقيقية. لا يمكن التراجع.", rm_done: "تم حذف الأيتام التجريبيين.", apps_btn: "الطلبات"
   });
 
   var rows = [];
@@ -21,14 +21,25 @@
     return list.map(function (c) {
       var st = c._pending ? '<span class="badge grey">' + t("waiting") + "</span>" : '<span class="badge ' + ((c.status || "active") === "active" ? "" : (c.status === "ended" ? "grey" : "warn")) + '">' + t(c.status || "active") + "</span>";
       var bits = [esc(c.ref)]; if (c.age !== null && c.age !== undefined) bits.push(t("yrs", { n: c.age })); if (c.guardian) bits.push(esc(c.guardian));
-      return '<a class="item" href="person.html?id=' + c.id + '"><span class="avatar">' + esc(A.name(c).charAt(0)) + '</span><span class="grow"><b>' + esc(A.name(c)) + '</b><span class="sub">' + bits.join(" · ") + '</span></span><span class="right">' + st +
+      return '<a class="item" href="person.html?id=' + c.id + '"><span class="avatar">' + esc(A.name(c).charAt(0)) + '</span><span class="grow"><b>' + esc(A.name(c)) + '</b><span class="sub">' + bits.join(" · ") + '</span></span><span class="right">' + (c.is_sample ? '<span class="badge grey">' + t("sample_tag") + "</span>" : "") + st +
         (c.pay_type === "bank" && c.bank_verified === false ? '<span class="badge warn" title="' + esc(t("unverified")) + '" aria-label="' + esc(t("unverified")) + '">!</span>' : "") + "</span></a>";
     }).join("");
   }
+  function tools() {
+    var samples = rows.filter(function (c) { return c.is_sample; }).length, out = "";
+    if (A.can("applications.review")) out += '<a class="btn btn-line btn-sm" href="applications.html">' + ic("file") + t("apps_btn") + "</a>";
+    if (samples && A.can("children.update")) out += '<button class="btn btn-line btn-sm" type="button" data-act="rmsamples">' + t("rm_samples") + " (" + samples + ")</button>";
+    return out ? '<div class="actions" style="margin-bottom:1rem">' + out + "</div>" : "";
+  }
+  A.act("rmsamples", function () {
+    var n = rows.filter(function (c) { return c.is_sample; }).length;
+    if (!confirm(t("rm_q", { n: n }))) return;
+    A.api.write("DELETE", "children/samples", undefined, { online: true }).then(function () { A.toast(t("rm_done")); A.api.wipeCache(); A.reload(true); }, function (e) { A.toast(e.offline ? t("need_conn") : A.msg(e)); });
+  });
   function render(data) {
     rows = data; var cur = tab();
     var n = { all: rows.length }; ["active", "pending", "ended"].forEach(function (k) { n[k] = rows.filter(function (c) { return (c.status || "active") === k; }).length; });
-    return '<div class="head"><h1 class="title">' + t("people") + '</h1><p class="lead">' + t("total_n", { n: rows.length }) + "</p></div>" +
+    return '<div class="head"><h1 class="title">' + t("people") + '</h1><p class="lead">' + t("total_n", { n: rows.length }) + "</p></div>" + tools() +
       '<div class="search">' + ic("search") + '<input id="q" type="search" placeholder="' + esc(t("search")) + '" value="' + esc(q) + '" aria-label="' + esc(t("search")) + '"></div>' +
       '<div class="filters" role="group">' + TABS.map(function (k) { return '<button class="fbtn" type="button" data-act="tab" data-v="' + k + '" aria-pressed="' + (cur === k) + '">' + t(k) + " (" + n[k] + ")</button>"; }).join("") + "</div>" +
       '<div class="list" id="plist">' + items() + "</div>" +

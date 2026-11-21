@@ -34,6 +34,9 @@ class DashboardController extends Controller
                     ->map(fn ($c) => ['child_id' => $c->id, 'ref' => $c->ref, 'name_en' => $c->name_en, 'reason' => 'bank_not_verified'])->values(),
             ];
         }
+        if ($can('applications.review')) {
+            $out['applications'] = ['new' => \App\Models\ChildApplication::where('status', 'new')->count()];
+        }
         if ($can('payments.view')) {
             $month = now()->format('Y-m');
             $out['payments'] = ['month' => $month] + $ledger->totals($ledger->forMonth($month));

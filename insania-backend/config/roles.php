@@ -55,7 +55,7 @@ return [
     'departments' => [
         'aytam' => [
             'name_en' => 'Aytam (orphan care)', 'name_ar' => 'الأيتام',
-            'grants' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload'],
+            'grants' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'applications.review'],
         ],
         'finance' => [
             'name_en' => 'Finance', 'name_ar' => 'المالية',

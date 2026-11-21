@@ -17,6 +17,9 @@ RewriteRule ^\.well-known/ - [L]
 # Old links from the Beta stage keep working: /Beta/anything -> /anything
 RewriteRule ^Beta/?(.*)$ /$1 [R=301,L]
 
+# The short link that is sent to families: alinsania.com/apply opens the public application form.
+RewriteRule ^apply/?$ /app/apply.html [R=302,L]
+
 # Every rule below runs only once index.html exists, so there is no redirect loop.
 
 # Hostinger's placeholder page.

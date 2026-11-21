@@ -25,6 +25,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('api.json')->group(function () {
     Route::get('public/site', \App\Http\Controllers\Api\PublicSiteController::class)->middleware('throttle:60,1');
+    // The public application form: anyone with the link may send an application. It only adds to the review queue.
+    Route::get('public/apply', [\App\Http\Controllers\Api\PublicApplyController::class, 'status'])->middleware('throttle:60,1');
+    Route::post('public/apply', [\App\Http\Controllers\Api\PublicApplyController::class, 'store'])->middleware(['throttle:apply', 'block.uploads']);
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth_login');
 
     Route::middleware(['auth:sanctum', 'idempotent'])->group(function () {
@@ -67,9 +70,20 @@ Route::middleware('api.json')->group(function () {
         });
         Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.read');
 
+        // Applications from the public form (Aytam staff)
+        Route::middleware('permission:applications.review')->group(function () {
+            Route::get('applications', [\App\Http\Controllers\Api\ApplicationController::class, 'index']);
+            Route::get('applications/{application}', [\App\Http\Controllers\Api\ApplicationController::class, 'show']);
+            Route::get('applications/{application}/photos/{n}', [\App\Http\Controllers\Api\ApplicationController::class, 'photo'])->whereNumber('n');
+            Route::post('applications/{application}/approve', [\App\Http\Controllers\Api\ApplicationController::class, 'approve']);
+            Route::post('applications/{application}/reject', [\App\Http\Controllers\Api\ApplicationController::class, 'reject']);
+        });
+
         // Office: children (Aytam)
         Route::get('children', [ChildController::class, 'index'])->middleware('permission:children.view');
+        Route::delete('children/samples', [ChildController::class, 'removeSamples'])->middleware('permission:children.update');
         Route::get('children/{child}', [ChildController::class, 'show'])->middleware('permission:children.view');
+        Route::get('children/{child}/photos/{photo}', [ChildController::class, 'photo'])->middleware('permission:children.view')->whereNumber('photo');
         Route::post('children', [ChildController::class, 'store'])->middleware('permission:children.create');
         Route::patch('children/{child}', [ChildController::class, 'update'])->middleware('permission:children.update');
         Route::put('children/{child}/bank/verification', [BankVerificationController::class, 'update'])->middleware('permission:bank.verify');
