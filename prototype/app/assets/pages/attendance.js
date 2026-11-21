@@ -308,7 +308,7 @@
     var cur = tab(), manage = A.can("attendance.manage"), base = {}, calls = [];
     var out = function (o) { return Promise.resolve({ data: o }); };
     var mePromise = A.can("attendance.clock") ? A.api.get("attendance/me", { cache: false }).then(function (r) { var m = r.data; base.me = m; if (m && m.now) { base.offset = new Date(m.now).getTime() - Date.now(); tz = m.timezone || tz; } }) : Promise.resolve();
-    if (cur === "today") calls.push(mePromise, manage ? A.api.get("attendance/board", { cache: false }).then(function (r) { base.board = r.data; }) : Promise.resolve());
+    if (cur === "today") calls.push(mePromise, manage ? A.api.get("attendance/board", { cache: false }).then(function (r) { base.board = r.data; }) : Promise.resolve(), manage ? A.api.get("attendance/employees", { cache: false }).then(function (r) { base.emps = r.data; }) : Promise.resolve());
     else if (cur === "records") {
       calls.push(manage ? A.api.get("attendance/employees", { cache: false }).then(function (r) {
         base.emps = r.data; var act = r.data.employees.filter(function (x) { return x.status === "active"; }), id = A.ui.attemp, hit = act.filter(function (x) { return x.id === id; })[0] || act[0];
