@@ -804,3 +804,32 @@ h1,h2,h3,h4,b,p,li,td,th,dd,dt,.sub,.note,.title,.lead,.fo-sub,.fold-meta,.cc b,
 
 /* narrow phones: keep the full bottom-bar label (e.g. "Applications") instead of cutting it */
 @media (max-width:380px){.mo-bottom a{font-size:.58rem;letter-spacing:-.01em}.mo-bottom{padding-left:.25rem;padding-right:.25rem}}
+
+/* ---- phone bottom bar: icons only (the names stay for screen readers) ---- */
+.mo-bottom a{gap:0;padding:.1rem 0}
+.mo-bottom .bi{width:2.7rem;height:2.7rem}
+.mo-bottom .bi .icon{width:1.35rem;height:1.35rem}
+
+/* ---- Settings: one grouped list, like the phone's own Settings ---- */
+.ios{max-width:40rem;margin-inline:auto}
+.ios-prof{display:flex;align-items:center;gap:1rem;width:100%;margin:0 0 1.1rem;padding:1rem 1.1rem;border:0;border-radius:1.4rem;background:#fff;font:inherit;color:inherit;text-align:start;cursor:pointer}
+.ios-prof .grow{flex:1;min-width:0;display:block}
+.ios-prof b{display:block;font-size:1.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ios-prof .sub{display:block;color:var(--muted);font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ios-group{background:#fff;border-radius:1.4rem;overflow:hidden;margin:0 0 1.1rem}
+.ios-note{margin:-.5rem .9rem 1.1rem;color:var(--muted);font-size:.8rem;line-height:1.45}
+.ios-row{position:relative;display:flex;align-items:center;gap:.8rem;width:100%;min-height:3.4rem;padding:.55rem 1rem;border:0;background:none;font:inherit;color:inherit;text-align:start;text-decoration:none;cursor:default}
+button.ios-row{cursor:pointer}
+button.ios-row:active,.ios-prof:active{background:rgba(23,48,13,.06)}
+.ios-row+.ios-row::before{content:"";position:absolute;top:0;inset-inline-start:3.6rem;inset-inline-end:0;border-top:1px solid var(--line)}
+.ios-row.no-tile+.ios-row::before,.ios-row.no-tile::before{inset-inline-start:1rem}
+.ios-ic{flex:none;width:2rem;height:2rem;border-radius:.55rem;display:grid;place-items:center;color:#fff}
+.ios-ic .icon{width:1.15rem;height:1.15rem;stroke:#fff;fill:none}
+.t-blue{background:#0a84ff}.t-green{background:#34c759}.t-orange{background:#ff9f0a}.t-gray{background:#8e8e93}.t-purple{background:#af52de}.t-lime{background:#7fb41a}.t-red{background:#ff453a}
+.ios-lbl{flex:0 1 auto;min-width:0;font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ios-val{flex:1 1 0;min-width:0;text-align:end;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ios-row .switch,.ios-row .ios-chev{margin-inline-start:auto}
+.ios-row .ios-val+.ios-chev,.ios-row .ios-val+.switch{margin-inline-start:0}
+.ios-chev{flex:none;width:1.1rem;height:1.1rem;color:#b4b9ae}
+html[dir=rtl] .ios-chev{transform:scaleX(-1)}
+.ios-danger .ios-lbl{flex:1;color:#e5322d;text-align:center;font-weight:600}

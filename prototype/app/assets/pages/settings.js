@@ -19,33 +19,63 @@
     dept_aytam: "أيتام", dept_finance: "المالية", dept_projects: "المشاريع", dept_relief: "الإغاثة", dept_teaching: "التدريس", dept_hr: "الموارد البشرية", dept_administration: "الإدارة", waiting_item: "بانتظار الإرسال"
   });
 
-  function sw(k, label, on) {
-    return '<div class="setrow"><b>' + label + '</b><button class="switch" type="button" role="switch" aria-checked="' + on + '" aria-label="' + esc(label) + '" data-act="pref" data-k="' + k + '"></button></div>';
+  A.strings({ set_wait: "Waiting to send", set_pw_row: "Password", set_dev: "Devices", set_sec: "Security" }, { set_wait: "بانتظار الإرسال", set_pw_row: "كلمة المرور", set_dev: "الأجهزة", set_sec: "الأمان" });
+
+  /* iOS-style grouped list: rows with a coloured icon tile, the value on the end and a chevron when the row opens something */
+  function row(o) {
+    var tag = o.act ? "button" : "div", attrs = o.act ? ' type="button" data-act="' + o.act + '"' + (o.k ? ' data-k="' + o.k + '"' : "") : "";
+    var end = o.sw ? '<button class="switch" type="button" role="switch" aria-checked="' + o.sw.on + '" aria-label="' + esc(o.label) + '" data-act="pref" data-k="' + o.sw.k + '"></button>' :
+      (o.val != null ? '<span class="ios-val">' + o.val + "</span>" : "") + (o.act && !o.noChev ? ic("chev", "ios-chev") : "");
+    return "<" + tag + ' class="ios-row' + (o.cls ? " " + o.cls : "") + (o.tile ? "" : " no-tile") + '"' + attrs + ">" + (o.tile ? '<span class="ios-ic t-' + o.tile[0] + '">' + ic(o.tile[1]) + "</span>" : "") + '<span class="ios-lbl">' + o.label + "</span>" + end + "</" + tag + ">";
   }
+  function group(rows, note) { return '<div class="ios-group">' + rows.join("") + "</div>" + (note ? '<p class="ios-note">' + note + "</p>" : ""); }
+
   function render() {
-    var u = A.user() || {}, pref = u.preferences || {}, items = A.api.outbox(), st = A.api.state();
-    var last = st.lastSync ? new Date(st.lastSync).toLocaleString(A.lang() === "ar" ? "ar" : "en-GB") : t("set_never");
+    var u = A.user() || {}, pref = u.preferences || {}, items = A.api.outbox(), st = A.api.state(), ar = A.lang() === "ar";
+    var last = st.lastSync ? new Date(st.lastSync).toLocaleString(ar ? "ar" : "en-GB") : t("set_never");
+    var install = window.ACF_PWA && window.ACF_PWA.canInstall ? [row({ label: t("set_install"), tile: ["blue", "download"], act: "install", noChev: true })] : [];
+    return '<div class="head"><h1 class="title">' + t("set_title") + '</h1></div><div class="ios">' +
+      '<button class="ios-prof" type="button" data-act="profile">' + A.avatar(u, "big") + '<span class="grow"><b>' + esc(u.name) + '</b><span class="sub" dir="ltr">@' + esc(u.username || "") + "</span><span class=\"sub\">" + esc(u.role_label || "") + "</span></span>" + ic("chev", "ios-chev") + "</button>" +
+      '<input id="avatarIn" type="file" accept="image/jpeg,image/png,image/webp" hidden>' +
+      group([
+        row({ label: t("set_rem"), tile: ["orange", "bell"], sw: { k: "reminders", on: pref.reminders !== false } }),
+        row({ label: t("set_amt"), tile: ["green", "wallet"], sw: { k: "show_amounts", on: pref.show_amounts !== false } }),
+        row({ label: t("set_lang"), tile: ["blue", "globe"], act: "lang", val: ar ? "العربية" : "English" })]) +
+      group([
+        row({ label: t("email"), tile: ["gray", "mail"], val: '<span dir="ltr">' + esc(u.email) + "</span>" }),
+        row({ label: t("prof_username"), tile: ["lime", "users"], act: "chuser", val: '<span dir="ltr">@' + esc(u.username || "") + "</span>" }),
+        row({ label: t("set_role"), tile: ["purple", "shield"], val: esc(u.role_label) })].concat(u.department ? [row({ label: t("set_dept"), tile: ["gray", "folder"], val: esc(t("dept_" + u.department)) })] : [])) +
+      group([
+        row({ label: t("set_pw_row"), tile: ["gray", "lock"], act: "changepw" }),
+        row({ label: t("set_dev"), tile: ["green", "phone"], act: "devices" })]) +
+      group([
+        row({ label: t("set_last"), tile: ["blue", "cloud"], val: esc(last) }),
+        row({ label: t("set_wait"), tile: ["orange", "send"], act: "outbox", val: items.length ? String(items.length) : "" }),
+        row({ label: t("set_now"), tile: ["green", "cloud"], act: "syncnow", noChev: true })].concat(install), t("set_note")) +
+      group([row({ label: t("signout"), act: "signout", noChev: true, cls: "ios-danger" })]) + "</div>";
+  }
+  A.act("profile", function () {
+    var u = A.user() || {};
+    A.sheet(t("prof_title"), '<div class="prof-head">' + A.avatar(u, "big") + '<div class="grow"><b>' + esc(u.name) + '</b><span class="note" dir="ltr" style="display:block">@' + esc(u.username || "") + '</span></div></div>' +
+      '<div class="actions" style="margin-top:1rem"><button class="btn btn-main btn-sm" type="button" data-act="pickavatar">' + A.ic("edit") + "<span>" + t("prof_photo") + "</span></button>" + (u.avatar ? '<button class="btn btn-line btn-sm" type="button" data-act="rmavatar">' + t("prof_remove") + "</button>" : "") +
+      '<button class="btn btn-line btn-sm" type="button" data-act="chuser">' + t("prof_change") + "</button></div>");
+  });
+  A.act("devices", function () {
+    A.sheet(t("sess_title"), '<p class="note" style="margin-top:0">' + t("sess_note") + '</p><div class="list" id="sessBox"><p class="note">' + t("sess_load") + "</p></div>");
+    loadSessions();
+  });
+  A.act("outbox", function () {
+    var items = A.api.outbox();
     var list = items.length ? '<div class="list">' + items.map(function (o) {
       var failed = o.status === "failed";
       return '<div class="item"><span class="grow"><b>' + esc(o.label) + '</b><span class="sub">' + (failed ? esc(o.error || "") : t("waiting_item")) + '</span></span><span class="right">' +
-        (failed ? '<button class="btn btn-line btn-sm" data-act="retry" data-id="' + o.id + '">' + t("retry") + '</button>' : "") +
+        (failed ? '<button class="btn btn-line btn-sm" data-act="retry" data-id="' + o.id + '">' + t("retry") + "</button>" : "") +
         '<button class="btn btn-line btn-sm" data-act="discard" data-id="' + o.id + '">' + t("discard") + "</button></span></div>";
     }).join("") + "</div>" : '<p class="note">' + t("set_none") + "</p>";
-    var install = window.ACF_PWA && window.ACF_PWA.canInstall ? '<div class="setrow"><b>' + t("set_install") + '</b><button class="btn btn-main btn-sm" data-act="install">' + ic("download") + t("set_install") + "</button></div>" : "";
-    return '<div class="head"><h1 class="title">' + t("set_title") + '</h1></div><div class="grid g2" style="align-items:start">' +
-      '<div class="card prof"><h3>' + t("prof_title") + '</h3><div class="prof-head">' + A.avatar(u, "big") + '<div class="grow"><b>' + esc(u.name) + '</b><span class="note" dir="ltr" style="display:block">@' + esc(u.username || "") + '</span></div></div>' +
-        '<div class="actions"><button class="btn btn-main btn-sm" type="button" data-act="pickavatar">' + A.ic("edit") + "<span>" + t("prof_photo") + "</span></button>" + (u.avatar ? '<button class="btn btn-line btn-sm" type="button" data-act="rmavatar">' + t("prof_remove") + "</button>" : "") +
-        '<button class="btn btn-line btn-sm" type="button" data-act="chuser">' + t("prof_change") + '</button></div><input id="avatarIn" type="file" accept="image/jpeg,image/png,image/webp" hidden></div>' +
-      '<div class="card"><h3>' + t("sess_title") + '</h3><p class="note" style="margin-top:0">' + t("sess_note") + '</p><div class="list" id="sessBox"><p class="note">' + t("sess_load") + "</p></div></div>" +
-      '<div class="card"><h3>' + t("set_acct") + "</h3>" + A.facts([[t("email"), esc(u.email)], [t("prof_username"), '<span dir="ltr">@' + esc(u.username || "") + "</span>"], [t("set_role"), esc(u.role_label)]].concat(u.department ? [[t("set_dept"), t("dept_" + u.department)]] : [])) +
-      sw("reminders", t("set_rem"), pref.reminders !== false) + sw("show_amounts", t("set_amt"), pref.show_amounts !== false) +
-      '<div class="setrow"><b>' + t("set_lang") + '</b><button class="btn btn-line btn-sm" data-act="lang">' + t("lang_btn") + "</button></div>" + install +
-      '<div class="setrow"><button class="btn btn-line btn-sm" data-act="changepw">' + t("pw_btn") + '</button></div><div class="setrow"><button class="btn btn-line btn-sm" data-act="signout">' + ic("logout") + t("signout") + "</button></div></div>" +
-      '<div class="card" id="outbox"><h3>' + t("set_sync") + "</h3>" + A.facts([[t("set_last"), esc(last)]]) + '<p class="note">' + t("set_note") + "</p>" + list +
-      '<div class="actions" style="margin-top:1rem"><button class="btn btn-main" data-act="syncnow">' + ic("cloud") + t("set_now") + "</button></div></div></div>";
-  }
+    A.sheet(t("set_wait"), list);
+  });
 
-  function refreshAll() { return A.api.refreshMe().then(function () { A.paint(); }); }
+  function refreshAll() { return A.api.refreshMe().then(function () { A.closeSheet(); A.paint(); }); }
   A.act("pickavatar", function () { document.getElementById("avatarIn").click(); });
   document.addEventListener("change", function (e) {
     var inp = e.target; if (!inp || inp.id !== "avatarIn") return;
@@ -110,6 +140,6 @@
   A.start({
     page: "settings", nav: "settings", title: "n_set", shell: true, load: function () { return Promise.resolve({ data: {} }); }, render: render,
     onSync: function () { A.paint(); },
-    after: function () { loadSessions(); if (location.hash === "#outbox") { var el = document.getElementById("outbox"); if (el) el.scrollIntoView(); } }
+    after: function () { if (location.hash === "#outbox") { var el = document.querySelector("[data-act=outbox]"); if (el) el.click(); } }
   });
 })();

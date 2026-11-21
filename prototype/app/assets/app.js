@@ -98,7 +98,9 @@
     '<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>' +
     '<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>' +
  '<symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>' +
-    '<symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.2-4.4A8 8 0 1 1 21 12z"/></symbol>' +
+    '<symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.2 3.6c-.5.4-1.3.1-1.3-.6V16h-.0A2.5 2.5 0 0 1 4 13.5z"/><line x1="8" y1="8.7" x2="16" y2="8.7"/><line x1="8" y1="11.7" x2="13" y2="11.7"/></symbol>' +
+    '<symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><polyline points="3.5 7 12 13 20.5 7"/></symbol>' +
+    '<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></symbol>' +
     '<symbol id="i-share" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></symbol>' +
     '<symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>' +
     '<symbol id="i-clip" viewBox="0 0 24 24"><path d="M21.4 11.1 12.2 20.3a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></symbol>' +
@@ -148,8 +150,8 @@
       '<button type="button" data-act="signout" title="' + esc(t("signout")) + '">' + ic("logout") + '<span class="sr">' + t("signout") + "</span></button></div>";
     /* bottom bar (phones and tablets): up to five places; when a role has more, four stay and the rest open under "More" */
     var bottom = sorted.length > 5 ? sorted.slice(0, 4) : sorted; moreItems = sorted.length > 5 ? sorted.slice(4) : [];
-    $("#tabbar").insertAdjacentHTML("beforeend", '<div class="mo-bottom">' + bottom.map(function (m) { return '<a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + "><span class=\"bi\">" + ic(m[4]) + "</span><span>" + t(m[2]) + "</span></a>"; }).join("") +
-      (moreItems.length ? '<a href="#" data-act="more"' + (moreItems.some(function (m) { return m[0] === cur; }) ? ' class="active"' : "") + '><span class="bi">' + ic("menu") + "</span><span>" + t("n_more") + "</span></a>" : "") + "</div>");
+    $("#tabbar").insertAdjacentHTML("beforeend", '<div class="mo-bottom">' + bottom.map(function (m) { return '<a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ' aria-label="' + esc(t(m[2])) + '"><span class="bi">' + ic(m[4]) + '</span><span class="sr">' + t(m[2]) + "</span></a>"; }).join("") +
+      (moreItems.length ? '<a href="#" data-act="more" aria-label="' + esc(t("n_more")) + '"' + (moreItems.some(function (m) { return m[0] === cur; }) ? ' class="active"' : "") + '><span class="bi">' + ic("menu") + '</span><span class="sr">' + t("n_more") + "</span></a>" : "") + "</div>");
     var act = $(".mo-tabs a.active"); if (act && act.scrollIntoView && window.innerWidth < 1024) { try { act.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {} }
   }
   function refreshChip() { var b = $("#chipBox"); if (b) b.innerHTML = chipHtml(); var bell = $("#bellBtn"); if (bell) { var d = bell.querySelector(".dot"); if (bellDot() && !d) bell.insertAdjacentHTML("beforeend", '<i class="dot"></i>'); else if (!bellDot() && d) d.remove(); } }
