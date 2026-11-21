@@ -10,8 +10,8 @@ return [
     // ECDSA P-256 public key (PEM). Replace only together with a new private key.
     'public_key' => <<<'PEM'
 -----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEaLpRkmjrbvyGPrTOTXJPMvI+wMwg
-aS1/l5s+gzHDORkpghIPr4wrZHy5kT0qiNnvvPR3fZAiZyBW+ynIANMDNw==
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEkqZ74P8pXJrsYY31TcpvSxjEshs+
+24d9sKmv4WiQkAOJUQw0snEEYru3Du3vQ1rZydkOnQBQm2o1ayRNk2Jg+Q==
 -----END PUBLIC KEY-----
 PEM,
 
