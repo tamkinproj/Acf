@@ -160,10 +160,12 @@
 
   /* ---------------- sheet (pop-up form) ---------------- */
   function sheet(title, body) {
-    $("#sheetRoot").innerHTML = '<div class="backdrop" data-act="close"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><h3>' + esc(title) + "</h3>" + body + "</div></div>";
-    var f = $("#sheetRoot input, #sheetRoot select"); if (f) f.focus();
+    $("#sheetRoot").innerHTML = '<div class="backdrop" data-act="close"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><div class="sheet-head"><h3>' + esc(title) + '</h3><button class="sheet-x" type="button" data-act="close" aria-label="' + esc(t("cancel")) + '">&times;</button></div>' + body + "</div></div>";
+    document.documentElement.classList.add("sheet-open");   // the page behind stops scrolling while a sheet is open
+    // (no automatic focus on a phone: it would pop the keyboard up over the form before the person has read it)
+    var f = $("#sheetRoot input, #sheetRoot select"); if (f && window.matchMedia && window.matchMedia("(hover:hover)").matches) f.focus();
   }
-  function closeSheet() { $("#sheetRoot").innerHTML = ""; }
+  function closeSheet() { $("#sheetRoot").innerHTML = ""; document.documentElement.classList.remove("sheet-open"); }
   function field(id, label, extra, type, attrs) {
     return '<div><label for="' + id + '">' + label + '</label><input id="' + id + '" type="' + (type || "text") + '" ' + (attrs || "") + ">" + (extra || "") + '<div class="err" id="' + id + 'Err"></div></div>';
   }

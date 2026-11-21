@@ -1,0 +1,10 @@
+const { chromium, devices } = require('playwright'); const B = 'http://127.0.0.1:8090'; const out = process.argv[2];
+(async () => { const b = await chromium.launch(); const c = await b.newContext({ ...devices['iPhone 13'], deviceScaleFactor: 2 }); const p = await c.newPage();
+  await p.goto(B + '/app/login.html'); await p.fill('#lEmail', 'president@insania.test'); await p.fill('#lPass', 'DemoPass#2026'); await p.click('button[type=submit]'); await p.waitForTimeout(3500);
+  await p.goto(B + '/app/users.html?add=1&role=staff&dept=aytam'); await p.waitForSelector('#u_role'); await p.fill('#u_name', 'Aisha'); await p.click('[data-act=genpass]');
+  await p.evaluate(() => { const f = document.querySelector('.sheet form'); f.scrollTop = f.scrollHeight; }); await p.waitForTimeout(500); await p.screenshot({ path: out + '/t0.png' });
+  await p.click('.sheet-x'); await p.waitForTimeout(300); console.log('closed by X:', (await p.locator('.sheet').count()) === 0, 'scroll unlocked:', await p.evaluate(() => !document.documentElement.classList.contains('sheet-open')));
+  await p.goto(B + '/app/settings.html'); await p.waitForTimeout(2000); await p.screenshot({ path: out + '/t1.png' });
+  await p.click('[data-act=changepw]'); await p.waitForTimeout(500); await p.screenshot({ path: out + '/t2.png' });
+  await p.goto(B + '/app/users.html'); await p.waitForTimeout(2500); await p.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await p.waitForTimeout(500); await p.screenshot({ path: out + '/t3.png' });
+  await b.close(); })();

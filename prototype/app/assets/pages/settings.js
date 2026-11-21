@@ -45,7 +45,7 @@
     A.api.write("PATCH", "me/preferences", p, { label: t("set_title") }).then(function () {}, function (e) { A.toast(A.msg(e)); });
   });
   A.act("changepw", function () {
-    A.sheet(t("pw_title"), '<form id="pwForm" novalidate>' + A.field("pw_current_password", t("pw_current_password"), "", "password", 'dir="ltr" autocomplete="current-password"') +
+    A.sheet(t("pw_title"), '<form id="pwForm" novalidate>' + A.field("pw_current_password", t("pw_cur"), "", "password", 'dir="ltr" autocomplete="current-password"') +
       A.field("pw_password", t("pw_new"), '<p class="note" style="margin:.4rem 0 0">' + t("pw_hint") + "</p>", "password", 'dir="ltr" autocomplete="new-password"') +
       A.field("pw_again", t("pw_again"), "", "password", 'dir="ltr" autocomplete="new-password"') + A.formEnd() + "</form>");
   });

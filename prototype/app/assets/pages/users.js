@@ -48,7 +48,7 @@
       '<div><label for="u_role">' + t("f_urole") + '</label><select id="u_role">' + roleOptions("staff", false) + '</select><div class="err" id="u_roleErr"></div></div>' +
       '<div id="deptBox"><label for="u_department_key">' + t("f_udept") + '</label><select id="u_department_key">' + deptOptions("aytam") + '</select><div class="err" id="u_department_keyErr"></div></div>' +
       A.field("u_password", t("f_upass"), '<div class="actions" style="margin-top:.4rem"><button class="btn btn-line btn-sm" type="button" data-act="genpass">' + t("gen_pass") + '</button></div><p class="note" style="margin:.4rem 0 0">' + t("pass_hint") + "</p>", "text", 'dir="ltr" autocomplete="off"') +
-      '<p class="note" style="margin:0">' + t("family_note") + "</p>" + A.formEnd() + "</form>");
+      A.formEnd() + "</form>");
     var sel = document.getElementById("u_role"); sel.addEventListener("change", function () { toggleDept(sel); });
     var m = location.search.match(/[?&]role=([a-z_]+)/), d = location.search.match(/[?&]dept=([a-z]+)/);
     if (!adduser.done && m && ROLES.indexOf(m[1]) > -1) { sel.value = m[1]; if (d && DEPTS.indexOf(d[1]) > -1) document.getElementById("u_department_key").value = d[1]; }
