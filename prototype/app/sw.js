@@ -3,7 +3,7 @@
 var VERSION = "insania-app-v8";
 var FILES = [
   "./", "index.html", "login.html", "dashboard.html", "people.html", "person.html", "payments.html", "projects.html", "reports.html", "settings.html", "family.html", "users.html", "audit.html", "system.html", "setup.html", "updates.html", "signer.html", "website.html", "applications.html", "application.html", "chat.html", "room.html", "repair.html",
-  "assets/style.css", "assets/boot.js", "assets/nozoom.js", "assets/api.js", "assets/gate.js", "assets/signer.js", "assets/signer-gate.js", "assets/app.js", "assets/orphan-schema.js", "assets/orphan.js",
+  "assets/style.css", "assets/legacy.css", "assets/boot.js", "assets/nozoom.js", "assets/api.js", "assets/gate.js", "assets/signer.js", "assets/signer-gate.js", "assets/app.js", "assets/orphan-schema.js", "assets/orphan.js",
   "assets/pages/dashboard.js", "assets/pages/login.js", "assets/pages/payments.js", "assets/pages/people.js",
   "assets/pages/person.js", "assets/pages/projects.js", "assets/pages/reports.js", "assets/pages/settings.js", "assets/pages/family.js", "assets/pages/users.js", "assets/pages/audit.js", "assets/pages/system.js", "assets/pages/setup.js", "assets/pages/updates.js", "assets/pages/website.js", "assets/pages/applications.js", "assets/pages/application.js", "assets/pages/chat.js", "assets/pages/room.js",
   "assets/logo.jpg", "assets/pwa.js", "assets/icon-192.png", "assets/icon-512.png", "assets/icon-maskable-512.png", "manifest.webmanifest"

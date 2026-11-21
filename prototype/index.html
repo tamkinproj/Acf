@@ -40,11 +40,11 @@
   --accent:#9acd32;          /* yellow-green: SECONDARY accent only */
   --accent-ink:#3f7010;
   --accent-soft:#f1f8d8;
-  --glass:rgba(255,255,255,.72);
+  --glass:#fff;
   --fill:rgba(110,125,100,.12);   /* iOS-style grouped fill, green-gray */
   --r-lg:1.75rem; --r-md:1.25rem; --r-sm:.9rem;
   --shadow:0 1px 0 rgba(255,255,255,.95) inset,0 10px 30px rgba(23,48,13,.06);
-  --blur:blur(24px) saturate(180%);
+  --blur:none;
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,"Segoe UI",Roboto,"Noto Sans Arabic","Geeza Pro",Tahoma,sans-serif;
 }
 *{box-sizing:border-box}
@@ -342,7 +342,7 @@ main > section.hero{background:radial-gradient(55% 70% at 88% 8%,rgba(154,205,50
 main > section.hero{background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.88) 38%,rgba(255,255,255,.4) 68%,rgba(255,255,255,.15) 100%),var(--hero-photo) center/cover no-repeat,#fff}
 [dir=rtl] main > section.hero{background:linear-gradient(270deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.88) 38%,rgba(255,255,255,.4) 68%,rgba(255,255,255,.15) 100%),var(--hero-photo) center/cover no-repeat,#fff}
 @media(max-width:959px){main > section.hero,[dir=rtl] main > section.hero{background:linear-gradient(180deg,#fff 60%,#f8fcee);padding-top:0}.hero-intro{display:flex;flex-direction:column;justify-content:flex-end;min-height:min(calc(100vh - 6.5rem),44rem);min-height:min(calc(100svh - 6.5rem),44rem);margin-inline:-1rem;padding:2rem 1rem 1.75rem;background:linear-gradient(180deg,rgba(12,28,6,0) 18%,rgba(12,28,6,.4) 38%,rgba(12,28,6,.88) 52%,#0c1c06 60%),var(--hero-photo) 36% top/auto 60% no-repeat,#0c1c06}.hero-intro .eyebrow{align-self:flex-start;background:rgba(255,255,255,.9)}.hero-intro h1{color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.25)}.hero-intro h1 em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--accent)}.hero-intro .lead{color:rgba(255,255,255,.92);margin-bottom:0}}@media(min-width:640px) and (max-width:959px){.hero-intro{margin-inline:-1.5rem;padding-inline:1.5rem}}
-.hero-card{background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%)}
+.hero-card{background:#fff}
 
 /* plain icons: no tinted background behind them */
 .chip{background:none;width:auto;height:auto;border-radius:0;place-items:start;color:var(--brand)}
