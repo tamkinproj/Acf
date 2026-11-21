@@ -96,6 +96,45 @@ class SiteController extends Controller
         return ApiResponse::ok(['version' => $row->version, 'published_at' => $row->published_at->toIso8601String()]);
     }
 
+    /**
+     * Posts one update to the landing page's news section and publishes it right away (President Admin).
+     * Only the new post goes live: other unpublished edits in the draft stay in the draft.
+     */
+    public function post(Request $request)
+    {
+        $d = $request->validate([
+            'title_en' => ['nullable', 'string', 'max:150'], 'title_ar' => ['nullable', 'string', 'max:150'],
+            'summary_en' => ['nullable', 'string', 'max:600'], 'summary_ar' => ['nullable', 'string', 'max:600'],
+            'photo' => ['nullable', 'integer'], 'date' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+        if (trim((string) ($d['title_en'] ?? '')) === '' && trim((string) ($d['title_ar'] ?? '')) === '') {
+            return ApiResponse::error('INVALID_CONTENT', 'Give the update a title.', 422, ['title_en' => ['Give the update a title.']]);
+        }
+        $fid = $request->user()->foundation_id;
+        $post = ['visible' => true, 'photo' => $d['photo'] ?? null, 'title_en' => trim((string) ($d['title_en'] ?? '')), 'title_ar' => trim((string) ($d['title_ar'] ?? '')),
+            'summary_en' => trim((string) ($d['summary_en'] ?? '')), 'summary_ar' => trim((string) ($d['summary_ar'] ?? '')), 'date' => $d['date'] ?? now()->format('Y-m-d')];
+
+        $row = $this->row($request);
+        $max = config('site.lists.news.max');
+        $withPost = function (array $c) use ($post, $max) { $c['news'] = array_slice([$post, ...array_values($c['news'] ?? [])], 0, $max); return $c; };
+        $base = $row->version > 0 && $row->published ? $row->published : ($row->draft ?: SiteContentRules::defaults());
+        [$live, $errors] = SiteContentRules::clean($withPost($base), $fid);
+        if ($errors) {
+            return ApiResponse::error('INVALID_CONTENT', 'The update has problems.', 422, array_map(fn ($m) => [$m], $errors));
+        }
+        [$draft] = SiteContentRules::clean($withPost($row->draft ?: $base), $fid);
+
+        DB::transaction(function () use ($row, $live, $draft, $request, $fid) {
+            $version = $row->version + 1;
+            SiteVersion::create(['foundation_id' => $fid, 'version' => $version, 'content' => $live, 'published_by' => $request->user()->id]);
+            $row->update(['published' => $live, 'draft' => $draft, 'version' => $version, 'published_at' => now(), 'published_by' => $request->user()->id]);
+            SiteVersion::where('foundation_id', $fid)->where('version', '<=', $version - 20)->delete();
+        });
+        Audit::record('site.update_posted', $request, 'site', $row->id, ['version' => $row->version, 'title' => $post['title_en'] ?: $post['title_ar']]);
+
+        return ApiResponse::created(['version' => $row->version, 'published_at' => $row->published_at->toIso8601String()]);
+    }
+
     /** Brings an earlier published version back into the DRAFT (nothing changes for visitors until it is published). */
     public function revert(Request $request, int $version)
     {

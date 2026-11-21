@@ -106,13 +106,23 @@
   function showLang() {
     texts.concat(dyn).forEach(function (t) { t.n.textContent = rt(t.en, t.ar); });
   }
+  /* the number of orphans the foundation looks after, counted live by the server (a bare count, nothing about any child) */
+  function applyStats() {
+    var n = data && data.stats && data.stats.orphans; if (typeof n !== "number" || n < 1) return;
+    $$('[data-cms-num="hero_orphans"]').forEach(function (b) {
+      b.setAttribute("data-count", String(n)); b.textContent = String(n); setTimeout(function () { b.textContent = String(n); }, 2200);
+      var plus = b.nextElementSibling; if (plus && plus.tagName === "SPAN") plus.hidden = true;
+    });
+  }
   function render() {
+    applyStats();
     if (!data || !data.content) return; remember(); dyn = [];
     var c = data.content; applyTexts(c);
     setList("projects", c.projects, buildProject); setList("team", c.team, buildMember); setList("news", c.news, buildNews);
     // the builder's reminders ("sample figures, replace them...") do not belong on a page that has real content
     ["i_note", "pj_note", "tm_note"].forEach(function (k) { $$('[data-cms-key="' + k + '"]').forEach(function (n) { n.hidden = true; }); });
     applySlots(c);
+    applyStats();
     showLang();
   }
   // logos and the main photo are CSS pictures of the page; swapping the variable swaps them everywhere they are used
@@ -220,8 +230,9 @@
     load(API + "public/site", { Accept: "application/json" }).then(function (j) {
       var d = j.data;
       if (editing) return;                                              // the editor is showing the draft
-      if (d && d.content) { data = { content: d.content, images: d.images || {}, version: d.version }; try { localStorage.setItem(CK, JSON.stringify(data)); } catch (e) {} render(); }
-      else { try { localStorage.removeItem(CK); } catch (e) {} if (data) location.reload(); }        // was unpublished: back to the page's own text
+      if (d && !d.content && d.stats) { data = { content: null, images: {}, stats: d.stats }; applyStats(); }
+      if (d && d.content) { data = { content: d.content, images: d.images || {}, version: d.version, stats: d.stats || null }; try { localStorage.setItem(CK, JSON.stringify(data)); } catch (e) {} render(); }
+      else { try { localStorage.removeItem(CK); } catch (e) {} if (data && data.content) location.reload(); }        // was unpublished: back to the page's own text
     }, function () { /* offline or server down: whatever is shown stays */ });
   }
 })();

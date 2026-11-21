@@ -238,4 +238,30 @@ class SiteContentTest extends TestCase
         $this->app['auth']->forgetGuards();
         $this->assertSame($id, $this->getJson('/api/public/site')->json('data.content.images.hero_photo'));
     }
+
+    public function test_the_president_posts_an_update_and_visitors_see_it_with_the_orphan_count(): void
+    {
+        $this->president();
+        $this->postJson('/api/site/posts', [])->assertStatus(422);
+        $this->postJson('/api/site/posts', ['title_en' => 'Orphans Day', 'summary_en' => 'We celebrated together.', 'date' => '2026-11-20'])->assertCreated();
+        $this->postJson('/api/site/posts', ['title_en' => 'Second post'])->assertCreated();
+
+        $this->app['auth']->forgetGuards();
+        $pub = $this->getJson('/api/public/site')->assertOk();
+        $this->assertSame(['Second post', 'Orphans Day'], array_column($pub->json('data.content.news'), 'title_en'));
+        $pub->assertJsonStructure(['data' => ['stats']]);
+    }
+
+    public function test_only_people_who_can_publish_may_post(): void
+    {
+        $this->app['auth']->forgetGuards();
+        $this->actingAsRole('staff:finance');
+        $this->postJson('/api/site/posts', ['title_en' => 'Nope'])->assertForbidden();
+    }
+
+    public function test_public_orphan_count_ignores_samples_and_shows_only_a_number(): void
+    {
+        $stats = $this->getJson('/api/public/site')->assertOk()->json('data.stats');
+        $this->assertTrue($stats === null || (is_array($stats) && array_keys($stats) === ['orphans']));
+    }
 }

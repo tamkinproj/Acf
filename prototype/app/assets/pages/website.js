@@ -10,7 +10,7 @@
     ws_en: "English", ws_ar: "العربية", ws_numbers: "Numbers on the page", ws_contact: "Contact and links", ws_photos: "Photos", ws_president_photo: "President photo",
     ws_add: "Add", ws_remove: "Remove", ws_up: "Move up", ws_down: "Move down", ws_visible: "Show on the page", ws_photo: "Photo", ws_choose: "Choose photo", ws_uploading: "Uploading…", ws_empty: "Nothing added yet. The page shows its sample items until you add one.",
     ws_fix: "Fix these first:", ws_leave: "You have unsaved changes. Leave without saving?", ws_untitled: "(untitled)",
-    ws_projects: "Projects we have completed", ws_team: "Team and staff", ws_news: "News and announcements",
+    wp_btn: "Post an update", wp_title: "Post an update", wp_note: "Appears at the top of the Updates section of the landing page as soon as you post. Other draft changes are not published.", wp_t_en: "Title (English)", wp_t_ar: "Title (Arabic)", wp_s_en: "Text (English)", wp_s_ar: "Text (Arabic)", wp_photo: "Add a photo", wp_post: "Post", wp_done: "Update posted on the landing page", wp_need: "Write a title in English or Arabic.", ws_projects: "Projects we have completed", ws_team: "Team and staff", ws_news: "News and announcements",
     f_title_en: "Title (English)", f_title_ar: "Title (Arabic)", f_category: "Category", f_location_en: "Place (English)", f_location_ar: "Place (Arabic)", f_year: "Year completed", f_ben: "Beneficiaries", f_sponsor_en: "Sponsored by (English)", f_sponsor_ar: "Sponsored by (Arabic)",
     f_name_en: "Name (English)", f_name_ar: "Name (Arabic)", f_role_en: "Position (English)", f_role_ar: "Position (Arabic)", f_summary_en: "Summary (English)", f_summary_ar: "Summary (Arabic)", f_date: "Date",
     cat_orphan: "Orphan care", cat_edu: "Education", cat_alimni: "Alimni", cat_waqf: "Waqf", cat_water: "Water", cat_mosque: "Mosques", cat_relief: "Relief", cat_train: "Training and events", ws_open: "Open the public page", ws_edit_page: "Edit on the page"
@@ -22,7 +22,7 @@
     ws_en: "English", ws_ar: "العربية", ws_numbers: "الأرقام في الصفحة", ws_contact: "التواصل والروابط", ws_photos: "الصور", ws_president_photo: "صورة الرئيس",
     ws_add: "إضافة", ws_remove: "حذف", ws_up: "أعلى", ws_down: "أسفل", ws_visible: "إظهار في الصفحة", ws_photo: "صورة", ws_choose: "اختر صورة", ws_uploading: "جارٍ الرفع…", ws_empty: "لم يُضف شيء بعد. تعرض الصفحة عناصرها التجريبية حتى تضيف عنصرًا.",
     ws_fix: "أصلح هذه أولًا:", ws_leave: "لديك تغييرات غير محفوظة. المغادرة دون حفظ؟", ws_untitled: "(بلا عنوان)",
-    ws_projects: "المشاريع التي أنجزناها", ws_team: "الفريق والموظفون", ws_news: "الأخبار والإعلانات",
+    wp_btn: "نشر تحديث", wp_title: "نشر تحديث", wp_note: "يظهر في أعلى قسم التحديثات في الصفحة الرئيسية فور النشر. لا تُنشر تعديلات المسودة الأخرى.", wp_t_en: "العنوان (الإنجليزية)", wp_t_ar: "العنوان (العربية)", wp_s_en: "النص (الإنجليزية)", wp_s_ar: "النص (العربية)", wp_photo: "إضافة صورة", wp_post: "نشر", wp_done: "تم نشر التحديث في الصفحة الرئيسية", wp_need: "اكتب عنوانًا بالإنجليزية أو العربية.", ws_projects: "المشاريع التي أنجزناها", ws_team: "الفريق والموظفون", ws_news: "الأخبار والإعلانات",
     f_title_en: "العنوان (بالإنجليزية)", f_title_ar: "العنوان (بالعربية)", f_category: "التصنيف", f_location_en: "المكان (بالإنجليزية)", f_location_ar: "المكان (بالعربية)", f_year: "سنة الإنجاز", f_ben: "عدد المستفيدين", f_sponsor_en: "برعاية (بالإنجليزية)", f_sponsor_ar: "برعاية (بالعربية)",
     f_name_en: "الاسم (بالإنجليزية)", f_name_ar: "الاسم (بالعربية)", f_role_en: "المنصب (بالإنجليزية)", f_role_ar: "المنصب (بالعربية)", f_summary_en: "الملخص (بالإنجليزية)", f_summary_ar: "الملخص (بالعربية)", f_date: "التاريخ",
     cat_orphan: "رعاية الأيتام", cat_edu: "التعليم", cat_alimni: "علّمني", cat_waqf: "الوقف", cat_water: "المياه", cat_mosque: "المساجد", cat_relief: "الإغاثة", cat_train: "التدريب والفعاليات", ws_open: "افتح الصفحة العامة", ws_edit_page: "تعديل على الصفحة نفسها"
@@ -54,6 +54,35 @@
   function pair(base, labelKeyEn, labelKeyAr, o) { return '<div class="pair">' + input(base + "_en", t(labelKeyEn), o) + input(base + "_ar", t(labelKeyAr), Object.assign({ dir: "rtl" }, o || {})) + "</div>"; }
 
   /* ---- sections ---- */
+  function postCard() {
+    return '<div class="card"><h3>' + t("wp_title") + '</h3><p class="note">' + t("wp_note") + '</p><div class="actions"><button class="btn btn-main" type="button" data-act="postopen">' + ic("plus") + t("wp_btn") + "</button></div></div>";
+  }
+  var postPhoto = null, IDS = ["pTe", "pTa", "pSe", "pSa"];
+  function $v(id) { var e = document.getElementById(id); return e ? e.value.trim() : ""; }
+  function postSheet(keep) {
+    var im = postPhoto ? '<img class="wsimg" src="' + esc(postPhoto.url) + '" alt="">' : "";
+    A.sheet(t("wp_title"), '<form id="postForm" novalidate>' + A.field("pTe", t("wp_t_en"), "", "text", 'maxlength="150"') + A.field("pTa", t("wp_t_ar"), "", "text", 'maxlength="150" dir="rtl"') +
+      '<div><label for="pSe">' + t("wp_s_en") + '</label><textarea id="pSe" rows="3" maxlength="600"></textarea></div><div><label for="pSa">' + t("wp_s_ar") + '</label><textarea id="pSa" rows="3" maxlength="600" dir="rtl"></textarea></div>' +
+      '<div class="actions">' + im + '<button class="btn btn-line" type="button" data-act="postphoto">' + ic("file") + t("wp_photo") + "</button></div>" + A.formEnd("wp_post") + "</form>");
+    if (keep) IDS.forEach(function (i, n) { document.getElementById(i).value = keep[n]; });
+  }
+  A.act("postopen", function () { postPhoto = null; postSheet(); });
+  A.act("postphoto", function (el) {
+    var f = document.createElement("input"); f.type = "file"; f.accept = "image/jpeg,image/png,image/webp";
+    f.onchange = function () {
+      var file = f.files[0]; if (!file) return; el.disabled = true; A.toast(t("ws_uploading")); var fd = new FormData(); fd.append("image", file);
+      A.api.upload("site/images", fd).then(function (r) { var keep = IDS.map($v); postPhoto = { id: r.id, url: r.url }; postSheet(keep); },
+        function (e) { el.disabled = false; A.toast(e.offline ? t("need_conn") : A.msg(e)); });
+    }; f.click();
+  });
+  A.form("postForm", function () {
+    var te = $v("pTe"), ta = $v("pTa"), err = document.getElementById("formErr"); err.textContent = "";
+    if (!te && !ta) { err.textContent = t("wp_need"); return; }
+    var btn = document.querySelector("#postForm [type=submit]"); btn.disabled = true;
+    A.api.write("POST", "site/posts", { title_en: te, title_ar: ta, summary_en: $v("pSe"), summary_ar: $v("pSa"), photo: postPhoto ? postPhoto.id : null }, { online: true }).then(function () {
+      postPhoto = null; A.closeSheet(); A.toast(t("wp_done")); A.reload();
+    }, function (e) { btn.disabled = false; err.textContent = e.offline ? t("need_conn") : A.msg(e); });
+  });
   function statusCard() {
     var pub = S.version ? t("ws_pub", { n: S.version }) + (S.published_at ? " · " + t("ws_at", { d: A.dateTime(S.published_at) }) : "") : t("ws_never");
     return '<div class="card"><h3>' + t("ws_status") + '</h3><p id="wsState" style="margin:.2rem 0 .8rem"><b>' + esc(pub) + "</b><br><span class=\"note\" id=\"wsDraft\"></span></p>" +
@@ -108,7 +137,7 @@
 
   function render(d) {
     S = d;
-    return '<div class="head"><h1 class="title">' + t("ws_title") + '</h1></div><p class="note">' + t("ws_note") + "</p>" + errorBox() + statusCard() +
+    return '<div class="head"><h1 class="title">' + t("ws_title") + '</h1></div><p class="note">' + t("ws_note") + "</p>" + errorBox() + postCard() + statusCard() +
       '<div class="grid" style="margin-top:1rem" id="wsBody">' + groups() + numbers() + singles() +
       listCard("projects", t("ws_projects"), projectFields, function (i) { return A.lang() === "ar" && i.title_ar ? i.title_ar : i.title_en || i.title_ar; }) +
       listCard("team", t("ws_team"), teamFields, function (i) { return A.lang() === "ar" && i.name_ar ? i.name_ar : i.name_en || i.name_ar; }) +

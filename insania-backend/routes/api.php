@@ -171,6 +171,7 @@ Route::middleware('api.json')->group(function () {
         Route::get('site', [\App\Http\Controllers\Api\SiteController::class, 'show'])->middleware('permission:site.edit');
         Route::put('site', [\App\Http\Controllers\Api\SiteController::class, 'save'])->middleware('permission:site.edit');
         Route::post('site/images', [\App\Http\Controllers\Api\SiteController::class, 'upload'])->middleware('permission:site.edit');
+        Route::post('site/posts', [\App\Http\Controllers\Api\SiteController::class, 'post'])->middleware('permission:site.publish');
         Route::post('site/publish', [\App\Http\Controllers\Api\SiteController::class, 'publish'])->middleware('permission:site.publish');
         Route::post('site/revert/{version}', [\App\Http\Controllers\Api\SiteController::class, 'revert'])->middleware('permission:site.publish')->whereNumber('version');
 
