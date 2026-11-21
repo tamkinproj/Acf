@@ -58,7 +58,37 @@ final class PermissionCatalog
             $keys = array_merge($keys, config("roles.departments.{$user->department_key}.grants", []));
         }
 
-        return array_values(array_unique(array_filter($keys, [self::class, 'isValidPermissionKey'])));
+        $keys = array_filter($keys, [self::class, 'isValidPermissionKey']);
+        $off = self::switchedOffPermissions();
+
+        return array_values(array_unique(array_filter($keys, fn ($k) => ! in_array($k, $off, true))));
+    }
+
+    /** Permissions of the office features whose switch is off (config/features.php). */
+    public static function switchedOffPermissions(): array
+    {
+        $off = [];
+        foreach ((array) config('features.permissions', []) as $feature => $perms) {
+            if (! config("features.switches.$feature", false)) {
+                $off = array_merge($off, (array) $perms);
+            }
+        }
+
+        return $off;
+    }
+
+    /** True when this user's role would have more permissions if every feature were on. */
+    public static function hasSwitchedOff(User $user): bool
+    {
+        if (! $user->active) {
+            return false;
+        }
+        $keys = config("roles.grants.{$user->role}", []);
+        if ($user->role === 'staff' && $user->department_key) {
+            $keys = array_merge($keys, config("roles.departments.{$user->department_key}.grants", []));
+        }
+
+        return (bool) array_intersect($keys, self::switchedOffPermissions());
     }
 
     public static function allows(User $user, string $permission): bool

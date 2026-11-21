@@ -30,29 +30,31 @@ class SetupController extends Controller
 
         $steps = match ($user->role) {
             'system_admin' => [
-                ['key' => 'president_admin', 'required' => true, 'done' => $has('president_admin'), 'to' => 'sheet:president_admin'],
-                ['key' => 'org_settings', 'required' => false, 'done' => Setting::where('key', 'org_name')->exists(), 'to' => 'system.html'],
-                ['key' => 'partner_key', 'required' => false, 'done' => ApiKey::where('foundation_id', $fid)->whereNull('revoked_at')->exists(), 'to' => 'system.html'],
+                ['needs' => 'system.first_admin', 'key' => 'president_admin', 'required' => true, 'done' => $has('president_admin'), 'to' => 'sheet:president_admin'],
+                ['needs' => 'system.settings', 'key' => 'org_settings', 'required' => false, 'done' => Setting::where('key', 'org_name')->exists(), 'to' => 'system.html'],
+                ['needs' => 'system.api_keys', 'key' => 'partner_key', 'required' => false, 'done' => ApiKey::where('foundation_id', $fid)->whereNull('revoked_at')->exists(), 'to' => 'system.html'],
             ],
             'security_admin' => [
-                ['key' => 'staff_aytam', 'required' => false, 'done' => $has('staff', 'aytam'), 'to' => 'users.html?add=1&role=staff&dept=aytam'],
-                ['key' => 'staff_finance', 'required' => false, 'done' => $has('staff', 'finance'), 'to' => 'users.html?add=1&role=staff&dept=finance'],
-                ['key' => 'staff_projects', 'required' => false, 'done' => $has('staff', 'projects'), 'to' => 'users.html?add=1&role=staff&dept=projects'],
-                ['key' => 'maintenance', 'required' => false, 'done' => $has('admin_maintenance'), 'to' => 'users.html?add=1&role=admin_maintenance'],
+                ['needs' => 'users.manage', 'key' => 'staff_aytam', 'required' => false, 'done' => $has('staff', 'aytam'), 'to' => 'users.html?add=1&role=staff&dept=aytam'],
+                ['needs' => 'users.manage', 'key' => 'staff_finance', 'required' => false, 'done' => $has('staff', 'finance'), 'to' => 'users.html?add=1&role=staff&dept=finance'],
+                ['needs' => 'users.manage', 'key' => 'staff_projects', 'required' => false, 'done' => $has('staff', 'projects'), 'to' => 'users.html?add=1&role=staff&dept=projects'],
+                ['needs' => 'users.manage', 'key' => 'maintenance', 'required' => false, 'done' => $has('admin_maintenance'), 'to' => 'users.html?add=1&role=admin_maintenance'],
             ],
             'president_admin' => [
-                ['key' => 'first_child', 'required' => true, 'done' => Child::exists(), 'to' => 'people.html?add=1'],
-                ['key' => 'staff_aytam', 'required' => false, 'done' => $has('staff', 'aytam'), 'to' => 'users.html?add=1&role=staff&dept=aytam'],
-                ['key' => 'staff_finance', 'required' => false, 'done' => $has('staff', 'finance'), 'to' => 'users.html?add=1&role=staff&dept=finance'],
-                ['key' => 'staff_projects', 'required' => false, 'done' => $has('staff', 'projects'), 'to' => 'users.html?add=1&role=staff&dept=projects'],
-                ['key' => 'security_admin', 'required' => false, 'done' => $has('security_admin'), 'to' => 'users.html?add=1&role=security_admin'],
-                ['key' => 'maintenance', 'required' => false, 'done' => $has('admin_maintenance'), 'to' => 'users.html?add=1&role=admin_maintenance'],
-                ['key' => 'first_publish', 'required' => false, 'done' => \App\Models\SiteContent::where('version', '>', 0)->exists(), 'to' => 'website.html'],
-                ['key' => 'first_project', 'required' => false, 'done' => Project::exists(), 'to' => 'projects.html'],
+                ['needs' => 'children.create', 'key' => 'first_child', 'required' => true, 'done' => Child::exists(), 'to' => 'people.html?add=1'],
+                ['needs' => 'users.manage', 'key' => 'staff_aytam', 'required' => false, 'done' => $has('staff', 'aytam'), 'to' => 'users.html?add=1&role=staff&dept=aytam'],
+                ['needs' => 'users.manage', 'key' => 'staff_finance', 'required' => false, 'done' => $has('staff', 'finance'), 'to' => 'users.html?add=1&role=staff&dept=finance'],
+                ['needs' => 'users.manage', 'key' => 'staff_projects', 'required' => false, 'done' => $has('staff', 'projects'), 'to' => 'users.html?add=1&role=staff&dept=projects'],
+                ['needs' => 'users.manage', 'key' => 'security_admin', 'required' => false, 'done' => $has('security_admin'), 'to' => 'users.html?add=1&role=security_admin'],
+                ['needs' => 'users.manage', 'key' => 'maintenance', 'required' => false, 'done' => $has('admin_maintenance'), 'to' => 'users.html?add=1&role=admin_maintenance'],
+                ['needs' => 'site.publish', 'key' => 'first_publish', 'required' => false, 'done' => \App\Models\SiteContent::where('version', '>', 0)->exists(), 'to' => 'website.html'],
+                ['needs' => 'projects.manage', 'key' => 'first_project', 'required' => false, 'done' => Project::exists(), 'to' => 'projects.html'],
             ],
             default => [],
         };
 
+        // a step whose feature is switched off (config/features.php) is not shown
+        $steps = array_values(array_map(fn ($s) => array_diff_key($s, ['needs' => 1]), array_filter($steps, fn ($s) => \App\Support\PermissionCatalog::allows($user, $s['needs']))));
         $required = array_filter($steps, fn ($s) => $s['required']);
 
         return ApiResponse::ok([

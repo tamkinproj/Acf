@@ -36,6 +36,13 @@ Once installed, `/server/install`, `/server/` and every setup address answer a p
 ## If the staff app shows a blank or half-loaded page
 A phone can keep an old copy of the app. Open `https://alinsania.com/app/repair.html`: it removes the old saved copy (your sign-in and unsent changes stay), then press **Open the app**. The app itself also shows a **Load a fresh copy** button whenever it could not start.
 
+## Office features: switched on one by one
+Every office feature has an on/off switch in `insania_app/config/features.php`. They ship **off**: children (Aytam), payments, projects, reports, website editing, accounts, activity log and family accounts.
+- Off means gone for everyone: no menu, no screen, and the server refuses it. Nothing is deleted; records stay in the database.
+- The System Admin keeps every tool (health, settings, partner keys, updates, creating and changing the President Admin). Everyone can sign in and change their own password.
+- The public website keeps showing what was last published.
+- A feature comes back with a small signed patch that sets its switch to `true` (and brings any changes agreed for it).
+
 ## Step 1. Make an empty database
 hPanel → **Databases → MySQL Databases**. Create a database and a user, give the user all privileges. Write down: database name, user name, password. (Host is `localhost`.)
 

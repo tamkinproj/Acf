@@ -20,7 +20,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
         $can = fn (string $p) => PermissionCatalog::allows($user, $p);
-        $out = ['kind' => $user->toApi()['kind'], 'role' => $user->role];
+        $out = ['kind' => $user->toApi()['kind'], 'role' => $user->role, 'features_off' => PermissionCatalog::hasSwitchedOff($user)];
 
         if ($can('children.view')) {
             $banks = BankAccount::query();

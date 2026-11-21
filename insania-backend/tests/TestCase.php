@@ -17,5 +17,8 @@ abstract class TestCase extends BaseTestCase
         mkdir($dir, 0775, true);
         file_put_contents($dir.'/installed.lock', 'test');
         config(['install.state_dir' => $dir, 'install.driver' => 'sqlite']);
+
+        // The tests check every feature, so all switches are on here. FeatureSwitchesTest checks them as shipped (off).
+        config(['features.switches' => array_fill_keys(array_keys((array) config('features.switches')), true)]);
     }
 }
