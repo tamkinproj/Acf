@@ -493,3 +493,11 @@
         margin-right: 0
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .ios-row+.ios-row::before {
+        left: 3rem
+    }
+    html[dir=rtl] .ios-row+.ios-row::before {
+        right: 3rem
+    }
+}

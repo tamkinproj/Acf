@@ -833,3 +833,28 @@ button.ios-row:active,.ios-prof:active{background:rgba(23,48,13,.06)}
 .ios-chev{flex:none;width:1.1rem;height:1.1rem;color:#b4b9ae}
 html[dir=rtl] .ios-chev{transform:scaleX(-1)}
 .ios-danger .ios-lbl{flex:1;color:#e5322d;text-align:center;font-weight:600}
+
+/* ---- Sign-in: flat white page, left-aligned, underline fields, button on the end ---- */
+.login{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.25rem 1.5rem calc(2rem + env(safe-area-inset-bottom));background:#fff}
+.login-box{width:100%;max-width:27.5rem;margin-top:0}
+@media(min-width:640px){.login{align-items:center;background:#f2f3ef}.login-box{padding:2.75rem 2.75rem 2.25rem;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.12),0 12px 32px rgba(0,0,0,.08)}}
+.login-back{display:inline-flex;align-items:center;gap:.4rem;margin:0 0 1.6rem;color:var(--ink);font-weight:600;font-size:.95rem;text-decoration:none}
+.login-back .icon{width:1.3rem;height:1.3rem}
+html[dir=rtl] .login-back .icon{transform:scaleX(-1)}
+.login-brand{display:flex;align-items:center;gap:.75rem;margin:0 0 1.4rem;font-weight:700;font-size:1.05rem;color:#555}
+.login .login-brand .logo{width:3rem;height:3rem;margin:0;flex:none}
+.login h1{margin:0 0 .25rem;font-size:1.75rem;font-weight:700;text-align:start}
+.login .lead{margin:0 0 1.2rem;text-align:start;color:var(--muted)}
+.login form{display:grid;gap:1.1rem;margin-top:0}
+.login label{font-weight:500;font-size:.85rem;color:var(--muted);margin-bottom:.1rem}
+.login input{min-height:2.9rem;padding:.5rem .1rem;border:0;border-bottom:2px solid #666;border-radius:0;background:none}
+.login input:focus{outline:0;border-bottom-color:var(--accent-ink);background:none}
+.login .note{margin:.2rem 0 0;text-align:start;font-size:.85rem}
+.login-foot{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem}
+.login-lang{border:0;background:none;padding:.4rem 0;color:var(--accent-ink);font:inherit;font-weight:600;cursor:pointer}
+.login-foot .btn{border-radius:.25rem;min-width:8rem;padding:.75rem 1.5rem}
+
+/* ---- Settings icons: no tile, plain black ---- */
+.ios-ic{background:none!important;width:1.6rem;height:1.6rem}
+.ios-ic .icon{width:1.4rem;height:1.4rem;stroke:#111}
+.ios-row+.ios-row::before{inset-inline-start:3rem}

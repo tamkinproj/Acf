@@ -20,18 +20,20 @@
 </head>
 <body data-page="login">
 <section class="login">
-  <div class="card">
-    <div class="logo" role="img" aria-label="Al Insania Charity Foundation"></div>
-    <h1 style="font-size:1.6rem" data-t="brand">Al Insania Charity Foundation</h1>
+  <div class="login-box">
+    <a class="login-back" href="../index.html"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg><span data-t="back_site">Back to website</span></a>
+    <div class="login-brand"><div class="logo" role="img" aria-label="Al Insania Charity Foundation"></div><span data-t="brand">Al Insania Charity Foundation</span></div>
+    <h1 data-t="signin">Sign in</h1>
     <p class="lead" data-t="staff">Staff portal</p>
     <form id="loginForm" novalidate>
       <div><label for="lEmail" data-t="login_id">Email or username</label><input id="lEmail" type="text" placeholder="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" dir="ltr"></div>
       <div><label for="lPass" data-t="password">Password</label><input id="lPass" type="password" autocomplete="current-password" dir="ltr"></div>
       <div class="err" id="loginErr" role="alert"></div>
-      <button class="btn btn-main" type="submit" data-t="signin">Sign in</button>
-      <p class="note" style="text-align:center;margin:0" data-t="login_hint">Sign in with your account. After the first sign-in the app also works without internet.</p>
-      <a class="link-back" href="../index.html" data-t="back_site">Back to website</a>
-      <button class="btn btn-line btn-sm" type="button" data-act="lang" style="justify-self:center"><svg class="icon"><use href="#i-globe"/></svg><span data-t="lang_btn">العربية</span></button>
+      <p class="note" data-t="login_hint">Sign in with your account. After the first sign-in the app also works without internet.</p>
+      <div class="login-foot">
+        <button class="login-lang" type="button" data-act="lang"><span data-t="lang_btn">العربية</span></button>
+        <button class="btn btn-main" type="submit" data-t="signin">Sign in</button>
+      </div>
     </form>
   </div>
 </section>
