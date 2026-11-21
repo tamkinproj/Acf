@@ -10,6 +10,7 @@
   var data = null, orig = null;                                   // data = {content, images}
   var texts = [], dyn = [];                                       // nodes whose text depends on the language
 
+  function ready() { root.classList.remove("cms-loading"); }
   function lang() { return root.lang === "ar" ? "ar" : "en"; }
   function AR() { return window.__AR || {}; }
   function $(q, r) { return (r || document).querySelector(q); }
@@ -235,15 +236,16 @@
   if (preview) {
     var tok = null; try { tok = JSON.parse(localStorage.getItem("acf_session")).token; } catch (e) {}
     ribbon(rt("Preview of the draft. Visitors do not see this until it is published.", "معاينة المسودة. لا يراها الزوار حتى يتم النشر."));
-    if (tok) load(API + "site", { Accept: "application/json", Authorization: "Bearer " + tok }).then(function (j) { data = { content: j.data.content, images: j.data.images }; render(); }, function () { ribbon("Could not load the draft. Sign in to the staff app first."); });
+    if (tok) load(API + "site", { Accept: "application/json", Authorization: "Bearer " + tok }).then(function (j) { data = { content: j.data.content, images: j.data.images }; render(); ready(); }, function () { ribbon("Could not load the draft. Sign in to the staff app first."); });
   } else {
     try { var cached = JSON.parse(localStorage.getItem(CK)); if (cached && cached.content) { data = cached; render(); } } catch (e) {}   // last published copy first, no waiting
     load(API + "public/site?_=" + Date.now(), { Accept: "application/json" }).then(function (j) {
       var d = j.data;
+      ready();
       if (editing) return;                                              // the editor is showing the draft
       if (d && !d.content && d.stats) { data = { content: null, images: {}, stats: d.stats }; render(); }
       if (d && d.content) { data = { content: d.content, images: d.images || {}, version: d.version, stats: d.stats || null }; try { localStorage.setItem(CK, JSON.stringify(data)); } catch (e) {} render(); }
       else { try { localStorage.removeItem(CK); } catch (e) {} if (data && data.content) location.reload(); }        // was unpublished: back to the page's own text
-    }, function () { /* offline or server down: whatever is shown stays */ });
+    }, function () { ready(); /* offline or server down: whatever is shown stays */ });
   }
 })();

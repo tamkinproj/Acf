@@ -74,7 +74,7 @@
   function folderTile(key, href, sub) {
     return '<a class="fo" href="' + href + '"><span class="fo-top">' + ic(ICONS[key]) + ic("chev", "fo-go") + '</span><b>' + t("f_" + key) + '</b><span class="fo-sub">' + sub + "</span></a>";
   }
-  function homeFolders(d, head) {
+  function homeFolders(d, head, extra) {
     var tiles = [];
     if (d.children) tiles.push(folderTile("aytam", "dashboard.html?d=aytam", t("fo_aytam", { n: num(d.children.total), m: num(d.applications ? d.applications.new : 0) })));
     if (d.payments) tiles.push(folderTile("finance", "dashboard.html?d=finance", t("fo_finance", { p: num(d.payments.paid_count), d: num(d.payments.pending_count) })));
@@ -86,13 +86,13 @@
     if (d.security) tiles.push(folderTile("accounts", "dashboard.html?d=accounts", t("fo_accounts", { n: num(d.security.active_users) })));
     if (A.can("chat.use")) tiles.push(folderTile("chat", "chat.html", d.unread ? t("fo_chat", { n: num(d.unread) }) : t("fo_chat0")));
     return '<div class="mo">' + head + (A.can("users.manage") ? '<a class="fo-add" href="users.html?add=1">' + ic("plus") + "<span>" + t("f_add_user") + "</span></a>" : "") +
-      '<div class="fo-grid">' + tiles.join("") + "</div></div>";
+      '<div class="fo-grid">' + tiles.join("") + "</div>" + (extra || "") + "</div>";
   }
   function folderHead(key) {
     return '<div class="mo-head"><div><a class="fo-back" href="dashboard.html">' + ic("back", "flip") + "<span>" + t("f_back") + '</span></a><h1 class="title">' + t("f_" + key) + "</h1></div></div>";
   }
 
-  var chart = null;   // { sets: [{ key, label, bars: [[label, value]] }], cur: 0, sel: -1 }
+  var charts = [];   // each: { sets: [{ label, bars: [[label, value]] }], cur: 0, sel: -1, title, total }
   function fmtDate(d) { if (!d) return "-"; var l = A.lang() === "ar" ? "ar" : "en-GB"; try { var x = new Date(d + "T00:00:00"); return '<span title="' + esc(x.toLocaleDateString(l, { day: "numeric", month: "long", year: "numeric" })) + '">' + esc(x.toLocaleDateString(l, { day: "numeric", month: "short" })) + "</span>"; } catch (e) { return esc(d); } }
   function num(n) { return Number(n || 0).toLocaleString("en-US"); }
 
@@ -109,21 +109,21 @@
       (sub ? '<span class="mo-trend ' + (tone || "") + '">' + sub + "</span>" : "") + "</a>";
   }
   function chartCard(title, total, sets) {
-    chart = { sets: sets, cur: 0, sel: -1, title: title, total: total };
-    return '<section class="card mo-chart" id="moChart">' + chartInner() + "</section>";
+    var i = charts.push({ sets: sets, cur: 0, sel: -1, title: title, total: total }) - 1;
+    return '<section class="card mo-chart" id="moChart' + i + '">' + chartInner(i) + "</section>";
   }
-  function chartInner() {
-    var c = chart, set = c.sets[c.cur], vals = set.bars.map(function (b) { return b[1]; }), max = Math.max.apply(null, vals.concat([1]));
+  function chartInner(ci) {
+    var c = charts[ci], set = c.sets[c.cur], vals = set.bars.map(function (b) { return b[1]; }), max = Math.max.apply(null, vals.concat([1]));
     var top = niceTop(max), sel = c.sel >= 0 ? c.sel : vals.indexOf(Math.max.apply(null, vals.concat([0])));
     var ticks = [top, top * .75, top * .5, top * .25, 0].map(function (v) { return Math.round(v); });
     return '<div class="mo-chart-head"><div><h3>' + c.title + '</h3><div class="mo-big sm">' + num(c.total) + '</div></div><span class="mo-select">' + t("c_all") + "</span></div>" +
-      (c.sets.length > 1 ? '<div class="mo-seg" role="tablist">' + c.sets.map(function (s, i) { return '<button type="button" role="tab" data-act="mochart" data-i="' + i + '" aria-selected="' + (i === c.cur) + '">' + s.label + "</button>"; }).join("") + "</div>" : "") +
+      (c.sets.length > 1 ? '<div class="mo-seg" role="tablist">' + c.sets.map(function (s, i) { return '<button type="button" role="tab" data-act="mochart" data-c="' + ci + '" data-i="' + i + '" aria-selected="' + (i === c.cur) + '">' + s.label + "</button>"; }).join("") + "</div>" : "") +
       '<div class="mo-plot"><div class="mo-axis">' + ticks.map(function (v) { return "<span>" + v + "</span>"; }).join("") + '</div><div class="mo-bars" style="--n:' + set.bars.length + '">' +
-      set.bars.map(function (b, i) { var h = top ? b[1] / top * 100 : 0; return '<button type="button" class="mo-bar' + (i === sel ? " on" : "") + '" data-act="mobar" data-i="' + i + '" aria-label="' + esc(b[0]) + ": " + b[1] + '"><span class="mo-colbar">' + (i === sel ? '<b class="mo-tip">' + num(b[1]) + "</b>" : "") + '<i style="height:' + Math.max(h, b[1] ? 4 : 0) + '%"></i></span><small>' + esc(b[0]) + "</small></button>"; }).join("") + "</div></div>";
+      set.bars.map(function (b, i) { var h = top ? b[1] / top * 100 : 0; return '<button type="button" class="mo-bar' + (i === sel ? " on" : "") + '" data-act="mobar" data-c="' + ci + '" data-i="' + i + '" aria-label="' + esc(b[0]) + ": " + b[1] + '"><span class="mo-colbar">' + (i === sel ? '<b class="mo-tip">' + num(b[1]) + "</b>" : "") + '<i style="height:' + Math.max(h, b[1] ? 4 : 0) + '%"></i></span><small>' + esc(b[0]) + "</small></button>"; }).join("") + "</div></div>";
   }
   function niceTop(m) { if (m <= 4) return 4; var p = Math.pow(10, Math.floor(Math.log10(m))), f = m / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
-  A.act("mochart", function (el) { chart.cur = +el.getAttribute("data-i"); chart.sel = -1; document.getElementById("moChart").innerHTML = chartInner(); });
-  A.act("mobar", function (el) { chart.sel = +el.getAttribute("data-i"); document.getElementById("moChart").innerHTML = chartInner(); });
+  A.act("mochart", function (el) { var c = +el.getAttribute("data-c"); charts[c].cur = +el.getAttribute("data-i"); charts[c].sel = -1; document.getElementById("moChart" + c).innerHTML = chartInner(c); });
+  A.act("mobar", function (el) { var c = +el.getAttribute("data-c"); charts[c].sel = +el.getAttribute("data-i"); document.getElementById("moChart" + c).innerHTML = chartInner(c); });
 
   function people(title, sub, list, href) {   // the "Quick send" avatars row
     return '<section class="card mo-people"><h3>' + title + '</h3><p class="mo-sub">' + sub + '</p><div class="mo-faces">' + (list.length ? list.slice(0, 6).map(function (x, i) {
@@ -175,13 +175,27 @@
     var u = A.user() || {}, h = new Date().getHours(), first = esc(String(u.name || "").split(" ")[0]);
     var head = '<div class="mo-head"><div><h1 class="title">' + t(h < 12 ? "gm" : h < 18 ? "ga" : "ge") + (first ? (A.lang() === "ar" ? "، " : ", ") + first : "") + '</h1><p class="lead">' + t("hello_sub") + "</p></div>" +
       (d.children ? '<form class="mo-search" action="people.html" method="get" role="search">' + ic("search") + '<input name="q" type="search" placeholder="' + esc(t("search_ph")) + '" aria-label="' + esc(t("search_ph")) + '"></form>' : "") + "</div>";
-    var L = [], R = [], below = [];
+    charts = [];
     var pres = u.role === "president_admin", folder = pres ? ((location.search.match(/[?&]d=([a-z]+)/) || [])[1] || "") : "";
     if (pres && FOLDERS.indexOf(folder) < 0) {
       var hm = '<div class="mo-head"><div><h1 class="title">' + t(h < 12 ? "gm" : h < 18 ? "ga" : "ge") + (first ? (A.lang() === "ar" ? "، " : ", ") + first : "") + '</h1><p class="lead">' + t("f_hello") + "</p></div></div>";
-      return homeFolders(d, hm);
+      return homeFolders(d, hm, homeSections(d, u, first));
     }
     if (pres) head = folderHead(folder);
+    return '<div class="mo">' + head + body(d, folder, pres, u, first) + "</div>";
+  }
+
+  /* The President's Home: every overview, one after the other, each with its own Open link. */
+  function homeSections(d, u, first) {
+    var secs = [["aytam", d.children], ["attendance", d.attendance], ["work", d.work], ["education", d.education], ["finance", d.payments], ["projects", d.projects]];
+    return secs.filter(function (x) { return x[1]; }).map(function (x) {
+      return '<section class="ov"><div class="ov-head"><h2>' + t("f_" + x[0]) + '</h2><a class="mo-select" href="dashboard.html?d=' + x[0] + '">' + t("f_open") + "</a></div>" + body(d, x[0], true, u, first) + "</section>";
+    }).join("");
+  }
+
+  /* One overview (or, for other roles, the whole page body): the cards, the chart, the side column and the tables. */
+  function body(d, folder, pres, u, first) {
+    var L = [], R = [], below = [];
 
     if (d.children && (!pres || folder === "aytam")) {   // ---- Aytam ----
       var c = d.children, bs = c.by_status || {}, apps = d.applications ? d.applications.new : null;
@@ -256,7 +270,7 @@
       L.push(hero({ title: t("h_welcome"), sub: t("h_welcome_sub"), big: first || "-", note: t("off_note"), tiles: [["settings.html", "gear", t("t_settings")]] }));
       R.push(plan(t("pl_soon"), t("pl_soon_txt"), ["settings.html", t("pl_soon_btn")]));
     }
-    return '<div class="mo">' + head + '<div class="mo-grid"><div class="mo-col">' + L.join("") + '</div><div class="mo-col">' + R.join("") + "</div></div>" + (below.length ? '<div class="mo-below">' + below.join("") + "</div>" : "") + "</div>";
+    return '<div class="mo-grid"><div class="mo-col">' + L.join("") + '</div><div class="mo-col">' + R.join("") + "</div></div>" + (below.length ? '<div class="mo-below">' + below.join("") + "</div>" : "");
   }
   A.act("mocopy", function () {
     var link = location.origin + "/apply";

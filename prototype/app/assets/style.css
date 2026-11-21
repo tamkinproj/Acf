@@ -1166,3 +1166,32 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:3px s
 .acc-g>b{font-size:1.02rem}
 @media(min-width:640px){.acc-g{display:grid;grid-template-columns:1fr 1fr;column-gap:1.5rem}.acc-g>b{grid-column:1/-1}}
 .ap-confirm input{width:1.55rem;height:1.55rem}
+
+/* ---- President's Home: every overview in one page ---- */
+.ov{margin:2.2rem 0 0;padding-top:1.4rem;border-top:1px solid rgba(23,48,13,.1)}
+.ov-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0 0 1rem}
+.ov-head h2{margin:0;font-size:1.45rem}
+.ov .mo-below{margin-top:1rem}
+
+/* ---- Skeleton loading ---- */
+.sk{display:grid;gap:1rem;align-content:start}
+.sk-b{display:block;background:linear-gradient(90deg,#e6eadc 25%,#f4f7ee 50%,#e6eadc 75%);background-size:300% 100%;animation:skShimmer 1.4s ease-in-out infinite;border-radius:.7rem}
+@keyframes skShimmer{from{background-position:150% 0}to{background-position:-150% 0}}
+.sk-title{height:2.1rem;width:52%;max-width:20rem}
+.sk-sub{height:1rem;width:78%;max-width:30rem}
+.sk-tabs{display:flex;gap:.6rem;margin:.3rem 0}
+.sk-pill{height:2.4rem;width:6.5rem;border-radius:999px}
+.sk-row{display:flex;align-items:center;gap:1rem;background:#fff;border-radius:1.25rem;padding:1rem}
+.sk-row .sk-b.sk-circ{width:3rem;height:3rem;border-radius:50%;flex:none}
+.sk-col{flex:1;display:grid;gap:.55rem;min-width:0}
+.sk-l1{height:1rem;width:58%}.sk-l2{height:.8rem;width:36%}
+.sk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+@media(min-width:760px){.sk-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.sk-grid.wide{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sk-hero{height:15rem;border-radius:1.6rem}
+.sk-mini{height:7.5rem;border-radius:1.4rem}
+.sk-chart{height:16rem;border-radius:1.6rem}
+.sk-card{height:10rem;border-radius:1.4rem}
+.sk-card.short{height:6rem}
+.sk-prof{display:flex;align-items:center;gap:1rem}
+.sk-prof .sk-b.sk-circ{width:5rem;height:5rem;border-radius:50%;flex:none}
+@media(prefers-reduced-motion:reduce){.sk-b{animation:none}}

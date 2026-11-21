@@ -188,12 +188,24 @@
     if (el.tagName === "DETAILS") el.open = true;
     el.scrollIntoView({ block: "center" }); el.classList.add("focus-flash");
   }
+  /* ---------------- skeleton: grey shapes that shimmer while a screen loads ---------------- */
+  var SKEL = { dashboard: "dash", projects: "cards", settings: "cards", website: "cards", system: "cards", updates: "cards", person: "profile", family: "cards" };
+  function skeleton(kind) {
+    var line = function (c) { return '<i class="sk-b ' + c + '"></i>'; }, row = function () { return '<div class="sk-row"><i class="sk-b sk-circ"></i><div class="sk-col">' + line("sk-l1") + line("sk-l2") + "</div></div>"; }, rep = function (n, f) { var o = ""; for (var i = 0; i < n; i++) o += f(i); return o; };
+    var head = line("sk-title") + line("sk-sub"), body;
+    if (kind === "dash") body = line("sk-hero") + '<div class="sk-grid">' + rep(4, function () { return line("sk-mini"); }) + "</div>" + line("sk-chart");
+    else if (kind === "cards") body = '<div class="sk-grid wide">' + rep(4, function () { return line("sk-card"); }) + "</div>";
+    else if (kind === "profile") body = '<div class="sk-prof"><i class="sk-b sk-circ big"></i>' + line("sk-title") + "</div>" + rep(3, function () { return line("sk-card short"); });
+    else body = '<div class="sk-tabs">' + rep(3, function () { return line("sk-pill"); }) + "</div>" + rep(6, row);
+    return '<div class="sk" role="status" aria-busy="true"><span class="sr">' + esc(t("loading")) + "</span>" + head + body + "</div>";
+  }
+
   function paint() {
     chrome();
     if (!spec.render) return;
     var v = $("#view");
     if (state && state.error) { v.innerHTML = '<p class="note">' + esc(state.error) + '</p><div class="actions"><button class="btn btn-line" data-act="reload">' + t("retry") + "</button></div>"; return; }
-    if (!state || state.loading) { v.innerHTML = '<p class="note">' + t("loading") + "</p>"; return; }
+    if (!state || state.loading) { v.innerHTML = skeleton(spec.skel || SKEL[spec.page] || "list"); return; }
     v.innerHTML = (state.stale ? '<p class="banner">' + ic("cloud") + t("stale") + "</p>" : "") + spec.render(state.data, state);
     if (spec.after) spec.after(state.data, state);
     focusFromUrl();
