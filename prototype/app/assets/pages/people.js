@@ -21,9 +21,11 @@
     return list.map(function (c) {
       var st = c._pending ? '<span class="badge grey">' + t("waiting") + "</span>" : '<span class="badge ' + ((c.status || "active") === "active" ? "" : (c.status === "ended" ? "grey" : "warn")) + '">' + t(c.status || "active") + "</span>";
       var bits = [esc(c.ref)]; if (c.age !== null && c.age !== undefined) bits.push(t("yrs", { n: c.age })); if (c.guardian) bits.push(esc(c.guardian));
-      return '<div class="orow"><a class="item" href="person.html?id=' + c.id + '"><span class="avatar">' + esc(A.name(c).charAt(0)) + '</span><span class="grow"><b>' + esc(A.name(c)) + '</b><span class="sub">' + bits.join(" · ") + '</span></span><span class="right">' + (c.is_sample ? '<span class="badge grey">' + t("sample_tag") + "</span>" : "") + st +
-        (c.pay_type === "bank" && c.bank_verified === false ? '<span class="badge warn" title="' + esc(t("unverified")) + '" aria-label="' + esc(t("unverified")) + '">!</span>' : "") + "</span></a>" +
-        (c.id > 0 ? A.shareBtn("child", c.id, null, true) : "") + (A.can("children.update") && c.id > 0 ? '<button class="orow-edit" type="button" data-act="quickedit" data-id="' + c.id + '" aria-label="' + esc(t("q_edit") + ": " + A.name(c)) + '">' + ic("edit") + "</button>" : "") + "</div>";
+      var tone = c._pending || c.status === "ended" ? "grey" : (c.status || "active") === "active" ? "ok" : "warn";
+      return A.fold({ id: c.id, av: A.name(c), title: A.name(c), tone: tone, meta: '<span dir="ltr">' + bits.join(" · ") + "</span>",
+        badges: (c.is_sample ? '<span class="badge grey">' + t("sample_tag") + "</span>" : "") + st + (c.pay_type === "bank" && c.bank_verified === false ? '<span class="badge warn" title="' + esc(t("unverified")) + '">! ' + esc(t("unverified")) + "</span>" : ""),
+        actions: (c.id > 0 ? '<a class="btn btn-main btn-sm" href="person.html?id=' + c.id + '">' + t("fold_open_profile") + "</a>" : "") + (c.id > 0 ? A.shareBtn("child", c.id) : "") +
+          (A.can("children.update") && c.id > 0 ? '<button class="btn btn-line btn-sm" type="button" data-act="quickedit" data-id="' + c.id + '">' + ic("edit") + "<span>" + t("q_edit") + "</span></button>" : "") });
     }).join("");
   }
   function tools() {

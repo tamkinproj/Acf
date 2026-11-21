@@ -699,14 +699,6 @@ a[href="chat.html"]{position:relative}
 .rm-gap{visibility:hidden}
 .rm-list{flex:1;display:flex;flex-direction:column;gap:.3rem;padding:.6rem 0 .4rem}
 .rm-empty{text-align:center;margin:3rem 0}
-.rm-day{align-self:center;margin:.7rem 0 .3rem}
-.rm-day span{background:rgba(0,0,0,.06);color:var(--muted);font-size:.72rem;font-weight:700;border-radius:999px;padding:.2rem .7rem}
-.msg{max-width:84%;padding:.5rem .8rem .35rem;border-radius:1.15rem;font-size:.94rem;line-height:1.45;box-shadow:var(--cs);display:flex;flex-direction:column;gap:.25rem;overflow-wrap:anywhere}
-.msg.me{align-self:flex-end;background:var(--lime2);color:#111;border-end-end-radius:.35rem}
-.msg.you{align-self:flex-start;background:#fff;color:var(--ink);border-end-start-radius:.35rem}
-.msg-t{margin:0;white-space:pre-wrap}
-.msg-who{font-size:.72rem;font-weight:800;color:var(--muted)}
-.msg-h{align-self:flex-end;font-size:.64rem;color:rgba(0,0,0,.45)}
 .cc{display:flex;align-items:center;gap:.65rem;min-width:13rem;padding:.6rem .75rem;border-radius:.95rem;background:#fff;border:1px solid rgba(0,0,0,.08);color:var(--ink);text-decoration:none}
 a.cc:hover{border-color:rgba(0,0,0,.25)}
 .cc .grow{min-width:0;display:flex;flex-direction:column}
@@ -746,3 +738,44 @@ a.cc:hover{border-color:rgba(0,0,0,.25)}
 .fo-sub{font-size:.8rem;color:var(--muted);line-height:1.35}
 .fo-back{display:inline-flex;align-items:center;gap:.3rem;color:var(--muted);font-weight:700;font-size:.85rem;text-decoration:none;margin-bottom:.3rem}
 .fo-back .icon{width:1rem;height:1rem}
+
+
+/* ---- chat bubbles (Messenger style) ---- */
+.rm-list{gap:0}
+.rm-time{align-self:center;color:var(--muted);font-size:.74rem;font-weight:600;margin:1rem 0 .35rem}
+.grp{display:flex;align-items:flex-end;gap:.5rem;margin-top:.45rem}
+.grp.me{justify-content:flex-end}
+.rm-av{flex:none;width:2.1rem;height:2.1rem;border-radius:50%;background:#dfe2d9;color:var(--ink);font-weight:800;font-size:.85rem;display:grid;place-items:center;margin-bottom:.1rem}
+.stack{display:flex;flex-direction:column;gap:.15rem;max-width:78%;min-width:0}
+.grp.me .stack{align-items:flex-end}
+.grp.you .stack{align-items:flex-start}
+.msg-who{font-size:.7rem;font-weight:700;color:var(--muted);margin:0 .9rem .1rem}
+.b{margin:0;padding:.6rem 1.05rem;border-radius:1.4rem;font-size:1rem;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+.grp.you .b{background:#e6e8e1;color:var(--ink)}
+.grp.me .b{background:var(--lime);color:#111}
+.grp.you .b:not(:first-of-type){border-start-start-radius:.45rem}
+.grp.you .b:not(:last-of-type){border-end-start-radius:.45rem}
+.grp.me .b:not(:first-of-type){border-start-end-radius:.45rem}
+.grp.me .b:not(:last-of-type){border-end-end-radius:.45rem}
+.grp .cc{max-width:100%}
+
+/* ---- collapsible cards: a name until tapped, then the details and the buttons ---- */
+.fold{background:#fff;border-radius:var(--r-lg);box-shadow:var(--cs);margin-bottom:.6rem;overflow:hidden}
+.fold>summary{display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;min-height:3.8rem;cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent}
+.fold>summary::-webkit-details-marker{display:none}
+.fold-t{flex:1;min-width:0;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fdot{flex:none;width:.55rem;height:.55rem;border-radius:50%;background:#c9ccc3}
+.fdot.ok{background:#5aa02c}.fdot.warn{background:#e0a21b}
+.fold-c{flex:none;display:grid;place-items:center;color:var(--muted)}
+.fold-c .icon{width:1.1rem;height:1.1rem;transform:rotate(90deg);transition:transform .15s}
+.fold[open] .fold-c .icon{transform:rotate(-90deg)}
+.fold-b{display:grid;gap:.7rem;padding:.85rem 1rem 1rem;border-top:1px solid var(--line)}
+.fold-meta{margin:0;color:var(--muted);font-size:.88rem;overflow-wrap:anywhere}
+.fold-badges{display:flex;flex-wrap:wrap;gap:.4rem}
+.fold-badges:empty{display:none}
+.fold-a{display:flex;flex-wrap:wrap;gap:.5rem}
+.fold-a:empty{display:none}
+
+/* ---- phones: nothing zooms (pinch, double-tap), and text boxes are never small enough to make iOS zoom in ---- */
+html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media (hover:none){input,select,textarea{font-size:16px!important}}

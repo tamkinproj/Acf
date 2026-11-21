@@ -19,14 +19,23 @@
     if (!c.access) return '<div class="cc off"><span class="cc-i">' + ik + '</span><span class="grow"><b>' + esc(t("k_" + c.kind)) + '</b>' + (c.sub ? '<span class="sub" dir="ltr" style="text-align:start">' + esc(c.sub) + "</span>" : "") + '<span class="sub">' + esc(t("chat_noaccess")) + "</span></span></div>";
     return '<a class="cc" href="' + esc(c.href) + '"><span class="cc-i">' + ik + '</span><span class="grow"><span class="cc-k">' + esc(t("k_" + c.kind)) + '</span><b>' + esc(c.label) + '</b>' + (c.sub ? '<span class="sub" dir="ltr" style="text-align:start">' + esc(c.sub) + "</span>" : "") + "</span>" + ic("chev", "flip") + "</a>";
   }
-  function bubble(m, prev) {
-    var out = "", d = day(m.at);
-    if (!prev || day(prev.at) !== d) out += '<div class="rm-day"><span>' + esc(d) + "</span></div>";
-    var who = !m.mine && META && META.type === "general" && (!prev || prev.user_id !== m.user_id || day(prev.at) !== d) ? '<span class="msg-who">' + esc(m.user || "") + "</span>" : "";
-    out += '<div class="msg ' + (m.mine ? "me" : "you") + '" data-id="' + m.id + '">' + who + (m.card ? card(m.card) : "") + (m.body ? '<p class="msg-t">' + esc(m.body) + "</p>" : "") + '<span class="msg-h">' + esc(hm(m.at)) + "</span></div>";
+  // Messenger style: a centred time when the talk pauses, one small avatar per run of messages from the same person, pill bubbles, no time inside them
+  function sep(a, b) { return !a || new Date(a.at).toDateString() !== new Date(b.at).toDateString() || (new Date(b.at) - new Date(a.at)) > 20 * 60000; }
+  function stamp(iso) { return new Date(iso).toDateString() === new Date().toDateString() ? hm(iso) : day(iso) + " · " + hm(iso); }
+  function one(m) { return (m.card ? card(m.card) : "") + (m.body ? '<p class="b" data-id="' + m.id + '" title="' + esc(hm(m.at)) + '">' + esc(m.body) + "</p>" : ""); }
+  function listHtml() {
+    if (!MSGS.length) return '<p class="note rm-empty">' + esc(t("chat_empty")) + "</p>";
+    var out = "", i = 0;
+    while (i < MSGS.length) {
+      var m = MSGS[i], g = [m], j = i + 1;
+      if (sep(MSGS[i - 1], m)) out += '<div class="rm-time">' + esc(stamp(m.at)) + "</div>";
+      while (j < MSGS.length && MSGS[j].user_id === m.user_id && !sep(MSGS[j - 1], MSGS[j])) { g.push(MSGS[j]); j++; }
+      out += '<div class="grp ' + (m.mine ? "me" : "you") + '">' + (m.mine ? "" : '<span class="rm-av" aria-hidden="true">' + esc(String(m.user || "?").charAt(0)) + "</span>") +
+        '<div class="stack">' + (!m.mine && META && META.type === "general" ? '<span class="msg-who">' + esc(m.user || "") + "</span>" : "") + g.map(one).join("") + "</div></div>";
+      i = j;
+    }
     return out;
   }
-  function listHtml() { return MSGS.length ? MSGS.map(function (m, i) { return bubble(m, MSGS[i - 1]); }).join("") : '<p class="note rm-empty">' + esc(t("chat_empty")) + "</p>"; }
   function nearBottom() { return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 160; }
   function toBottom() { var h = document.documentElement, b = h.style.scrollBehavior; h.style.scrollBehavior = "auto"; window.scrollTo(0, h.scrollHeight); h.style.scrollBehavior = b; }
 
@@ -42,9 +51,9 @@
 
   function addMessages(rows) {
     var fresh = rows.filter(function (m) { return m.id > lastId; }); if (!fresh.length) return false;
-    var stick = nearBottom(), list = document.getElementById("msgs"), had = MSGS.length;
+    var stick = nearBottom(), list = document.getElementById("msgs");
     fresh.forEach(function (m) { MSGS.push(m); lastId = Math.max(lastId, m.id); });
-    if (list) { if (!had) list.innerHTML = ""; fresh.forEach(function (m) { var prev = MSGS[MSGS.indexOf(m) - 1]; list.insertAdjacentHTML("beforeend", bubble(m, prev)); }); }
+    if (list) list.innerHTML = listHtml();   // the runs of messages are regrouped as new ones arrive
     if (stick || fresh.some(function (m) { return m.mine; })) toBottom();
     return true;
   }

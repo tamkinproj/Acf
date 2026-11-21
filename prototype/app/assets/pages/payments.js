@@ -32,7 +32,8 @@
         var isPaid = r.status === "paid", right = isPaid ? '<span class="badge">' + t("paid") + "</span>" : '<span class="badge warn">' + t("pending") + "</span>";
         var act = !isPaid && r.method === "cash" && A.can("payments.mark_cash") ? '<button class="btn btn-line btn-sm" data-act="cash" data-id="' + r.child_id + '">' + t("mark_cash") + "</button>" : "";
         var wait = queued[r.child_id] ? '<span class="badge grey">' + t("wait_pay") + "</span>" : "";
-        return '<div class="item" data-focus="' + r.child_id + '"><a class="avatar" href="person.html?id=' + r.child_id + '" aria-label="' + esc(A.name(r)) + '" style="text-decoration:none">' + esc(A.name(r).charAt(0)) + '</a><span class="grow"><b>' + esc(A.name(r)) + '</b><span class="sub">' + esc(r.ref) + " · " + t(r.method === "bank" ? "bank_pay" : "cash_only") + " · " + A.money(r.amount) + '</span></span><span class="right">' + right + wait + act + A.shareBtn("payment", r.child_id, A.ui.month, true) + "</span></div>";
+        return A.fold({ id: r.child_id, av: A.name(r), title: A.name(r), tone: isPaid ? "ok" : "warn", meta: '<span dir="ltr">' + esc(r.ref) + " · " + t(r.method === "bank" ? "bank_pay" : "cash_only") + " · " + A.money(r.amount) + "</span>",
+          badges: right + wait, actions: act + '<a class="btn btn-line btn-sm" href="person.html?id=' + r.child_id + '">' + t("fold_open_profile") + "</a>" + A.shareBtn("payment", r.child_id, A.ui.month) });
       }).join("") : '<p class="note">' + t("none") + "</p>") + "</div>";
   }
 
