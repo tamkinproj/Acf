@@ -1,5 +1,5 @@
 (function () {
-  var A = ACF, t = A.t, esc = A.esc, ic = A.ic, q = "", tmp = 0, TABS = ["all", "active", "pending", "ended"];
+  var A = ACF, t = A.t, esc = A.esc, ic = A.ic, q = (function () { try { return new URLSearchParams(location.search).get("q") || ""; } catch (e) { return ""; } })(), tmp = 0, TABS = ["all", "active", "pending", "ended"];
 
   A.strings({
     people: "Orphans", search: "Search name, reference or guardian", all: "All", unverified: "Bank not verified",

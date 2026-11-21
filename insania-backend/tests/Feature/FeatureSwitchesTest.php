@@ -189,6 +189,9 @@ class FeatureSwitchesTest extends TestCase
         $this->assertLessThanOrEqual(5, count($d['children']['latest']));
         $this->assertArrayHasKey('name_en', $d['children']['latest'][0]);
         $this->assertArrayNotHasKey('security', $d);
+        $this->assertSame(\App\Models\Child::whereNotNull('birth_date')->count(), array_sum($d['children']['by_age']));
+        $this->assertSame(['0-4', '5-8', '9-12', '13-16', '17+'], array_keys($d['children']['by_age']));
+        $this->assertSame(0, $d['children']['samples']);
 
         $this->as('president_admin');
         $d = $this->getJson('/api/dashboard')->assertOk()->json('data');

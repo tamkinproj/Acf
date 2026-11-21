@@ -12,7 +12,7 @@
       login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
       login_err: "Enter your email and password.", login_fail: "Wrong email or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a minute and try again.",
-      n_home: "Home", n_people: "Orphans", n_apps: "Applications", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
+      n_home: "Home", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
       loading: "Loading…", none: "No matches.", back: "Back", cancel: "Cancel", save: "Save", required: "This field is required.", lang_btn: "العربية", signout: "Sign out",
       noaccess: "Your role does not include this page.", per_month: "per month",
       offline_none: "Nothing is saved on this phone for this page yet. Open it once while connected.", load_err: "Could not load. Try again.",
@@ -26,7 +26,7 @@
       login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
       login_err: "أدخل بريدك وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر دقيقة ثم حاول مجددًا.",
-      n_home: "الرئيسية", n_people: "الأيتام", n_apps: "الطلبات", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
+      n_home: "الرئيسية", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
       loading: "جارٍ التحميل…", none: "لا نتائج.", back: "رجوع", cancel: "إلغاء", save: "حفظ", required: "هذا الحقل مطلوب.", lang_btn: "English", signout: "تسجيل الخروج",
       noaccess: "دورك لا يشمل هذه الصفحة.", per_month: "شهريًا",
       offline_none: "لا يوجد شيء محفوظ على هذا الهاتف لهذه الصفحة بعد. افتحها مرة واحدة أثناء الاتصال.", load_err: "تعذّر التحميل. حاول مجددًا.",
@@ -87,6 +87,13 @@
     '<symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>' +
     '<symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>' +
     '<symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></symbol>' +
+    '<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></symbol>' +
+    '<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>' +
+    '<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>' +
+    '<symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></symbol>' +
+    '<symbol id="i-up" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></symbol>' +
+    '<symbol id="i-down" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></symbol>' +
+    '<symbol id="i-chev" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></symbol>' +
     '<symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>' +
     '<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>' +
     '<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>' +
@@ -97,7 +104,7 @@
   /* ---------------- menus by role ---------------- */
   // [id, page, text key, permission needed (null = everyone), icon]
   var MENU = [
-    ["dashboard", "dashboard.html", "n_home", null, "home"], ["people", "people.html", "n_people", "children.view", "users"],
+    ["dashboard", "dashboard.html", "n_home", null, "grid"], ["people", "people.html", "n_people", "children.view", "users"],
     ["applications", "applications.html", "n_apps", "applications.review", "file"], ["payments", "payments.html", "n_pay", "payments.view", "wallet"], ["projects", "projects.html", "n_proj", "projects.view", "folder"], ["website", "website.html", "n_website", "site.edit", "globe"],
     ["reports", "reports.html", "n_rep", "reports.view", "file"], ["family", "family.html", "n_family", "family.view_own", "users"],
     ["users", "users.html", "n_users", "users.manage", "shield"], ["audit", "audit.html", "n_audit", "audit.read", "file"],
@@ -115,20 +122,30 @@
     else if (!s.online) c = ["off", t("c_offline")];
     return c ? '<a class="chip ' + c[0] + '" href="settings.html#outbox" id="syncChip">' + ic("cloud") + "<span>" + esc(c[1]) + "</span></a>" : '<span id="syncChip"></span>';
   }
+  function initial() { var u = user(); return u && u.name ? u.name.trim().charAt(0).toUpperCase() : "?"; }
+  function bellDot() { var st = API.state(); return st.failed > 0 || st.waiting > 0 || st.expired; }
   function shell() {
     var cur = spec.nav, items = allowed();
-    $("#nav").innerHTML = '<div class="row"><a class="brand" href="dashboard.html" aria-label="' + esc(t("n_home")) + '"><span class="logo" role="img" aria-hidden="true"></span><span><span>' + t("brand") + "</span><small>" + t("staff") + "</small></span></a>" +
-      '<nav aria-label="Main"><ul class="menu">' + items.map(function (m) { return '<li><a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + t(m[2]) + "</a></li>"; }).join("") + "</ul></nav>" +
-      '<div class="tools"><span id="chipBox">' + chipHtml() + '</span><button class="btn btn-line btn-sm round" type="button" data-act="lang" aria-label="Language">' + ic("globe") + '</button><button class="btn btn-main btn-sm round" type="button" data-act="signout" aria-label="' + esc(t("signout")) + '">' + ic("logout") + "</button></div></div>";
-    // The bottom bar holds five places. When a role has more, the first four by importance stay and the rest sit under "More".
     var PRI = ["dashboard", "people", "applications", "payments", "website", "projects", "users", "system", "updates", "audit", "family", "reports", "settings"];
     var sorted = items.slice().sort(function (a, b) { return PRI.indexOf(a[0]) - PRI.indexOf(b[0]); });
-    var more = sorted.length > 5 ? sorted.slice(4) : [], tabs = sorted.length > 5 ? sorted.slice(0, 4) : sorted;
-    moreItems = more;
-    $("#tabbar").innerHTML = tabs.map(function (m) { return '<a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + ic(m[4]) + "<span>" + t(m[2]) + "</span></a>"; }).join("") +
-      (more.length ? '<a href="#" data-act="more"' + (more.some(function (m) { return m[0] === cur; }) ? ' class="active"' : "") + ">" + ic("menu") + "<span>" + t("n_more") + "</span></a>" : "");
+    /* top bar: brand left, sections as pills in the middle, round tools and the account on the right */
+    $("#nav").innerHTML = '<div class="row"><a class="brand" href="dashboard.html" aria-label="' + esc(t("n_home")) + '"><span class="logo" role="img" aria-hidden="true"></span><span><span>' + t("brand") + "</span><small>" + t("staff") + "</small></span></a>" +
+      '<nav class="mo-tabs" aria-label="Main"><ul class="menu">' + sorted.map(function (m) { return '<li><a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + t(m[2]) + "</a></li>"; }).join("") + "</ul></nav>" +
+      '<div class="tools"><span id="chipBox">' + chipHtml() + '</span>' +
+      '<a class="mo-circle" id="bellBtn" href="settings.html#outbox" aria-label="' + esc(t("set_sync_short")) + '">' + ic("bell") + (bellDot() ? '<i class="dot"></i>' : "") + "</a>" +
+      '<button class="mo-circle" type="button" data-act="lang" aria-label="Language">' + ic("globe") + "</button>" +
+      '<a class="mo-circle mo-hide-sm" href="settings.html" aria-label="' + esc(t("n_set")) + '">' + ic("gear") + "</a>" +
+      '<a class="mo-avatar" href="settings.html" aria-label="' + esc(t("n_set")) + '">' + esc(initial()) + "</a></div></div>";
+    /* left rail (large screens): the same sections as icons; the active one sits in a black circle. Settings, language and sign-out below. */
+    var main = sorted.filter(function (m) { return m[0] !== "settings"; });
+    $("#tabbar").innerHTML = '<div class="mo-rail">' + main.map(function (m) { return '<a href="' + m[1] + '" title="' + esc(t(m[2])) + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + ic(m[4]) + '<span class="sr">' + t(m[2]) + "</span></a>"; }).join("") + "</div>" +
+      '<div class="mo-rail mo-rail-foot"><a href="settings.html" title="' + esc(t("n_set")) + '"' + (cur === "settings" ? ' class="active" aria-current="page"' : "") + ">" + ic("gear") + '<span class="sr">' + t("n_set") + "</span></a>" +
+      '<button type="button" data-act="lang" title="Language">' + ic("globe") + '<span class="sr">' + t("lang_btn") + "</span></button>" +
+      '<button type="button" data-act="signout" title="' + esc(t("signout")) + '">' + ic("logout") + '<span class="sr">' + t("signout") + "</span></button></div>";
+    moreItems = [];
+    var act = $(".mo-tabs a.active"); if (act && act.scrollIntoView && window.innerWidth < 1024) { try { act.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {} }
   }
-  function refreshChip() { var b = $("#chipBox"); if (b) b.innerHTML = chipHtml(); }
+  function refreshChip() { var b = $("#chipBox"); if (b) b.innerHTML = chipHtml(); var bell = $("#bellBtn"); if (bell) { var d = bell.querySelector(".dot"); if (bellDot() && !d) bell.insertAdjacentHTML("beforeend", '<i class="dot"></i>'); else if (!bellDot() && d) d.remove(); } }
 
   function chrome() {
     root.lang = lang; root.dir = lang === "ar" ? "rtl" : "ltr";

@@ -28,6 +28,17 @@ class DashboardController extends Controller
                 'total' => Child::count(),
                 'bank_accounts' => (clone $banks)->count(),
                 'bank_verified' => (clone $banks)->where('verified', true)->count(),
+                'by_age' => (function () {
+                    $b = ['0-4' => 0, '5-8' => 0, '9-12' => 0, '13-16' => 0, '17+' => 0];
+                    foreach (Child::whereNotNull('birth_date')->pluck('birth_date') as $d) {
+                        $a = \Illuminate\Support\Carbon::parse($d)->age;
+                        $b[$a <= 4 ? '0-4' : ($a <= 8 ? '5-8' : ($a <= 12 ? '9-12' : ($a <= 16 ? '13-16' : '17+')))]++;
+                    }
+
+                    return $b;
+                })(),
+                'by_city' => Child::whereNotNull('city')->where('city', '!=', '')->selectRaw('city, count(*) as n')->groupBy('city')->orderByDesc('n')->limit(6)->pluck('n', 'city'),
+                'samples' => Child::where('is_sample', true)->count(),
                 'by_status' => ['active' => Child::where('status', 'active')->count(), 'pending' => Child::where('status', 'pending')->count(), 'ended' => Child::where('status', 'ended')->count()],
                 'latest' => Child::orderByDesc('id')->limit(5)->get()->map(fn ($c) => ['id' => $c->id, 'ref' => $c->ref, 'name_en' => $c->name_en, 'name_ar' => $c->name_ar, 'city' => $c->city, 'status' => $c->status, 'added' => $c->created_at?->toDateString()])->values(),
                 'needs_attention' => Child::whereHas('bankAccount', fn ($b) => $b->where('verified', false))->orderBy('ref')->limit(6)->get()
