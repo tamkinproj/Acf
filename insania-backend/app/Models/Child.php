@@ -72,7 +72,7 @@ class Child extends Model
         $like = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $term).'%';
 
         return $q->where(function ($w) use ($like) {
-            $w->where('name_en', 'like', $like)->orWhere('name_ar', 'like', $like)->orWhere('ref', 'like', $like)
+            $w->where('name_en', 'like', $like)->orWhere('name_ar', 'like', $like)->orWhere('ref', 'like', $like)->orWhere('external_no', 'like', $like)->orWhere('sponsor_name', 'like', $like)
                 ->orWhereHas('guardian', fn ($g) => $g->where('name', 'like', $like));
         });
     }
@@ -85,6 +85,7 @@ class Child extends Model
         return [
             'id' => $this->id,
             'ref' => $this->ref,
+            'external_no' => $this->external_no,
             'name_en' => $this->name_en,
             'name_ar' => $this->name_ar,
             'guardian' => $this->guardian?->name,
