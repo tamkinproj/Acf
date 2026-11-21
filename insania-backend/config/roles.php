@@ -49,6 +49,7 @@ return [
             'orphans.accounts',
             'education.view', 'education.manage', 'education.salary',
             'chat.use',                         // office chat
+            'attendance.clock', 'attendance.manage', 'attendance.salary',
         ],
         'staff' => [],
         'user' => ['family.view_own'],
@@ -58,23 +59,23 @@ return [
     'departments' => [
         'aytam' => [
             'name_en' => 'Aytam (orphan care)', 'name_ar' => 'الأيتام',
-            'grants' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'applications.review', 'orphans.accounts', 'chat.use'],
+            'grants' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'applications.review', 'orphans.accounts', 'chat.use', 'attendance.clock'],
         ],
         'finance' => [
             'name_en' => 'Finance', 'name_ar' => 'المالية',
-            'grants' => ['payments.view', 'payments.mark_cash', 'reports.view', 'reports.export', 'chat.use'],
+            'grants' => ['payments.view', 'payments.mark_cash', 'reports.view', 'reports.export', 'chat.use', 'attendance.clock'],
         ],
         'projects' => [
             'name_en' => 'Projects', 'name_ar' => 'المشاريع',
-            'grants' => ['projects.view', 'projects.manage', 'chat.use'],
+            'grants' => ['projects.view', 'projects.manage', 'chat.use', 'attendance.clock'],
         ],
-        'relief' => ['name_en' => 'Relief', 'name_ar' => 'الإغاثة', 'grants' => ['chat.use']],
+        'relief' => ['name_en' => 'Relief', 'name_ar' => 'الإغاثة', 'grants' => ['chat.use', 'attendance.clock']],
         'education' => [
             'name_en' => 'Education', 'name_ar' => 'التعليم',
-            'grants' => ['education.view', 'education.manage', 'education.salary', 'chat.use'],
+            'grants' => ['education.view', 'education.manage', 'education.salary', 'chat.use', 'attendance.clock'],
         ],
-        'hr' => ['name_en' => 'HR', 'name_ar' => 'الموارد البشرية', 'grants' => ['chat.use']],
-        'administration' => ['name_en' => 'Administration', 'name_ar' => 'الإدارة', 'grants' => ['chat.use']],
+        'hr' => ['name_en' => 'HR', 'name_ar' => 'الموارد البشرية', 'grants' => ['chat.use', 'attendance.clock', 'attendance.manage', 'attendance.salary']],
+        'administration' => ['name_en' => 'Administration', 'name_ar' => 'الإدارة', 'grants' => ['chat.use', 'attendance.clock']],
     ],
 
     // Roles that may be handed out on the Accounts screen (by the President Admin, or a Security Admin once their accounts

@@ -1,17 +1,17 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
-  var AREAS = ["all", "security", "accounts", "orphans", "finance", "projects", "education", "website", "chat", "system"], ROWS = [], page = 1, last = 1, area = "all", open = {};
+  var AREAS = ["all", "security", "accounts", "orphans", "finance", "projects", "education", "website", "chat", "attendance", "system"], ROWS = [], page = 1, last = 1, area = "all", open = {};
 
   A.strings({
     audit_title: "Activity log", audit_note: "Who did what, when, and to which record. It holds references and short labels only, never names, account numbers or documents. Needs a connection; nothing is saved on the phone.",
-    audit_none: "No activity yet.", au_all: "All", au_security: "Sign-ins and security", au_accounts: "Accounts", au_orphans: "Orphans", au_finance: "Finance", au_projects: "Projects", au_education: "Education", au_website: "Website", au_chat: "Chat", au_system: "System",
+    audit_none: "No activity yet.", au_all: "All", au_security: "Sign-ins and security", au_accounts: "Accounts", au_orphans: "Orphans", au_finance: "Finance", au_projects: "Projects", au_education: "Education", au_attendance: "Attendance", au_website: "Website", au_chat: "Chat", au_system: "System",
     au_more: "Show older activity", au_unknown: "Someone not signed in", au_from: "From address", au_about: "Record", au_today: "Today", au_yesterday: "Yesterday"
   }, {
     audit_title: "سجل النشاط", audit_note: "من فعل ماذا ومتى وعلى أي سجل. يحوي مراجع وتسميات قصيرة فقط، لا أسماء ولا أرقام حسابات ولا مستندات. يحتاج اتصالًا؛ لا يُحفظ شيء على الهاتف.",
-    audit_none: "لا نشاط بعد.", au_all: "الكل", au_security: "الدخول والأمان", au_accounts: "الحسابات", au_orphans: "الأيتام", au_finance: "المالية", au_projects: "المشاريع", au_education: "التعليم", au_website: "الموقع", au_chat: "المحادثات", au_system: "النظام",
+    audit_none: "لا نشاط بعد.", au_all: "الكل", au_security: "الدخول والأمان", au_accounts: "الحسابات", au_orphans: "الأيتام", au_finance: "المالية", au_projects: "المشاريع", au_education: "التعليم", au_attendance: "الحضور", au_website: "الموقع", au_chat: "المحادثات", au_system: "النظام",
     au_more: "عرض نشاط أقدم", au_unknown: "شخص غير مسجّل الدخول", au_from: "من العنوان", au_about: "السجل", au_today: "اليوم", au_yesterday: "أمس"
   });
-  var ICON = { security: "shield", accounts: "users", orphans: "users", finance: "wallet", projects: "folder", education: "book", website: "globe", chat: "chat", system: "sliders" };
+  var ICON = { security: "shield", accounts: "users", orphans: "users", finance: "wallet", projects: "folder", education: "book", attendance: "clock", website: "globe", chat: "chat", system: "sliders" };
 
   function dayLabel(iso) {
     var d = new Date(iso), n = new Date(), y = new Date(n.getTime() - 86400000);

@@ -114,6 +114,35 @@ Route::middleware('api.json')->group(function () {
             });
         });
 
+        // Attendance: clock in and out with a face photo, the office board, employees, records, leaves, holidays, payroll
+        Route::prefix('attendance')->group(function () {
+            $c = \App\Http\Controllers\Api\AttendanceController::class;
+            Route::middleware('permission:attendance.clock')->group(function () use ($c) {
+                Route::get('me', [$c, 'me']);
+                Route::post('clock', [$c, 'clock'])->middleware(['throttle:30,1', 'block.uploads']);
+            });
+            Route::get('records', [$c, 'records'])->middleware('permission:attendance.clock,attendance.manage');
+            Route::get('records/{record}/photo/{which}', [$c, 'photo'])->middleware('permission:attendance.clock,attendance.manage')->whereNumber('record');
+            Route::middleware('permission:attendance.manage')->group(function () use ($c) {
+                Route::get('board', [$c, 'board']);
+                Route::get('employees', [$c, 'employees']);
+                Route::post('employees', [$c, 'storeEmployee']);
+                Route::patch('employees/{employee}', [$c, 'updateEmployee'])->whereNumber('employee');
+                Route::post('employees/{employee}/face', [$c, 'enrollFace'])->middleware(['throttle:30,1', 'block.uploads'])->whereNumber('employee');
+                Route::get('employees/{employee}/face', [$c, 'face'])->whereNumber('employee');
+                Route::put('records', [$c, 'setRecord']);
+                Route::get('leaves', [$c, 'leaves']);
+                Route::post('leaves', [$c, 'storeLeave']);
+                Route::delete('leaves/{leave}', [$c, 'deleteLeave'])->whereNumber('leave');
+                Route::get('holidays', [$c, 'holidays']);
+                Route::post('holidays', [$c, 'storeHoliday']);
+                Route::delete('holidays/{holiday}', [$c, 'deleteHoliday'])->whereNumber('holiday');
+                Route::post('samples', [$c, 'loadSamples']);
+                Route::delete('samples', [$c, 'removeSamples']);
+            });
+            Route::get('payroll', [$c, 'payroll'])->middleware('permission:attendance.salary');
+        });
+
         // Office chat: the General group and one-to-one chats (President Admin and staff). Cards are links, opened by each person's own access.
         Route::middleware('permission:chat.use')->group(function () {
             Route::get('chat/conversations', [\App\Http\Controllers\Api\ChatController::class, 'conversations']);
