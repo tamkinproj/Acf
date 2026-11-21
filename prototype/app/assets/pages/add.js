@@ -16,6 +16,15 @@
       '<div class="err" id="formErr" role="alert"></div><div class="actions addwrap-actions"><a class="btn btn-line" href="people.html">' + t("cancel") + '</a><button class="btn btn-main" type="submit">' + t("save") + "</button></div></form>" +
       (more ? '<section class="fpage"><h3>' + t("add_more") + '</h3><p class="note" style="margin:0 0 .8rem">' + t("add_more_note") + '</p><div class="actions">' + more + "</div></section>" : "") + "</div>";
   }
+  function wire() {
+    A.wizard(document.getElementById("addForm"), {
+      steps: ".fpage", page: true, cancelHref: "people.html", create: "save",
+      validate: function (i, step) {
+        if (step.querySelector("#f_name_en") && !document.getElementById("f_name_en").value.trim() && !document.getElementById("f_name_ar").value.trim()) { document.getElementById("f_name_enErr").textContent = t("required"); return false; }
+        return true;
+      }
+    });
+  }
   A.act("goback", function (el, e) { if (document.referrer && document.referrer.indexOf(location.origin) === 0 && history.length > 1) { e.preventDefault(); history.back(); } });
 
   A.form("addForm", function () {
@@ -23,7 +32,7 @@
     var body = A.orphan.readBody(false);
     if (body.error) {
       var box = document.getElementById(body.error[0] === "formErr" ? "formErr" : body.error[0] + "Err"); if (box) box.textContent = body.error[1];
-      var f = document.getElementById(body.error[0]); if (f && f.scrollIntoView) { f.scrollIntoView({ block: "center" }); }
+      var f = document.getElementById(body.error[0] === "formErr" ? "f_bank_holder" : body.error[0]); A.wizardTo(document.getElementById("addForm"), f); if (f && f.scrollIntoView) { f.scrollIntoView({ block: "center" }); }
       return;
     }
     var btn = document.querySelector("#addForm button[type=submit]"); btn.disabled = true;
@@ -37,8 +46,9 @@
     }).then(function (r) { A.toast(r.queued ? t("phone_saved") : t("child_saved")); setTimeout(function () { location.replace("people.html"); }, 700); }, function (e) {
       btn.disabled = false;
       if (!(e.errors && A.showErrors(e.errors, "f_"))) document.getElementById("formErr").textContent = A.msg(e);
+      A.wizardReveal(document.getElementById("addForm"));
     });
   });
 
-  A.start({ page: "add", nav: "people", title: "add_title", perm: "children.create", shell: true, bare: true, load: function () { return Promise.resolve({ data: {} }); }, render: render });
+  A.start({ page: "add", nav: "people", title: "add_title", perm: "children.create", shell: true, bare: true, load: function () { return Promise.resolve({ data: {} }); }, render: render, after: wire });
 })();

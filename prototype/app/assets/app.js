@@ -12,7 +12,7 @@
       login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
       login_err: "Enter your email or username, and your password.", login_fail: "Wrong email, username or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a few minutes and try again.",
-      n_home: "Home", n_edu: "Education", notif_title: "Notifications", notif_new: "New notification", login_id: "Email or username", un_title: "Username", un_hint: "Used to sign in, next to your email. 3 to 30 letters, digits, dots, hyphens or underscores.", un_saved: "Username saved", prof_title: "My profile", prof_photo: "Change photo", prof_remove: "Remove photo", prof_saved: "Photo saved", prof_removed: "Photo removed", prof_username: "Username", prof_change: "Change username", prof_bad: "Choose a JPG, PNG or WebP photo.", fold_open: "Open", fold_open_profile: "Open profile", n_chat: "Chat", chat_general: "General", chat_new: "New chat", chat_share: "Share to chat", chat_send: "Send", chat_attach: "Attach a card", chat_type: "Write a message…", chat_pick_chat: "Send to…", chat_people: "Start a chat with", chat_shared: "Shared in chat", chat_empty: "No messages yet. Say hello.", chat_nolist: "No one else is in the office chat yet.", chat_cant: "{n} people in this chat cannot open it. They will see only the kind of card.", chat_cant_one: "{names} cannot open it and will see only the kind of card.", chat_sendany: "Send anyway", chat_noaccess: "You do not have access to this.", chat_gone: "No longer available.", chat_offline: "Chat needs an internet connection.", chat_pick_kind: "What do you want to attach?", chat_pick_item: "Choose one", chat_search: "Search", chat_today: "Today", chat_yesterday: "Yesterday", chat_you: "You", chat_none_item: "Nothing to choose.", chat_open: "Open", k_child: "Orphan", k_application: "Application", k_project: "Project", k_payment: "Payment", k_user: "Account", k_report: "Report", k_site: "Landing page", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_dept: "Departments", n_att: "Attendance", n_family: "My family",
+      n_home: "Home", n_edu: "Education", notif_title: "Notifications", notif_new: "New notification", login_id: "Email or username", un_title: "Username", un_hint: "Used to sign in, next to your email. 3 to 30 letters, digits, dots, hyphens or underscores.", un_saved: "Username saved", prof_title: "My profile", prof_photo: "Change photo", prof_remove: "Remove photo", prof_saved: "Photo saved", prof_removed: "Photo removed", prof_username: "Username", prof_change: "Change username", prof_bad: "Choose a JPG, PNG or WebP photo.", fold_open: "Open", fold_open_profile: "Open profile", n_chat: "Chat", chat_general: "General", chat_new: "New chat", chat_share: "Share to chat", chat_send: "Send", chat_attach: "Attach a card", chat_type: "Write a message…", chat_pick_chat: "Send to…", chat_people: "Start a chat with", chat_shared: "Shared in chat", chat_empty: "No messages yet. Say hello.", chat_nolist: "No one else is in the office chat yet.", chat_cant: "{n} people in this chat cannot open it. They will see only the kind of card.", chat_cant_one: "{names} cannot open it and will see only the kind of card.", chat_sendany: "Send anyway", chat_noaccess: "You do not have access to this.", chat_gone: "No longer available.", chat_offline: "Chat needs an internet connection.", chat_pick_kind: "What do you want to attach?", chat_pick_item: "Choose one", chat_search: "Search", chat_today: "Today", chat_yesterday: "Yesterday", chat_you: "You", chat_none_item: "Nothing to choose.", chat_open: "Open", k_child: "Orphan", k_application: "Application", k_project: "Project", k_payment: "Payment", k_user: "Account", k_report: "Report", k_site: "Landing page", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_dept: "Departments", n_att: "Attendance", wz_step: "Step {n} of {m}", wz_next: "Next", wz_back: "Back", wz_cancel: "Cancel", wz_bad_email: "Enter a valid email address.", n_family: "My family",
       loading: "Loading…", none: "No matches.", back: "Back", cancel: "Cancel", save: "Save", required: "This field is required.", lang_btn: "العربية", signout: "Sign out",
       noaccess: "Your role does not include this page.", per_month: "per month",
       offline_none: "Nothing is saved on this phone for this page yet. Open it once while connected.", load_err: "Could not load. Try again.",
@@ -26,7 +26,7 @@
       login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
       login_err: "أدخل بريدك أو اسم المستخدم وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر بضع دقائق ثم حاول مجددًا.",
-      n_home: "الرئيسية", n_edu: "التعليم", notif_title: "الإشعارات", notif_new: "إشعار جديد", login_id: "البريد أو اسم المستخدم", un_title: "اسم المستخدم", un_hint: "يُستخدم لتسجيل الدخول بجانب بريدك. من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة.", un_saved: "تم حفظ اسم المستخدم", prof_title: "ملفي الشخصي", prof_photo: "تغيير الصورة", prof_remove: "إزالة الصورة", prof_saved: "تم حفظ الصورة", prof_removed: "تمت إزالة الصورة", prof_username: "اسم المستخدم", prof_change: "تغيير اسم المستخدم", prof_bad: "اختر صورة JPG أو PNG أو WebP.", fold_open: "فتح", fold_open_profile: "فتح الملف", n_chat: "المحادثات", chat_general: "العام", chat_new: "محادثة جديدة", chat_share: "مشاركة في المحادثة", chat_send: "إرسال", chat_attach: "إرفاق بطاقة", chat_type: "اكتب رسالة…", chat_pick_chat: "أرسل إلى…", chat_people: "ابدأ محادثة مع", chat_shared: "تمت المشاركة في المحادثة", chat_empty: "لا رسائل بعد. ابدأ بالسلام.", chat_nolist: "لا أحد آخر في محادثة المكتب بعد.", chat_cant: "{n} أشخاص في هذه المحادثة لا يستطيعون فتحها. سيرون نوع البطاقة فقط.", chat_cant_one: "{names} لا يستطيع فتحها وسيرى نوع البطاقة فقط.", chat_sendany: "أرسل على أي حال", chat_noaccess: "ليس لديك صلاحية لهذا.", chat_gone: "لم تعد متاحة.", chat_offline: "المحادثة تحتاج إلى اتصال بالإنترنت.", chat_pick_kind: "ماذا تريد أن ترفق؟", chat_pick_item: "اختر واحدًا", chat_search: "بحث", chat_today: "اليوم", chat_yesterday: "أمس", chat_you: "أنت", chat_none_item: "لا شيء للاختيار.", chat_open: "فتح", k_child: "يتيم", k_application: "طلب", k_project: "مشروع", k_payment: "دفعة", k_user: "حساب", k_report: "تقرير", k_site: "الصفحة الرئيسية للموقع", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_dept: "الأقسام", n_att: "الحضور", n_family: "عائلتي",
+      n_home: "الرئيسية", n_edu: "التعليم", notif_title: "الإشعارات", notif_new: "إشعار جديد", login_id: "البريد أو اسم المستخدم", un_title: "اسم المستخدم", un_hint: "يُستخدم لتسجيل الدخول بجانب بريدك. من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة.", un_saved: "تم حفظ اسم المستخدم", prof_title: "ملفي الشخصي", prof_photo: "تغيير الصورة", prof_remove: "إزالة الصورة", prof_saved: "تم حفظ الصورة", prof_removed: "تمت إزالة الصورة", prof_username: "اسم المستخدم", prof_change: "تغيير اسم المستخدم", prof_bad: "اختر صورة JPG أو PNG أو WebP.", fold_open: "فتح", fold_open_profile: "فتح الملف", n_chat: "المحادثات", chat_general: "العام", chat_new: "محادثة جديدة", chat_share: "مشاركة في المحادثة", chat_send: "إرسال", chat_attach: "إرفاق بطاقة", chat_type: "اكتب رسالة…", chat_pick_chat: "أرسل إلى…", chat_people: "ابدأ محادثة مع", chat_shared: "تمت المشاركة في المحادثة", chat_empty: "لا رسائل بعد. ابدأ بالسلام.", chat_nolist: "لا أحد آخر في محادثة المكتب بعد.", chat_cant: "{n} أشخاص في هذه المحادثة لا يستطيعون فتحها. سيرون نوع البطاقة فقط.", chat_cant_one: "{names} لا يستطيع فتحها وسيرى نوع البطاقة فقط.", chat_sendany: "أرسل على أي حال", chat_noaccess: "ليس لديك صلاحية لهذا.", chat_gone: "لم تعد متاحة.", chat_offline: "المحادثة تحتاج إلى اتصال بالإنترنت.", chat_pick_kind: "ماذا تريد أن ترفق؟", chat_pick_item: "اختر واحدًا", chat_search: "بحث", chat_today: "اليوم", chat_yesterday: "أمس", chat_you: "أنت", chat_none_item: "لا شيء للاختيار.", chat_open: "فتح", k_child: "يتيم", k_application: "طلب", k_project: "مشروع", k_payment: "دفعة", k_user: "حساب", k_report: "تقرير", k_site: "الصفحة الرئيسية للموقع", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_dept: "الأقسام", n_att: "الحضور", wz_step: "الخطوة {n} من {m}", wz_next: "التالي", wz_back: "السابق", wz_cancel: "إلغاء", wz_bad_email: "أدخل بريدًا إلكترونيًا صحيحًا.", n_family: "عائلتي",
       loading: "جارٍ التحميل…", none: "لا نتائج.", back: "رجوع", cancel: "إلغاء", save: "حفظ", required: "هذا الحقل مطلوب.", lang_btn: "English", signout: "تسجيل الخروج",
       noaccess: "دورك لا يشمل هذه الصفحة.", per_month: "شهريًا",
       offline_none: "لا يوجد شيء محفوظ على هذا الهاتف لهذه الصفحة بعد. افتحها مرة واحدة أثناء الاتصال.", load_err: "تعذّر التحميل. حاول مجددًا.",
@@ -211,6 +211,58 @@
       state = { error: e && e.offline ? t(spec.needsConn ? "need_conn" : "offline_none") : msg(e) }; paint();
     });
   }
+
+  /* ---------------- wizard: a long form shown one step at a time ----------------
+     Mark the steps with class "wz-step" (title from data-title, or the step's own heading) and call A.wizard(form, options).
+     The last step's button is the form's normal submit button, so the form's own handler (A.form) still does the saving.
+     options: steps (selector, when the sections are not marked), validate(i, stepEl) -> false to stop, onShow(i, stepEl),
+              create (text key of the last button), page (true on a full page), cancelHref (where Cancel goes on step 1; a sheet just closes). */
+  function wzAll(form) { return Array.prototype.slice.call(form.querySelectorAll(".wz-step")); }
+  function wzActive(form) { return wzAll(form).filter(function (x) { return !x.hasAttribute("data-skip"); }); }
+  function wzTitle(el) { var h = el.getAttribute("data-title") || (el.querySelector("h3,summary") || {}).textContent || ""; return h; }
+  function wzShow(form, i) {
+    var st = form._wz, steps = wzActive(form), n = steps.length; if (!st || !n) return;
+    i = Math.max(0, Math.min(i, n - 1)); st.i = i;
+    wzAll(form).forEach(function (x) { x.hidden = steps[i] !== x; });
+    var dots = ""; steps.forEach(function (x, k) { dots += '<i class="' + (k < i ? "done" : k === i ? "on" : "") + '"></i>'; });
+    st.head.innerHTML = '<div class="wz-dots" aria-hidden="true">' + dots + '</div><div class="wz-meta"><small>' + esc(t("wz_step", { n: i + 1, m: n })) + "</small><b>" + esc(wzTitle(steps[i])) + "</b></div>";
+    var last = i === n - 1, next = st.next, back = st.back;
+    back.textContent = t(i === 0 ? "wz_cancel" : "wz_back");
+    next.textContent = last ? t(st.o.create || "save") : t("wz_next");
+    next.type = last ? "submit" : "button"; if (last) next.removeAttribute("data-wz"); else next.setAttribute("data-wz", "next");
+    if (st.o.onShow) st.o.onShow(i, steps[i], steps);
+    if (form.closest(".sheet")) form.scrollTop = 0; else { var r = form.getBoundingClientRect(); if (r.top < 0) window.scrollTo(0, window.pageYOffset + r.top - 72); }
+  }
+  function wizard(form, o) {
+    if (!form) return; o = o || {};
+    if (o.steps) Array.prototype.forEach.call(form.querySelectorAll(o.steps), function (x) { x.classList.add("wz-step"); });
+    if (wzAll(form).length < 2) return;
+    form.setAttribute("data-wz", "1");
+    var old = Array.prototype.slice.call(form.children).filter(function (c) { return c.classList.contains("actions"); }); old.forEach(function (c) { form.removeChild(c); });
+    if (!form.querySelector("#formErr")) { var er = document.createElement("div"); er.className = "err"; er.id = "formErr"; er.setAttribute("role", "alert"); form.appendChild(er); }
+    var head = document.createElement("div"); head.className = "wz-head"; form.insertBefore(head, form.firstChild);
+    var nav = document.createElement("div"); nav.className = "actions wz-nav" + (o.page ? " addwrap-actions" : "");
+    nav.innerHTML = '<button type="button" class="btn btn-line" data-wz="back"></button><button type="button" class="btn btn-main" data-wz="next"></button>'; form.appendChild(nav);
+    form._wz = { i: 0, o: o, head: head, back: nav.firstChild, next: nav.lastChild };
+    wzShow(form, 0);
+  }
+  function wzGo(form, el) { var steps = wzActive(form); for (var k = 0; k < steps.length; k++) if (steps[k].contains(el)) { wzShow(form, k); return true; } return false; }
+  function wzReveal(form) {   // after the server or a check named a problem: open the first step that shows an error
+    form = form || document.querySelector("form[data-wz]"); if (!form || !form._wz) return;
+    var errs = form.querySelectorAll(".err"); for (var k = 0; k < errs.length; k++) { if (errs[k].textContent && errs[k].id !== "formErr" && wzGo(form, errs[k])) return; }
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-wz]"); if (!b || b.tagName !== "BUTTON") return;
+    var form = b.closest("form"), st = form && form._wz; if (!st) return; e.preventDefault();
+    if (b.getAttribute("data-wz") === "back") { if (st.i > 0) wzShow(form, st.i - 1); else if (st.o.cancelHref) location.href = st.o.cancelHref; else closeSheet(); return; }
+    var steps = wzActive(form); Array.prototype.forEach.call(form.querySelectorAll(".err"), function (x) { x.textContent = ""; });
+    if (st.o.validate && st.o.validate(st.i, steps[st.i]) === false) return;
+    wzShow(form, st.i + 1);
+  });
+  document.addEventListener("keydown", function (e) {   // Enter goes to the next step instead of sending the form half done
+    if (e.key !== "Enter" || !e.target || e.target.tagName !== "INPUT" || e.target.type === "checkbox") return;
+    var form = e.target.closest && e.target.closest("form[data-wz]"); if (!form || !form._wz) return; e.preventDefault(); form._wz.next.click();
+  });
 
   /* ---------------- sheet (pop-up form) ---------------- */
   function sheet(title, body) {
@@ -437,6 +489,7 @@
   /* ---------------- start a page ---------------- */
   window.ACF = {
     sound: sound, setNotices: setNotices,
+    wizard: wizard, wizardReveal: wzReveal, wizardTo: wzGo, wizardRefresh: function (f) { if (f && f._wz) wzShow(f, f._wz.i); },
     timeOnly: timeOnly, dateOnly: dateOnly, dateTime: dateTime, moreItems: function () { return moreItems; },
     t: t, strings: strings, esc: esc, ic: ic, name: name, money: money, facts: facts, months: months, monthLabel: monthLabel, toast: toast, msg: msg,
     can: can, user: user, api: API, avatar: avatarHtml, shrinkImage: shrinkImage, fold: fold, shareBtn: shareBtn, setUnread: setUnread, kindPerm: KIND_PERM, ui: UI, saveUI: saveUI, sheet: sheet, closeSheet: closeSheet, field: field, formEnd: formEnd, showErrors: showErrors,

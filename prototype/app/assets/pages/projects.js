@@ -18,15 +18,20 @@
     }).join("") : '<p class="note">' + t("none") + "</p>") + "</div>" +
       (A.can("projects.manage") ? '<button class="btn btn-main fab" data-act="addproj">' + ic("plus") + t("add_proj") + "</button>" : "");
   }
+  A.strings({ pj_s_name: "Project name", pj_s_more: "Place and budget" }, { pj_s_name: "اسم المشروع", pj_s_more: "المكان والميزانية" });
   A.act("addproj", function () {
-    A.sheet(t("add_proj"), '<form id="projForm" novalidate>' + A.field("p_name_en", t("f_pname_en"), "", "text", 'dir="ltr"') + A.field("p_name_ar", t("f_pname_ar"), "", "text", 'dir="rtl"') +
-      A.field("p_location", t("f_ploc")) + A.field("p_budget", t("f_pbudget") + " (" + A.CUR + ")", "", "number", 'min="0" step="1" inputmode="decimal"') + A.formEnd() + "</form>");
+    A.sheet(t("add_proj"), '<form id="projForm" novalidate><section class="wz-step" data-title="' + esc(t("pj_s_name")) + '">' + A.field("p_name_en", t("f_pname_en"), "", "text", 'dir="ltr"') + A.field("p_name_ar", t("f_pname_ar"), "", "text", 'dir="rtl"') + "</section>" +
+      '<section class="wz-step" data-title="' + esc(t("pj_s_more")) + '">' + A.field("p_location", t("f_ploc")) + A.field("p_budget", t("f_pbudget") + " (" + A.CUR + ")", "", "number", 'min="0" step="1" inputmode="decimal"') + "</section>" + A.formEnd() + "</form>");
+    A.wizard(document.getElementById("projForm"), {
+      create: "save",
+      validate: function (i, step) { if (step.querySelector("#p_name_en") && !document.getElementById("p_name_en").value.trim()) { document.getElementById("p_name_enErr").textContent = t("required"); return false; } return true; }
+    });
   });
   function v(id) { return document.getElementById(id).value.trim(); }
   A.form("projForm", function () {
     Array.prototype.forEach.call(document.querySelectorAll("#sheetRoot .err"), function (e) { e.textContent = ""; });
     var body = { name_en: v("p_name_en") };
-    if (!body.name_en) { document.getElementById("p_name_enErr").textContent = t("required"); return; }
+    if (!body.name_en) { document.getElementById("p_name_enErr").textContent = t("required"); A.wizardReveal(document.getElementById("projForm")); return; }
     ["name_ar", "location"].forEach(function (k) { if (v("p_" + k)) body[k] = v("p_" + k); });
     if (v("p_budget")) body.budget = Number(v("p_budget"));
     var btn = document.querySelector("#projForm button[type=submit]"); btn.disabled = true;

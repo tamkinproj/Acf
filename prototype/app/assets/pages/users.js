@@ -6,7 +6,7 @@
     u_confirm: "Your own password", u_confirm_hint: "Type your own password to confirm this change.", f_uuser: "Username", f_uuser_hint: "Used to sign in. Leave empty to make one from the email.", f_uname: "Full name", f_uemail: "Email", f_urole: "Role", f_udept: "Department", f_upass: "Password", gen_pass: "Generate", f_uactive: "Account is active",
     pass_hint: "At least 12 characters with upper and lower case and a number. Tell the person privately; they should change it.",
     locked_pres: "The President Admin account is managed by the System Admin.", role_system_admin: "System Admin", role_admin_maintenance: "Admin Maintenance", role_security_admin: "Security Admin", role_president_admin: "President Admin", role_staff: "Staff", role_user: "User (family)",
-    dept_aytam: "Aytam", dept_finance: "Finance", dept_projects: "Projects", dept_relief: "Relief", dept_education: "Education", acc_title: "What this account can open", acc_note: "Starts from the department's usual access. Tick or untick to change it for this person only.", acc_custom: "custom access", acc_reset: "Back to the department's access", acc_g_orphans: "Orphans and applications", acc_g_finance: "Payments and reports", acc_g_projects: "Projects", acc_g_education: "Education", acc_g_attendance: "HR and attendance", acc_g_chat: "Chat", p_children_view: "See orphan records", p_children_create: "Add orphans", p_children_update: "Edit orphans", p_bank_verify: "Check bank accounts", p_documents_view: "See documents", p_documents_upload: "Upload documents", p_orphans_accounts: "Orphan sign-in accounts", p_applications_review: "Review applications", p_payments_view: "See payments", p_payments_mark_cash: "Record cash received", p_reports_view: "See reports", p_reports_export: "Export reports", p_projects_view: "See projects", p_projects_manage: "Manage projects", p_education_view: "See Education", p_education_manage: "Manage teachers, institutions and curriculum", p_education_salary: "See and record teacher salaries", p_attendance_clock: "Clock in and out", p_attendance_manage: "Manage attendance (employees, corrections, leaves)", p_attendance_salary: "See salaries and payroll", p_chat_use: "Use the office chat", dept_hr: "Human resources", dept_administration: "Administration",
+    dept_aytam: "Aytam", dept_finance: "Finance", dept_projects: "Projects", dept_relief: "Relief", dept_education: "Education", acc_title: "What this account can open", acc_note: "Starts from the department's usual access. Tick or untick to change it for this person only.", acc_custom: "custom access", acc_reset: "Back to the department's access", acc_g_orphans: "Orphans and applications", acc_g_finance: "Payments and reports", acc_g_projects: "Projects", acc_g_education: "Education", acc_g_attendance: "HR and attendance", acc_g_chat: "Chat", p_children_view: "See orphan records", p_children_create: "Add orphans", p_children_update: "Edit orphans", p_bank_verify: "Check bank accounts", p_documents_view: "See documents", p_documents_upload: "Upload documents", p_orphans_accounts: "Orphan sign-in accounts", p_applications_review: "Review applications", p_payments_view: "See payments", p_payments_mark_cash: "Record cash received", p_reports_view: "See reports", p_reports_export: "Export reports", p_projects_view: "See projects", p_projects_manage: "Manage projects", p_education_view: "See Education", p_education_manage: "Manage teachers, institutions and curriculum", p_education_salary: "See and record teacher salaries", p_attendance_clock: "Clock in and out", p_attendance_manage: "Manage attendance (employees, corrections, leaves)", p_attendance_salary: "See salaries and payroll", p_chat_use: "Use the office chat", wz_create_user: "Create account", wz_who: "Who is it?", wz_role: "Role and department", wz_access: "What they can open", wz_signin: "Password and review", wz_features: "{n} features", wz_need_pass: "Give the account a password.", wz_need_confirm: "Type your own password to confirm.", dept_hr: "Human resources", dept_administration: "Administration",
     inactive: "Switched off", active: "Active", reset_pass: "Set a new password", revoke: "End all sessions", user_saved: "Saved", user_added: "Account created", sessions_ended: "Sessions ended", pass_changed: "Password changed",
     family_note: "Family accounts are linked to a guardian record. They are created in the next phase, with the people records.", save_changes: "Save changes", edit_user: "Edit account", you: "you", locked: "Cannot be changed here"
   }, {
@@ -14,7 +14,7 @@
     u_confirm: "كلمة مرورك أنت", u_confirm_hint: "اكتب كلمة مرورك أنت لتأكيد هذا التغيير.", f_uuser: "اسم المستخدم", f_uuser_hint: "يُستخدم لتسجيل الدخول. اتركه فارغًا لإنشائه من البريد.", f_uname: "الاسم الكامل", f_uemail: "البريد الإلكتروني", f_urole: "الدور", f_udept: "القسم", f_upass: "كلمة المرور", gen_pass: "توليد", f_uactive: "الحساب نشط",
     pass_hint: "12 حرفًا على الأقل مع حروف كبيرة وصغيرة ورقم. أبلغ الشخص بها بسرية؛ عليه تغييرها.",
     locked_pres: "حساب رئيس الإدارة يديره مدير النظام.", role_system_admin: "مدير النظام", role_admin_maintenance: "مشرف الصيانة", role_security_admin: "مدير الأمان", role_president_admin: "رئيس الإدارة", role_staff: "موظف", role_user: "مستخدم (عائلة)",
-    dept_aytam: "أيتام", dept_finance: "المالية", dept_projects: "المشاريع", dept_relief: "الإغاثة", dept_education: "التعليم", acc_title: "ما يمكن لهذا الحساب فتحه", acc_note: "يبدأ من صلاحيات القسم المعتادة. فعّل أو ألغِ لتغيير ذلك لهذا الشخص فقط.", acc_custom: "صلاحيات مخصصة", acc_reset: "العودة إلى صلاحيات القسم", acc_g_orphans: "الأيتام والطلبات", acc_g_finance: "المدفوعات والتقارير", acc_g_projects: "المشاريع", acc_g_education: "التعليم", acc_g_attendance: "الموارد البشرية والحضور", acc_g_chat: "المحادثة", p_children_view: "عرض سجلات الأيتام", p_children_create: "إضافة أيتام", p_children_update: "تعديل الأيتام", p_bank_verify: "التحقق من الحسابات البنكية", p_documents_view: "عرض المستندات", p_documents_upload: "رفع المستندات", p_orphans_accounts: "حسابات دخول الأيتام", p_applications_review: "مراجعة الطلبات", p_payments_view: "عرض المدفوعات", p_payments_mark_cash: "تسجيل المبالغ النقدية", p_reports_view: "عرض التقارير", p_reports_export: "تصدير التقارير", p_projects_view: "عرض المشاريع", p_projects_manage: "إدارة المشاريع", p_education_view: "عرض التعليم", p_education_manage: "إدارة المعلمين والمؤسسات والمنهج", p_education_salary: "عرض رواتب المعلمين وتسجيلها", p_attendance_clock: "تسجيل الحضور والانصراف", p_attendance_manage: "إدارة الحضور (الموظفون والتصحيح والإجازات)", p_attendance_salary: "عرض الرواتب وكشف الرواتب", p_chat_use: "استخدام محادثة المكتب", dept_hr: "الموارد البشرية", dept_administration: "الإدارة",
+    dept_aytam: "أيتام", dept_finance: "المالية", dept_projects: "المشاريع", dept_relief: "الإغاثة", dept_education: "التعليم", acc_title: "ما يمكن لهذا الحساب فتحه", acc_note: "يبدأ من صلاحيات القسم المعتادة. فعّل أو ألغِ لتغيير ذلك لهذا الشخص فقط.", acc_custom: "صلاحيات مخصصة", acc_reset: "العودة إلى صلاحيات القسم", acc_g_orphans: "الأيتام والطلبات", acc_g_finance: "المدفوعات والتقارير", acc_g_projects: "المشاريع", acc_g_education: "التعليم", acc_g_attendance: "الموارد البشرية والحضور", acc_g_chat: "المحادثة", p_children_view: "عرض سجلات الأيتام", p_children_create: "إضافة أيتام", p_children_update: "تعديل الأيتام", p_bank_verify: "التحقق من الحسابات البنكية", p_documents_view: "عرض المستندات", p_documents_upload: "رفع المستندات", p_orphans_accounts: "حسابات دخول الأيتام", p_applications_review: "مراجعة الطلبات", p_payments_view: "عرض المدفوعات", p_payments_mark_cash: "تسجيل المبالغ النقدية", p_reports_view: "عرض التقارير", p_reports_export: "تصدير التقارير", p_projects_view: "عرض المشاريع", p_projects_manage: "إدارة المشاريع", p_education_view: "عرض التعليم", p_education_manage: "إدارة المعلمين والمؤسسات والمنهج", p_education_salary: "عرض رواتب المعلمين وتسجيلها", p_attendance_clock: "تسجيل الحضور والانصراف", p_attendance_manage: "إدارة الحضور (الموظفون والتصحيح والإجازات)", p_attendance_salary: "عرض الرواتب وكشف الرواتب", p_chat_use: "استخدام محادثة المكتب", wz_create_user: "إنشاء الحساب", wz_who: "من هو؟", wz_role: "الدور والقسم", wz_access: "ما يمكنه فتحه", wz_signin: "كلمة المرور والمراجعة", wz_features: "{n} ميزات", wz_need_pass: "اختر كلمة مرور للحساب.", wz_need_confirm: "اكتب كلمة مرورك أنت للتأكيد.", dept_hr: "الموارد البشرية", dept_administration: "الإدارة",
     inactive: "موقوف", active: "نشط", reset_pass: "تعيين كلمة مرور جديدة", revoke: "إنهاء كل الجلسات", user_saved: "تم الحفظ", user_added: "تم إنشاء الحساب", sessions_ended: "أُنهيت الجلسات", pass_changed: "تم تغيير كلمة المرور",
     family_note: "حسابات العائلات مرتبطة بسجل وصي. تُنشأ في المرحلة التالية مع سجلات الأشخاص.", save_changes: "حفظ التغييرات", edit_user: "تعديل الحساب", you: "أنت", locked: "لا يمكن تغييره هنا"
   });
@@ -69,29 +69,53 @@
     if (el.classList.contains("acc")) accDirty = true;
     else if (el.id === "u_department_key" && document.getElementById("accBox")) { accFill(accDefaults()); }
   });
-  function toggleDept(sel) { var box = document.getElementById("deptBox"); if (box) box.style.display = sel.value === "staff" ? "" : "none"; accShow(sel); }
+  function toggleDept(sel) {
+    var box = document.getElementById("deptBox"); if (box) box.style.display = sel.value === "staff" ? "" : "none"; accShow(sel);
+    var st = document.getElementById("wzAcc"); if (st) { if (sel.value === "staff" && isPres()) st.removeAttribute("data-skip"); else st.setAttribute("data-skip", ""); A.wizardRefresh(document.getElementById("userForm")); }
+  }
   function clearErr() { Array.prototype.forEach.call(document.querySelectorAll("#sheetRoot .err"), function (e) { e.textContent = ""; }); }
   function v(id) { return document.getElementById(id).value.trim(); }
-  function fail(e) { if (!(e.errors && A.showErrors(e.errors, "u_"))) document.getElementById("formErr").textContent = e.offline ? t("need_conn") : A.msg(e); }
+  function fail(e) { if (!(e.errors && A.showErrors(e.errors, "u_"))) document.getElementById("formErr").textContent = e.offline ? t("need_conn") : A.msg(e); A.wizardReveal(document.getElementById("userForm")); }
 
   function adduser() {
-    A.sheet(t("add_user"), '<form id="userForm" novalidate>' + A.field("u_name", t("f_uname")) + A.field("u_email", t("f_uemail"), "", "email", 'dir="ltr" autocomplete="off"') +
-      A.field("u_username", t("f_uuser"), '<p class="note" style="margin:.4rem 0 0">' + t("f_uuser_hint") + "</p>", "text", 'dir="ltr" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"') +
-      '<div><label for="u_role">' + t("f_urole") + '</label><select id="u_role">' + roleOptions("staff", false) + '</select><div class="err" id="u_roleErr"></div></div>' +
-      '<div id="deptBox"><label for="u_department_key">' + t("f_udept") + '</label><select id="u_department_key">' + deptOptions("aytam") + '</select><div class="err" id="u_department_keyErr"></div></div>' + accHtml() +
-      confirmField() + A.field("u_password", t("f_upass"), '<div class="actions" style="margin-top:.4rem"><button class="btn btn-line btn-sm" type="button" data-act="genpass">' + t("gen_pass") + '</button></div><p class="note" style="margin:.4rem 0 0">' + t("pass_hint") + "</p>", "text", 'dir="ltr" autocomplete="off"') +
-      A.formEnd() + "</form>");
-    var sel = document.getElementById("u_role"); sel.addEventListener("change", function () { toggleDept(sel); });
+    var passField = A.field("u_password", t("f_upass"), '<div class="actions" style="margin-top:.4rem"><button class="btn btn-line btn-sm" type="button" data-act="genpass">' + t("gen_pass") + '</button></div><p class="note" style="margin:.4rem 0 0">' + t("pass_hint") + "</p>", "text", 'dir="ltr" autocomplete="off"');
+    A.sheet(t("add_user"), '<form id="userForm" novalidate>' +
+      '<section class="wz-step" data-title="' + esc(t("wz_who")) + '">' + A.field("u_name", t("f_uname")) + A.field("u_email", t("f_uemail"), "", "email", 'dir="ltr" autocomplete="off" inputmode="email" autocapitalize="none"') +
+      A.field("u_username", t("f_uuser"), '<p class="note" style="margin:.4rem 0 0">' + t("f_uuser_hint") + "</p>", "text", 'dir="ltr" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"') + "</section>" +
+      '<section class="wz-step" data-title="' + esc(t("wz_role")) + '"><div><label for="u_role">' + t("f_urole") + '</label><select id="u_role">' + roleOptions("staff", false) + '</select><div class="err" id="u_roleErr"></div></div>' +
+      '<div id="deptBox"><label for="u_department_key">' + t("f_udept") + '</label><select id="u_department_key">' + deptOptions("aytam") + '</select><div class="err" id="u_department_keyErr"></div></div></section>' +
+      '<section class="wz-step" id="wzAcc" data-title="' + esc(t("wz_access")) + '"' + (isPres() ? "" : " data-skip") + ">" + accHtml() + "</section>" +
+      '<section class="wz-step" data-title="' + esc(t("wz_signin")) + '"><div class="wz-review" id="wzReview"></div>' + passField + confirmField() + "</section>" +
+      '<div class="err" id="formErr" role="alert"></div></form>');
+    var form = document.getElementById("userForm"), sel = document.getElementById("u_role"); sel.addEventListener("change", function () { toggleDept(sel); });
     var m = location.search.match(/[?&]role=([a-z_]+)/), d = location.search.match(/[?&]dept=([a-z]+)/);
     if (!adduser.done && m && ROLES.indexOf(m[1]) > -1) { sel.value = m[1]; if (d && DEPTS.indexOf(d[1]) > -1) document.getElementById("u_department_key").value = d[1]; }
-    adduser.done = true; toggleDept(sel); accLoad(accDefaults);
+    adduser.done = true;
+    A.wizard(form, {
+      create: "wz_create_user",
+      validate: function (i, step) {
+        if (!step.querySelector("#u_name")) return true;
+        var ok = true; if (!v("u_name")) { document.getElementById("u_nameErr").textContent = t("required"); ok = false; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v("u_email"))) { document.getElementById("u_emailErr").textContent = t("wz_bad_email"); ok = false; }
+        return ok;
+      },
+      onShow: function (i, step) {
+        var box = step.querySelector("#wzReview"); if (!box) return;
+        var role = v("u_role"), row = function (k, val) { return "<div><small>" + esc(t(k)) + "</small><b>" + esc(val) + "</b></div>"; };
+        box.innerHTML = row("f_uname", v("u_name")) + row("f_uemail", v("u_email")) + row("f_urole", t("role_" + role)) +
+          (role === "staff" ? row("f_udept", t("dept_" + v("u_department_key"))) + (document.querySelector("#accBox .acc") ? row("acc_title", t("wz_features", { n: accTicked().length })) : "") : "");
+      }
+    });
+    toggleDept(sel); accLoad(accDefaults);
   }
   A.act("adduser", adduser);
   A.act("genpass", function () { document.getElementById("u_password").value = genPass(); });
   A.form("userForm", function () {
     clearErr();
     var body = { name: v("u_name"), email: v("u_email"), role: v("u_role"), password: v("u_password"), confirm_password: document.getElementById("u_confirm_password").value }; if (v("u_username")) body.username = v("u_username");
-    if (!body.name) { document.getElementById("u_nameErr").textContent = t("required"); return; }
+    if (!body.name) { document.getElementById("u_nameErr").textContent = t("required"); A.wizardReveal(document.getElementById("userForm")); return; }
+    if (!body.password) { document.getElementById("u_passwordErr").textContent = t("wz_need_pass"); return; }
+    if (!body.confirm_password) { document.getElementById("u_confirm_passwordErr").textContent = t("wz_need_confirm"); return; }
     if (body.role === "staff") { body.department_key = v("u_department_key"); if (document.querySelector("#accBox .acc")) body.access = accTicked(); }
     var btn = document.querySelector("#userForm button[type=submit]"); btn.disabled = true;
     A.api.write("POST", "users", body, { online: true }).then(function () { A.closeSheet(); A.toast(t("user_added")); A.reload(true); }, function (e) { btn.disabled = false; fail(e); });

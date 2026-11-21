@@ -1112,3 +1112,22 @@ div.at-row{cursor:default}
 .acc-g>b{display:block;margin-bottom:.35rem}
 .acc-r{display:flex;align-items:center;gap:.6rem;padding:.3rem 0;font-weight:500}
 .acc-r input{width:1.2rem;height:1.2rem;accent-color:#3f6a10;flex:none}
+
+/* ---- Wizard: long forms one step at a time ---- */
+.wz-head{display:grid;gap:.7rem;margin:0 0 .3rem}
+.wz-dots{display:flex;gap:.3rem}
+.wz-dots i{flex:1;height:.32rem;border-radius:99px;background:#e3e7da}
+.wz-dots i.done,.wz-dots i.on{background:var(--accent)}
+.wz-meta small{display:block;color:var(--muted);font-weight:600;font-size:.8rem}
+.wz-meta b{display:block;font-size:1.2rem;line-height:1.25}
+.wz-step{display:grid;gap:1rem;align-content:start}
+.wz-step[hidden]{display:none}
+form[data-wz] .wz-step>h3{display:none}
+form[data-wz] .wz-step.fpage{margin:0}
+.wz-nav{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.wz-nav .btn{width:100%;min-height:3rem}
+.wz-nav .btn-main{order:2}.wz-nav .btn-line{order:1}
+.wz-review{display:grid;gap:.5rem;background:#f4f6ef;border-radius:1rem;padding:.8rem 1rem}
+.wz-review small{display:block;color:var(--muted);font-weight:600;font-size:.75rem}
+.wz-review b{display:block;overflow-wrap:anywhere}
+@media(min-width:640px){.wz-nav{grid-template-columns:auto auto;justify-content:end}.wz-nav .btn{width:auto;min-width:8rem}}

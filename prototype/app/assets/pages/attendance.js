@@ -23,7 +23,7 @@
     ["at_day", "Day", "اليوم"], ["at_photos", "Face photos", "صور الوجه"], ["at_ref", "Reference", "المرجع"], ["at_no_photo", "No photo", "لا صورة"], ["at_method_manual", "Entered by HR", "أدخله الموارد البشرية"],
     ["at_fix", "Correct this day", "تصحيح هذا اليوم"], ["at_status", "What happened", "ما حدث"], ["at_s_present", "Came to work", "حضر للعمل"], ["at_s_absent", "Absent", "غائب"], ["at_s_excused", "Excused (no deduction)", "معذور (دون خصم)"], ["at_s_clear", "Clear (back to automatic)", "مسح (العودة للتلقائي)"],
     ["at_ci", "Clock in time", "وقت الحضور"], ["at_co", "Clock out time", "وقت الانصراف"], ["at_note", "Why (required)", "السبب (مطلوب)"], ["at_saved", "Saved", "تم الحفظ"], ["at_save", "Save", "حفظ"], ["at_cancel", "Cancel", "إلغاء"],
-    ["pe_add", "Add employee", "إضافة موظف"], ["pe_edit", "Employee", "الموظف"], ["pe_name_en", "Name (English)", "الاسم (بالإنجليزية)"], ["pe_name_ar", "Name (Arabic)", "الاسم (بالعربية)"], ["pe_no", "Employee number", "رقم الموظف"], ["pe_pos", "Position", "المسمى الوظيفي"],
+    ["pe_add", "Add employee", "إضافة موظف"], ["at_wz_who", "Who is it?", "من هو؟"], ["at_wz_pay", "Hiring and pay", "التعيين والراتب"], ["at_wz_time", "Working time", "وقت العمل"], ["at_wz_acct", "Account and notes", "الحساب والملاحظات"], ["at_wz_name", "Write the employee's name.", "اكتب اسم الموظف."], ["pe_edit", "Employee", "الموظف"], ["pe_name_en", "Name (English)", "الاسم (بالإنجليزية)"], ["pe_name_ar", "Name (Arabic)", "الاسم (بالعربية)"], ["pe_no", "Employee number", "رقم الموظف"], ["pe_pos", "Position", "المسمى الوظيفي"],
     ["pe_dept", "Department", "القسم"], ["pe_phone", "Phone", "الهاتف"], ["pe_hired", "Hired on", "تاريخ التعيين"], ["pe_salary", "Monthly salary", "الراتب الشهري"], ["pe_start", "Shift starts", "بداية الدوام"], ["pe_end", "Shift ends", "نهاية الدوام"],
     ["pe_break", "Unpaid break (minutes)", "الاستراحة غير المدفوعة (دقائق)"], ["pe_grace", "Grace (minutes late with no deduction)", "المهلة (دقائق تأخر دون خصم)"], ["pe_days", "Working days", "أيام العمل"], ["pe_link", "Sign-in account", "حساب الدخول"],
     ["pe_nolink", "Not linked", "غير مربوط"], ["pe_status", "Status", "الحالة"], ["pe_active", "Active", "على رأس العمل"], ["pe_ended", "Ended", "منتهية خدمته"], ["pe_notes", "Notes", "ملاحظات"], ["pe_face", "Reference face photo", "صورة الوجه المرجعية"],
@@ -202,19 +202,23 @@
     var id = +el.getAttribute("data-id"), x = id ? D.emps.employees.filter(function (e) { return e.id === id; })[0] : null, df = D.emps.defaults || {}; EMP = x;
     var days = x ? x.work_days : (df.work_days || "1,2,3,4,5").split(",").map(Number);
     var users = '<option value="">' + t("pe_nolink") + "</option>" + D.emps.users.map(function (u) { var mine = x && x.user_id === u.id; return '<option value="' + u.id + '"' + (mine ? " selected" : "") + (u.taken && !mine ? " disabled" : "") + ">" + esc(u.name) + (u.taken && !mine ? " (" + t("pe_taken") + ")" : "") + "</option>"; }).join("");
-    var body = '<form id="empForm" novalidate>' + f("eEn", t("pe_name_en"), x && x.name_en, "text", 'maxlength="150"') + f("eAr", t("pe_name_ar"), x && x.name_ar, "text", 'maxlength="150" dir="rtl"') +
+    var body = '<form id="empForm" novalidate><section class="wz-step" data-title="' + esc(t("at_wz_who")) + '">' + f("eEn", t("pe_name_en"), x && x.name_en, "text", 'maxlength="150"') + f("eAr", t("pe_name_ar"), x && x.name_ar, "text", 'maxlength="150" dir="rtl"') +
       '<div class="pair">' + f("eNo", t("pe_no"), x && x.employee_no, "text", 'maxlength="30"') + f("ePos", t("pe_pos"), x && x.position, "text", 'maxlength="100"') + "</div>" +
       '<div class="pair">' + f("eDept", t("pe_dept"), x ? x.department : "Office", "text", 'maxlength="100"') + f("ePhone", t("pe_phone"), x && x.phone, "tel", 'dir="ltr"') + "</div>" +
-      '<div class="pair">' + f("eHired", t("pe_hired"), x && x.hired_on, "date") + (A.can("attendance.salary") ? f("eSal", t("pe_salary") + " (" + ((x && x.currency) || D.emps.currency) + ")", x ? x.monthly_salary : "", "number", 'min="0" step="0.01" inputmode="decimal"') : "") + "</div>" +
-      '<div class="pair">' + f("eStart", t("pe_start"), x ? x.shift_start : df.shift_start || "08:00", "time") + f("eEnd", t("pe_end"), x ? x.shift_end : df.shift_end || "17:00", "time") + "</div>" +
+      '</section><section class="wz-step" data-title="' + esc(t("at_wz_pay")) + '">' + '<div class="pair">' + f("eHired", t("pe_hired"), x && x.hired_on, "date") + (A.can("attendance.salary") ? f("eSal", t("pe_salary") + " (" + ((x && x.currency) || D.emps.currency) + ")", x ? x.monthly_salary : "", "number", 'min="0" step="0.01" inputmode="decimal"') : "") + "</div>" +
+      '</section><section class="wz-step" data-title="' + esc(t("at_wz_time")) + '">' + '<div class="pair">' + f("eStart", t("pe_start"), x ? x.shift_start : df.shift_start || "08:00", "time") + f("eEnd", t("pe_end"), x ? x.shift_end : df.shift_end || "17:00", "time") + "</div>" +
       '<div class="pair">' + f("eBrk", t("pe_break"), x ? x.break_minutes : df.break_minutes, "number", 'min="0" max="240"') + f("eGrace", t("pe_grace"), x ? x.grace_minutes : df.grace_minutes, "number", 'min="0" max="120"') + "</div>" +
       '<div><label>' + t("pe_days") + '</label><div class="at-days">' + [1, 2, 3, 4, 5, 6, 7].map(function (n) { return '<label class="at-d"><input type="checkbox" class="wd" value="' + n + '"' + (days.indexOf(n) > -1 ? " checked" : "") + "><span>" + t("wd" + n) + "</span></label>"; }).join("") + "</div></div>" +
-      '<div><label for="eUser">' + t("pe_link") + '</label><select id="eUser">' + users + "</select></div>" +
+      '</section><section class="wz-step" data-title="' + esc(t("at_wz_acct")) + '">' + '<div><label for="eUser">' + t("pe_link") + '</label><select id="eUser">' + users + "</select></div>" +
       (x ? '<div><label for="eSt">' + t("pe_status") + '</label><select id="eSt"><option value="active"' + (x.status === "active" ? " selected" : "") + ">" + t("pe_active") + '</option><option value="ended"' + (x.status === "ended" ? " selected" : "") + ">" + t("pe_ended") + "</option></select></div>" : "") +
       '<div><label for="eNotes">' + t("pe_notes") + '</label><textarea id="eNotes" rows="2" maxlength="1000">' + esc((x && x.notes) || "") + "</textarea></div>" +
       (x ? '<h4 class="optlbl">' + t("pe_face") + '</h4><div class="at-ref"><div class="at-img" id="eFace">' + (x.has_face ? "" : "<span>" + t("at_no_photo") + "</span>") + '</div><button class="btn btn-line btn-sm" type="button" data-act="atface">' + ic("check") + t("pe_face_set") + "</button></div>" : "") +
-      '<div class="err" id="formErr" role="alert"></div><div class="actions"><button class="btn btn-main" type="submit">' + t("at_save") + '</button><button class="btn btn-line" type="button" data-act="close">' + t("at_cancel") + "</button></div></form>";
+      '</section><div class="err" id="formErr" role="alert"></div><div class="actions"><button class="btn btn-main" type="submit">' + t("at_save") + '</button><button class="btn btn-line" type="button" data-act="close">' + t("at_cancel") + "</button></div></form>";
     A.sheet(x ? nm(x) : t("pe_add"), body);
+    if (!x) A.wizard(document.getElementById("empForm"), {
+      create: "at_save",
+      validate: function (i, step) { if (step.querySelector("#eEn") && !document.getElementById("eEn").value.trim()) { document.getElementById("eEnErr").textContent = t("at_wz_name"); return false; } return true; }
+    });
     if (x && x.has_face) A.api.blobUrl("attendance/employees/" + x.id + "/face").then(function (u) { var b = document.getElementById("eFace"); if (b) b.innerHTML = '<img alt="" src="' + u + '">'; }, function () {});
   });
   A.act("atface", function () {
@@ -230,9 +234,9 @@
       work_days: Array.prototype.slice.call(document.querySelectorAll(".wd:checked")).map(function (c) { return +c.value; }), user_id: v("eUser") ? +v("eUser") : null, notes: v("eNotes") };
     if (document.getElementById("eSal")) body.monthly_salary = +v("eSal") || 0;
     if (document.getElementById("eSt")) body.status = v("eSt");
-    if (!body.name_en) { document.getElementById("eEnErr").textContent = t("pe_name_en"); return; }
+    if (!body.name_en) { document.getElementById("eEnErr").textContent = t("pe_name_en"); A.wizardReveal(document.getElementById("empForm")); return; }
     var call = EMP ? A.api.write("PATCH", "attendance/employees/" + EMP.id, body, { online: true }) : A.api.write("POST", "attendance/employees", body, { online: true });
-    call.then(function () { A.closeSheet(); A.toast(t("at_saved")); A.reload(true); }, function (e) { A.showErrors(e.errors, "e"); er.textContent = msg(e); });
+    call.then(function () { A.closeSheet(); A.toast(t("at_saved")); A.reload(true); }, function (e) { A.showErrors(e.errors, "e"); er.textContent = msg(e); A.wizardReveal(document.getElementById("empForm")); });
   });
 
   /* ---------------- payroll ---------------- */
