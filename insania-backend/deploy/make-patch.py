@@ -38,7 +38,10 @@ a = ap.parse_args()
 old, new = walk(a.old), walk(a.new)
 read = lambda d: open(os.path.join(d, "insania_app", "BUILD")).read().strip()
 build, from_build = read(a.new), read(a.old)
-changed = sorted(k for k in new if k not in old or sha(new[k]) != sha(old[k]))
+# The website and staff app (public_html) are small, so every patch carries ALL of their files, changed or not.
+# A server where an old file survived (for example when a folder was moved in File Manager without replacing it)
+# is then made whole again by any patch, and old and new files can never stay mixed.
+changed = sorted(k for k in new if k.startswith("public_html/") or k not in old or sha(new[k]) != sha(old[k]))
 deleted = sorted(k for k in old if k not in new)
 if build == from_build: sys.exit("The two packages have the same BUILD; build the new one with deploy/build-package.sh")
 
