@@ -1,9 +1,9 @@
 (function () {
   var A = ACF, t = A.t, ic = A.ic;
   A.strings({
-    dp_title: "Departments", dp_hello: "Choose a department.", dp_aytam: "Orphans", dp_aytam_sub: "Orphan records, add an orphan, sign-in accounts", dp_edu: "Education", dp_edu_sub: "Alimni teachers, contracts, madrasa and markaz, curriculum", dp_att: "Attendance", dp_att_sub: "Clock in and out with a face photo, late and absent pay, payroll"
+    dp_title: "Departments", dp_hello: "Choose a department.", dp_aytam: "Orphans", dp_aytam_sub: "Orphan records, add an orphan, sign-in accounts", dp_edu: "Education", dp_edu_sub: "Alimni teachers, contracts, madrasa and markaz, curriculum", dp_att: "HR and attendance", dp_att_sub: "Clock in and out with a face photo, late and absent pay, payroll"
   }, {
-    dp_title: "الأقسام", dp_hello: "اختر قسمًا.", dp_aytam: "الأيتام", dp_aytam_sub: "سجلات الأيتام وإضافة يتيم وحسابات الدخول", dp_edu: "التعليم", dp_edu_sub: "معلمو علّمني والعقود والمدرسة والمراكز والمنهج", dp_att: "الحضور", dp_att_sub: "تسجيل الحضور والانصراف بصورة الوجه، خصم التأخر والغياب، كشف الرواتب"
+    dp_title: "الأقسام", dp_hello: "اختر قسمًا.", dp_aytam: "الأيتام", dp_aytam_sub: "سجلات الأيتام وإضافة يتيم وحسابات الدخول", dp_edu: "التعليم", dp_edu_sub: "معلمو علّمني والعقود والمدرسة والمراكز والمنهج", dp_att: "الموارد البشرية والحضور", dp_att_sub: "تسجيل الحضور والانصراف بصورة الوجه، خصم التأخر والغياب، كشف الرواتب"
   });
   function tile(icon, href, title, sub) {
     return '<a class="fo" href="' + href + '"><span class="fo-top">' + ic(icon) + ic("chev", "fo-go") + "</span><b>" + t(title) + '</b><span class="fo-sub">' + t(sub) + "</span></a>";

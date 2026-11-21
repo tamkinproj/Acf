@@ -31,7 +31,7 @@
     ["wd1", "Mon", "إثن"], ["wd2", "Tue", "ثلا"], ["wd3", "Wed", "أرب"], ["wd4", "Thu", "خمي"], ["wd5", "Fri", "جمع"], ["wd6", "Sat", "سبت"], ["wd7", "Sun", "أحد"],
     ["pr_title", "Payroll", "كشف الرواتب"], ["pr_total", "Total net pay", "إجمالي صافي الرواتب"], ["pr_ded", "Total deductions", "إجمالي الخصومات"], ["pr_csv", "Download CSV", "تنزيل CSV"], ["pr_gross", "Gross", "الإجمالي"],
     ["su_samples", "Sample data", "بيانات تجريبية"], ["su_samples_t", "Sample employees with five weeks of attendance (on time, late, absent, leave, early leaving) to try the screens and the pay rules. You get one sample employee linked to your own account so you can clock in. Remove them any time.", "موظفون تجريبيون مع خمسة أسابيع من الحضور (في الوقت، متأخر، غائب، إجازة، انصراف مبكر) لتجربة الشاشات وقواعد الراتب. تحصل على موظف تجريبي مربوط بحسابك لتجرّب التسجيل. يمكن حذفها في أي وقت."],
-    ["su_load", "Load sample data", "تحميل بيانات تجريبية"], ["su_remove", "Remove sample data", "حذف البيانات التجريبية"], ["su_loaded", "Sample data loaded", "تم تحميل البيانات التجريبية"], ["su_removed", "Sample data removed", "تم حذف البيانات التجريبية"],
+    ["su_load", "Load sample data", "تحميل بيانات تجريبية"], ["at_empty_t", "No employees yet", "لا يوجد موظفون بعد"], ["at_empty_p", "Load sample employees with five weeks of attendance to see how it works, or add your first real employee.", "حمّل موظفين تجريبيين مع خمسة أسابيع من الحضور لترى طريقة العمل، أو أضف أول موظف حقيقي."], ["su_remove", "Remove sample data", "حذف البيانات التجريبية"], ["su_loaded", "Sample data loaded", "تم تحميل البيانات التجريبية"], ["su_removed", "Sample data removed", "تم حذف البيانات التجريبية"],
     ["su_leaves", "Leaves", "الإجازات"], ["su_holidays", "Holidays", "العطل"], ["su_add_leave", "Add leave", "إضافة إجازة"], ["su_add_hol", "Add holiday", "إضافة عطلة"], ["su_none_l", "No leaves in this period.", "لا إجازات في هذه الفترة."], ["su_none_h", "No holidays this year.", "لا عطل هذا العام."],
     ["lv_from", "From", "من"], ["lv_to", "To", "إلى"], ["lv_kind", "Kind", "النوع"], ["lv_reason", "Reason", "السبب"], ["lv_annual", "Annual (paid)", "سنوية (مدفوعة)"], ["lv_sick", "Sick (paid)", "مرضية (مدفوعة)"], ["lv_emergency", "Emergency (paid)", "طارئة (مدفوعة)"],
     ["lv_unpaid", "Unpaid", "بدون راتب"], ["lv_other", "Other (paid)", "أخرى (مدفوعة)"], ["lv_paid", "paid", "مدفوعة"], ["lv_unp", "unpaid", "غير مدفوعة"], ["hol_date", "Date", "التاريخ"], ["hol_name_en", "Name (English)", "الاسم (بالإنجليزية)"], ["hol_name_ar", "Name (Arabic)", "الاسم (بالعربية)"],
@@ -118,6 +118,7 @@
   });
   function board() {
     var b = D.board; if (!b) return "";
+    if (!b.rows.length) return '<section class="card"><h3>' + t("at_empty_t") + '</h3><p class="note">' + t("at_empty_p") + '</p><div class="actions"><button class="btn btn-main" type="button" data-act="atsamp" data-v="load">' + t("su_load") + '</button><button class="btn btn-line" type="button" data-act="atemp" data-id="0">' + ic("plus") + t("pe_add") + "</button></div></section>";
     var c = b.counts, keys = ["present", "late", "absent", "leave", "pending"];
     var rows = b.rows.length ? b.rows.map(function (r) {
       var d = r.day, sub = d.clock_in ? t12(d.clock_in) + (d.clock_out ? " – " + t12(d.clock_out) : "") + (d.late ? " · " + t("at_late_n", { n: d.late }) : "") : esc(r.position || "");
