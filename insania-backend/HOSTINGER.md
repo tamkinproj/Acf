@@ -33,6 +33,17 @@ Once installed, `/server/install`, `/server/` and every setup address answer a p
 - **Changing it:** each person changes their own in Settings → My profile → **Change username**. The President Admin (or Security Admin) can change anyone's in Accounts. The old name is free again at once.
 - **Profile pictures:** every account, whatever the role, can add or remove its own picture in Settings → My profile. It is shown in the top bar, in Accounts and in the chat. Pictures are private files on the server (never in the website folder), shrunk on the phone, re-saved on the server, and visible only to people who are signed in to the same foundation.
 
+## Security settings
+These protect the accounts. The numbers are in `insania_app/config/security.php` (a small signed patch changes them).
+- **Sign-ins end by themselves.** The President Admin, Security Admin and System Admin are signed out after **60 minutes** without use and after **8 hours** at most. Everyone else after **4 hours** idle and **12 hours** at most. Anything not yet sent stays on the phone until the person signs in again.
+- **Accounts lock after guessing.** After **10 wrong passwords** for one account (from any phone or computer), that account cannot sign in for **15 minutes**; the lock is written to the activity log. Other accounts are not affected.
+- **Strong passwords only.** At least 12 characters with upper and lower case and a number, and now also: no common words or the foundation's name (password, welcome, qwerty, insania, ...), nothing containing the person's own name, username or email, no four of the same character in a row, no plain sequences (1234, abcd). The password generator in Accounts always makes an acceptable one.
+- **Account changes ask for your own password again.** Adding an account, changing a role, department, email or switching an account off, and resetting a password all need the signed-in person to type their own password. Five wrong tries pause this for five minutes. This stops a phone left unlocked from being used to make a back door.
+- **Where you are signed in** (Settings): every device that is signed in to your account, with a button to sign any one of them out, or all the others at once. Use it when a phone is lost.
+- **Security check** (System page, System Admin and Admin Maintenance): a green or "needs attention" list: HTTPS, error details hidden, production mode, encryption key, settings file not reachable from the web, only this site allowed to call the API, update signing key installed, no demo accounts, strict limits. It shows what to change for each item that needs attention.
+- **Only this site may call the API from a browser** (CORS); before, any website could. Set `CORS_ALLOWED_ORIGINS` in the settings file only if you add another site on purpose.
+- **Browser protections** (headers) are now also set on the public website: no framing, no guessing of file types, HTTPS only, limited referrer information.
+
 ## Passwords and changing the President Admin
 - **Everyone** can change their own password: Settings → **Change password** (needs the current one; their other devices are signed out).
 - **System Admin** → **System** page → **President Admin** card → **Change President Admin**: change the name, email or password, or hand the post to another person. It is the same account, so every record stays; the old person is signed out at once. The System Admin types their own password to confirm.

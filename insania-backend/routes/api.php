@@ -39,6 +39,10 @@ Route::middleware('api.json')->group(function () {
         Route::post('me/avatar', [AuthController::class, 'setAvatar'])->middleware(['throttle:20,1', 'block.uploads']);
         Route::delete('me/avatar', [AuthController::class, 'removeAvatar']);
         Route::get('avatars/{user}', [AuthController::class, 'avatar'])->whereNumber('user');
+        Route::get('system/security', [\App\Http\Controllers\Api\SystemController::class, 'security'])->middleware('permission:system.health');
+        Route::get('me/sessions', [AuthController::class, 'sessions']);
+        Route::post('me/sessions/end-others', [AuthController::class, 'endOtherSessions'])->middleware('throttle:10,1');
+        Route::delete('me/sessions/{id}', [AuthController::class, 'endSession'])->whereNumber('id');
         Route::get('me/preferences', [AuthController::class, 'preferences']);
         Route::patch('me/preferences', [AuthController::class, 'updatePreferences']);
         Route::get('dashboard', DashboardController::class);

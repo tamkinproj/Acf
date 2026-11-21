@@ -55,7 +55,7 @@ class ProfileTest extends TestCase
     public function test_an_account_made_by_the_president_gets_a_free_username_or_the_one_chosen(): void
     {
         $this->as('president_admin');
-        $body = fn (array $x) => $x + ['name' => 'New Person', 'role' => 'staff', 'department_key' => 'hr', 'password' => 'Str0ng#Passw0rd'];
+        $body = fn (array $x) => $x + ['name' => 'New Person', 'role' => 'staff', 'department_key' => 'hr', 'password' => 'Str0ng#Zq9xKw'];
         $this->postJson('/api/users', $body(['email' => 'amal@example.org']))->assertCreated()->assertJsonPath('data.username', 'amal');
         $this->postJson('/api/users', $body(['email' => 'amal@other.org']))->assertCreated()->assertJsonPath('data.username', 'amal2');        // taken: a number is added
         $this->postJson('/api/users', $body(['email' => 'c@example.org', 'username' => 'Cashier.One']))->assertCreated()->assertJsonPath('data.username', 'cashier.one');
@@ -63,7 +63,7 @@ class ProfileTest extends TestCase
         foreach (['ab', 'has space', '-start', 'a@b.c', str_repeat('x', 31)] as $badName) {
             $this->postJson('/api/users', $body(['email' => 'e'.strlen($badName).'@example.org', 'username' => $badName]))->assertStatus(422)->assertJsonValidationErrors('username');
         }
-        $this->postJson('/api/login', ['login' => 'cashier.one', 'password' => 'Str0ng#Passw0rd'])->assertOk();
+        $this->postJson('/api/login', ['login' => 'cashier.one', 'password' => 'Str0ng#Zq9xKw'])->assertOk();
 
         $id = User::where('username', 'amal')->value('id');
         $this->patchJson("/api/users/$id", ['username' => 'amal.office'])->assertOk()->assertJsonPath('data.username', 'amal.office');

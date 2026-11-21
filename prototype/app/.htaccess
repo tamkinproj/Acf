@@ -5,6 +5,9 @@
   Header always set X-Frame-Options "DENY"
   Header always set Referrer-Policy "same-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
   # Pages, scripts and styles are always checked with the server (a quick "not changed" answer when nothing changed),
   # so a phone or the host's cache never keeps an old copy after an update.
   <FilesMatch "\.(html|js|css|webmanifest|json)$">

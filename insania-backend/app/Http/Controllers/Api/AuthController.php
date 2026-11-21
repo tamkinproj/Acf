@@ -32,21 +32,50 @@ class AuthController extends Controller
 
         // an email or a username: they never overlap because a username has no @
         $id = trim((string) ($data['login'] ?? $data['email']));
-        $user = str_contains($id, '@') ? User::where('email', $id)->first() : User::where('username', \App\Support\Usernames::normalise($id))->first();
+        $user = str_contains($id, '@') ? User::whereRaw('lower(email) = ?', [strtolower($id)])->first() : User::where('username', \App\Support\Usernames::normalise($id))->first();
         $ok = Hash::check($data['password'], $user?->password ?? self::DUMMY_HASH) && $user && $user->active;
 
         if (! $ok) {
-            LoginThrottle::hit($request);
+            $locked = LoginThrottle::hit($request);
             Audit::record('login.failed', $request, 'user', $user?->id, [], $user?->id, $user?->foundation_id);
+            if ($locked && $user) {
+                Audit::record('login.locked', $request, 'user', $user->id, ['minutes' => (int) config('security.lockout.minutes', 15)], $user->id, $user->foundation_id);
+            }
 
             return LoginThrottle::genericFailure();
         }
 
         LoginThrottle::clear($request);
-        $token = $user->createToken($data['device_name'] ?? 'staff-app')->plainTextToken;
+        $privileged = in_array($user->role, (array) config('security.privileged_roles'), true);
+        $hours = (int) config('security.max_hours.'.($privileged ? 'privileged' : 'default'), 12);
+        $token = $user->createToken(self::deviceLabel($request, $data['device_name'] ?? 'staff-app'), ['*'], now()->addHours($hours))->plainTextToken;
         Audit::record('login', $request, 'user', $user->id, [], $user->id, $user->foundation_id);
 
         return ApiResponse::ok(['token' => $token, 'user' => $user->toApi()]);
+    }
+
+    /** "iPhone · Safari" style label, so a person can recognise their own devices in the list of sign-ins. */
+    private static function deviceLabel(Request $request, string $name): string
+    {
+        $ua = (string) $request->userAgent();
+        $os = match (true) {
+            (bool) preg_match('/iPhone|iPad|iPod/i', $ua) => 'iPhone',
+            (bool) preg_match('/Android/i', $ua) => 'Android',
+            (bool) preg_match('/Windows/i', $ua) => 'Windows',
+            (bool) preg_match('/Macintosh|Mac OS/i', $ua) => 'Mac',
+            (bool) preg_match('/Linux/i', $ua) => 'Linux',
+            default => 'Device',
+        };
+        $browser = match (true) {
+            (bool) preg_match('/Edg\//i', $ua) => 'Edge',
+            (bool) preg_match('/Brave/i', $ua) => 'Brave',
+            (bool) preg_match('/Chrome|CriOS/i', $ua) => 'Chrome',
+            (bool) preg_match('/Firefox|FxiOS/i', $ua) => 'Firefox',
+            (bool) preg_match('/Safari/i', $ua) => 'Safari',
+            default => 'browser',
+        };
+
+        return substr($os.' · '.$browser, 0, 60);
     }
 
     public function me(Request $request)
@@ -66,7 +95,7 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'current_password' => ['required', 'string', 'max:200'],
-            'password' => ['required', 'string', 'max:200', Password::min(12)->mixedCase()->numbers()],
+            'password' => ['required', 'string', 'max:200', Password::min(12)->mixedCase()->numbers(), \App\Rules\StrongPassword::for([$request->user()->name, $request->user()->email, $request->user()->username])],
         ]);
         $user = $request->user();
 
@@ -162,5 +191,36 @@ class AuthController extends Controller
         }
 
         return response(\Illuminate\Support\Facades\Storage::disk('local')->get($user->avatar_path), 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=86400', 'X-Content-Type-Options' => 'nosniff']);
+    }
+
+    /** Where this account is signed in: one row per device, so a lost phone can be signed out from another one. */
+    public function sessions(Request $request)
+    {
+        $current = $request->user()->currentAccessToken()?->id;
+
+        return ApiResponse::collection($request->user()->tokens()->orderByDesc('last_used_at')->get()->map(fn ($t) => [
+            'id' => $t->id, 'device' => $t->name, 'current' => $t->id === $current,
+            'signed_in' => $t->created_at?->toIso8601String(), 'last_used' => $t->last_used_at?->toIso8601String(), 'expires' => $t->expires_at?->toIso8601String(),
+        ])->values());
+    }
+
+    public function endSession(Request $request, int $id)
+    {
+        $t = $request->user()->tokens()->where('id', $id)->first();
+        if (! $t) {
+            return ApiResponse::notFound('No such sign-in.');
+        }
+        $t->delete();
+        Audit::record('session.ended', $request, 'user', $request->user()->id);
+
+        return ApiResponse::deleted('Signed out.');
+    }
+
+    public function endOtherSessions(Request $request)
+    {
+        $n = $request->user()->tokens()->where('id', '!=', $request->user()->currentAccessToken()?->id)->delete();
+        Audit::record('session.ended_others', $request, 'user', $request->user()->id, ['count' => $n]);
+
+        return ApiResponse::ok(['ended' => $n]);
     }
 }

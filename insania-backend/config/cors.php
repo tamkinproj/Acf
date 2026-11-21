@@ -19,7 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_values(array_filter(array_map('trim', explode(',', (string) env('CORS_ALLOWED_ORIGINS', '*'))))),
+    // Only this site's own address by default (the app and the API share one domain). Set CORS_ALLOWED_ORIGINS to allow others.
+    'allowed_origins' => array_values(array_filter(array_map('trim', explode(',', (string) env('CORS_ALLOWED_ORIGINS', (function () {
+        $u = parse_url((string) env('APP_URL', ''));
+
+        return isset($u['scheme'], $u['host']) ? $u['scheme'].'://'.$u['host'].(isset($u['port']) ? ':'.$u['port'] : '') : '*';
+    })()))))),
 
     'allowed_origins_patterns' => [],
 

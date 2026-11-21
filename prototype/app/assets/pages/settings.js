@@ -2,13 +2,15 @@
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
 
   A.strings({
-    pw_title: "Change my password", pw_btn: "Change password", pw_cur: "Current password", pw_new: "New password", pw_again: "New password again", pw_hint: "At least 12 characters with upper and lower case and a number. Your other devices will be signed out.",
+    sess_title: "Where you are signed in", sess_note: "Sign out any device you do not recognise or have lost.", sess_this: "This device", sess_last: "Last used {d}", sess_out: "Sign out", sess_others: "Sign out all other devices", sess_done: "Signed out", sess_load: "Loading…",
+    pw_title: "Change my password", pw_btn: "Change password", pw_cur: "Current password", pw_new: "New password", pw_again: "New password again", pw_hint: "At least 12 characters with upper and lower case and a number. No common words, and not your name or username. Your other devices will be signed out.",
     pw_same: "The two new passwords are not the same.", pw_done: "Password changed.", pw_conn: "Changing the password needs a connection.",
     set_title: "Settings", set_rem: "Monthly reminders", set_amt: "Show amounts", set_lang: "Language", set_acct: "Account", set_role: "Role", set_dept: "Department",
     set_sync: "Offline and sync", set_last: "Last sent", set_never: "Not yet", set_now: "Send now", set_none: "Nothing is waiting.", set_install: "Install app", set_installed: "To install: use your browser menu, Add to Home Screen.",
     set_note: "After the first sign-in this app opens and works without internet. Changes made offline are saved here and sent when you are back online.", pref_saved: "Saved",
     dept_aytam: "Aytam", dept_finance: "Finance", dept_projects: "Projects", dept_relief: "Relief", dept_teaching: "Teaching", dept_hr: "Human resources", dept_administration: "Administration", waiting_item: "Waiting"
   }, {
+    sess_title: "الأجهزة المسجّلة الدخول", sess_note: "سجّل الخروج من أي جهاز لا تعرفه أو فقدته.", sess_this: "هذا الجهاز", sess_last: "آخر استخدام {d}", sess_out: "تسجيل الخروج", sess_others: "تسجيل الخروج من كل الأجهزة الأخرى", sess_done: "تم تسجيل الخروج", sess_load: "جارٍ التحميل…",
     pw_title: "تغيير كلمة المرور", pw_btn: "غيّر كلمة المرور", pw_cur: "كلمة المرور الحالية", pw_new: "كلمة المرور الجديدة", pw_again: "أعد كتابة كلمة المرور الجديدة", pw_hint: "12 حرفًا على الأقل مع حروف كبيرة وصغيرة ورقم. سيتم تسجيل خروج أجهزتك الأخرى.",
     pw_same: "كلمتا المرور الجديدتان غير متطابقتين.", pw_done: "تم تغيير كلمة المرور.", pw_conn: "تغيير كلمة المرور يحتاج اتصالًا.",
     set_title: "الإعدادات", set_rem: "تذكيرات شهرية", set_amt: "إظهار المبالغ", set_lang: "اللغة", set_acct: "الحساب", set_role: "الدور", set_dept: "القسم",
@@ -34,6 +36,7 @@
       '<div class="card prof"><h3>' + t("prof_title") + '</h3><div class="prof-head">' + A.avatar(u, "big") + '<div class="grow"><b>' + esc(u.name) + '</b><span class="note" dir="ltr" style="display:block">@' + esc(u.username || "") + '</span></div></div>' +
         '<div class="actions"><button class="btn btn-main btn-sm" type="button" data-act="pickavatar">' + A.ic("edit") + "<span>" + t("prof_photo") + "</span></button>" + (u.avatar ? '<button class="btn btn-line btn-sm" type="button" data-act="rmavatar">' + t("prof_remove") + "</button>" : "") +
         '<button class="btn btn-line btn-sm" type="button" data-act="chuser">' + t("prof_change") + '</button></div><input id="avatarIn" type="file" accept="image/jpeg,image/png,image/webp" hidden></div>' +
+      '<div class="card"><h3>' + t("sess_title") + '</h3><p class="note" style="margin-top:0">' + t("sess_note") + '</p><div class="list" id="sessBox"><p class="note">' + t("sess_load") + "</p></div></div>" +
       '<div class="card"><h3>' + t("set_acct") + "</h3>" + A.facts([[t("email"), esc(u.email)], [t("prof_username"), '<span dir="ltr">@' + esc(u.username || "") + "</span>"], [t("set_role"), esc(u.role_label)]].concat(u.department ? [[t("set_dept"), t("dept_" + u.department)]] : [])) +
       sw("reminders", t("set_rem"), pref.reminders !== false) + sw("show_amounts", t("set_amt"), pref.show_amounts !== false) +
       '<div class="setrow"><b>' + t("set_lang") + '</b><button class="btn btn-line btn-sm" data-act="lang">' + t("lang_btn") + "</button></div>" + install +
@@ -67,6 +70,18 @@
       btn.disabled = false; document.getElementById("un_usernameErr").textContent = e.errors && e.errors.username ? e.errors.username[0] : (e.offline ? t("need_conn") : A.msg(e));
     });
   });
+  function loadSessions() {
+    var box = document.getElementById("sessBox"); if (!box) return;
+    A.api.get("me/sessions", { cache: false }).then(function (r) {
+      var l = A.lang() === "ar" ? "ar" : "en-GB", rows = r.data;
+      box.innerHTML = rows.map(function (s) {
+        return '<div class="item"><span class="grow"><b>' + esc(s.device) + (s.current ? ' <span class="badge">' + t("sess_this") + "</span>" : "") + '</b><span class="sub">' + esc(t("sess_last", { d: new Date(s.last_used || s.signed_in).toLocaleString(l, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) })) + "</span></span>" +
+          (s.current ? "" : '<button class="btn btn-line btn-sm" type="button" data-act="endsess" data-id="' + s.id + '">' + t("sess_out") + "</button>") + "</div>";
+      }).join("") + (rows.length > 1 ? '<div class="actions" style="margin-top:.8rem"><button class="btn btn-line btn-sm" type="button" data-act="endothers">' + t("sess_others") + "</button></div>" : "");
+    }, function () { box.innerHTML = '<p class="note">' + t("need_conn") + "</p>"; });
+  }
+  A.act("endsess", function (el) { A.api.write("DELETE", "me/sessions/" + el.getAttribute("data-id"), null, { online: true }).then(function () { A.toast(t("sess_done")); loadSessions(); }, function (e) { A.toast(e.offline ? t("need_conn") : A.msg(e)); }); });
+  A.act("endothers", function () { A.api.write("POST", "me/sessions/end-others", {}, { online: true }).then(function () { A.toast(t("sess_done")); loadSessions(); }, function (e) { A.toast(e.offline ? t("need_conn") : A.msg(e)); }); });
   A.act("pref", function (el) {
     var k = el.getAttribute("data-k"), u = A.user(), now = !((u.preferences || {})[k] !== false), p = {}; p[k] = now;
     A.api.setPrefs(p); A.paint();
@@ -95,6 +110,6 @@
   A.start({
     page: "settings", nav: "settings", title: "n_set", shell: true, load: function () { return Promise.resolve({ data: {} }); }, render: render,
     onSync: function () { A.paint(); },
-    after: function () { if (location.hash === "#outbox") { var el = document.getElementById("outbox"); if (el) el.scrollIntoView(); } }
+    after: function () { loadSessions(); if (location.hash === "#outbox") { var el = document.getElementById("outbox"); if (el) el.scrollIntoView(); } }
   });
 })();

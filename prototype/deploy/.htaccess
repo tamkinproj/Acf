@@ -44,6 +44,13 @@ RewriteRule ^ / [R=302,L]
 
 # The home page and its script are always checked with the server, so visitors see changes at once.
 <IfModule mod_headers.c>
+  # Browser protections for the whole website (the staff app and the API add stricter ones of their own).
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
   <FilesMatch "^(index\.html|site\.js)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>

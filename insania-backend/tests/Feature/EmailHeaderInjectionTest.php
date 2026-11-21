@@ -20,7 +20,7 @@ class EmailHeaderInjectionTest extends TestCase
             $this->postJson('/api/login', ['email' => $bad, 'password' => 'whatever'])->assertStatus(422);
             $this->app['auth']->forgetGuards();
             $this->actingAsRole('security_admin');
-            $this->postJson('/api/users', ['name' => 'X', 'email' => $bad, 'role' => 'staff', 'department_key' => 'aytam', 'password' => 'Str0ng#Passw0rd'])->assertStatus(422)->assertJsonValidationErrors('email');
+            $this->postJson('/api/users', ['name' => 'X', 'email' => $bad, 'role' => 'staff', 'department_key' => 'aytam', 'password' => 'Str0ng#Zq9xKw'])->assertStatus(422)->assertJsonValidationErrors('email');
         }
     }
 
@@ -28,6 +28,6 @@ class EmailHeaderInjectionTest extends TestCase
     {
         $this->world();
         $this->actingAsRole('security_admin');
-        $this->postJson('/api/users', ['name' => 'Ok', 'email' => 'first.last+tag@sub.example.org', 'role' => 'staff', 'department_key' => 'aytam', 'password' => 'Str0ng#Passw0rd'])->assertCreated();
+        $this->postJson('/api/users', ['name' => 'Ok', 'email' => 'first.last+tag@sub.example.org', 'role' => 'staff', 'department_key' => 'aytam', 'password' => 'Str0ng#Zq9xKw'])->assertCreated();
     }
 }

@@ -90,8 +90,8 @@ class FeatureSwitchesTest extends TestCase
         $this->world();
         $this->shipped();
         $p = User::where('role', 'president_admin')->first();
-        $p->update(['password' => 'Old#Passw0rd123']);
-        $token = $this->postJson('/api/login', ['email' => $p->email, 'password' => 'Old#Passw0rd123'])->assertOk()->json('data.token');
+        $p->update(['password' => 'Old#Zq9xKw123']);
+        $token = $this->postJson('/api/login', ['email' => $p->email, 'password' => 'Old#Zq9xKw123'])->assertOk()->json('data.token');
         $this->withHeader('Authorization', 'Bearer '.$token);
         $me = $this->getJson('/api/me')->assertOk()->json('data.permissions');
         foreach (['users.manage', 'children.view', 'applications.review', 'payments.view', 'projects.manage', 'reports.export', 'site.publish', 'audit.read'] as $perm) {
@@ -111,7 +111,7 @@ class FeatureSwitchesTest extends TestCase
         foreach (['staff_aytam', 'staff_finance', 'staff_projects', 'security_admin', 'maintenance'] as $k) {
             $this->assertContains($k, $steps);
         }
-        $this->postJson('/api/me/password', ['current_password' => 'Old#Passw0rd123', 'password' => 'New#Passw0rd456'])->assertOk();
+        $this->postJson('/api/me/password', ['current_password' => 'Old#Zq9xKw123', 'password' => 'New#Zq9xKw456'])->assertOk();
     }
 
     public function test_switching_one_feature_off_takes_away_only_that_feature(): void
@@ -152,23 +152,23 @@ class FeatureSwitchesTest extends TestCase
             $made[] = ['staff', $dept];
         }
         foreach ($made as $i => [$role, $dept]) {
-            $body = ['name' => "Person $i", 'email' => "person$i@insania.test", 'role' => $role, 'password' => 'Str0ng#Passw0rd'] + ($dept ? ['department_key' => $dept] : []);
+            $body = ['name' => "Person $i", 'email' => "person$i@insania.test", 'role' => $role, 'password' => 'Str0ng#Zq9xKw'] + ($dept ? ['department_key' => $dept] : []);
             $id = $this->postJson('/api/users', $body)->assertCreated()->assertJsonPath('data.role', $role)->json('data.id');
             $this->assertNotNull($id);
         }
-        $this->postJson('/api/users', ['name' => 'Nope', 'email' => 'nope@insania.test', 'role' => 'system_admin', 'password' => 'Str0ng#Passw0rd'])->assertStatus(422);
-        $this->postJson('/api/users', ['name' => 'Fam', 'email' => 'fam@insania.test', 'role' => 'user', 'password' => 'Str0ng#Passw0rd'])->assertStatus(422);
+        $this->postJson('/api/users', ['name' => 'Nope', 'email' => 'nope@insania.test', 'role' => 'system_admin', 'password' => 'Str0ng#Zq9xKw'])->assertStatus(422);
+        $this->postJson('/api/users', ['name' => 'Fam', 'email' => 'fam@insania.test', 'role' => 'user', 'password' => 'Str0ng#Zq9xKw'])->assertStatus(422);
         $listed = collect($this->getJson('/api/users')->assertOk()->json('data'))->pluck('email')->all();
         $this->assertContains('person0@insania.test', $listed);
 
         // the President's own account is managed by the System Admin only, never from the Accounts screen
         $pres = User::where('role', 'president_admin')->first();
         $this->patchJson("/api/users/{$pres->id}", ['name' => 'X'])->assertForbidden();
-        $this->postJson("/api/users/{$pres->id}/password", ['password' => 'Other#Passw0rd99'])->assertForbidden();
+        $this->postJson("/api/users/{$pres->id}/password", ['password' => 'Other#Zq9xKw99'])->assertForbidden();
 
         // the people the President created sign in to an empty office (their own features are still off)
         $this->app['auth']->forgetGuards();
-        $token = $this->postJson('/api/login', ['email' => 'person0@insania.test', 'password' => 'Str0ng#Passw0rd'])->assertOk()->json('data.token');
+        $token = $this->postJson('/api/login', ['email' => 'person0@insania.test', 'password' => 'Str0ng#Zq9xKw'])->assertOk()->json('data.token');
         $this->withHeader('Authorization', 'Bearer '.$token)->getJson('/api/users')->assertForbidden();
 
         // and nobody but the President holds accounts

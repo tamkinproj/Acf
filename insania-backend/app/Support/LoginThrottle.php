@@ -29,29 +29,45 @@ final class LoginThrottle
         return 'login:'.sha1($identifier.'|'.$request->ip());
     }
 
-    public static function blocked(object $request): ?\Illuminate\Http\JsonResponse
+    /** One account, from ANY address: a guessing attack spread over many phones is stopped too. */
+    public static function accountKey(object $request): string
     {
-        if (! RateLimiter::tooManyAttempts(self::key($request), self::MAX_ATTEMPTS)) {
-            return null;
-        }
+        $identifier = Str::lower(trim((string) ($request->input('login') ?? $request->input('email') ?? $request->input('username') ?? '')));
 
-        $seconds = RateLimiter::availableIn(self::key($request));
-
-        return ApiResponse::error(
-            'THROTTLED',
-            'Too many login attempts. Try again in '.$seconds.' seconds.',
-            429
-        )->header('Retry-After', (string) $seconds);
+        return 'login-acct:'.sha1($identifier);
     }
 
-    public static function hit(object $request): void
+    public static function blocked(object $request): ?\Illuminate\Http\JsonResponse
+    {
+        $max = (int) config('security.lockout.attempts', 10);
+        foreach ([[self::key($request), self::MAX_ATTEMPTS], [self::accountKey($request), $max]] as [$key, $limit]) {
+            if (RateLimiter::tooManyAttempts($key, $limit)) {
+                $seconds = RateLimiter::availableIn($key);
+
+                return ApiResponse::error(
+                    'THROTTLED',
+                    'Too many login attempts. Try again in '.$seconds.' seconds.',
+                    429
+                )->header('Retry-After', (string) $seconds);
+            }
+        }
+
+        return null;
+    }
+
+    /** True when this failure is the one that locks the account (so it can be written to the audit log once). */
+    public static function hit(object $request): bool
     {
         RateLimiter::hit(self::key($request), self::DECAY_SECONDS);
+        RateLimiter::hit(self::accountKey($request), (int) config('security.lockout.minutes', 15) * 60);
+
+        return RateLimiter::attempts(self::accountKey($request)) === (int) config('security.lockout.attempts', 10);
     }
 
     public static function clear(object $request): void
     {
         RateLimiter::clear(self::key($request));
+        RateLimiter::clear(self::accountKey($request));
     }
 
     /** Identical response for unknown account and wrong password. */

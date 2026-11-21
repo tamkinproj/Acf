@@ -95,7 +95,7 @@ class SetupController extends Controller
             'admin_password' => ['required', 'string', 'max:200'],
             'name' => ['sometimes', 'string', 'max:150'],
             'email' => ['sometimes', 'email:rfc,filter', 'max:190', Rule::unique('users', 'email')->ignore($u->id)],
-            'password' => ['sometimes', 'string', 'max:200', Password::min(12)->mixedCase()->numbers()],
+            'password' => ['sometimes', 'string', 'max:200', Password::min(12)->mixedCase()->numbers(), \App\Rules\StrongPassword::for([$request->input('name'), $request->input('email'), $u->username])],
             'active' => ['sometimes', 'boolean'],
         ]);
         if (! Hash::check($data['admin_password'], $actor->password)) {
@@ -128,7 +128,7 @@ class SetupController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email:rfc,filter', 'max:190', 'unique:users,email'],
-            'password' => ['required', Password::min(12)->mixedCase()->numbers()],
+            'password' => ['required', Password::min(12)->mixedCase()->numbers(), \App\Rules\StrongPassword::for([$request->input('name'), $request->input('email')])],
         ]);
 
         $new = User::create($data + ['role' => $role, 'foundation_id' => $actor->foundation_id, 'active' => true]);

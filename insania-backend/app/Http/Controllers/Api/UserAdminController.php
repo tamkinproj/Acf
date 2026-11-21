@@ -18,6 +18,9 @@ use Illuminate\Validation\Rules\Password;
  */
 class UserAdminController extends Controller
 {
+    /** @var list<string|null> texts the new password must not contain (name, email, username of the account being made) */
+    private array $avoid = [];
+
     public function index(Request $request)
     {
         $users = User::with('department')->where('foundation_id', $request->user()->foundation_id)
@@ -28,10 +31,35 @@ class UserAdminController extends Controller
         return ApiResponse::collection($users);
     }
 
+    /** Account changes ask for the signed-in person's own password again, so a phone left unlocked cannot be used to make a back door. */
+    private function stepUp(Request $request): ?\Illuminate\Http\JsonResponse
+    {
+        $actor = $request->user();
+        $key = 'stepup:'.$actor->id;
+        $max = (int) config('security.step_up.attempts', 5);
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, $max)) {
+            return ApiResponse::error('THROTTLED', 'Too many wrong passwords. Try again in '.\Illuminate\Support\Facades\RateLimiter::availableIn($key).' seconds.', 429);
+        }
+        $given = (string) $request->input('confirm_password', '');
+        if ($given === '' || ! \Illuminate\Support\Facades\Hash::check($given, $actor->password)) {
+            \Illuminate\Support\Facades\RateLimiter::hit($key, (int) config('security.step_up.minutes', 5) * 60);
+            Audit::record('stepup.failed', $request, 'user', $actor->id);
+
+            return ApiResponse::error('WRONG_PASSWORD', 'Type your own password to confirm this change.', 422, ['confirm_password' => ['Type your own password to confirm this change.']]);
+        }
+        \Illuminate\Support\Facades\RateLimiter::clear($key);
+
+        return null;
+    }
+
     public function store(Request $request)
     {
         $this->normaliseUsername($request);
+        $this->avoid = [$request->input('name'), $request->input('email'), $request->input('username')];
         $data = $request->validate($this->rules(true));
+        if ($denied = $this->stepUp($request)) {
+            return $denied;
+        }
         $actor = $request->user();
         $link = $this->links($request, $data['role'], $data);
 
@@ -59,6 +87,9 @@ class UserAdminController extends Controller
         $data = $request->validate($this->rules(false, $user->id));
         if (array_key_exists('username', $data) && ! $data['username']) {
             unset($data['username']);   // an empty box means "leave it"
+        }
+        if (array_intersect(['role', 'active', 'department_key', 'email'], array_keys($data)) && ($denied = $this->stepUp($request))) {
+            return $denied;
         }
         $changesAccess = array_key_exists('role', $data) || array_key_exists('active', $data) || array_key_exists('department_key', $data);
 
@@ -89,7 +120,10 @@ class UserAdminController extends Controller
             return $denied;
         }
 
-        $data = $request->validate(['password' => ['required', Password::min(12)->mixedCase()->numbers()]]);
+        $data = $request->validate(['password' => ['required', Password::min(12)->mixedCase()->numbers(), \App\Rules\StrongPassword::for([$user->name, $user->email, $user->username])]]);
+        if ($denied = $this->stepUp($request)) {
+            return $denied;
+        }
         $user->update(['password' => $data['password']]);
         $user->tokens()->delete();
 
@@ -164,7 +198,7 @@ class UserAdminController extends Controller
             'name' => [$req, 'string', 'max:150'],
             'email' => [$req, 'email:rfc,filter', 'max:190', 'unique:users,email'.($ignoreId ? ",$ignoreId" : '')],
             'username' => ['nullable', 'string', 'regex:'.\App\Support\Usernames::PATTERN, 'unique:users,username'.($ignoreId ? ",$ignoreId" : '')],
-            'password' => $creating ? ['required', Password::min(12)->mixedCase()->numbers()] : ['prohibited'],
+            'password' => $creating ? ['required', Password::min(12)->mixedCase()->numbers(), \App\Rules\StrongPassword::for($this->avoid)] : ['prohibited'],
             'role' => [$req, 'in:'.implode(',', config('roles.assignable_by_security_admin'))],
             'department_key' => ['nullable', 'string', 'in:'.implode(',', array_keys(config('roles.departments')))],
             'guardian_id' => ['nullable', 'integer'],

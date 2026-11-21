@@ -30,6 +30,30 @@ class SystemController extends Controller
         ]);
     }
 
+    /** A short list of the safety settings of this server: green or needs attention. No personal data. */
+    public function security()
+    {
+        $env = base_path('.env');
+        $inWeb = is_file($env) && str_starts_with((string) realpath($env), (string) realpath(public_path()));
+        $checks = [
+            ['key' => 'https', 'ok' => str_starts_with((string) config('app.url'), 'https://')],
+            ['key' => 'debug_off', 'ok' => ! config('app.debug')],
+            ['key' => 'production', 'ok' => app()->environment('production')],
+            ['key' => 'app_key', 'ok' => (string) config('app.key') !== ''],
+            ['key' => 'env_private', 'ok' => ! $inWeb],
+            ['key' => 'cors_own_site', 'ok' => ! in_array('*', (array) config('cors.allowed_origins'), true)],
+            ['key' => 'update_key', 'ok' => trim((string) config('updates.public_key')) !== ''],
+            ['key' => 'no_demo_accounts', 'ok' => ! \App\Models\User::withoutGlobalScopes()->where('email', 'like', '%.test')->exists()],
+            ['key' => 'strong_limits', 'ok' => (int) config('security.idle_minutes.privileged') <= 120 && (int) config('security.max_hours.privileged') <= 12],
+        ];
+
+        return ApiResponse::ok([
+            'checks' => $checks,
+            'limits' => ['idle_minutes' => config('security.idle_minutes'), 'max_hours' => config('security.max_hours'), 'lockout' => config('security.lockout')],
+            'attention' => count(array_filter($checks, fn ($c) => ! $c['ok'])),
+        ]);
+    }
+
     public function settings()
     {
         return ApiResponse::ok(Setting::pluck('value', 'key'));

@@ -12,6 +12,8 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        return $request->expectsJson() ? null : route('login');
+        // This server has no web sign-in page: the staff app signs in through the API. A request without a valid token always gets a plain
+        // JSON 401, never an attempt to redirect to a page that does not exist (which used to end in an error).
+        return null;
     }
 }

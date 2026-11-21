@@ -792,3 +792,12 @@ html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100
 .prof-head b{display:block;color:var(--ink);overflow-wrap:anywhere}
 .rm-hav{width:2.7rem;height:2.7rem;border-radius:50%;flex:none;background-color:#dfe2d9;color:var(--ink);font-weight:800;display:grid;place-items:center}
 .mo-avatar.av.has{background-color:transparent}
+
+/* ---- long text never pushes a screen wider than the phone: a name or note with no spaces wraps instead ---- */
+h1,h2,h3,h4,b,p,li,td,th,dd,dt,.sub,.note,.title,.lead,.fo-sub,.fold-meta,.cc b,.cc .sub{overflow-wrap:anywhere}
+.fold-t{overflow-wrap:normal}
+.card,.mo-col,.mo-row,.mo-grid>*,.grid>*,.mo-below>*,.fb-table-wrap{min-width:0}
+.fb-table-wrap{max-width:100%}
+.fb-table td:first-child{max-width:14rem}
+.fb-who>span:last-child{min-width:0}
+.fb-who small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

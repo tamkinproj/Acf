@@ -31,7 +31,7 @@ class InstallerTest extends TestCase
             'token' => InstallState::token(), 'foundation' => 'Test Foundation', 'app_url' => 'https://example.org/api',
             'cors' => 'https://example.org', 'db_name' => $this->db,
             'admin_name' => 'Root Admin', 'admin_email' => 'root@example.org',
-            'admin_password' => 'Str0ng#Passw0rd', 'admin_password_confirmation' => 'Str0ng#Passw0rd',
+            'admin_password' => 'Str0ng#Zq9xKw', 'admin_password_confirmation' => 'Str0ng#Zq9xKw',
         ];
     }
 
@@ -100,7 +100,7 @@ class InstallerTest extends TestCase
         $this->assertStringContainsString('APP_DEBUG=false', $env);
         $this->assertStringContainsString('APP_KEY="base64:', str_replace('APP_KEY=base64:', 'APP_KEY="base64:', $env));
 
-        $this->postJson('/api/login', ['email' => 'root@example.org', 'password' => 'Str0ng#Passw0rd'])
+        $this->postJson('/api/login', ['email' => 'root@example.org', 'password' => 'Str0ng#Zq9xKw'])
             ->assertOk()->assertJsonPath('data.user.role', 'system_admin');
 
         $this->get('/install')->assertNotFound();
@@ -164,7 +164,7 @@ class InstallerTest extends TestCase
         $this->get('/install')->assertNotFound();                      // the installer stays switched off
         $this->assertTrue(InstallState::installed());
         $this->assertFileExists($this->dir.'/state/installed.lock');
-        $this->postJson('/api/login', ['email' => 'root@example.org', 'password' => 'Str0ng#Passw0rd'])->assertOk();
+        $this->postJson('/api/login', ['email' => 'root@example.org', 'password' => 'Str0ng#Zq9xKw'])->assertOk();
     }
 
     public function test_losing_the_settings_file_too_is_repaired_with_the_reconnect_form(): void
@@ -188,7 +188,7 @@ class InstallerTest extends TestCase
         $this->assertFileExists($this->env);
         $this->assertTrue(InstallState::installed());
         $this->assertStringContainsString('APP_DEBUG=false', file_get_contents($this->env));
-        $this->postJson('/api/login', ['email' => 'root@example.org', 'password' => 'Str0ng#Passw0rd'])->assertOk();
+        $this->postJson('/api/login', ['email' => 'root@example.org', 'password' => 'Str0ng#Zq9xKw'])->assertOk();
         $this->get('/install')->assertNotFound();
     }
 

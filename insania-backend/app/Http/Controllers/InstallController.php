@@ -47,7 +47,7 @@ class InstallController extends Controller
             'db_pass' => ['nullable', 'string', 'max:200'],
             'admin_name' => ['required', 'string', 'max:120'],
             'admin_email' => ['required', 'email:rfc,filter', 'max:190'],
-            'admin_password' => ['required', 'confirmed', Password::min(12)->mixedCase()->numbers()],
+            'admin_password' => ['required', 'confirmed', Password::min(12)->mixedCase()->numbers(), \App\Rules\StrongPassword::for([$request->input('admin_name'), $request->input('admin_email')])],
         ]);
         if ($v->fails()) {
             return $fail($v->errors()->all());
