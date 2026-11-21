@@ -3,17 +3,17 @@
 
   A.strings({
     hello: "Welcome back", hello_sub: "Here is where things stand today.",
-    s_children: "Children", s_verified: "Verified bank accounts", s_paid: "Paid this month", s_pending: "Pending this month",
+    s_children: "Orphans", s_verified: "Verified bank accounts", s_paid: "Paid this month", s_pending: "Pending this month",
     s_projects: "Active projects", s_users: "Active accounts", s_locked: "Failed sign-ins (24 h)", s_php: "PHP version", s_env: "Environment", s_family: "Children in my family",
     attn: "Needs attention", attn_none: "Nothing needs attention.", unverified: "Bank account not verified",
-    setup_card: "Getting started", setup_card_sub: "{n} of {m} steps done", setup_open: "Continue setup", quick: "Quick actions", add_child: "Add child", export_csv: "Export CSV", month_rep: "Monthly report", open_users: "Manage accounts", open_site: "Edit the website", open_system: "System health",
+    setup_card: "Getting started", setup_card_sub: "{n} of {m} steps done", setup_open: "Continue setup", quick: "Quick actions", add_child: "Add orphan", export_csv: "Export CSV", month_rep: "Monthly report", open_users: "Manage accounts", open_site: "Edit the website", open_system: "System health",
     off_title: "Features are on the way", off_note: "The office features are switched off for now. They will be switched on one by one, and each one will appear here when it is ready. You can already change your password in Settings.", off_set: "Settings", off_more: "More office features will be switched on one by one. Each one appears here when it is ready."
   }, {
     hello: "أهلًا بعودتك", hello_sub: "هذا ما يجري اليوم.",
-    s_children: "الأطفال", s_verified: "حسابات بنكية موثّقة", s_paid: "مدفوع هذا الشهر", s_pending: "معلّق هذا الشهر",
+    s_children: "الأيتام", s_verified: "حسابات بنكية موثّقة", s_paid: "مدفوع هذا الشهر", s_pending: "معلّق هذا الشهر",
     s_projects: "مشاريع قيد التنفيذ", s_users: "حسابات نشطة", s_locked: "محاولات دخول فاشلة (24 ساعة)", s_php: "إصدار PHP", s_env: "البيئة", s_family: "الأطفال في عائلتي",
     attn: "يحتاج انتباهًا", attn_none: "لا شيء يحتاج انتباهًا.", unverified: "الحساب البنكي غير موثّق",
-    setup_card: "البدء", setup_card_sub: "اكتملت {n} من {m} خطوات", setup_open: "تابع الإعداد", quick: "إجراءات سريعة", add_child: "إضافة طفل", export_csv: "تصدير CSV", month_rep: "التقرير الشهري", open_users: "إدارة الحسابات", open_site: "تعديل الموقع", open_system: "صحة النظام",
+    setup_card: "البدء", setup_card_sub: "اكتملت {n} من {m} خطوات", setup_open: "تابع الإعداد", quick: "إجراءات سريعة", add_child: "إضافة يتيم", export_csv: "تصدير CSV", month_rep: "التقرير الشهري", open_users: "إدارة الحسابات", open_site: "تعديل الموقع", open_system: "صحة النظام",
     off_title: "الميزات في الطريق", off_note: "ميزات المكتب متوقفة حاليًا. ستُفعَّل واحدة تلو الأخرى، وستظهر كل ميزة هنا عندما تجهز. يمكنك الآن تغيير كلمة المرور من الإعدادات.", off_set: "الإعدادات", off_more: "ستُفعَّل ميزات أخرى للمكتب واحدة تلو الأخرى، وتظهر كل ميزة هنا عندما تجهز."
   });
 

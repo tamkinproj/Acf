@@ -3,7 +3,7 @@
   var id = parseInt((location.search.match(/[?&]id=(-?\d+)/) || [])[1], 10) || 0;
 
   A.strings({
-    child_title: "Child profile", sec_personal: "Personal information", sec_mother: "Mother and family", sec_resp: "Direct responsible person", sec_docs: "Documents",
+    child_title: "Orphan profile", p_edit: "Edit profile", p_call: "Call guardian", p_age: "Age", p_years: "{n} years", p_grade: "Grade", p_added: "Added on", p_updated: "Last updated", sec_record: "Record", p_saved: "Profile saved", p_conn: "Editing needs a connection.", sec_quick: "At a glance", sec_personal: "Personal information", sec_mother: "Mother and family", sec_resp: "Direct responsible person", sec_docs: "Documents",
     sec_bank: "Bank details", sec_channel: "Channel and source", sec_hist: "Channel history",
     f_gender: "Gender", f_dob: "Date of birth", f_city: "City", f_health: "Health status", f_grade: "Grade", f_mother: "Mother name", f_mstatus: "Mother marital status",
     f_fdeath: "Father death date", f_bro: "Number of brothers", f_sis: "Number of sisters", f_guardian: "Guardian", f_rel: "Relationship", f_phone: "Phone",
@@ -13,7 +13,7 @@
     d_birth_certificate: "Birth certificate", d_father_death_certificate: "Father's death certificate", d_school_record: "School record", d_guardian_id: "Guardian ID",
     notver: "Not verified", ver_on: "Bank account verified", ver_off: "Verification removed", waiting: "Waiting to send", wait_note: "This child was added offline. Details appear once it has been sent."
   }, {
-    child_title: "ملف الطفل", sec_personal: "المعلومات الشخصية", sec_mother: "الأم والأسرة", sec_resp: "المسؤول المباشر", sec_docs: "المستندات",
+    child_title: "ملف اليتيم", p_edit: "تعديل الملف", p_call: "اتصل بالوصي", p_age: "العمر", p_years: "{n} سنة", p_grade: "الصف", p_added: "تاريخ الإضافة", p_updated: "آخر تحديث", sec_record: "السجل", p_saved: "تم حفظ الملف", p_conn: "التعديل يحتاج اتصالًا.", sec_quick: "نظرة سريعة", sec_personal: "المعلومات الشخصية", sec_mother: "الأم والأسرة", sec_resp: "المسؤول المباشر", sec_docs: "المستندات",
     sec_bank: "البيانات البنكية", sec_channel: "القناة والمصدر", sec_hist: "سجل القناة",
     f_gender: "الجنس", f_dob: "تاريخ الميلاد", f_city: "المدينة", f_health: "الحالة الصحية", f_grade: "الصف", f_mother: "اسم الأم", f_mstatus: "الحالة الاجتماعية للأم",
     f_fdeath: "تاريخ وفاة الأب", f_bro: "عدد الإخوة", f_sis: "عدد الأخوات", f_guardian: "الوصي", f_rel: "صلة القرابة", f_phone: "الهاتف",
@@ -49,16 +49,40 @@
         '<div class="setrow"><b>' + t("verify") + '</b><span class="badge ' + (c.bank.verified ? "" : "warn") + '">' + t(c.bank.verified ? "verify" : "notver") + "</span></div>") + "</div>" :
       '<div class="card"><h3>' + t("sec_bank") + '</h3><p class="note">' + t("cash_only") + "</p></div>";
     return back +
-      '<div class="card" style="margin:1rem 0"><div class="phead"><span class="avatar">' + esc(A.name(c).charAt(0)) + '</span><div style="flex:1"><h1 class="title" style="font-size:1.7rem;margin:0">' + esc(A.name(c)) + '</h1><span class="note">' + esc(c.ref) + '</span></div><span class="badge">' + t(c.status || "active") + "</span></div></div>" +
+      '<div class="card profile" style="margin:1rem 0"><div class="phead"><span class="avatar">' + esc(A.name(c).charAt(0)) + '</span><div style="flex:1;min-width:0"><h1 class="title" style="font-size:1.6rem;margin:0">' + esc(A.name(c)) + "</h1>" +
+        (c.name_ar && A.lang() !== "ar" ? '<div class="note" dir="rtl" style="margin:.1rem 0 0;font-size:1rem;text-align:left">' + esc(c.name_ar) + "</div>" : "") +
+        '<span class="note" dir="ltr" style="display:block">' + esc(c.ref) + (c.personal && c.personal.city ? " · " + esc(c.personal.city) : "") + '</span></div><span class="badge ' + ((c.status || "active") === "active" ? "" : c.status === "ended" ? "grey" : "warn") + '">' + t(c.status || "active") + "</span></div>" +
+        '<div class="pchips">' + (c.age !== null && c.age !== undefined ? '<span class="pchip"><small>' + t("p_age") + "</small><b>" + t("p_years", { n: c.age }) + "</b></span>" : "") +
+        (p.grade ? '<span class="pchip"><small>' + t("p_grade") + "</small><b>" + esc(p.grade) + "</b></span>" : "") +
+        (p.health_status ? '<span class="pchip ' + (p.health_status === "good" ? "" : "warn") + '"><small>' + t("f_health") + "</small><b>" + t(p.health_status) + "</b></span>" : "") + "</div>" +
+        '<div class="actions" style="margin-top:1rem">' + (A.can("children.update") ? '<button class="btn btn-main" type="button" data-act="editprofile">' + ic("edit") + t("p_edit") + "</button>" : "") +
+        (g && g.phone ? '<a class="btn btn-line" href="tel:' + esc(String(g.phone).replace(/[^0-9+]/g, "")) + '">' + ic("phone") + t("p_call") + "</a>" : "") + "</div></div>" +
       '<div class="grid g2" style="align-items:start">' +
       '<div class="card"><h3>' + t("sec_personal") + "</h3>" + facts([[t("f_gender"), p.gender ? t(p.gender === "m" ? "male" : "female") : "-"], [t("f_dob"), dash(p.birth_date)], [t("f_city"), dash(p.city)], [t("f_health"), p.health_status ? t(p.health_status) : "-"], [t("f_grade"), dash(p.grade)]]) + "</div>" +
       '<div class="card"><h3>' + t("sec_mother") + "</h3>" + facts([[t("f_mother"), dash(f.mother_name)], [t("f_mstatus"), dash(f.mother_marital_status)], [t("f_fdeath"), dash(f.father_death_date)], [t("f_bro"), dash(f.brothers)], [t("f_sis"), dash(f.sisters)]]) + "</div>" +
       '<div class="card"><h3>' + t("sec_resp") + "</h3>" + (g ? facts([[t("f_guardian"), dash(g.name)], [t("f_rel"), dash(g.relation)], [t("f_phone"), "<span dir=ltr>" + dash(g.phone) + "</span>"]]) : '<p class="note">-</p>') + "</div>" + docs + bank +
       '<div class="card"><h3>' + t("sec_channel") + "</h3>" + facts([[t("f_channel"), ch ? t(ch.channel) : "-"], [t("f_source"), c.pay_type ? t(c.pay_type === "bank" ? "bank_pay" : "cash_only") : "-"], [t("f_since"), ch ? dash(ch.since) : "-"],
         [t("f_amount"), c.monthly_amount !== null && c.monthly_amount !== undefined ? A.money(c.monthly_amount) + " " + t("per_month") : "-"]]) +
-      '<h3 style="margin-top:1rem;font-size:1rem">' + t("sec_hist") + "</h3>" + facts((c.channel_history || []).map(function (h) { return [esc(h.since), t(h.channel)]; })) + "</div></div>";
+      '<h3 style="margin-top:1rem;font-size:1rem">' + t("sec_hist") + "</h3>" + facts((c.channel_history || []).map(function (h) { return [esc(h.since), t(h.channel)]; })) + "</div>" +
+      '<div class="card"><h3>' + t("sec_record") + "</h3>" + facts([[t("p_added"), dash(c.created_at)], [t("p_updated"), dash(c.updated_at)]]) + "</div></div>";
   }
 
+  var current = null;
+  A.act("editprofile", function () {
+    if (!current) return;
+    A.sheet(t("p_edit"), '<form id="editForm" novalidate>' + A.orphan.formHtml(current) + A.formEnd() + "</form>");
+  });
+  A.form("editForm", function () {
+    Array.prototype.forEach.call(document.querySelectorAll("#sheetRoot .err"), function (e) { e.textContent = ""; });
+    var body = A.orphan.readBody(true);
+    if (body.error) { document.getElementById(body.error[0] === "formErr" ? "formErr" : body.error[0] + "Err").textContent = body.error[1]; return; }
+    var btn = document.querySelector("#editForm button[type=submit]"); btn.disabled = true;
+    A.api.write("PATCH", "children/" + id, body, { online: true }).then(function () { A.closeSheet(); A.toast(t("p_saved")); A.reload(true); }, function (e) {
+      btn.disabled = false;
+      if (e.offline) { document.getElementById("formErr").textContent = t("p_conn"); return; }
+      if (!(e.errors && A.showErrors(e.errors, "f_"))) document.getElementById("formErr").textContent = A.msg(e);
+    });
+  });
   A.act("docnote", function () { A.toast(t("doc_upload")); });
   A.act("verify", function (el) {
     var now = el.getAttribute("aria-checked") !== "true";
@@ -74,6 +98,6 @@
 
   A.start({
     page: "person", nav: "people", title: "child_title", perm: "children.view", shell: true, load: load, render: render,
-    after: function (c) { if (c && c.ref) document.title = A.name(c) + " | " + t("brand"); }
+    after: function (c) { if (c && c.ref) current = c; if (c && c.ref) document.title = A.name(c) + " | " + t("brand"); }
   });
 })();

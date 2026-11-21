@@ -81,6 +81,7 @@ class Child extends Model
             'monthly_amount' => $s ? (float) $s->monthly_amount : null,
             'bank_verified' => $this->bankAccount?->verified,
             'status' => $this->status,
+            'age' => $this->birth_date?->age,
         ];
     }
 
@@ -92,6 +93,7 @@ class Child extends Model
         $docs = $this->documents->keyBy('type');
 
         return $this->toListApi() + [
+            'created_at' => $this->created_at?->toDateString(), 'updated_at' => $this->updated_at?->toDateString(),
             'personal' => [
                 'gender' => $this->gender, 'birth_date' => $this->birth_date?->toDateString(), 'city' => $this->city,
                 'health_status' => $this->health_status, 'grade' => $this->grade,

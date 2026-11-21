@@ -39,7 +39,8 @@ A phone can keep an old copy of the app. Open `https://alinsania.com/app/repair.
 ## Office features: switched on one by one
 Every office feature has an on/off switch in `insania_app/config/features.php`. A switch is off, on, or on for chosen roles only.
 - **On for the President Admin:** accounts. The President creates every other role (Security Admin, Admin Maintenance, staff by department), changes roles, resets passwords and ends sessions. The President's own account is managed only by the System Admin.
-- **Off for now:** children (Aytam), payments, projects, reports, website editing, activity log, family accounts, and the Security Admin's account tools.
+- **On for Aytam staff:** orphan records. List with search and status filters, add an orphan, and a profile page for each one (about, school and health, mother and family, responsible person, bank account check, documents, record dates) with Edit and a Call-guardian button. Only the Aytam department holds these; the President and other departments do not see them yet.
+- **Off for now:** payments, projects, reports, website editing, activity log, family accounts, and the Security Admin's account tools.
 - Off means gone for everyone: no menu, no screen, and the server refuses it. Nothing is deleted; records stay in the database.
 - The System Admin keeps every tool (health, settings, partner keys, updates, creating and changing the President Admin). Everyone can sign in and change their own password.
 - The public website keeps showing what was last published.

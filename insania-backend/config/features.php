@@ -17,7 +17,8 @@
 return [
 
     'switches' => [
-        'children' => false,       // Aytam: children's records, bank account checks, documents
+        'children' => ['staff'],   // ON for staff: only the Aytam department holds these permissions. Orphan records, profile pages,
+                                   // bank account checks, documents. The President and other departments stay off until decided.
         'payments' => false,       // monthly sponsorship payments, cash received
         'projects' => false,       // projects and their progress
         'reports' => false,        // report summaries and exports

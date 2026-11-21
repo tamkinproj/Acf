@@ -24,12 +24,13 @@ class FeatureSwitchesTest extends TestCase
         $this->actingAsRole($role);
     }
 
-    public function test_office_features_ship_off_except_accounts_for_the_president(): void
+    public function test_office_features_ship_off_except_accounts_for_the_president_and_orphans_for_staff(): void
     {
         $file = require base_path('config/features.php');
         $this->assertNotEmpty($file['switches']);
         foreach ($file['switches'] as $feature => $on) {
-            $this->assertSame($feature === 'accounts' ? ['president_admin'] : false, $on, "$feature switch as shipped");
+            $expected = ['accounts' => ['president_admin'], 'children' => ['staff']][$feature] ?? false;
+            $this->assertSame($expected, $on, "$feature switch as shipped");
         }
     }
 
@@ -47,10 +48,13 @@ class FeatureSwitchesTest extends TestCase
                 if ($role === 'president_admin' && str_starts_with($url, '/api/users')) {
                     continue;   // accounts are on for the President (checked below)
                 }
+                if ($role === 'staff:aytam' && str_starts_with($url, '/api/children')) {
+                    continue;   // orphan records are on for Aytam staff (checked below)
+                }
                 $this->json($m, $url)->assertForbidden();
             }
             $me = $this->getJson('/api/me')->assertOk()->json('data.permissions');
-            $this->assertNotContains('children.view', $me);
+            $this->assertSame($role === 'staff:aytam', in_array('children.view', $me, true), "$role children.view");
             $this->assertNotContains('site.edit', $me);
             $this->assertSame($role === 'president_admin', in_array('users.manage', $me, true), "$role users.manage");
         }
@@ -147,6 +151,30 @@ class FeatureSwitchesTest extends TestCase
         foreach (['security_admin', 'system_admin', 'admin_maintenance', 'staff:aytam', 'user'] as $role) {
             $this->as($role);
             $this->getJson('/api/users')->assertForbidden();
+        }
+    }
+
+    public function test_aytam_staff_keep_orphan_records_and_profiles_and_nobody_else_can(): void
+    {
+        $this->world();
+        $this->shipped();
+        $this->as('staff:aytam');
+        $made = $this->postJson('/api/children', [
+            'name_en' => 'Zyxwv Test', 'name_ar' => 'عمر', 'gender' => 'm', 'birth_date' => now()->subYears(9)->toDateString(), 'city' => 'Pagadian',
+            'grade' => 'Grade 3', 'health_status' => 'good', 'mother_name' => 'Mother T', 'brothers' => 1, 'sisters' => 2,
+            'guardian' => ['name' => 'Aunt T', 'relation' => 'Aunt', 'phone' => '0917000000'],
+        ])->assertCreated()->assertJsonPath('data.age', 9)->json('data');
+        $this->getJson("/api/children/{$made['id']}")->assertOk()->assertJsonPath('data.name_en', 'Zyxwv Test')->assertJsonPath('data.guardian_detail.relation', 'Aunt')->assertJsonPath('data.created_at', now()->toDateString());
+        $this->patchJson("/api/children/{$made['id']}", ['grade' => 'Grade 4', 'status' => 'active', 'guardian' => ['name' => 'Aunt T', 'relation' => 'Aunt', 'phone' => '0917111111']])
+            ->assertOk()->assertJsonPath('data.personal.grade', 'Grade 4')->assertJsonPath('data.guardian_detail.phone', '0917111111');
+        $this->getJson('/api/children?q=Zyxwv')->assertOk()->assertJsonCount(1, 'data');
+        $this->getJson('/api/payments')->assertForbidden();          // money is Finance's, still off
+        $this->getJson('/api/reports/summary')->assertForbidden();
+
+        foreach (['president_admin', 'security_admin', 'staff:finance', 'staff:projects', 'user', 'admin_maintenance', 'system_admin'] as $role) {
+            $this->as($role);
+            $this->getJson("/api/children/{$made['id']}")->assertForbidden();
+            $this->patchJson("/api/children/{$made['id']}", ['grade' => 'X'])->assertForbidden();
         }
     }
 }
