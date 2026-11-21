@@ -39,7 +39,7 @@ class ProfileTest extends TestCase
 
     public function test_every_account_has_a_username_and_can_sign_in_with_it_or_with_the_email(): void
     {
-        $this->assertSame(['aytam', 'finance', 'maintenance', 'president', 'projects', 'security', 'system'], User::whereIn('email', array_values(array_filter($this->accounts, fn ($e) => $e !== 'family@insania.test')))->orderBy('username')->pluck('username')->all());
+        $this->assertSame(['aytam', 'education', 'finance', 'maintenance', 'president', 'projects', 'security', 'system'], User::whereIn('email', array_values(array_filter($this->accounts, fn ($e) => $e !== 'family@insania.test')))->orderBy('username')->pluck('username')->all());
         foreach (['aytam', 'AYTAM', '  Aytam ', 'aytam@insania.test'] as $login) {
             $this->postJson('/api/login', ['login' => $login, 'password' => 'DemoPass#2026'])->assertOk()->assertJsonPath('data.user.username', 'aytam');
         }

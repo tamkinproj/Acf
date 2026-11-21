@@ -25,6 +25,7 @@ trait BuildsWorld
         'staff:aytam' => 'aytam@insania.test',
         'staff:finance' => 'finance@insania.test',
         'staff:projects' => 'projects@insania.test',
+        'staff:education' => 'education@insania.test',
         'user' => 'family@insania.test',
     ];
 

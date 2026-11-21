@@ -86,7 +86,7 @@ class DemoSeeder extends Seeder
             ['System Admin', 'system@insania.test', 'system_admin', null, null], ['Admin Maintenance', 'maintenance@insania.test', 'admin_maintenance', null, null],
             ['Security Admin', 'security@insania.test', 'security_admin', null, null], ['President Admin', 'president@insania.test', 'president_admin', null, null],
             ['Aytam Staff', 'aytam@insania.test', 'staff', $dept('aytam'), null], ['Finance Staff', 'finance@insania.test', 'staff', $dept('finance'), null],
-            ['Projects Staff', 'projects@insania.test', 'staff', $dept('projects'), null], ['Family Account', 'family@insania.test', 'user', null, $family->id],
+            ['Projects Staff', 'projects@insania.test', 'staff', $dept('projects'), null], ['Education Staff', 'education@insania.test', 'staff', $dept('education'), null], ['Family Account', 'family@insania.test', 'user', null, $family->id],
         ] as [$name, $email, $role, $deptId, $guardianId]) {
             User::updateOrCreate(['email' => $email], ['name' => $name, 'password' => self::PASSWORD, 'role' => $role, 'foundation_id' => $f->id,
                 'department_id' => $deptId, 'guardian_id' => $guardianId, 'active' => true]);

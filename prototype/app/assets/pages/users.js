@@ -6,7 +6,7 @@
     u_confirm: "Your own password", u_confirm_hint: "Type your own password to confirm this change.", f_uuser: "Username", f_uuser_hint: "Used to sign in. Leave empty to make one from the email.", f_uname: "Full name", f_uemail: "Email", f_urole: "Role", f_udept: "Department", f_upass: "Password", gen_pass: "Generate", f_uactive: "Account is active",
     pass_hint: "At least 12 characters with upper and lower case and a number. Tell the person privately; they should change it.",
     locked_pres: "The President Admin account is managed by the System Admin.", role_system_admin: "System Admin", role_admin_maintenance: "Admin Maintenance", role_security_admin: "Security Admin", role_president_admin: "President Admin", role_staff: "Staff", role_user: "User (family)",
-    dept_aytam: "Aytam", dept_finance: "Finance", dept_projects: "Projects", dept_relief: "Relief", dept_teaching: "Teaching", dept_hr: "Human resources", dept_administration: "Administration",
+    dept_aytam: "Aytam", dept_finance: "Finance", dept_projects: "Projects", dept_relief: "Relief", dept_education: "Education", dept_hr: "Human resources", dept_administration: "Administration",
     inactive: "Switched off", active: "Active", reset_pass: "Set a new password", revoke: "End all sessions", user_saved: "Saved", user_added: "Account created", sessions_ended: "Sessions ended", pass_changed: "Password changed",
     family_note: "Family accounts are linked to a guardian record. They are created in the next phase, with the people records.", save_changes: "Save changes", edit_user: "Edit account", you: "you", locked: "Cannot be changed here"
   }, {
@@ -14,13 +14,13 @@
     u_confirm: "كلمة مرورك أنت", u_confirm_hint: "اكتب كلمة مرورك أنت لتأكيد هذا التغيير.", f_uuser: "اسم المستخدم", f_uuser_hint: "يُستخدم لتسجيل الدخول. اتركه فارغًا لإنشائه من البريد.", f_uname: "الاسم الكامل", f_uemail: "البريد الإلكتروني", f_urole: "الدور", f_udept: "القسم", f_upass: "كلمة المرور", gen_pass: "توليد", f_uactive: "الحساب نشط",
     pass_hint: "12 حرفًا على الأقل مع حروف كبيرة وصغيرة ورقم. أبلغ الشخص بها بسرية؛ عليه تغييرها.",
     locked_pres: "حساب رئيس الإدارة يديره مدير النظام.", role_system_admin: "مدير النظام", role_admin_maintenance: "مشرف الصيانة", role_security_admin: "مدير الأمان", role_president_admin: "رئيس الإدارة", role_staff: "موظف", role_user: "مستخدم (عائلة)",
-    dept_aytam: "أيتام", dept_finance: "المالية", dept_projects: "المشاريع", dept_relief: "الإغاثة", dept_teaching: "التدريس", dept_hr: "الموارد البشرية", dept_administration: "الإدارة",
+    dept_aytam: "أيتام", dept_finance: "المالية", dept_projects: "المشاريع", dept_relief: "الإغاثة", dept_education: "التعليم", dept_hr: "الموارد البشرية", dept_administration: "الإدارة",
     inactive: "موقوف", active: "نشط", reset_pass: "تعيين كلمة مرور جديدة", revoke: "إنهاء كل الجلسات", user_saved: "تم الحفظ", user_added: "تم إنشاء الحساب", sessions_ended: "أُنهيت الجلسات", pass_changed: "تم تغيير كلمة المرور",
     family_note: "حسابات العائلات مرتبطة بسجل وصي. تُنشأ في المرحلة التالية مع سجلات الأشخاص.", save_changes: "حفظ التغييرات", edit_user: "تعديل الحساب", you: "أنت", locked: "لا يمكن تغييره هنا"
   });
 
   var ROLES = ["admin_maintenance", "security_admin", "staff"];   // President Admin: only the System Admin makes and changes it
-  var DEPTS = ["aytam", "finance", "projects", "relief", "teaching", "hr", "administration"];
+  var DEPTS = ["aytam", "finance", "projects", "relief", "education", "hr", "administration"];
 
   function render(rows) {
     list = rows; var me = A.user();

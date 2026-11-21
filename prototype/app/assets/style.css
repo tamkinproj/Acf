@@ -974,3 +974,22 @@ a.rm-title{color:inherit;text-decoration:none}
 .avatar.grp.has-photo{background-size:cover;background-position:center}
 .avatar.grp.has-photo .icon{display:none}
 .chat-head .actions{margin:0;flex-wrap:nowrap}
+
+/* ---- Education ---- */
+.edu-row .grow{flex:1;min-width:0}
+.edu-row .sub{display:block;color:var(--muted);font-size:.85rem;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.edu-row .avatar{background:var(--accent);color:var(--ink)}
+.cchip{display:inline-block;padding:.15rem .6rem;border-radius:999px;font-size:.78rem;font-weight:700;background:#eef0ea;color:#4c5a43;white-space:nowrap}
+.cchip.active{background:#e7f3d3;color:#3f6a10}
+.cchip.ending_soon{background:#fff0d6;color:#8a5a00}
+.cchip.expired{background:#ffe1df;color:#b3261e}
+.edu-attn{margin:0 0 1rem}
+.edu-attn h3{margin:0 0 .6rem;font-size:1rem}
+.edu-al{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.5rem 0;color:var(--ink);text-decoration:none;border-top:1px solid var(--line)}
+.edu-al:first-of-type{border-top:0}
+.msel{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin:.2rem 0 1rem}
+.msel b{flex:1;text-align:center}
+.edu-tot{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:0 0 1rem}
+.edu-tot>div{background:#fff;border-radius:1.2rem;padding:.8rem 1rem}
+.edu-tot small{display:block;color:var(--muted);font-weight:600}
+.edu-tot b{font-size:1.25rem}

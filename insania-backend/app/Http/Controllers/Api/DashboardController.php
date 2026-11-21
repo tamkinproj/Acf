@@ -55,6 +55,15 @@ class DashboardController extends Controller
         if ($can('projects.view')) {
             $out['projects'] = ['active' => Project::where('status', 'active')->count(), 'total' => Project::count()];
         }
+        if ($can('education.view')) {
+            $teachers = \App\Models\Education\Teacher::with('contracts')->where('status', 'active')->get();
+            $states = ['active' => 0, 'ending_soon' => 0, 'expired' => 0, 'none' => 0];
+            foreach ($teachers as $t) {
+                $states[$t->current() ? $t->current()->state() : 'none']++;
+            }
+            $out['education'] = ['teachers' => $teachers->count(), 'contracts' => $states, 'madrasa' => \App\Models\Education\Institution::where('kind', 'madrasa')->where('status', 'active')->count(),
+                'markaz' => \App\Models\Education\Institution::where('kind', 'markaz')->where('status', 'active')->count(), 'curricula' => \App\Models\Education\Curriculum::where('status', 'active')->count()];
+        }
         if ($can('system.health')) {
             $out['system'] = ['php' => PHP_VERSION, 'laravel' => app()->version(), 'environment' => app()->environment()];
         }

@@ -47,6 +47,7 @@ return [
             'site.edit', 'site.publish',
             'users.manage', 'audit.read',      // the President creates every other account
             'orphans.accounts',
+            'education.view', 'education.manage', 'education.salary',
             'chat.use',                         // office chat
         ],
         'staff' => [],
@@ -68,7 +69,10 @@ return [
             'grants' => ['projects.view', 'projects.manage', 'chat.use'],
         ],
         'relief' => ['name_en' => 'Relief', 'name_ar' => 'الإغاثة', 'grants' => ['chat.use']],
-        'teaching' => ['name_en' => 'Teaching', 'name_ar' => 'التعليم', 'grants' => ['chat.use']],
+        'education' => [
+            'name_en' => 'Education', 'name_ar' => 'التعليم',
+            'grants' => ['education.view', 'education.manage', 'education.salary', 'chat.use'],
+        ],
         'hr' => ['name_en' => 'HR', 'name_ar' => 'الموارد البشرية', 'grants' => ['chat.use']],
         'administration' => ['name_en' => 'Administration', 'name_ar' => 'الإدارة', 'grants' => ['chat.use']],
     ],

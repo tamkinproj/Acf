@@ -38,6 +38,9 @@ final class PermissionCatalog
             'reports.export' => 'Export reports',
             'chat.use' => 'Use the office chat (General group and one-to-one chats) and share cards into it',
             'orphans.accounts' => 'Create sign-in accounts for orphans and reset their passwords',
+            'education.view' => 'See the Education department: Alimni teachers, institutions, curriculum',
+            'education.manage' => 'Add and edit Alimni teachers, contracts, institutions and curriculum',
+            'education.salary' => 'See and record the monthly salaries (sweldo) of the Alimni teachers',
             'family.view_own' => 'See your own family\'s information',
         ];
     }

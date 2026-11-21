@@ -54,20 +54,22 @@
   });
 
   A.strings({
+    f_education: "Education", fo_education: "{n} teachers · {m} contracts to watch", h_edu_sub: "Alimni teachers, contracts and salaries, madrasa and markaz, curriculum", h_add_teacher: "Add teacher", last30: "next 30 days", edu_mk: "{m} madrasa · {k} markaz", edu_attn: "Contracts need attention", edu_attn_txt: "{n} contracts end within 30 days or have ended. Renew them from the teacher's page.", edu_attn_btn: "Open Education", tb_teachers: "Teachers", tb_salaries: "Salaries", tb_institutions: "Madrasa and markaz", tb_curricula: "Curriculum", cs_active: "Active", cs_ending_soon: "Ending soon", cs_expired: "Expired",
     f_hello: "Choose a department.", f_back: "Home", f_aytam: "Aytam", f_finance: "Finance", f_projects: "Projects", f_website: "Website", f_accounts: "Accounts", f_chat: "Chat",
     fo_aytam: "{n} orphans · {m} new applications", fo_finance: "{p} paid · {d} due", fo_projects: "{n} active of {m}", fo_website: "Edit the landing page", fo_accounts: "{n} accounts",
     fo_chat: "{n} unread", fo_chat0: "No new messages", f_add_user: "Add office user", f_month: "This month", f_paid: "Paid", f_due: "Due", f_pending_n: "Pending",
     f_amt_paid: "Paid", f_amt_due: "Still due", f_total: "Total", f_active_p: "Active", f_open: "Open", f_edit_site: "Edit the page", f_site_page: "Website editor", f_pay_page: "Payments", f_rep_page: "Reports",
     f_proj_page: "Projects", f_site_note: "Click texts on the page to change them, then Save draft and Publish."
   }, {
+    f_education: "التعليم", fo_education: "{n} معلمًا · {m} عقود للمتابعة", h_edu_sub: "معلمو علّمني والعقود والرواتب والمدرسة والمراكز والمنهج", h_add_teacher: "إضافة معلم", last30: "خلال 30 يومًا", edu_mk: "{m} مدرسة · {k} مراكز", edu_attn: "عقود تحتاج إلى انتباه", edu_attn_txt: "{n} عقود تنتهي خلال 30 يومًا أو انتهت. جدّدها من صفحة المعلم.", edu_attn_btn: "افتح التعليم", tb_teachers: "المعلمون", tb_salaries: "الرواتب", tb_institutions: "المدرسة والمراكز", tb_curricula: "المنهج", cs_active: "ساري", cs_ending_soon: "ينتهي قريبًا", cs_expired: "منتهٍ",
     f_hello: "اختر قسمًا.", f_back: "الرئيسية", f_aytam: "الأيتام", f_finance: "المالية", f_projects: "المشاريع", f_website: "الموقع", f_accounts: "الحسابات", f_chat: "المحادثات",
     fo_aytam: "{n} يتيمًا · {m} طلبات جديدة", fo_finance: "{p} مدفوعة · {d} مستحقة", fo_projects: "{n} نشطة من {m}", fo_website: "عدّل الصفحة الرئيسية للموقع", fo_accounts: "{n} حسابًا",
     fo_chat: "{n} غير مقروءة", fo_chat0: "لا رسائل جديدة", f_add_user: "إضافة مستخدم للمكتب", f_month: "هذا الشهر", f_paid: "مدفوعة", f_due: "مستحقة", f_pending_n: "قيد الانتظار",
     f_amt_paid: "المدفوع", f_amt_due: "المتبقي", f_total: "الإجمالي", f_active_p: "نشطة", f_open: "فتح", f_edit_site: "تعديل الصفحة", f_site_page: "محرر الموقع", f_pay_page: "المدفوعات", f_rep_page: "التقارير",
     f_proj_page: "المشاريع", f_site_note: "اضغط على النصوص في الصفحة لتغييرها، ثم احفظ المسودة وانشر."
   });
-  var FOLDERS = ["aytam", "finance", "projects", "website", "accounts"];
-  var ICONS = { aytam: "users", finance: "wallet", projects: "folder", website: "globe", accounts: "shield", chat: "chat" };
+  var FOLDERS = ["aytam", "finance", "projects", "education", "website", "accounts"];
+  var ICONS = { aytam: "users", finance: "wallet", projects: "folder", education: "book", website: "globe", accounts: "shield", chat: "chat" };
   // The President's Home: one quiet tile per department. Everything else lives inside the department's folder (dashboard.html?d=NAME).
   function folderTile(key, href, sub) {
     return '<a class="fo" href="' + href + '"><span class="fo-top">' + ic(ICONS[key]) + ic("chev", "fo-go") + '</span><b>' + t("f_" + key) + '</b><span class="fo-sub">' + sub + "</span></a>";
@@ -77,6 +79,7 @@
     if (d.children) tiles.push(folderTile("aytam", "dashboard.html?d=aytam", t("fo_aytam", { n: num(d.children.total), m: num(d.applications ? d.applications.new : 0) })));
     if (d.payments) tiles.push(folderTile("finance", "dashboard.html?d=finance", t("fo_finance", { p: num(d.payments.paid_count), d: num(d.payments.pending_count) })));
     if (d.projects) tiles.push(folderTile("projects", "dashboard.html?d=projects", t("fo_projects", { n: num(d.projects.active), m: num(d.projects.total) })));
+    if (d.education) tiles.push(folderTile("education", "dashboard.html?d=education", t("fo_education", { n: num(d.education.teachers), m: num(d.education.contracts.ending_soon + d.education.contracts.expired) })));
     if (A.can("site.edit")) tiles.push(folderTile("website", "dashboard.html?d=website", t("fo_website")));
     if (d.security) tiles.push(folderTile("accounts", "dashboard.html?d=accounts", t("fo_accounts", { n: num(d.security.active_users) })));
     if (A.can("chat.use")) tiles.push(folderTile("chat", "chat.html", d.unread ? t("fo_chat", { n: num(d.unread) }) : t("fo_chat0")));
@@ -173,6 +176,13 @@
       var lat = c.latest || [], attn = c.needs_attention || [];
       below.push(table(t("w_latest"), [t("w_name"), t("w_status"), t("w_added")], lat.map(function (x) { return "<tr>" + who(A.name(x), esc(x.ref) + (x.city ? " · " + esc(x.city) : ""), "person.html?id=" + x.id) + "<td>" + badge(x.status || "active") + '</td><td class="muted">' + fmtDate(x.added) + "</td></tr>"; }), "people.html"));
       below.push('<section class="card"><div class="mo-card-head"><h3>' + t("attn") + "</h3></div>" + (attn.length ? '<ul class="fb-rows">' + attn.map(function (a) { return '<li><a class="fb-who" href="person.html?id=' + a.child_id + '"><span class="avatar">' + esc(a.name_en.charAt(0)) + "</span><span><b>" + esc(a.name_en) + "</b><small>" + esc(a.ref) + " · " + t("unverified") + "</small></span></a></li>"; }).join("") + "</ul>" : '<p class="note">' + t("attn_none") + "</p>") + "</section>");
+    } else if (d.education && (!pres || folder === "education")) {   // ---- Education ----
+      var ed = d.education, ec = ed.contracts || {}, eattn = (ec.ending_soon || 0) + (ec.expired || 0);
+      L.push('<div class="mo-row">' + hero({ title: t("f_education"), sub: t("h_edu_sub"), big: num(ed.teachers), btn: A.can("education.manage") ? ["edu-new.html?kind=teacher", t("h_add_teacher")] : null,
+        tiles: [["education.html", "users", t("tb_teachers")]].concat(A.can("education.salary") ? [["education.html", "wallet", t("tb_salaries")]] : []).concat([["education.html", "folder", t("tb_curricula")]]) }) +
+        '<div class="mo-minis">' + mini("check", t("cs_active"), num(ec.active || 0), t("of_n", { n: num(ed.teachers) }), "education.html", "up") + mini("bell", t("cs_ending_soon"), num(ec.ending_soon || 0), t("last30"), "education.html", ec.ending_soon ? "down" : "up") +
+        mini("sliders", t("cs_expired"), num(ec.expired || 0), "", "education.html", ec.expired ? "down" : "up") + mini("folder", t("tb_institutions"), num(ed.madrasa + ed.markaz), t("edu_mk", { m: num(ed.madrasa), k: num(ed.markaz) }), "education.html") + "</div></div>");
+      R.push(eattn ? plan(t("edu_attn"), t("edu_attn_txt", { n: eattn }), ["education.html", t("edu_attn_btn")]) : plan(t("pl_soon"), t("pl_soon_txt"), ["education.html", t("f_education")]));
     } else if (d.security && (!pres || folder === "accounts")) {   // ---- accounts ----
       var s = d.security, br = s.by_role || {};
       L.push('<div class="mo-row">' + hero({ title: t("h_accounts"), sub: t("h_accounts_sub"), big: num(s.active_users), btn: A.can("users.manage") ? ["users.html?add=1", t("h_add_account")] : null,

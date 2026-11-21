@@ -28,6 +28,7 @@ return [
                                                       // The Security Admin's account tools stay off until decided.
         'activity_log' => ['president_admin'],        // reading the activity (audit) log (President only)
         'chat' => ['staff', 'president_admin'],        // the office chat: General group and one-to-one chats (President + all staff; never the system roles)
+        'education' => ['staff', 'president_admin'],   // Alimni teachers, their contracts and salaries, madrasa and markaz partners, curriculum (Education department + President)
         'family' => ['user'],                         // the orphans' own accounts (and family accounts): they see their own information
     ],
 
@@ -45,6 +46,7 @@ return [
         'accounts' => ['users.manage'],
         'activity_log' => ['audit.read'],
         'chat' => ['chat.use'],
+        'education' => ['education.view', 'education.manage', 'education.salary'],
         'family' => ['family.view_own'],
     ],
 ];

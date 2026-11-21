@@ -78,6 +78,39 @@ Route::middleware('api.json')->group(function () {
         });
         Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.read');
 
+        // Education: Alimni teachers (contracts, salaries), the madrasa and partner markaz, and the curriculum
+        Route::prefix('edu')->group(function () {
+            $c = \App\Http\Controllers\Api\EducationController::class;
+            Route::middleware('permission:education.view')->group(function () use ($c) {
+                Route::get('summary', [$c, 'summary']);
+                Route::get('teachers', [$c, 'teachers']);
+                Route::get('teachers/{teacher}', [$c, 'teacher'])->whereNumber('teacher');
+                Route::get('institutions', [$c, 'institutions']);
+                Route::get('institutions/{institution}', [$c, 'institution'])->whereNumber('institution');
+                Route::get('curricula', [$c, 'curricula']);
+                Route::get('curricula/{curriculum}', [$c, 'curriculum'])->whereNumber('curriculum');
+            });
+            Route::middleware('permission:education.manage')->group(function () use ($c) {
+                Route::post('teachers', [$c, 'storeTeacher']);
+                Route::patch('teachers/{teacher}', [$c, 'updateTeacher'])->whereNumber('teacher');
+                Route::post('teachers/{teacher}/contracts', [$c, 'storeContract'])->whereNumber('teacher');
+                Route::patch('contracts/{contract}', [$c, 'updateContract'])->whereNumber('contract');
+                Route::put('teachers/{teacher}/progress/{unit}', [$c, 'setProgress'])->whereNumber(['teacher', 'unit']);
+                Route::post('institutions', [$c, 'storeInstitution']);
+                Route::patch('institutions/{institution}', [$c, 'updateInstitution'])->whereNumber('institution');
+                Route::post('curricula', [$c, 'storeCurriculum']);
+                Route::patch('curricula/{curriculum}', [$c, 'updateCurriculum'])->whereNumber('curriculum');
+                Route::post('curricula/{curriculum}/units', [$c, 'storeUnit'])->whereNumber('curriculum');
+                Route::patch('units/{unit}', [$c, 'updateUnit'])->whereNumber('unit');
+                Route::delete('units/{unit}', [$c, 'deleteUnit'])->whereNumber('unit');
+            });
+            Route::middleware('permission:education.salary')->group(function () use ($c) {
+                Route::get('salaries', [$c, 'salaries']);
+                Route::post('salaries/generate', [$c, 'generateSalaries'])->middleware('throttle:20,1');
+                Route::put('teachers/{teacher}/salaries/{month}', [$c, 'setSalary'])->whereNumber('teacher');
+            });
+        });
+
         // Office chat: the General group and one-to-one chats (President Admin and staff). Cards are links, opened by each person's own access.
         Route::middleware('permission:chat.use')->group(function () {
             Route::get('chat/conversations', [\App\Http\Controllers\Api\ChatController::class, 'conversations']);
