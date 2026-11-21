@@ -114,7 +114,7 @@ class Child extends Model
 
         return $this->toListApi() + [
             'created_at' => $this->created_at?->toDateString(), 'updated_at' => $this->updated_at?->toDateString(),
-            'form_submitted_at' => $this->form_submitted_at?->format('Y-m-d H:i'),
+            'form_submitted_at' => $this->form_submitted_at?->toIso8601String(),   // the app shows it in the viewer's own time, 12-hour
             'details' => \App\Support\OrphanFields::details($this),
             'photos' => $this->photos->sortBy('id')->pluck('id')->values(),
             'personal' => [

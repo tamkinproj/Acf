@@ -84,7 +84,7 @@
     var acct = A.can("orphans.accounts") ? sec(t("p_account"), '<div class="ios-group"><button class="ios-row no-tile" type="button" data-act="oacct" data-id="' + c.id + '" data-name="' + esc(A.name(c)) + '" data-has="' + (c.account ? 1 : 0) + '"><span class="ios-lbl">' +
       (c.account ? '<span dir="ltr">@' + esc(c.account) + "</span>" : t("p_noacct")) + '</span><span class="ios-val">' + t(c.account ? "acc_reset" : "acc_one") + "</span>" + ic("chev", "ios-chev") + "</button></div>") : "";
 
-    var record = sec(t("sec_record"), rows([row(t("p_added"), dash(c.created_at)), row(t("p_updated"), dash(c.updated_at)), row(t("p_submitted"), dash(c.form_submitted_at)), row(t("p_photos"), String((c.photos || []).length))]));
+    var record = sec(t("sec_record"), rows([row(t("p_added"), dash(c.created_at)), row(t("p_updated"), dash(c.updated_at)), row(t("p_submitted"), dash(c.form_submitted_at ? A.dateTime(c.form_submitted_at) : null)), row(t("p_photos"), String((c.photos || []).length))]));
     var bar2 = typeof editing === "string" ? '<div class="err" id="formErr" role="alert"></div><div class="dp-savebar"><button class="btn btn-line" type="button" data-act="canceledit">' + t("cancel") + '</button><button class="btn btn-main" type="button" data-act="saveedit">' + t("save") + "</button></div>" : "";
     return '<div class="dp">' + bar(A.name(c)) + head + '<div class="dp-grid">' + groups + bank + photos + docs + acct + record + "</div>" + bar2 + "</div>";
   }

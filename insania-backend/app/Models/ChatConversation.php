@@ -9,7 +9,7 @@ class ChatConversation extends Model
 {
     use BelongsToFoundation;
 
-    protected $fillable = ['foundation_id', 'type', 'pair_key', 'title', 'created_by', 'last_message_at'];
+    protected $fillable = ['foundation_id', 'type', 'pair_key', 'title', 'created_by', 'last_message_at', 'cover_path', 'cover_v', 'theme'];
 
     protected $casts = ['last_message_at' => 'datetime'];
 

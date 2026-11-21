@@ -84,6 +84,14 @@ Route::middleware('api.json')->group(function () {
             Route::get('chat/unread', [\App\Http\Controllers\Api\ChatController::class, 'unread']);
             Route::get('chat/people', [\App\Http\Controllers\Api\ChatController::class, 'people']);
             Route::post('chat/direct', [\App\Http\Controllers\Api\ChatController::class, 'direct']);
+            Route::post('chat/groups', [\App\Http\Controllers\Api\ChatController::class, 'createGroup'])->middleware('throttle:20,1');
+            Route::get('chat/conversations/{conversation}/info', [\App\Http\Controllers\Api\ChatController::class, 'info']);
+            Route::patch('chat/conversations/{conversation}', [\App\Http\Controllers\Api\ChatController::class, 'update'])->middleware('throttle:30,1');
+            Route::get('chat/conversations/{conversation}/cover', [\App\Http\Controllers\Api\ChatController::class, 'cover']);
+            Route::post('chat/conversations/{conversation}/cover', [\App\Http\Controllers\Api\ChatController::class, 'setCover'])->middleware(['throttle:10,1', 'block.uploads']);
+            Route::delete('chat/conversations/{conversation}/cover', [\App\Http\Controllers\Api\ChatController::class, 'removeCover']);
+            Route::post('chat/conversations/{conversation}/members', [\App\Http\Controllers\Api\ChatController::class, 'addMembers'])->middleware('throttle:30,1');
+            Route::delete('chat/conversations/{conversation}/members/{user}', [\App\Http\Controllers\Api\ChatController::class, 'removeMember'])->whereNumber('user');
             Route::get('chat/conversations/{conversation}/messages', [\App\Http\Controllers\Api\ChatController::class, 'messages']);
             Route::get('chat/conversations/{conversation}/audience', [\App\Http\Controllers\Api\ChatController::class, 'audience']);
             Route::post('chat/conversations/{conversation}/messages', [\App\Http\Controllers\Api\ChatController::class, 'send'])->middleware('throttle:90,1');

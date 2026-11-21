@@ -52,6 +52,11 @@
   function can(p) { return API.can(p); }
   function user() { return API.user(); }
   function showAmounts() { var u = user(); return !(u && u.preferences && u.preferences.show_amounts === false); }
+  /* time is always shown on a 12-hour clock (8:27 pm), in the phone's own time zone */
+  function loc() { return lang === "ar" ? "ar" : "en-GB"; }
+  function timeOnly(x) { return new Date(x).toLocaleTimeString(loc(), { hour: "numeric", minute: "2-digit", hour12: true }); }
+  function dateOnly(x) { return new Date(x).toLocaleDateString(loc(), { day: "numeric", month: "short", year: "numeric" }); }
+  function dateTime(x) { if (!x) return ""; var d = new Date(x); return isNaN(d.getTime()) ? String(x) : dateOnly(d) + ", " + timeOnly(d); }
   function money(n) { return showAmounts() ? CUR + " " + Number(n || 0).toLocaleString("en-US") : "••••"; }
   function name(c) { return lang === "ar" && c.name_ar ? c.name_ar : (c.name_en || ""); }
   function facts(rows) { return '<dl class="facts">' + rows.map(function (r) { return "<div><dt>" + r[0] + "</dt><dd>" + r[1] + "</dd></div>"; }).join("") + "</dl>"; }
@@ -148,10 +153,11 @@
       '<div class="mo-rail mo-rail-foot"><a href="settings.html" title="' + esc(t("n_set")) + '"' + (cur === "settings" ? ' class="active" aria-current="page"' : "") + ">" + ic("gear") + '<span class="sr">' + t("n_set") + "</span></a>" +
       '<button type="button" data-act="lang" title="Language">' + ic("globe") + '<span class="sr">' + t("lang_btn") + "</span></button>" +
       '<button type="button" data-act="signout" title="' + esc(t("signout")) + '">' + ic("logout") + '<span class="sr">' + t("signout") + "</span></button></div>";
-    /* bottom bar (phones and tablets): up to five places; when a role has more, four stay and the rest open under "More" */
-    var bottom = sorted.length > 5 ? sorted.slice(0, 4) : sorted; moreItems = sorted.length > 5 ? sorted.slice(4) : [];
-    $("#tabbar").insertAdjacentHTML("beforeend", '<div class="mo-bottom">' + bottom.map(function (m) { return '<a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ' aria-label="' + esc(t(m[2])) + '"><span class="bi">' + ic(m[4]) + '</span><span class="sr">' + t(m[2]) + "</span></a>"; }).join("") +
-      (moreItems.length ? '<a href="#" data-act="more" aria-label="' + esc(t("n_more")) + '"' + (moreItems.some(function (m) { return m[0] === cur; }) ? ' class="active"' : "") + '><span class="bi">' + ic("menu") + '</span><span class="sr">' + t("n_more") + "</span></a>" : "") + "</div>");
+    /* bottom bar (phones and tablets): up to five places. When a role has more, four stay and Settings is the fifth: the rest are listed on the Settings screen. */
+    var setItem = sorted.filter(function (m) { return m[0] === "settings"; })[0], others = sorted.filter(function (m) { return m[0] !== "settings"; });
+    var bottom = sorted.length > 5 ? others.slice(0, 4).concat(setItem ? [setItem] : []) : sorted; moreItems = sorted.length > 5 ? others.slice(4) : [];
+    var onMore = moreItems.some(function (m) { return m[0] === cur; });
+    $("#tabbar").insertAdjacentHTML("beforeend", '<div class="mo-bottom">' + bottom.map(function (m) { var on = cur === m[0] || (m[0] === "settings" && onMore); return '<a href="' + m[1] + '"' + (on ? ' class="active" aria-current="page"' : "") + ' aria-label="' + esc(t(m[2])) + '"><span class="bi">' + ic(m[4]) + '</span><span class="sr">' + t(m[2]) + "</span></a>"; }).join("") + "</div>");
     var act = $(".mo-tabs a.active"); if (act && act.scrollIntoView && window.innerWidth < 1024) { try { act.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {} }
   }
   function refreshChip() { var b = $("#chipBox"); if (b) b.innerHTML = chipHtml(); var bell = $("#bellBtn"); if (bell) { var d = bell.querySelector(".dot"); if (bellDot() && !d) bell.insertAdjacentHTML("beforeend", '<i class="dot"></i>'); else if (!bellDot() && d) d.remove(); } }
@@ -371,6 +377,7 @@
 
   /* ---------------- start a page ---------------- */
   window.ACF = {
+    timeOnly: timeOnly, dateOnly: dateOnly, dateTime: dateTime, moreItems: function () { return moreItems; },
     t: t, strings: strings, esc: esc, ic: ic, name: name, money: money, facts: facts, months: months, monthLabel: monthLabel, toast: toast, msg: msg,
     can: can, user: user, api: API, avatar: avatarHtml, shrinkImage: shrinkImage, fold: fold, shareBtn: shareBtn, setUnread: setUnread, kindPerm: KIND_PERM, ui: UI, saveUI: saveUI, sheet: sheet, closeSheet: closeSheet, field: field, formEnd: formEnd, showErrors: showErrors,
     act: act, form: form, lang: function () { return lang; }, paint: paint, reload: function (q) { load(q); }, $: $, CUR: CUR,

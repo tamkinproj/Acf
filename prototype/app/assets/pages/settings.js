@@ -23,20 +23,21 @@
 
   /* iOS-style grouped list: rows with a coloured icon tile, the value on the end and a chevron when the row opens something */
   function row(o) {
-    var tag = o.act ? "button" : "div", attrs = o.act ? ' type="button" data-act="' + o.act + '"' + (o.k ? ' data-k="' + o.k + '"' : "") : "";
+    var tag = o.href ? "a" : o.act ? "button" : "div", attrs = o.href ? ' href="' + esc(o.href) + '"' : o.act ? ' type="button" data-act="' + o.act + '"' + (o.k ? ' data-k="' + o.k + '"' : "") : "";
     var end = o.sw ? '<button class="switch" type="button" role="switch" aria-checked="' + o.sw.on + '" aria-label="' + esc(o.label) + '" data-act="pref" data-k="' + o.sw.k + '"></button>' :
-      (o.val != null ? '<span class="ios-val">' + o.val + "</span>" : "") + (o.act && !o.noChev ? ic("chev", "ios-chev") : "");
+      (o.val != null ? '<span class="ios-val">' + o.val + "</span>" : "") + ((o.act || o.href) && !o.noChev ? ic("chev", "ios-chev") : "");
     return "<" + tag + ' class="ios-row' + (o.cls ? " " + o.cls : "") + (o.tile ? "" : " no-tile") + '"' + attrs + ">" + (o.tile ? '<span class="ios-ic t-' + o.tile[0] + '">' + ic(o.tile[1]) + "</span>" : "") + '<span class="ios-lbl">' + o.label + "</span>" + end + "</" + tag + ">";
   }
   function group(rows, note) { return '<div class="ios-group">' + rows.join("") + "</div>" + (note ? '<p class="ios-note">' + note + "</p>" : ""); }
 
   function render() {
     var u = A.user() || {}, pref = u.preferences || {}, items = A.api.outbox(), st = A.api.state(), ar = A.lang() === "ar";
-    var last = st.lastSync ? new Date(st.lastSync).toLocaleString(ar ? "ar" : "en-GB") : t("set_never");
+    var last = st.lastSync ? A.dateTime(st.lastSync) : t("set_never");
     var install = window.ACF_PWA && window.ACF_PWA.canInstall ? [row({ label: t("set_install"), tile: ["blue", "download"], act: "install", noChev: true })] : [];
     return '<div class="head"><h1 class="title">' + t("set_title") + '</h1></div><div class="ios">' +
       '<button class="ios-prof" type="button" data-act="profile">' + A.avatar(u, "big") + '<span class="grow"><b>' + esc(u.name) + '</b><span class="sub" dir="ltr">@' + esc(u.username || "") + "</span><span class=\"sub\">" + esc(u.role_label || "") + "</span></span>" + ic("chev", "ios-chev") + "</button>" +
       '<input id="avatarIn" type="file" accept="image/jpeg,image/png,image/webp" hidden>' +
+      (A.moreItems().length ? group(A.moreItems().map(function (m) { return row({ label: t(m[2]), tile: ["gray", m[4]], href: m[1] }); })) : "") +
       group([
         row({ label: t("set_rem"), tile: ["orange", "bell"], sw: { k: "reminders", on: pref.reminders !== false } }),
         row({ label: t("set_amt"), tile: ["green", "wallet"], sw: { k: "show_amounts", on: pref.show_amounts !== false } }),
@@ -105,7 +106,7 @@
     A.api.get("me/sessions", { cache: false }).then(function (r) {
       var l = A.lang() === "ar" ? "ar" : "en-GB", rows = r.data;
       box.innerHTML = rows.map(function (s) {
-        return '<div class="item"><span class="grow"><b>' + esc(s.device) + (s.current ? ' <span class="badge">' + t("sess_this") + "</span>" : "") + '</b><span class="sub">' + esc(t("sess_last", { d: new Date(s.last_used || s.signed_in).toLocaleString(l, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) })) + "</span></span>" +
+        return '<div class="item"><span class="grow"><b>' + esc(s.device) + (s.current ? ' <span class="badge">' + t("sess_this") + "</span>" : "") + '</b><span class="sub">' + esc(t("sess_last", { d: A.dateTime(s.last_used || s.signed_in) })) + "</span></span>" +
           (s.current ? "" : '<button class="btn btn-line btn-sm" type="button" data-act="endsess" data-id="' + s.id + '">' + t("sess_out") + "</button>") + "</div>";
       }).join("") + (rows.length > 1 ? '<div class="actions" style="margin-top:.8rem"><button class="btn btn-line btn-sm" type="button" data-act="endothers">' + t("sess_others") + "</button></div>" : "");
     }, function () { box.innerHTML = '<p class="note">' + t("need_conn") + "</p>"; });

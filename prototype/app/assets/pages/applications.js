@@ -21,7 +21,7 @@
     return items.map(function (a) {
       var nm = A.lang() === "ar" && a.name_ar ? a.name_ar : (a.name_en || a.name_ar || "-");
       return A.fold({ id: a.id, av: nm, title: nm, tone: a.status === "new" ? "warn" : a.status === "approved" ? "ok" : "grey",
-        meta: '<span dir="ltr">' + esc(a.reference) + " · " + esc(a.submitted_at || "") + (a.photos ? " · " + t("ap_photos", { n: a.photos }) : "") + "</span>",
+        meta: '<span dir="ltr">' + esc(a.reference) + " · " + esc(A.dateTime(a.submitted_at)) + (a.photos ? " · " + t("ap_photos", { n: a.photos }) : "") + "</span>",
         badges: '<span class="badge ' + (a.status === "new" ? "warn" : a.status === "approved" ? "" : "grey") + '">' + t("ap_" + a.status) + "</span>",
         actions: '<a class="btn btn-main btn-sm" href="application.html?id=' + a.id + '">' + t("fold_open") + "</a>" + A.shareBtn("application", a.id) });
     }).join("");

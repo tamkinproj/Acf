@@ -25,7 +25,7 @@ class ApplicationController extends Controller
             'name_en' => $d['name_en'] ?? null, 'name_ar' => $d['name_ar'] ?? null,
             'guardian' => $d['guardian_name'] ?? null, 'phone' => $d['guardian_phone'] ?? null, 'city' => $d['city'] ?? null,
             'birth_date' => $d['birth_date'] ?? null, 'photos' => count($a->photos ?? []), 'documents' => count($a->documents ?? []), 'method' => $a->method ?? 'form',
-            'submitted_at' => $a->created_at?->format('Y-m-d H:i'), 'child_id' => $a->child_id,
+            'submitted_at' => $a->created_at?->toIso8601String(), 'child_id' => $a->child_id,
         ];
     }
 

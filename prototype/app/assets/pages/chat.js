@@ -1,10 +1,11 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
+  A.strings({ grp_new: "New group" }, { grp_new: "مجموعة جديدة" });
 
   function when(iso) {
     if (!iso) return "";
     var d = new Date(iso), n = new Date(), same = d.toDateString() === n.toDateString();
-    return same ? d.toLocaleTimeString(A.lang() === "ar" ? "ar" : "en-GB", { hour: "2-digit", minute: "2-digit" }) : d.toLocaleDateString(A.lang() === "ar" ? "ar" : "en-GB", { day: "numeric", month: "short" });
+    return same ? A.timeOnly(d) : d.toLocaleDateString(A.lang() === "ar" ? "ar" : "en-GB", { day: "numeric", month: "short" });
   }
   function preview(c) {
     if (!c.last) return t("chat_empty");
@@ -13,10 +14,10 @@
   }
   function render(rows) {
     A.setUnread(rows.reduce(function (n, c) { return n + (c.unread || 0); }, 0));
-    return '<div class="head chat-head"><h1 class="title">' + t("n_chat") + '</h1><button class="btn btn-main btn-sm" type="button" data-act="newchat">' + ic("plus") + "<span>" + t("chat_new") + "</span></button></div>" +
+    return '<div class="head chat-head"><h1 class="title">' + t("n_chat") + '</h1><div class="actions"><a class="btn btn-line btn-sm" href="newgroup.html">' + ic("users") + "<span>" + t("grp_new") + '</span></a><button class="btn btn-main btn-sm" type="button" data-act="newchat">' + ic("plus") + "<span>" + t("chat_new") + "</span></button></div></div>" +
       '<div class="list chat-list">' + rows.map(function (c) {
         var name = c.type === "general" ? t("chat_general") : c.title;
-        return '<a class="item chat-row" href="room.html?c=' + c.id + '">' + (c.type === "general" ? '<span class="avatar grp">' + ic("users") + "</span>" : A.avatar(c.other || { name: name }, "avatar")) + '<span class="grow"><b>' + esc(name) + '</b><span class="sub">' + esc(preview(c)) + '</span></span>' +
+        return '<a class="item chat-row" href="room.html?c=' + c.id + '">' + (c.type === "general" || c.type === "group" ? '<span class="avatar grp"' + (c.cover ? ' data-cov="' + c.id + '"' : "") + ">" + ic("users") + "</span>" : A.avatar(c.other || { name: name }, "avatar")) + '<span class="grow"><b>' + esc(name) + '</b><span class="sub">' + esc(preview(c)) + '</span></span>' +
           '<span class="right"><span class="sub">' + esc(when(c.last_at)) + "</span>" + (c.unread ? '<span class="nbadge in">' + (c.unread > 99 ? "99+" : c.unread) + "</span>" : "") + "</span></a>";
       }).join("") + "</div>";
   }
@@ -40,5 +41,5 @@
   });
 
   setInterval(function () { if (!document.hidden && navigator.onLine !== false && !(A.$("#sheetRoot") && A.$("#sheetRoot").innerHTML)) A.reload(true); }, 15000);
-  A.start({ page: "chat", nav: "chat", title: "n_chat", perm: "chat.use", needsConn: true, shell: true, load: function () { return A.api.get("chat/conversations", { cache: false }); }, render: render });
+  A.start({ page: "chat", nav: "chat", title: "n_chat", perm: "chat.use", needsConn: true, shell: true, load: function () { return A.api.get("chat/conversations", { cache: false }); }, render: render, after: function () { Array.prototype.forEach.call(document.querySelectorAll("[data-cov]"), function (el) { A.api.blobUrl("chat/conversations/" + el.getAttribute("data-cov") + "/cover").then(function (u) { el.style.backgroundImage = 'url(\"' + u + '\")'; el.classList.add("has-photo"); }, function () {}); }); } });
 })();

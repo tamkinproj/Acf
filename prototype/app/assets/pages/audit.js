@@ -11,7 +11,7 @@
 
   function render(rows) {
     return '<div class="head"><h1 class="title">' + t("audit_title") + '</h1></div><p class="note">' + t("audit_note") + '</p><div class="list">' + (rows.length ? rows.map(function (r) {
-      var when = new Date(r.created_at).toLocaleString(A.lang() === "ar" ? "ar" : "en-GB");
+      var when = A.dateTime(r.created_at);
       var subj = r.subject_type ? " · " + esc(r.subject_type) + " #" + esc(r.subject_id) : "";
       return '<div class="item"><span class="grow"><b dir="ltr" style="text-align:start">' + esc(r.action) + '</b><span class="sub">' + esc(when) + " · " + t("by_user") + " #" + esc(r.user_id === null ? "-" : r.user_id) + subj + "</span></span></div>";
     }).join("") : '<p class="note">' + t("audit_none") + "</p>") + "</div>";

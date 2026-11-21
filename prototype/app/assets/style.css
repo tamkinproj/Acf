@@ -931,3 +931,46 @@ button.dp-avatar.has-photo{color:transparent}
 .dp-cam .icon{stroke:var(--ink)}
 .dp-head .pchip,.dp-head .pchip.warn{background:none;padding:.2rem 0;min-width:0;margin-inline-end:1.2rem}
 .dp-head .pchips{gap:.3rem}
+
+/* ---- chat room: no extra blank page below the messages ---- */
+body[data-page=room] main.container{padding-bottom:0}
+html.bare body[data-page=room]{padding-bottom:0}
+.dp-rows+.dp-rows{margin-top:0}
+
+/* ---- chat themes (the colour of your bubbles and the page tint) ---- */
+.th-lime{--th:#9acd32;--thi:#111;--tha:#f4f9e6}
+.th-ocean{--th:#8fd0ff;--thi:#0a2540;--tha:#eaf5ff}
+.th-sunset{--th:#ffb27a;--thi:#3b1d05;--tha:#fff1e6}
+.th-rose{--th:#ff9fbd;--thi:#3d0b1f;--tha:#ffeef3}
+.th-violet{--th:#c4a8ff;--thi:#24104a;--tha:#f3edff}
+.th-graphite{--th:#3a3f45;--thi:#fff;--tha:#ecedef}
+html[class*="th-"] body[data-page=room],html[class*="th-"] body[data-page=chatinfo]{background:var(--tha)}
+html[class*="th-"] body[data-page=room] .dp-bar,html[class*="th-"] body[data-page=chatinfo] .dp-bar,html[class*="th-"] body[data-page=room] .rm-comp{background:var(--tha)}
+html[class*="th-"] .grp.me .b{background:var(--th);color:var(--thi)}
+html[class*="th-"] .rm-send{background:var(--th);color:var(--thi)}
+.sw-row{display:flex;flex-wrap:wrap;gap:.8rem}
+.sw-th{width:2.7rem;height:2.7rem;border-radius:50%;border:3px solid #fff;background:var(--th);box-shadow:0 0 0 1px rgba(0,0,0,.14);cursor:pointer;padding:0}
+.sw-th.on{box-shadow:0 0 0 2.5px var(--ink)}
+.sw-th:disabled{opacity:.55;cursor:default}
+
+/* ---- chat settings and new group ---- */
+.ci-cover{position:relative;height:9.5rem;border-radius:1.4rem;background:var(--accent-soft) center/cover no-repeat;display:grid;place-items:center;color:var(--accent-ink);overflow:hidden}
+.ci-cover .icon{width:2.4rem;height:2.4rem}
+.ci-cover.has-photo .icon{display:none}
+.ci-cover-btns{position:absolute;bottom:.6rem;inset-inline-end:.6rem;display:flex;gap:.4rem}
+.ci-person{align-items:center!important;flex-wrap:nowrap!important}
+.ci-person .grow{flex:1;min-width:0}
+.ci-person .sub,.pick .sub{display:block;color:var(--muted);font-size:.85rem;font-weight:400}
+.ci-x{flex:none;width:2rem;height:2rem;border-radius:50%;border:0;background:#f2f3ef;color:var(--ink);font-size:1.3rem;line-height:1;cursor:pointer;padding:0}
+.pick{text-align:start;cursor:pointer}
+.pick .grow{flex:1;min-width:0;display:block}
+.tick{flex:none;width:1.6rem;height:1.6rem;border-radius:50%;border:2px solid #c8cbc2;display:grid;place-items:center}
+.pick.on .tick{background:var(--accent);border-color:var(--accent)}
+.tick .icon{width:.95rem;height:.95rem;stroke:var(--ink)}
+.grpav{flex:none;width:2.7rem;height:2.7rem;border-radius:50%;background:var(--accent-soft) center/cover no-repeat;display:grid;place-items:center;color:var(--accent-ink);text-decoration:none}
+.grpav .icon{width:1.2rem;height:1.2rem}
+.grpav.has-photo .icon{display:none}
+a.rm-title{color:inherit;text-decoration:none}
+.avatar.grp.has-photo{background-size:cover;background-position:center}
+.avatar.grp.has-photo .icon{display:none}
+.chat-head .actions{margin:0;flex-wrap:nowrap}

@@ -1,5 +1,6 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
+  A.strings({ ci_tap: "Tap for settings and members", ci_title: "Chat settings" }, { ci_tap: "اضغط للإعدادات والأعضاء", ci_title: "إعدادات المحادثة" });
   var cid = parseInt((location.search.match(/[?&]c=(\d+)/) || [])[1], 10) || 0;
   var MSGS = [], META = null, lastId = 0, draft = "", timer = null, busy = false;
   var KIND_ICON = { child: "users", application: "file", project: "folder", payment: "wallet", user: "shield", report: "file", site: "globe" };
@@ -10,7 +11,7 @@
     if (d.toDateString() === n.toDateString()) return t("chat_today"); if (d.toDateString() === y.toDateString()) return t("chat_yesterday");
     return d.toLocaleDateString(lang(), { weekday: "short", day: "numeric", month: "short" });
   }
-  function hm(iso) { return new Date(iso).toLocaleTimeString(lang(), { hour: "2-digit", minute: "2-digit" }); }
+  function hm(iso) { return A.timeOnly(iso); }
 
   /* a card inside a bubble: a link to the page when this person may open it, otherwise only the kind of card */
   function card(c) {
@@ -31,18 +32,27 @@
       if (sep(MSGS[i - 1], m)) out += '<div class="rm-time">' + esc(stamp(m.at)) + "</div>";
       while (j < MSGS.length && MSGS[j].user_id === m.user_id && !sep(MSGS[j - 1], MSGS[j])) { g.push(MSGS[j]); j++; }
       out += '<div class="grp ' + (m.mine ? "me" : "you") + '">' + (m.mine ? "" : A.avatar({ id: m.user_id, name: m.user, avatar: m.av }, "rm-av")) +
-        '<div class="stack">' + (!m.mine && META && META.type === "general" ? '<span class="msg-who">' + esc(m.user || "") + "</span>" : "") + g.map(one).join("") + "</div></div>";
+        '<div class="stack">' + (!m.mine && META && (META.type === "general" || META.type === "group") ? '<span class="msg-who">' + esc(m.user || "") + "</span>" : "") + g.map(one).join("") + "</div></div>";
       i = j;
     }
     return out;
   }
   function nearBottom() { return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 160; }
-  function toBottom() { var h = document.documentElement, b = h.style.scrollBehavior; h.style.scrollBehavior = "auto"; window.scrollTo(0, h.scrollHeight); h.style.scrollBehavior = b; }
+  /* show the newest message just above the box you type in. When everything fits on the screen the page stays at the top. */
+  function toBottom() {
+    var h = document.documentElement, b = h.style.scrollBehavior, list = document.getElementById("msgs"), comp = document.querySelector(".rm-comp");
+    var end = list ? list.getBoundingClientRect().bottom + window.scrollY : h.scrollHeight, boxH = comp ? comp.offsetHeight : 0;
+    h.style.scrollBehavior = "auto"; window.scrollTo(0, Math.max(0, Math.round(end + boxH + 8 - window.innerHeight))); h.style.scrollBehavior = b;
+  }
 
   function render() {
     var title = META ? (META.type === "general" ? t("chat_general") : META.title) : "";
     var sub = META && META.other ? META.other.role_label : (META ? "" : "");
-    return '<div class="rm"><div class="dp-bar"><a class="dp-back" href="chat.html" data-act="rmback" aria-label="' + esc(t("back")) + '">' + ic("back", "flip") + '</a><span class="rm-title"><b>' + esc(title) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>" + (META && META.other ? A.avatar(META.other, "rm-hav") : '<span class="dp-act rm-gap"></span>') + "</div>" +
+    var isGrp = META && META.is_group, info = "chatinfo.html?c=" + cid;
+    var head = '<a class="dp-back" href="chat.html" data-act="rmback" aria-label="' + esc(t("back")) + '">' + ic("back", "flip") + "</a>" +
+      (isGrp ? '<a class="rm-title" href="' + info + '"><b>' + esc(title) + "</b><small>" + esc(t("ci_tap")) + "</small></a>" : '<span class="rm-title"><b>' + esc(title) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>") +
+      (isGrp ? '<a class="rm-hav grpav" id="rmCover" href="' + info + '" aria-label="' + esc(t("ci_title")) + '">' + ic("users") + "</a>" : (META && META.other ? A.avatar(META.other, "rm-hav") : '<span class="dp-act rm-gap"></span>'));
+    return '<div class="rm"><div class="dp-bar">' + head + "</div>" +
       '<div class="rm-list" id="msgs">' + listHtml() + "</div>" +
       '<form class="rm-comp" id="rmForm" novalidate><button type="button" class="rm-clip" data-act="attach" aria-label="' + esc(t("chat_attach")) + '">' + ic("clip") + '</button>' +
       '<textarea id="rmText" rows="1" maxlength="2000" placeholder="' + esc(t("chat_type")) + '" aria-label="' + esc(t("chat_type")) + '">' + esc(draft) + '</textarea>' +
@@ -62,6 +72,7 @@
     A.api.get("chat/conversations/" + cid + "/messages?after_id=" + lastId, { cache: false }).then(function (r) { addMessages(r.data); }, function () {});
   }
   function init() {
+    paintLook();
     var tx = document.getElementById("rmText"); if (!tx) return;
     tx.addEventListener("input", function () { draft = tx.value; tx.style.height = "auto"; tx.style.height = Math.min(tx.scrollHeight, 130) + "px"; });
     tx.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && (window.matchMedia && window.matchMedia("(hover:hover)").matches)) { e.preventDefault(); send(); } });
@@ -127,6 +138,12 @@
     var x = PICK.list[parseInt(el.getAttribute("data-i"), 10)], c = { kind: PICK.kind, id: x.id }; if (PICK.kind === "payment") c.month = PICK.month; attach(c);
   });
 
+  function paintLook() {
+    var h = document.documentElement, c = h.className.split(" ").filter(function (x) { return x.indexOf("th-") !== 0; });
+    if (META && META.theme) c.push("th-" + META.theme); h.className = c.join(" ");
+    var cv = document.getElementById("rmCover");
+    if (cv && META && META.cover) A.api.blobUrl("chat/conversations/" + cid + "/cover").then(function (u) { cv.style.backgroundImage = 'url("' + u + '")'; cv.classList.add("has-photo"); }, function () {});
+  }
   function load() {
     if (!cid) return Promise.reject(new Error(t("chat_gone")));
     return A.api.get("chat/conversations/" + cid + "/messages", { cache: false, forceNet: true }).then(function (r) {

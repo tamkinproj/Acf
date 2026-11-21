@@ -541,3 +541,11 @@
         margin-left: 1.2rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .ci-cover-btns {
+        right: .6rem
+    }
+    html[dir=rtl] .ci-cover-btns {
+        left: .6rem
+    }
+}
