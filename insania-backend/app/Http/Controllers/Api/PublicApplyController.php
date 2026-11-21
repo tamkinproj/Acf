@@ -76,6 +76,7 @@ class PublicApplyController extends Controller
         $paths = $saved['photos'];
         $app->update($saved);
         Audit::record('application.received', $request, 'application', $app->id, ['photos' => count($paths), 'documents' => count($saved['documents']), 'method' => $app->method], null, $foundation->id);
+        \App\Support\Notify::toPermission('applications.review', (int) $app->foundation_id, 'application', 'New orphan application', 'APP-'.str_pad((string) $app->id, 5, '0', STR_PAD_LEFT).' is waiting for review.', 'application.html?id='.$app->id, 'app:'.$app->id);
 
         return ApiResponse::created(['reference' => $app->reference()]);
     }

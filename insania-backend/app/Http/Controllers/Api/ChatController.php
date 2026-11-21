@@ -270,6 +270,9 @@ class ChatController extends Controller
         foreach ($chosen as $uid) {
             ChatMember::firstOrCreate(['conversation_id' => $c->id, 'user_id' => $uid]);
         }
+        foreach ($chosen as $uid) {
+            \App\Support\Notify::to($uid, $me->foundation_id, 'chat', 'You were added to a group', $c->title, 'room.html?c='.$c->id, 'grp:'.$c->id.':'.$uid);
+        }
         Audit::record('chat.group_created', $request, null, null, ['conversation' => $c->id, 'members' => count($chosen) + 1]);
 
         return ApiResponse::created(['id' => $c->id, 'title' => $c->title]);
@@ -373,6 +376,9 @@ class ChatController extends Controller
         foreach (array_intersect(array_map('intval', $data['user_ids']), $allowed) as $uid) {
             $m = ChatMember::firstOrCreate(['conversation_id' => $conversation->id, 'user_id' => $uid]);
             $n += $m->wasRecentlyCreated ? 1 : 0;
+            if ($m->wasRecentlyCreated) {
+                \App\Support\Notify::to($uid, $me->foundation_id, 'chat', 'You were added to a group', $conversation->title, 'room.html?c='.$conversation->id, 'grp:'.$conversation->id.':'.$uid);
+            }
         }
         Audit::record('chat.members_added', $request, null, null, ['conversation' => $conversation->id, 'added' => $n]);
 

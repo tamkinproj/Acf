@@ -19,7 +19,7 @@
     dept_aytam: "أيتام", dept_finance: "المالية", dept_projects: "المشاريع", dept_relief: "الإغاثة", dept_education: "التعليم", dept_hr: "الموارد البشرية", dept_administration: "الإدارة", waiting_item: "بانتظار الإرسال"
   });
 
-  A.strings({ set_wait: "Waiting to send", set_pw_row: "Password", set_dev: "Devices", set_sec: "Security" }, { set_wait: "بانتظار الإرسال", set_pw_row: "كلمة المرور", set_dev: "الأجهزة", set_sec: "الأمان" });
+  A.strings({ set_sound: "Sounds (messages and notifications)", set_wait: "Waiting to send", set_pw_row: "Password", set_dev: "Devices", set_sec: "Security" }, { set_sound: "الأصوات (الرسائل والإشعارات)", set_wait: "بانتظار الإرسال", set_pw_row: "كلمة المرور", set_dev: "الأجهزة", set_sec: "الأمان" });
 
   /* iOS-style grouped list: rows with a coloured icon tile, the value on the end and a chevron when the row opens something */
   function row(o) {
@@ -41,6 +41,7 @@
       group([
         row({ label: t("set_rem"), tile: ["orange", "bell"], sw: { k: "reminders", on: pref.reminders !== false } }),
         row({ label: t("set_amt"), tile: ["green", "wallet"], sw: { k: "show_amounts", on: pref.show_amounts !== false } }),
+        row({ label: t("set_sound"), tile: ["blue", "bell"], sw: { k: "sounds", on: pref.sounds !== false } }),
         row({ label: t("set_lang"), tile: ["blue", "globe"], act: "lang", val: ar ? "العربية" : "English" })]) +
       group([
         row({ label: t("email"), tile: ["gray", "mail"], val: '<span dir="ltr">' + esc(u.email) + "</span>" }),
@@ -115,7 +116,7 @@
   A.act("endothers", function () { A.api.write("POST", "me/sessions/end-others", {}, { online: true }).then(function () { A.toast(t("sess_done")); loadSessions(); }, function (e) { A.toast(e.offline ? t("need_conn") : A.msg(e)); }); });
   A.act("pref", function (el) {
     var k = el.getAttribute("data-k"), u = A.user(), now = !((u.preferences || {})[k] !== false), p = {}; p[k] = now;
-    A.api.setPrefs(p); A.paint();
+    A.api.setPrefs(p); A.paint(); if (k === "sounds" && now) A.sound("notify");
     A.api.write("PATCH", "me/preferences", p, { label: t("set_title") }).then(function () {}, function (e) { A.toast(A.msg(e)); });
   });
   A.act("changepw", function () {

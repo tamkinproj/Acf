@@ -126,6 +126,7 @@ class AuthController extends Controller
             'reminders' => ['sometimes', 'boolean'],
             'show_amounts' => ['sometimes', 'boolean'],
             'setup_seen' => ['sometimes', 'boolean'],
+            'sounds' => ['sometimes', 'boolean'],
         ]);
 
         $user = $request->user();

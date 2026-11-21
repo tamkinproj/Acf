@@ -43,6 +43,9 @@ Route::middleware('api.json')->group(function () {
         Route::get('me/sessions', [AuthController::class, 'sessions']);
         Route::post('me/sessions/end-others', [AuthController::class, 'endOtherSessions'])->middleware('throttle:10,1');
         Route::delete('me/sessions/{id}', [AuthController::class, 'endSession'])->whereNumber('id');
+        Route::get('notices/count', [\App\Http\Controllers\Api\NoticeController::class, 'count']);
+        Route::get('notices', [\App\Http\Controllers\Api\NoticeController::class, 'index']);
+        Route::post('notices/read', [\App\Http\Controllers\Api\NoticeController::class, 'read'])->middleware('throttle:60,1');
         Route::get('me/preferences', [AuthController::class, 'preferences']);
         Route::patch('me/preferences', [AuthController::class, 'updatePreferences']);
         Route::get('dashboard', DashboardController::class);

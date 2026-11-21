@@ -91,7 +91,7 @@ class FoundationIsolationTest extends TestCase
         $logs = $this->getJson('/api/audit?per_page=100')->assertOk()->json('data');
 
         $this->assertNotEmpty($logs);
-        $this->assertSame([], array_values(array_filter($logs, fn ($l) => (int) $l['foundation_id'] === $o['foundation']->id)));
+        $this->assertSame(0, \App\Models\AuditLog::whereIn('id', array_column($logs, 'id'))->where('foundation_id', $o['foundation']->id)->count());
     }
 
     public function test_a_family_account_sees_only_its_own_children(): void

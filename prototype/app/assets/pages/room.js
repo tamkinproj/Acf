@@ -2,7 +2,7 @@
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
   A.strings({ ci_tap: "Tap for settings and members", ci_title: "Chat settings" }, { ci_tap: "اضغط للإعدادات والأعضاء", ci_title: "إعدادات المحادثة" });
   var cid = parseInt((location.search.match(/[?&]c=(\d+)/) || [])[1], 10) || 0;
-  var MSGS = [], META = null, lastId = 0, draft = "", timer = null, busy = false;
+  var POP = {}, MSGS = [], META = null, lastId = 0, draft = "", timer = null, busy = false;
   var KIND_ICON = { child: "users", application: "file", project: "folder", payment: "wallet", user: "shield", report: "file", site: "globe" };
 
   function lang() { return A.lang() === "ar" ? "ar" : "en-GB"; }
@@ -23,7 +23,10 @@
   // Messenger style: a centred time when the talk pauses, one small avatar per run of messages from the same person, pill bubbles, no time inside them
   function sep(a, b) { return !a || new Date(a.at).toDateString() !== new Date(b.at).toDateString() || (new Date(b.at) - new Date(a.at)) > 20 * 60000; }
   function stamp(iso) { return new Date(iso).toDateString() === new Date().toDateString() ? hm(iso) : day(iso) + " · " + hm(iso); }
-  function one(m) { return (m.card ? card(m.card) : "") + (m.body ? '<p class="b" data-id="' + m.id + '" title="' + esc(hm(m.at)) + '">' + esc(m.body) + "</p>" : ""); }
+  function one(m) {
+    var c = m.card ? card(m.card) : ""; if (c && POP[m.id]) c = c.replace('class="cc', 'class="pop cc');
+    return c + (m.body ? '<p class="b' + (POP[m.id] ? " pop" : "") + '" data-id="' + m.id + '" title="' + esc(hm(m.at)) + '">' + esc(m.body) + "</p>" : "");
+  }
   function listHtml() {
     if (!MSGS.length) return '<p class="note rm-empty">' + esc(t("chat_empty")) + "</p>";
     var out = "", i = 0;
@@ -62,8 +65,10 @@
   function addMessages(rows) {
     var fresh = rows.filter(function (m) { return m.id > lastId; }); if (!fresh.length) return false;
     var stick = nearBottom(), list = document.getElementById("msgs");
-    fresh.forEach(function (m) { MSGS.push(m); lastId = Math.max(lastId, m.id); });
+    fresh.forEach(function (m) { MSGS.push(m); lastId = Math.max(lastId, m.id); POP[m.id] = 1; });
     if (list) list.innerHTML = listHtml();   // the runs of messages are regrouped as new ones arrive
+    setTimeout(function () { POP = {}; }, 900);
+    if (fresh.some(function (m) { return !m.mine; })) A.sound("receive"); else A.sound("send");   // like iMessage: a soft pop in, and a sound
     if (stick || fresh.some(function (m) { return m.mine; })) toBottom();
     return true;
   }

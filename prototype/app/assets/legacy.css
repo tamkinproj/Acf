@@ -549,3 +549,11 @@
         left: .6rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .mo-circle .nbadge {
+        right: -.25rem
+    }
+    html[dir=rtl] .mo-circle .nbadge {
+        left: -.25rem
+    }
+}

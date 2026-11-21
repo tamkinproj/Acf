@@ -72,6 +72,7 @@ class UserAdminController extends Controller
             'foundation_id' => $actor->foundation_id, 'phone' => $data['phone'] ?? null, 'active' => true,
         ] + $link);
 
+        \App\Support\Notify::to($user->id, (int) $user->foundation_id, 'system', 'Welcome to Al Insania', 'Your account is ready. You will see messages and reminders for you here.', 'settings.html');
         Audit::record('user.created', $request, 'user', $user->id, ['role' => $user->role]);
 
         return ApiResponse::created($user->load('department')->toApi());
@@ -127,6 +128,7 @@ class UserAdminController extends Controller
         $user->update(['password' => $data['password']]);
         $user->tokens()->delete();
 
+        \App\Support\Notify::to($user->id, (int) $user->foundation_id, 'security', 'Your password was reset', 'An administrator set a new password for your account. Sign in with it and change it in Settings.', 'settings.html');
         Audit::record('user.password_reset', $request, 'user', $user->id);
 
         return ApiResponse::deleted('Password changed and all sessions ended.');

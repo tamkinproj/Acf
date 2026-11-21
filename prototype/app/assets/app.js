@@ -12,7 +12,7 @@
       login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
       login_err: "Enter your email or username, and your password.", login_fail: "Wrong email, username or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a few minutes and try again.",
-      n_home: "Home", n_edu: "Education", login_id: "Email or username", un_title: "Username", un_hint: "Used to sign in, next to your email. 3 to 30 letters, digits, dots, hyphens or underscores.", un_saved: "Username saved", prof_title: "My profile", prof_photo: "Change photo", prof_remove: "Remove photo", prof_saved: "Photo saved", prof_removed: "Photo removed", prof_username: "Username", prof_change: "Change username", prof_bad: "Choose a JPG, PNG or WebP photo.", fold_open: "Open", fold_open_profile: "Open profile", n_chat: "Chat", chat_general: "General", chat_new: "New chat", chat_share: "Share to chat", chat_send: "Send", chat_attach: "Attach a card", chat_type: "Write a message…", chat_pick_chat: "Send to…", chat_people: "Start a chat with", chat_shared: "Shared in chat", chat_empty: "No messages yet. Say hello.", chat_nolist: "No one else is in the office chat yet.", chat_cant: "{n} people in this chat cannot open it. They will see only the kind of card.", chat_cant_one: "{names} cannot open it and will see only the kind of card.", chat_sendany: "Send anyway", chat_noaccess: "You do not have access to this.", chat_gone: "No longer available.", chat_offline: "Chat needs an internet connection.", chat_pick_kind: "What do you want to attach?", chat_pick_item: "Choose one", chat_search: "Search", chat_today: "Today", chat_yesterday: "Yesterday", chat_you: "You", chat_none_item: "Nothing to choose.", chat_open: "Open", k_child: "Orphan", k_application: "Application", k_project: "Project", k_payment: "Payment", k_user: "Account", k_report: "Report", k_site: "Landing page", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
+      n_home: "Home", n_edu: "Education", notif_title: "Notifications", notif_new: "New notification", login_id: "Email or username", un_title: "Username", un_hint: "Used to sign in, next to your email. 3 to 30 letters, digits, dots, hyphens or underscores.", un_saved: "Username saved", prof_title: "My profile", prof_photo: "Change photo", prof_remove: "Remove photo", prof_saved: "Photo saved", prof_removed: "Photo removed", prof_username: "Username", prof_change: "Change username", prof_bad: "Choose a JPG, PNG or WebP photo.", fold_open: "Open", fold_open_profile: "Open profile", n_chat: "Chat", chat_general: "General", chat_new: "New chat", chat_share: "Share to chat", chat_send: "Send", chat_attach: "Attach a card", chat_type: "Write a message…", chat_pick_chat: "Send to…", chat_people: "Start a chat with", chat_shared: "Shared in chat", chat_empty: "No messages yet. Say hello.", chat_nolist: "No one else is in the office chat yet.", chat_cant: "{n} people in this chat cannot open it. They will see only the kind of card.", chat_cant_one: "{names} cannot open it and will see only the kind of card.", chat_sendany: "Send anyway", chat_noaccess: "You do not have access to this.", chat_gone: "No longer available.", chat_offline: "Chat needs an internet connection.", chat_pick_kind: "What do you want to attach?", chat_pick_item: "Choose one", chat_search: "Search", chat_today: "Today", chat_yesterday: "Yesterday", chat_you: "You", chat_none_item: "Nothing to choose.", chat_open: "Open", k_child: "Orphan", k_application: "Application", k_project: "Project", k_payment: "Payment", k_user: "Account", k_report: "Report", k_site: "Landing page", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
       loading: "Loading…", none: "No matches.", back: "Back", cancel: "Cancel", save: "Save", required: "This field is required.", lang_btn: "العربية", signout: "Sign out",
       noaccess: "Your role does not include this page.", per_month: "per month",
       offline_none: "Nothing is saved on this phone for this page yet. Open it once while connected.", load_err: "Could not load. Try again.",
@@ -26,7 +26,7 @@
       login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
       login_err: "أدخل بريدك أو اسم المستخدم وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر بضع دقائق ثم حاول مجددًا.",
-      n_home: "الرئيسية", n_edu: "التعليم", login_id: "البريد أو اسم المستخدم", un_title: "اسم المستخدم", un_hint: "يُستخدم لتسجيل الدخول بجانب بريدك. من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة.", un_saved: "تم حفظ اسم المستخدم", prof_title: "ملفي الشخصي", prof_photo: "تغيير الصورة", prof_remove: "إزالة الصورة", prof_saved: "تم حفظ الصورة", prof_removed: "تمت إزالة الصورة", prof_username: "اسم المستخدم", prof_change: "تغيير اسم المستخدم", prof_bad: "اختر صورة JPG أو PNG أو WebP.", fold_open: "فتح", fold_open_profile: "فتح الملف", n_chat: "المحادثات", chat_general: "العام", chat_new: "محادثة جديدة", chat_share: "مشاركة في المحادثة", chat_send: "إرسال", chat_attach: "إرفاق بطاقة", chat_type: "اكتب رسالة…", chat_pick_chat: "أرسل إلى…", chat_people: "ابدأ محادثة مع", chat_shared: "تمت المشاركة في المحادثة", chat_empty: "لا رسائل بعد. ابدأ بالسلام.", chat_nolist: "لا أحد آخر في محادثة المكتب بعد.", chat_cant: "{n} أشخاص في هذه المحادثة لا يستطيعون فتحها. سيرون نوع البطاقة فقط.", chat_cant_one: "{names} لا يستطيع فتحها وسيرى نوع البطاقة فقط.", chat_sendany: "أرسل على أي حال", chat_noaccess: "ليس لديك صلاحية لهذا.", chat_gone: "لم تعد متاحة.", chat_offline: "المحادثة تحتاج إلى اتصال بالإنترنت.", chat_pick_kind: "ماذا تريد أن ترفق؟", chat_pick_item: "اختر واحدًا", chat_search: "بحث", chat_today: "اليوم", chat_yesterday: "أمس", chat_you: "أنت", chat_none_item: "لا شيء للاختيار.", chat_open: "فتح", k_child: "يتيم", k_application: "طلب", k_project: "مشروع", k_payment: "دفعة", k_user: "حساب", k_report: "تقرير", k_site: "الصفحة الرئيسية للموقع", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
+      n_home: "الرئيسية", n_edu: "التعليم", notif_title: "الإشعارات", notif_new: "إشعار جديد", login_id: "البريد أو اسم المستخدم", un_title: "اسم المستخدم", un_hint: "يُستخدم لتسجيل الدخول بجانب بريدك. من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة.", un_saved: "تم حفظ اسم المستخدم", prof_title: "ملفي الشخصي", prof_photo: "تغيير الصورة", prof_remove: "إزالة الصورة", prof_saved: "تم حفظ الصورة", prof_removed: "تمت إزالة الصورة", prof_username: "اسم المستخدم", prof_change: "تغيير اسم المستخدم", prof_bad: "اختر صورة JPG أو PNG أو WebP.", fold_open: "فتح", fold_open_profile: "فتح الملف", n_chat: "المحادثات", chat_general: "العام", chat_new: "محادثة جديدة", chat_share: "مشاركة في المحادثة", chat_send: "إرسال", chat_attach: "إرفاق بطاقة", chat_type: "اكتب رسالة…", chat_pick_chat: "أرسل إلى…", chat_people: "ابدأ محادثة مع", chat_shared: "تمت المشاركة في المحادثة", chat_empty: "لا رسائل بعد. ابدأ بالسلام.", chat_nolist: "لا أحد آخر في محادثة المكتب بعد.", chat_cant: "{n} أشخاص في هذه المحادثة لا يستطيعون فتحها. سيرون نوع البطاقة فقط.", chat_cant_one: "{names} لا يستطيع فتحها وسيرى نوع البطاقة فقط.", chat_sendany: "أرسل على أي حال", chat_noaccess: "ليس لديك صلاحية لهذا.", chat_gone: "لم تعد متاحة.", chat_offline: "المحادثة تحتاج إلى اتصال بالإنترنت.", chat_pick_kind: "ماذا تريد أن ترفق؟", chat_pick_item: "اختر واحدًا", chat_search: "بحث", chat_today: "اليوم", chat_yesterday: "أمس", chat_you: "أنت", chat_none_item: "لا شيء للاختيار.", chat_open: "فتح", k_child: "يتيم", k_application: "طلب", k_project: "مشروع", k_payment: "دفعة", k_user: "حساب", k_report: "تقرير", k_site: "الصفحة الرئيسية للموقع", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
       loading: "جارٍ التحميل…", none: "لا نتائج.", back: "رجوع", cancel: "إلغاء", save: "حفظ", required: "هذا الحقل مطلوب.", lang_btn: "English", signout: "تسجيل الخروج",
       noaccess: "دورك لا يشمل هذه الصفحة.", per_month: "شهريًا",
       offline_none: "لا يوجد شيء محفوظ على هذا الهاتف لهذه الصفحة بعد. افتحها مرة واحدة أثناء الاتصال.", load_err: "تعذّر التحميل. حاول مجددًا.",
@@ -144,7 +144,7 @@
     $("#nav").innerHTML = '<div class="row"><a class="brand" href="dashboard.html" aria-label="' + esc(t("n_home")) + '"><span class="logo" role="img" aria-hidden="true"></span><span><span>' + t("brand") + "</span><small>" + t("staff") + "</small></span></a>" +
       '<nav class="mo-tabs" aria-label="Main"><ul class="menu">' + sorted.map(function (m) { return '<li><a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + t(m[2]) + "</a></li>"; }).join("") + "</ul></nav>" +
       '<div class="tools"><span id="chipBox">' + chipHtml() + '</span>' +
-      '<a class="mo-circle" id="bellBtn" href="settings.html#outbox" aria-label="' + esc(t("set_sync_short")) + '">' + ic("bell") + (bellDot() ? '<i class="dot"></i>' : "") + "</a>" +
+      '<a class="mo-circle" id="bellBtn" href="notifications.html" aria-label="' + esc(t("notif_title")) + '">' + ic("bell") + bellBadge() + "</a>" +
       '<button class="mo-circle" type="button" data-act="lang" aria-label="Language">' + ic("globe") + "</button>" +
       '<a class="mo-circle mo-hide-sm" href="settings.html" aria-label="' + esc(t("n_set")) + '">' + ic("gear") + "</a>" +
       '<a class="mo-avatar av" href="settings.html" data-av="' + esc((user() || {}).id) + '" data-v="' + esc((user() || {}).avatar || "") + '" aria-label="' + esc(t("n_set")) + '">' + esc(initial()) + "</a></div></div>";
@@ -161,7 +161,7 @@
     $("#tabbar").insertAdjacentHTML("beforeend", '<div class="mo-bottom">' + bottom.map(function (m) { var on = cur === m[0] || (m[0] === "settings" && onMore); return '<a href="' + m[1] + '"' + (on ? ' class="active" aria-current="page"' : "") + ' aria-label="' + esc(t(m[2])) + '"><span class="bi">' + ic(m[4]) + '</span><span class="sr">' + t(m[2]) + "</span></a>"; }).join("") + "</div>");
     var act = $(".mo-tabs a.active"); if (act && act.scrollIntoView && window.innerWidth < 1024) { try { act.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {} }
   }
-  function refreshChip() { var b = $("#chipBox"); if (b) b.innerHTML = chipHtml(); var bell = $("#bellBtn"); if (bell) { var d = bell.querySelector(".dot"); if (bellDot() && !d) bell.insertAdjacentHTML("beforeend", '<i class="dot"></i>'); else if (!bellDot() && d) d.remove(); } }
+  function refreshChip() { var b = $("#chipBox"); if (b) b.innerHTML = chipHtml(); }
 
   function chrome() {
     root.lang = lang; root.dir = lang === "ar" ? "rtl" : "ltr";
@@ -376,8 +376,45 @@
   }
   function setUnread(n) { UNREAD = n; applyBadge(); }
 
+  /* ---------------- the bell, and sounds ---------------- */
+  var NOTICES = 0, noticeTimer = null, noticeSeen = null;
+  function bellBadge() { return NOTICES > 0 ? '<span class="nbadge in">' + (NOTICES > 99 ? "99+" : NOTICES) + "</span>" : ""; }
+  function applyBell() { var b = $("#bellBtn"); if (!b) return; var x = b.querySelector(".nbadge"); if (x) x.remove(); if (NOTICES > 0) b.insertAdjacentHTML("beforeend", bellBadge()); }
+  function pollNotices() {
+    if (noticeTimer) return;
+    var go = function () {
+      if (document.hidden || navigator.onLine === false) return;
+      API.get("notices/count", { cache: false }).then(function (r) {
+        var n = (r.data && r.data.total) || 0, was = noticeSeen; NOTICES = n; noticeSeen = n; applyBell();
+        if (was !== null && n > was) { sound("notify"); toast(t("notif_new")); }
+      }, function () {});
+    };
+    go(); noticeTimer = setInterval(go, 20000);
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) go(); });
+  }
+  /* short sounds made on the phone itself (no files to download). A browser only lets a page play sound after the person has touched it once. */
+  var AC = null;
+  function audio() { if (!AC) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; try { AC = new C(); } catch (e) { return null; } } return AC; }
+  ["touchstart", "pointerdown", "keydown", "click"].forEach(function (ev) { document.addEventListener(ev, function () { var c = audio(); if (c && c.state === "suspended") { try { c.resume(); } catch (e) {} } }, { passive: true }); });
+  var SOUND = { send: [[0, 740, .09, "sine"], [.07, 1175, .16, "sine"]], receive: [[0, 988, .12, "sine"], [.11, 1319, .22, "sine"]], notify: [[0, 784, .12, "sine"], [.12, 988, .12, "sine"], [.24, 1319, .26, "sine"]] };
+  function sound(name) {
+    var u = user() || {}; if ((u.preferences || {}).sounds === false) return;
+    var c = audio(), notes = SOUND[name]; if (!c || !notes) return;
+    try {
+      if (c.state === "suspended") c.resume();
+      var t0 = c.currentTime + 0.01;
+      notes.forEach(function (n) {
+        var o = c.createOscillator(), g = c.createGain(); o.type = n[3]; o.frequency.setValueAtTime(n[1], t0 + n[0]);
+        g.gain.setValueAtTime(0.0001, t0 + n[0]); g.gain.exponentialRampToValueAtTime(0.18, t0 + n[0] + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[0] + n[2] + 0.12);
+        o.connect(g); g.connect(c.destination); o.start(t0 + n[0]); o.stop(t0 + n[0] + n[2] + 0.15);
+      });
+    } catch (e) {}
+  }
+  function setNotices(n) { NOTICES = n; noticeSeen = n; applyBell(); }
+
   /* ---------------- start a page ---------------- */
   window.ACF = {
+    sound: sound, setNotices: setNotices,
     timeOnly: timeOnly, dateOnly: dateOnly, dateTime: dateTime, moreItems: function () { return moreItems; },
     t: t, strings: strings, esc: esc, ic: ic, name: name, money: money, facts: facts, months: months, monthLabel: monthLabel, toast: toast, msg: msg,
     can: can, user: user, api: API, avatar: avatarHtml, shrinkImage: shrinkImage, fold: fold, shareBtn: shareBtn, setUnread: setUnread, kindPerm: KIND_PERM, ui: UI, saveUI: saveUI, sheet: sheet, closeSheet: closeSheet, field: field, formEnd: formEnd, showErrors: showErrors,
@@ -396,7 +433,7 @@
       if (mustChange) { location.replace("welcome.html"); return; }
       if (s.perm && !can(s.perm)) { chrome(); $("#view").innerHTML = '<p class="note">' + t("noaccess") + "</p>"; return; }
       load();
-      if (s.shell && !s.bare) pollUnread();
+      if (s.shell && !s.bare) { pollUnread(); pollNotices(); }
       var before = JSON.stringify((user() || {}).permissions || []);
       API.refreshMe().then(function (u) {
         if (u && JSON.stringify(u.permissions || []) !== before) location.reload();

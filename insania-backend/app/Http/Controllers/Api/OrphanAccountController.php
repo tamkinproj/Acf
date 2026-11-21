@@ -80,6 +80,8 @@ class OrphanAccountController extends Controller
             'foundation_id' => $foundationId, 'child_id' => $c->id, 'active' => true, 'must_change_password' => true,
         ]);
 
+        \App\Support\Notify::to($user->id, $foundationId, 'system', 'Welcome to Al Insania', 'Your account is ready. You will see your messages and reminders here.', 'family.html');
+
         return $this->row($c, $user, $pw);
     }
 
