@@ -198,4 +198,25 @@ class AttendanceTest extends TestCase
         $this->putJson('/api/attendance/records', ['employee_id' => $e['id'], 'date' => '2026-03-02', 'status' => 'absent', 'note' => 'Did not come'])->assertOk();
         $this->assertDatabaseHas('audit_logs', ['action' => 'attendance.record_edited']);
     }
+
+    public function test_the_dashboard_carries_attendance_and_work_overviews_for_the_president_and_hr_only(): void
+    {
+        $this->actingAsRole('president_admin');
+        $this->postJson('/api/attendance/samples')->assertCreated();
+        foreach (['president_admin', 'staff:hr'] as $role) {
+            $this->actingAsRole($role);
+            $d = $this->getJson('/api/dashboard')->assertOk()->json('data');
+            $this->assertArrayHasKey('attendance', $d);
+            $this->assertArrayHasKey('work', $d);
+            $this->assertCount(7, $d['attendance']['week']);
+            $this->assertGreaterThanOrEqual(6, $d['attendance']['total']);
+            $this->assertArrayHasKey('active_now', $d['work']);
+        }
+        foreach (['staff:aytam', 'staff:finance', 'staff:education'] as $role) {
+            $this->actingAsRole($role);
+            $d = $this->getJson('/api/dashboard')->assertOk()->json('data');
+            $this->assertArrayNotHasKey('attendance', $d);
+            $this->assertArrayNotHasKey('work', $d);
+        }
+    }
 }

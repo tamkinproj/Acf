@@ -75,4 +75,37 @@ final class WorkTracker
             ])->save();
         });
     }
+
+    /** Staff activity today, for the dashboard. */
+    public static function overview(int $foundationId): array
+    {
+        $now = AttendanceCalc::now();
+        $today = $now->toDateString();
+        $staff = \App\Models\User::where('foundation_id', $foundationId)->where('role', 'staff')->where('active', true)->get();
+        $ids = $staff->pluck('id');
+        $rows = WorkActivity::whereIn('user_id', $ids)->where('day', $today)->get()->keyBy('user_id');
+        $last = WorkActivity::whereIn('user_id', $ids)->where('day', '>=', $now->copy()->subDays(7)->toDateString())->selectRaw('user_id, max(last_at) as last_at')->groupBy('user_id')->pluck('last_at', 'user_id');
+        $emps = \App\Models\Attendance\Employee::whereIn('user_id', $ids)->get()->keyBy('user_id');
+        $rec = \App\Models\Attendance\Record::whereIn('employee_id', $emps->pluck('id'))->where('work_date', $today)->get()->keyBy('employee_id');
+
+        $active = 0;
+        $idle = 0;
+        $top = [];
+        foreach ($staff as $u) {
+            $l = isset($last[$u->id]) ? Carbon::parse($last[$u->id], 'UTC') : null;
+            $mins = $l ? $l->diffInMinutes($now) : null;
+            $active += $mins !== null && $mins <= 5 ? 1 : 0;
+            $e = $emps->get($u->id);
+            $r = $e ? $rec->get($e->id) : null;
+            $idle += ($r && $r->clock_in_at && ! $r->clock_out_at && ($mins === null || $mins > 30)) ? 1 : 0;
+            $w = $rows->get($u->id);
+            if ($w && $w->requests > 0) {
+                $top[] = ['id' => $u->id, 'name' => $u->name, 'seconds' => (int) $w->active_seconds, 'actions' => (int) $w->actions, 'active' => $mins !== null && $mins <= 5];
+            }
+        }
+        usort($top, fn ($a, $b) => $b['seconds'] <=> $a['seconds']);
+
+        return ['staff' => $staff->count(), 'active_now' => $active, 'active_today' => $rows->where('requests', '>', 0)->count(), 'idle_clocked_in' => $idle,
+            'actions_today' => (int) $rows->sum('actions'), 'seconds_today' => (int) $rows->sum('active_seconds'), 'top' => array_slice($top, 0, 6)];
+    }
 }

@@ -207,4 +207,36 @@ final class AttendanceCalc
             'pay' => ['currency' => $e->currency, 'monthly_salary' => round($salary, 2), 'daily_rate' => round($daily, 2), 'minute_rate' => round($rate, 4), 'gross' => $gross, 'deductions' => $ded, 'total_deductions' => $deductions, 'net' => round(max(0, $gross - $deductions), 2)],
         ];
     }
+
+    /** Today in the office and the last week, for the dashboard: who is in, late, absent, on leave, and the latest clock-ins. */
+    public static function overview(): array
+    {
+        $now = self::now();
+        $date = $now->toDateString();
+        $emps = Employee::where('status', 'active')->get();
+        $holidays = self::holidays($date, $date);
+        $recs = Record::where('work_date', $date)->get()->keyBy('employee_id');
+        $leaves = Leave::where('start_date', '<=', $date)->where('end_date', '>=', $date)->get()->groupBy('employee_id');
+        $c = ['present' => 0, 'late' => 0, 'absent' => 0, 'leave' => 0, 'pending' => 0, 'off' => 0];
+        $latest = [];
+        foreach ($emps as $e) {
+            $d = self::day($e, $date, $recs[$e->id] ?? null, $holidays, ($leaves[$e->id] ?? collect())->all(), $now);
+            $k = match ($d['status']) { 'present' => 'present', 'late' => 'late', 'absent' => 'absent', 'leave', 'leave_unpaid', 'excused' => 'leave', 'pending', 'upcoming' => 'pending', default => 'off' };
+            $c[$k]++;
+            if ($d['clock_in']) {
+                $latest[] = ['id' => $e->id, 'name_en' => $e->name_en, 'name_ar' => $e->name_ar, 'time' => $d['clock_in'], 'late' => $d['late'], 'at' => $d['clock_in_at']];
+            }
+        }
+        usort($latest, fn ($a, $b) => strcmp((string) $b['at'], (string) $a['at']));
+
+        $from = $now->copy()->subDays(6)->toDateString();
+        $byDay = Record::whereBetween('work_date', [$from, $date])->whereNotNull('clock_in_at')->get()->groupBy(fn ($r) => $r->work_date->toDateString());
+        $week = [];
+        for ($d = $now->copy()->subDays(6); $d->toDateString() <= $date; $d->addDay()) {
+            $rows = $byDay->get($d->toDateString(), collect());
+            $week[] = ['date' => $d->toDateString(), 'weekday' => $d->dayOfWeekIso, 'present' => $rows->count(), 'late' => $rows->where('late_minutes', '>', 0)->count()];
+        }
+
+        return ['date' => $date, 'total' => $emps->count(), 'counts' => $c, 'clocked_in' => $c['present'] + $c['late'], 'latest' => array_slice($latest, 0, 5), 'week' => $week];
+    }
 }

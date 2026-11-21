@@ -64,6 +64,12 @@ class DashboardController extends Controller
             $out['education'] = ['teachers' => $teachers->count(), 'contracts' => $states, 'madrasa' => \App\Models\Education\Institution::where('kind', 'madrasa')->where('status', 'active')->count(),
                 'markaz' => \App\Models\Education\Institution::where('kind', 'markaz')->where('status', 'active')->count(), 'curricula' => \App\Models\Education\Curriculum::where('status', 'active')->count()];
         }
+        if ($can('attendance.manage')) {
+            $out['attendance'] = \App\Services\AttendanceCalc::overview();
+        }
+        if ($can('work.view')) {
+            $out['work'] = \App\Services\WorkTracker::overview((int) $user->foundation_id);
+        }
         if ($can('system.health')) {
             $out['system'] = ['php' => PHP_VERSION, 'laravel' => app()->version(), 'environment' => app()->environment()];
         }

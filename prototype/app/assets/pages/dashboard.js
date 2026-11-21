@@ -54,22 +54,22 @@
   });
 
   A.strings({
-    f_education: "Education", fo_education: "{n} teachers · {m} contracts to watch", h_edu_sub: "Alimni teachers, contracts and salaries, madrasa and markaz, curriculum", h_add_teacher: "Add teacher", last30: "next 30 days", edu_mk: "{m} madrasa · {k} markaz", edu_attn: "Contracts need attention", edu_attn_txt: "{n} contracts end within 30 days or have ended. Renew them from the teacher's page.", edu_attn_btn: "Open Education", tb_teachers: "Teachers", tb_salaries: "Salaries", tb_institutions: "Madrasa and markaz", tb_curricula: "Curriculum", cs_active: "Active", cs_ending_soon: "Ending soon", cs_expired: "Expired",
+    f_attendance: "Attendance", fo_attendance: "{p} in · {l} late · {a} absent", f_work: "Work tracker", fo_work: "{n} active now · {m} active today", h_att_sub: "Who is in the office today", h_work_sub: "How staff use the app today", d_in_of: "of {n} employees", d_open_att: "Open attendance", d_open_work: "Open work tracker", d_att_week: "Clocked in, last 7 days", d_att_present: "Clocked in", d_att_late: "Late", t_att_today: "Today", t_att_people: "People", t_att_pay: "Payroll", s_ontime: "On time", s_late: "Late", s_absent: "Absent", s_onleave: "On leave", d_latest_in: "Latest clock-ins", d_latest_in_sub: "Today", d_late_min: "{n} min late", d_w_now: "active now", d_w_today: "Active today", d_w_idle: "Clocked in, not active", d_w_actions: "Actions today", d_w_time: "Active time today", d_w_chart: "Active minutes today", d_w_top: "Most active today", d_w_top_sub: "Staff", d_idle_t: "Clocked in but not active", d_idle_txt: "{n} staff are clocked in but have not used the app for over 30 minutes.", d_h: "h", d_m: "m", d_wk_nodata: "No activity yet today", f_education: "Education", fo_education: "{n} teachers · {m} contracts to watch", h_edu_sub: "Alimni teachers, contracts and salaries, madrasa and markaz, curriculum", h_add_teacher: "Add teacher", last30: "next 30 days", edu_mk: "{m} madrasa · {k} markaz", edu_attn: "Contracts need attention", edu_attn_txt: "{n} contracts end within 30 days or have ended. Renew them from the teacher's page.", edu_attn_btn: "Open Education", tb_teachers: "Teachers", tb_salaries: "Salaries", tb_institutions: "Madrasa and markaz", tb_curricula: "Curriculum", cs_active: "Active", cs_ending_soon: "Ending soon", cs_expired: "Expired",
     f_hello: "Choose a department.", f_back: "Home", f_aytam: "Aytam", f_finance: "Finance", f_projects: "Projects", f_website: "Website", f_accounts: "Accounts", f_chat: "Chat",
     fo_aytam: "{n} orphans · {m} new applications", fo_finance: "{p} paid · {d} due", fo_projects: "{n} active of {m}", fo_website: "Edit the landing page", fo_accounts: "{n} accounts",
     fo_chat: "{n} unread", fo_chat0: "No new messages", f_add_user: "Add office user", f_month: "This month", f_paid: "Paid", f_due: "Due", f_pending_n: "Pending",
     f_amt_paid: "Paid", f_amt_due: "Still due", f_total: "Total", f_active_p: "Active", f_open: "Open", f_edit_site: "Edit the page", f_site_page: "Website editor", f_pay_page: "Payments", f_rep_page: "Reports",
     f_proj_page: "Projects", f_site_note: "Click texts on the page to change them, then Save draft and Publish."
   }, {
-    f_education: "التعليم", fo_education: "{n} معلمًا · {m} عقود للمتابعة", h_edu_sub: "معلمو علّمني والعقود والرواتب والمدرسة والمراكز والمنهج", h_add_teacher: "إضافة معلم", last30: "خلال 30 يومًا", edu_mk: "{m} مدرسة · {k} مراكز", edu_attn: "عقود تحتاج إلى انتباه", edu_attn_txt: "{n} عقود تنتهي خلال 30 يومًا أو انتهت. جدّدها من صفحة المعلم.", edu_attn_btn: "افتح التعليم", tb_teachers: "المعلمون", tb_salaries: "الرواتب", tb_institutions: "المدرسة والمراكز", tb_curricula: "المنهج", cs_active: "ساري", cs_ending_soon: "ينتهي قريبًا", cs_expired: "منتهٍ",
+    f_attendance: "الحضور", fo_attendance: "{p} حاضر · {l} متأخر · {a} غائب", f_work: "متابعة العمل", fo_work: "{n} نشط الآن · {m} نشط اليوم", h_att_sub: "من في المكتب اليوم", h_work_sub: "كيف يستخدم الموظفون التطبيق اليوم", d_in_of: "من {n} موظفًا", d_open_att: "افتح الحضور", d_open_work: "افتح متابعة العمل", d_att_week: "الحضور آخر 7 أيام", d_att_present: "حضر", d_att_late: "متأخر", t_att_today: "اليوم", t_att_people: "الموظفون", t_att_pay: "الرواتب", s_ontime: "في الوقت", s_late: "متأخر", s_absent: "غائب", s_onleave: "في إجازة", d_latest_in: "آخر تسجيلات الحضور", d_latest_in_sub: "اليوم", d_late_min: "تأخر {n} دقيقة", d_w_now: "نشط الآن", d_w_today: "نشط اليوم", d_w_idle: "سجّل حضوره ولا نشاط", d_w_actions: "إجراءات اليوم", d_w_time: "وقت النشاط اليوم", d_w_chart: "دقائق النشاط اليوم", d_w_top: "الأكثر نشاطًا اليوم", d_w_top_sub: "الموظفون", d_idle_t: "سجّل حضوره ولا نشاط", d_idle_txt: "{n} موظفين سجّلوا حضورهم ولم يستخدموا التطبيق منذ أكثر من 30 دقيقة.", d_h: "س", d_m: "د", d_wk_nodata: "لا نشاط اليوم بعد", f_education: "التعليم", fo_education: "{n} معلمًا · {m} عقود للمتابعة", h_edu_sub: "معلمو علّمني والعقود والرواتب والمدرسة والمراكز والمنهج", h_add_teacher: "إضافة معلم", last30: "خلال 30 يومًا", edu_mk: "{m} مدرسة · {k} مراكز", edu_attn: "عقود تحتاج إلى انتباه", edu_attn_txt: "{n} عقود تنتهي خلال 30 يومًا أو انتهت. جدّدها من صفحة المعلم.", edu_attn_btn: "افتح التعليم", tb_teachers: "المعلمون", tb_salaries: "الرواتب", tb_institutions: "المدرسة والمراكز", tb_curricula: "المنهج", cs_active: "ساري", cs_ending_soon: "ينتهي قريبًا", cs_expired: "منتهٍ",
     f_hello: "اختر قسمًا.", f_back: "الرئيسية", f_aytam: "الأيتام", f_finance: "المالية", f_projects: "المشاريع", f_website: "الموقع", f_accounts: "الحسابات", f_chat: "المحادثات",
     fo_aytam: "{n} يتيمًا · {m} طلبات جديدة", fo_finance: "{p} مدفوعة · {d} مستحقة", fo_projects: "{n} نشطة من {m}", fo_website: "عدّل الصفحة الرئيسية للموقع", fo_accounts: "{n} حسابًا",
     fo_chat: "{n} غير مقروءة", fo_chat0: "لا رسائل جديدة", f_add_user: "إضافة مستخدم للمكتب", f_month: "هذا الشهر", f_paid: "مدفوعة", f_due: "مستحقة", f_pending_n: "قيد الانتظار",
     f_amt_paid: "المدفوع", f_amt_due: "المتبقي", f_total: "الإجمالي", f_active_p: "نشطة", f_open: "فتح", f_edit_site: "تعديل الصفحة", f_site_page: "محرر الموقع", f_pay_page: "المدفوعات", f_rep_page: "التقارير",
     f_proj_page: "المشاريع", f_site_note: "اضغط على النصوص في الصفحة لتغييرها، ثم احفظ المسودة وانشر."
   });
-  var FOLDERS = ["aytam", "finance", "projects", "education", "website", "accounts"];
-  var ICONS = { aytam: "users", finance: "wallet", projects: "folder", education: "book", website: "globe", accounts: "shield", chat: "chat" };
+  var FOLDERS = ["aytam", "finance", "projects", "education", "attendance", "work", "website", "accounts"];
+  var ICONS = { aytam: "users", finance: "wallet", projects: "folder", education: "book", attendance: "clock", work: "pulse", website: "globe", accounts: "shield", chat: "chat" };
   // The President's Home: one quiet tile per department. Everything else lives inside the department's folder (dashboard.html?d=NAME).
   function folderTile(key, href, sub) {
     return '<a class="fo" href="' + href + '"><span class="fo-top">' + ic(ICONS[key]) + ic("chev", "fo-go") + '</span><b>' + t("f_" + key) + '</b><span class="fo-sub">' + sub + "</span></a>";
@@ -80,6 +80,8 @@
     if (d.payments) tiles.push(folderTile("finance", "dashboard.html?d=finance", t("fo_finance", { p: num(d.payments.paid_count), d: num(d.payments.pending_count) })));
     if (d.projects) tiles.push(folderTile("projects", "dashboard.html?d=projects", t("fo_projects", { n: num(d.projects.active), m: num(d.projects.total) })));
     if (d.education) tiles.push(folderTile("education", "dashboard.html?d=education", t("fo_education", { n: num(d.education.teachers), m: num(d.education.contracts.ending_soon + d.education.contracts.expired) })));
+    if (d.attendance) tiles.push(folderTile("attendance", "dashboard.html?d=attendance", t("fo_attendance", { p: num(d.attendance.counts.present + d.attendance.counts.late), l: num(d.attendance.counts.late), a: num(d.attendance.counts.absent) })));
+    if (d.work) tiles.push(folderTile("work", "dashboard.html?d=work", t("fo_work", { n: num(d.work.active_now), m: num(d.work.active_today) })));
     if (A.can("site.edit")) tiles.push(folderTile("website", "dashboard.html?d=website", t("fo_website")));
     if (d.security) tiles.push(folderTile("accounts", "dashboard.html?d=accounts", t("fo_accounts", { n: num(d.security.active_users) })));
     if (A.can("chat.use")) tiles.push(folderTile("chat", "chat.html", d.unread ? t("fo_chat", { n: num(d.unread) }) : t("fo_chat0")));
@@ -143,6 +145,31 @@
   }
   function who(a, b, href) { return '<td><a class="fb-who" href="' + href + '"><span class="avatar">' + esc(String(a).charAt(0)) + '</span><span><b>' + esc(a) + "</b><small>" + b + "</small></span></a></td>"; }
 
+  function durH(sec) { sec = Math.max(0, Math.round(sec || 0)); var h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60); if (m === 60) { h++; m = 0; } return h ? h + t("d_h") + " " + m + t("d_m") : m + t("d_m"); }
+  function wday(date) { var p = date.split("-"); return new Date(+p[0], +p[1] - 1, +p[2], 12).toLocaleDateString(A.lang() === "ar" ? "ar" : "en-GB", { weekday: "short" }); }
+  function attBranch(d, L, R, pres) {   // ---- Attendance overview ----
+    var a = d.attendance, c = a.counts;
+    L.push('<div class="mo-row">' + hero({ title: t("f_attendance"), sub: t("h_att_sub"), big: num(a.clocked_in), unit: "/ " + num(a.total), caption: t("d_in_of", { n: num(a.total) }), btn: ["attendance.html", t("d_open_att")],
+      tiles: [["attendance.html", "clock", t("t_att_today")], ["attendance.html", "users", t("t_att_people")]].concat(A.can("attendance.salary") ? [["attendance.html", "wallet", t("t_att_pay")]] : []) }) +
+      '<div class="mo-minis">' + mini("check", t("s_ontime"), num(c.present), t("of_n", { n: num(a.total) }), "attendance.html", "up") + mini("bell", t("s_late"), num(c.late), t("of_n", { n: num(a.total) }), "attendance.html", c.late ? "down" : "up") +
+      mini("sliders", t("s_absent"), num(c.absent), t("of_n", { n: num(a.total) }), "attendance.html", c.absent ? "down" : "up") + mini("file", t("s_onleave"), num(c.leave), t("of_n", { n: num(a.total) }), "attendance.html") + "</div></div>");
+    L.push(chartCard(t("d_att_week"), a.clocked_in, [
+      { label: t("d_att_present"), bars: a.week.map(function (w) { return [wday(w.date), w.present]; }) },
+      { label: t("d_att_late"), bars: a.week.map(function (w) { return [wday(w.date), w.late]; }) }
+    ]));
+    R.push(people(t("d_latest_in"), t("d_latest_in_sub"), (a.latest || []).map(function (x) { return { name: A.lang() === "ar" && x.name_ar ? x.name_ar : x.name_en, href: "attendance.html" }; }), "attendance.html"));
+    if (d.work) R.push(plan(t("f_work"), t("fo_work", { n: num(d.work.active_now), m: num(d.work.active_today) }), ["work.html", t("d_open_work")]));
+  }
+  function workBranch(d, L, R) {   // ---- Work tracker overview ----
+    var w = d.work;
+    L.push('<div class="mo-row">' + hero({ title: t("f_work"), sub: t("h_work_sub"), big: num(w.active_now), unit: "/ " + num(w.staff), caption: t("d_w_now"), btn: ["work.html", t("d_open_work")], tiles: [["work.html", "pulse", t("t_att_today")], ["work.html", "users", t("t_att_people")]] }) +
+      '<div class="mo-minis">' + mini("check", t("d_w_today"), num(w.active_today), t("of_n", { n: num(w.staff) }), "work.html", "up") + mini("bell", t("d_w_idle"), num(w.idle_clocked_in), "", "work.html", w.idle_clocked_in ? "down" : "up") +
+      mini("sliders", t("d_w_actions"), num(w.actions_today), "", "work.html") + mini("clock", t("d_w_time"), durH(w.seconds_today), "", "work.html") + "</div></div>");
+    var top = w.top || [];
+    if (top.length) L.push(chartCard(t("d_w_chart"), Math.round(w.seconds_today / 60), [{ label: t("d_w_top"), bars: top.map(function (x) { return [String(x.name).split(" ")[0], Math.round(x.seconds / 60)]; }) }]));
+    R.push(people(t("d_w_top"), t("d_w_top_sub"), top.map(function (x) { return { name: x.name, href: "work.html" }; }), "work.html"));
+    R.push(w.idle_clocked_in ? plan(t("d_idle_t"), t("d_idle_txt", { n: w.idle_clocked_in }), ["work.html", t("d_open_work")]) : plan(t("pl_soon"), t("pl_soon_txt"), ["work.html", t("d_open_work")]));
+  }
   /* ---------- the page ---------- */
   function render(d) {
     var u = A.user() || {}, h = new Date().getHours(), first = esc(String(u.name || "").split(" ")[0]);
@@ -209,6 +236,10 @@
     } else if (pres && folder === "website") {   // ---- Website ----
       L.push('<div class="mo-row">' + hero({ title: t("f_website"), sub: t("f_site_note"), big: t("f_website"),
         btn: ["../index.html?edit=1", t("f_edit_site")], tiles: [["../index.html?edit=1", "edit", t("f_edit_site")], ["website.html", "globe", t("f_site_page")], ["../index.html", "search", t("f_open")]] }) + "</div>");
+    } else if (d.attendance && (!pres || folder === "attendance")) {
+      attBranch(d, L, R, pres);
+    } else if (d.work && (!pres || folder === "work")) {
+      workBranch(d, L, R);
     } else if (d.health) {   // ---- System Admin / Maintenance ----
       var hl = d.health, ck = hl.checks || {}, okAll = hl.status === "ok";
       L.push('<div class="mo-row">' + hero({ title: t("h_system"), sub: t("h_system_sub"), big: t(okAll ? "ok" : "problem"), btn: A.can("system.updates") ? ["updates.html", t("h_update")] : null,
