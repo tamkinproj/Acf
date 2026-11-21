@@ -71,7 +71,8 @@ return [
         'administration' => ['name_en' => 'Administration', 'name_ar' => 'الإدارة', 'grants' => []],
     ],
 
-    // Roles the Security Admin may hand out. System Admin is deliberately not on this list:
-    // nobody can promote someone to System Admin through the API.
-    'assignable_by_security_admin' => ['admin_maintenance', 'security_admin', 'president_admin', 'staff', 'user'],
+    // Roles that may be handed out on the Accounts screen (by the President Admin, or a Security Admin once their accounts
+    // feature is on). System Admin and President Admin are deliberately not on this list: only the installer makes the
+    // System Admin, and only the System Admin makes and changes the President Admin.
+    'assignable_by_security_admin' => ['admin_maintenance', 'security_admin', 'staff', 'user'],
 ];

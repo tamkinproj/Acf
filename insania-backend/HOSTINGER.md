@@ -37,7 +37,9 @@ Once installed, `/server/install`, `/server/` and every setup address answer a p
 A phone can keep an old copy of the app. Open `https://alinsania.com/app/repair.html`: it removes the old saved copy (your sign-in and unsent changes stay), then press **Open the app**. The app itself also shows a **Load a fresh copy** button whenever it could not start.
 
 ## Office features: switched on one by one
-Every office feature has an on/off switch in `insania_app/config/features.php`. They ship **off**: children (Aytam), payments, projects, reports, website editing, accounts, activity log and family accounts.
+Every office feature has an on/off switch in `insania_app/config/features.php`. A switch is off, on, or on for chosen roles only.
+- **On for the President Admin:** accounts. The President creates every other role (Security Admin, Admin Maintenance, staff by department), changes roles, resets passwords and ends sessions. The President's own account is managed only by the System Admin.
+- **Off for now:** children (Aytam), payments, projects, reports, website editing, activity log, family accounts, and the Security Admin's account tools.
 - Off means gone for everyone: no menu, no screen, and the server refuses it. Nothing is deleted; records stay in the database.
 - The System Admin keeps every tool (health, settings, partner keys, updates, creating and changing the President Admin). Everyone can sign in and change their own password.
 - The public website keeps showing what was last published.

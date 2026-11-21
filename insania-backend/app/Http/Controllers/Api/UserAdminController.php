@@ -114,6 +114,9 @@ class UserAdminController extends Controller
         if ($user->role === 'system_admin') {
             return ApiResponse::forbidden('System Admin accounts cannot be changed here.');
         }
+        if ($user->role === 'president_admin') {
+            return ApiResponse::forbidden('The President Admin is managed by the System Admin (System, President Admin).');
+        }
 
         return null;
     }

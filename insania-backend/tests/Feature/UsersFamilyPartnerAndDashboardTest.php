@@ -72,7 +72,7 @@ class UsersFamilyPartnerAndDashboardTest extends TestCase
         $this->world();
         $me = $this->actingAsRole('security_admin');
 
-        $this->patchJson("/api/users/{$me->id}", ['role' => 'president_admin'])->assertStatus(422)->assertJsonPath('code', 'SELF_CHANGE');
+        $this->patchJson("/api/users/{$me->id}", ['role' => 'admin_maintenance'])->assertStatus(422)->assertJsonPath('code', 'SELF_CHANGE');
         $this->patchJson("/api/users/{$me->id}", ['active' => false])->assertStatus(422)->assertJsonPath('code', 'SELF_CHANGE');
         $this->patchJson("/api/users/{$me->id}", ['name' => 'Renamed'])->assertOk();
     }

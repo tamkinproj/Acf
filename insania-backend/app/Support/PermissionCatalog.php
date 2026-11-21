@@ -59,17 +59,22 @@ final class PermissionCatalog
         }
 
         $keys = array_filter($keys, [self::class, 'isValidPermissionKey']);
-        $off = self::switchedOffPermissions();
+        $off = self::switchedOffPermissions($role);
 
         return array_values(array_unique(array_filter($keys, fn ($k) => ! in_array($k, $off, true))));
     }
 
-    /** Permissions of the office features whose switch is off (config/features.php). */
-    public static function switchedOffPermissions(): array
+    /**
+     * Permissions of the office features that are off for this role (config/features.php).
+     * A switch is true (on for every role that has the feature), false (off), or a list of roles it is on for.
+     */
+    public static function switchedOffPermissions(?string $role = null): array
     {
         $off = [];
         foreach ((array) config('features.permissions', []) as $feature => $perms) {
-            if (! config("features.switches.$feature", false)) {
+            $sw = config("features.switches.$feature", false);
+            $on = $sw === true || (is_array($sw) && $role !== null && in_array($role, $sw, true));
+            if (! $on) {
                 $off = array_merge($off, (array) $perms);
             }
         }
@@ -88,7 +93,7 @@ final class PermissionCatalog
             $keys = array_merge($keys, config("roles.departments.{$user->department_key}.grants", []));
         }
 
-        return (bool) array_intersect($keys, self::switchedOffPermissions());
+        return (bool) array_intersect($keys, self::switchedOffPermissions($user->role));
     }
 
     public static function allows(User $user, string $permission): bool

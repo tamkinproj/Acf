@@ -24,12 +24,12 @@ class FeatureSwitchesTest extends TestCase
         $this->actingAsRole($role);
     }
 
-    public function test_every_office_feature_ships_switched_off(): void
+    public function test_office_features_ship_off_except_accounts_for_the_president(): void
     {
         $file = require base_path('config/features.php');
         $this->assertNotEmpty($file['switches']);
         foreach ($file['switches'] as $feature => $on) {
-            $this->assertFalse($on, "$feature should ship switched off");
+            $this->assertSame($feature === 'accounts' ? ['president_admin'] : false, $on, "$feature switch as shipped");
         }
     }
 
@@ -44,9 +44,15 @@ class FeatureSwitchesTest extends TestCase
         foreach (['president_admin', 'security_admin', 'staff:aytam', 'staff:finance', 'staff:projects', 'user', 'system_admin', 'admin_maintenance'] as $role) {
             $this->as($role);
             foreach ($office as [$m, $url]) {
+                if ($role === 'president_admin' && str_starts_with($url, '/api/users')) {
+                    continue;   // accounts are on for the President (checked below)
+                }
                 $this->json($m, $url)->assertForbidden();
             }
-            $this->getJson('/api/me')->assertOk()->assertJsonMissing(['children.view'])->assertJsonMissing(['site.edit'])->assertJsonMissing(['users.manage']);
+            $me = $this->getJson('/api/me')->assertOk()->json('data.permissions');
+            $this->assertNotContains('children.view', $me);
+            $this->assertNotContains('site.edit', $me);
+            $this->assertSame($role === 'president_admin', in_array('users.manage', $me, true), "$role users.manage");
         }
     }
 
@@ -71,12 +77,14 @@ class FeatureSwitchesTest extends TestCase
         $p->update(['password' => 'Old#Passw0rd123']);
         $token = $this->postJson('/api/login', ['email' => $p->email, 'password' => 'Old#Passw0rd123'])->assertOk()->json('data.token');
         $this->withHeader('Authorization', 'Bearer '.$token);
-        $this->getJson('/api/me')->assertOk()->assertJsonPath('data.permissions', []);
+        $this->getJson('/api/me')->assertOk()->assertJsonPath('data.permissions', ['users.manage']);
         $d = $this->getJson('/api/dashboard')->assertOk()->assertJsonPath('data.features_off', true)->json('data');
-        foreach (['children', 'payments', 'projects', 'security', 'family'] as $part) {
+        foreach (['children', 'payments', 'projects', 'family'] as $part) {
             $this->assertArrayNotHasKey($part, $d);
         }
-        $this->getJson('/api/setup')->assertOk()->assertJsonPath('data.total', 0)->assertJsonPath('data.required_left', 0);
+        $this->assertArrayHasKey('security', $d);   // account counts, for the Accounts feature
+        $steps = collect($this->getJson('/api/setup')->assertOk()->assertJsonPath('data.required_left', 0)->json('data.steps'))->pluck('key')->all();
+        $this->assertSame(['staff_aytam', 'staff_finance', 'staff_projects', 'security_admin', 'maintenance'], $steps);
         $this->postJson('/api/me/password', ['current_password' => 'Old#Passw0rd123', 'password' => 'New#Passw0rd456'])->assertOk();
     }
 
@@ -90,7 +98,9 @@ class FeatureSwitchesTest extends TestCase
         $this->getJson('/api/children')->assertForbidden();
         $this->getJson('/api/site')->assertForbidden();
         $steps = collect($this->getJson('/api/setup')->assertOk()->json('data.steps'))->pluck('key')->all();
-        $this->assertSame(['first_project'], $steps);
+        $this->assertContains('first_project', $steps);
+        $this->assertNotContains('first_child', $steps);
+        $this->assertNotContains('first_publish', $steps);
         $this->as('staff:projects');
         $this->getJson('/api/projects')->assertOk();
         $this->as('staff:finance');
@@ -102,5 +112,41 @@ class FeatureSwitchesTest extends TestCase
         $this->world();
         $this->shipped();
         $this->getJson('/api/public/site')->assertOk();
+    }
+
+    public function test_the_president_sets_up_every_role_and_nobody_else_can(): void
+    {
+        $this->world();
+        $this->shipped();
+        $this->as('president_admin');
+        $made = [['security_admin', null], ['admin_maintenance', null]];
+        foreach (array_keys(config('roles.departments')) as $dept) {
+            $made[] = ['staff', $dept];
+        }
+        foreach ($made as $i => [$role, $dept]) {
+            $body = ['name' => "Person $i", 'email' => "person$i@insania.test", 'role' => $role, 'password' => 'Str0ng#Passw0rd'] + ($dept ? ['department_key' => $dept] : []);
+            $id = $this->postJson('/api/users', $body)->assertCreated()->assertJsonPath('data.role', $role)->json('data.id');
+            $this->assertNotNull($id);
+        }
+        $this->postJson('/api/users', ['name' => 'Nope', 'email' => 'nope@insania.test', 'role' => 'system_admin', 'password' => 'Str0ng#Passw0rd'])->assertStatus(422);
+        $this->postJson('/api/users', ['name' => 'Fam', 'email' => 'fam@insania.test', 'role' => 'user', 'password' => 'Str0ng#Passw0rd'])->assertStatus(422);
+        $listed = collect($this->getJson('/api/users')->assertOk()->json('data'))->pluck('email')->all();
+        $this->assertContains('person0@insania.test', $listed);
+
+        // the President's own account is managed by the System Admin only, never from the Accounts screen
+        $pres = User::where('role', 'president_admin')->first();
+        $this->patchJson("/api/users/{$pres->id}", ['name' => 'X'])->assertForbidden();
+        $this->postJson("/api/users/{$pres->id}/password", ['password' => 'Other#Passw0rd99'])->assertForbidden();
+
+        // the people the President created sign in to an empty office (their own features are still off)
+        $this->app['auth']->forgetGuards();
+        $token = $this->postJson('/api/login', ['email' => 'person0@insania.test', 'password' => 'Str0ng#Passw0rd'])->assertOk()->json('data.token');
+        $this->withHeader('Authorization', 'Bearer '.$token)->getJson('/api/users')->assertForbidden();
+
+        // and nobody but the President holds accounts
+        foreach (['security_admin', 'system_admin', 'admin_maintenance', 'staff:aytam', 'user'] as $role) {
+            $this->as($role);
+            $this->getJson('/api/users')->assertForbidden();
+        }
     }
 }

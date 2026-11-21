@@ -41,6 +41,7 @@ class PermissionCatalogTest extends TestCase
     public function test_system_admin_cannot_be_handed_out_through_the_api(): void
     {
         $this->assertNotContains('system_admin', $this->config()['assignable_by_security_admin']);
+        $this->assertNotContains('president_admin', $this->config()['assignable_by_security_admin']);   // only the System Admin makes the President
     }
 
     public function test_only_the_president_and_security_admin_manage_users_and_only_system_admin_changes_settings(): void

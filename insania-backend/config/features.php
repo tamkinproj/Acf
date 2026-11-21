@@ -3,6 +3,9 @@
 /**
  * Office features, each with an on/off switch.
  *
+ * A switch is false (off), true (on for every role that has the feature), or a list of roles it is on for,
+ * e.g. ['president_admin'] to turn a feature on for the President Admin first.
+ *
  * A feature that is OFF is gone for everyone: its menu, screens and dashboard cards disappear, and the server
  * refuses every request for it (403), whatever the role. Nothing is deleted: the records stay in the database and
  * the feature comes back exactly as it was when its switch is set to true (a small signed patch).
@@ -19,7 +22,9 @@ return [
         'projects' => false,       // projects and their progress
         'reports' => false,        // report summaries and exports
         'website' => false,        // editing and publishing the public landing page (visitors still see what was published)
-        'accounts' => false,       // creating staff and family accounts, resetting passwords, ending sessions
+        'accounts' => ['president_admin'],  // ON for the President Admin: creating every other account (Security Admin, Admin Maintenance,
+                                            // staff by department), changing roles, resetting passwords, ending sessions.
+                                            // The Security Admin's account tools stay off until decided.
         'activity_log' => false,   // reading the activity (audit) log
         'family' => false,         // a family's own account
     ],
