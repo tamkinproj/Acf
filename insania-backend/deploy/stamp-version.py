@@ -6,7 +6,7 @@ so phones, browsers and the host's cache always fetch the new files after an upd
 """
 import re, sys, os, glob
 root, rid = sys.argv[1], sys.argv[2]
-pat = re.compile(r'((?:src|href)="(?:assets/[^"?]+\.(?:js|css)|site\.js))(?:\?v=[^"]*)?"')
+pat = re.compile(r'((?:src|href)="(?:(?:app/)?assets/[^"?]+\.(?:js|css)|site\.js))(?:\?v=[^"]*)?"')
 files = glob.glob(os.path.join(root, "app", "*.html")) + [os.path.join(root, "index.html")]
 n = 0
 for f in files:
