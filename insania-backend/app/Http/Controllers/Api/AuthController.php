@@ -19,7 +19,9 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $data = $request->validate([
-            'email' => ['required', 'email:rfc,filter', 'max:190'],
+            // no control characters or line breaks in what is typed as the email or username
+            'login' => ['required_without:email', 'nullable', 'string', 'max:190', 'regex:/^[^\x00-\x1F\x7F]*$/'],
+            'email' => ['required_without:login', 'nullable', 'string', 'max:190', 'regex:/^[^\x00-\x1F\x7F]*$/'],   // older copies of the app still send "email"
             'password' => ['required', 'string', 'max:200'],
             'device_name' => ['nullable', 'string', 'max:60'],
         ]);
@@ -28,7 +30,9 @@ class AuthController extends Controller
             return $blocked;
         }
 
-        $user = User::where('email', $data['email'])->first();
+        // an email or a username: they never overlap because a username has no @
+        $id = trim((string) ($data['login'] ?? $data['email']));
+        $user = str_contains($id, '@') ? User::where('email', $id)->first() : User::where('username', \App\Support\Usernames::normalise($id))->first();
         $ok = Hash::check($data['password'], $user?->password ?? self::DUMMY_HASH) && $user && $user->active;
 
         if (! $ok) {
@@ -100,5 +104,63 @@ class AuthController extends Controller
         $user->save();
 
         return ApiResponse::updated($user->preferences);
+    }
+
+    /** Anyone changes their own username (the name used to sign in, next to the email). */
+    public function updateProfile(Request $request)
+    {
+        $data = $request->validate(['username' => ['required', 'string', 'max:30']]);
+        $u = \App\Support\Usernames::normalise($data['username']);
+        $user = $request->user();
+        if (! \App\Support\Usernames::valid($u)) {
+            return ApiResponse::error('VALIDATION_ERROR', 'Use 3 to 30 letters, digits, dots, hyphens or underscores.', 422, ['username' => ['Use 3 to 30 letters, digits, dots, hyphens or underscores.']]);
+        }
+        if (User::where('username', $u)->where('id', '!=', $user->id)->exists()) {
+            return ApiResponse::error('VALIDATION_ERROR', 'That username is taken.', 422, ['username' => ['That username is taken.']]);
+        }
+        $user->update(['username' => $u]);
+        Audit::record('profile.username', $request, 'user', $user->id);
+
+        return ApiResponse::updated($user->fresh()->toApi());
+    }
+
+    /** Anyone sets their own profile picture. Private file, re-saved and shrunk; other signed-in people of the foundation can see it. */
+    public function setAvatar(Request $request)
+    {
+        $request->validate(['avatar' => ['required', 'file', 'max:4096', 'mimes:jpg,jpeg,png,webp']]);
+        $user = $request->user();
+        $saved = \App\Support\PrivateImages::store($request->file('avatar'), "avatars/{$user->foundation_id}", 360, 4096);
+        if (is_string($saved)) {
+            return ApiResponse::error('BAD_PHOTO', $saved, 422, ['avatar' => [$saved]]);
+        }
+        $old = $user->avatar_path;
+        $user->forceFill(['avatar_path' => $saved['path'], 'avatar_v' => time()])->save();
+        if ($old) {
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($old);
+        }
+        Audit::record('profile.avatar', $request, 'user', $user->id);
+
+        return ApiResponse::updated($user->fresh()->toApi());
+    }
+
+    public function removeAvatar(Request $request)
+    {
+        $user = $request->user();
+        if ($user->avatar_path) {
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($user->avatar_path);
+        }
+        $user->forceFill(['avatar_path' => null, 'avatar_v' => null])->save();
+
+        return ApiResponse::updated($user->fresh()->toApi());
+    }
+
+    /** A person's picture, for any signed-in person of the same foundation (chat, accounts, the top bar). */
+    public function avatar(Request $request, User $user)
+    {
+        if ($user->foundation_id !== $request->user()->foundation_id || ! $user->avatar_path || ! \Illuminate\Support\Facades\Storage::disk('local')->exists($user->avatar_path)) {
+            return ApiResponse::notFound('No picture.');
+        }
+
+        return response(\Illuminate\Support\Facades\Storage::disk('local')->get($user->avatar_path), 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=86400', 'X-Content-Type-Options' => 'nosniff']);
     }
 }

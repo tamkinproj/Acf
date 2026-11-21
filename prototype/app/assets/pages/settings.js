@@ -31,7 +31,10 @@
     }).join("") + "</div>" : '<p class="note">' + t("set_none") + "</p>";
     var install = window.ACF_PWA && window.ACF_PWA.canInstall ? '<div class="setrow"><b>' + t("set_install") + '</b><button class="btn btn-main btn-sm" data-act="install">' + ic("download") + t("set_install") + "</button></div>" : "";
     return '<div class="head"><h1 class="title">' + t("set_title") + '</h1></div><div class="grid g2" style="align-items:start">' +
-      '<div class="card"><h3>' + t("set_acct") + "</h3>" + A.facts([[t("email"), esc(u.email)], [t("set_role"), esc(u.role_label)]].concat(u.department ? [[t("set_dept"), t("dept_" + u.department)]] : [])) +
+      '<div class="card prof"><h3>' + t("prof_title") + '</h3><div class="prof-head">' + A.avatar(u, "big") + '<div class="grow"><b>' + esc(u.name) + '</b><span class="note" dir="ltr" style="display:block">@' + esc(u.username || "") + '</span></div></div>' +
+        '<div class="actions"><button class="btn btn-main btn-sm" type="button" data-act="pickavatar">' + A.ic("edit") + "<span>" + t("prof_photo") + "</span></button>" + (u.avatar ? '<button class="btn btn-line btn-sm" type="button" data-act="rmavatar">' + t("prof_remove") + "</button>" : "") +
+        '<button class="btn btn-line btn-sm" type="button" data-act="chuser">' + t("prof_change") + '</button></div><input id="avatarIn" type="file" accept="image/jpeg,image/png,image/webp" hidden></div>' +
+      '<div class="card"><h3>' + t("set_acct") + "</h3>" + A.facts([[t("email"), esc(u.email)], [t("prof_username"), '<span dir="ltr">@' + esc(u.username || "") + "</span>"], [t("set_role"), esc(u.role_label)]].concat(u.department ? [[t("set_dept"), t("dept_" + u.department)]] : [])) +
       sw("reminders", t("set_rem"), pref.reminders !== false) + sw("show_amounts", t("set_amt"), pref.show_amounts !== false) +
       '<div class="setrow"><b>' + t("set_lang") + '</b><button class="btn btn-line btn-sm" data-act="lang">' + t("lang_btn") + "</button></div>" + install +
       '<div class="setrow"><button class="btn btn-line btn-sm" data-act="changepw">' + t("pw_btn") + '</button></div><div class="setrow"><button class="btn btn-line btn-sm" data-act="signout">' + ic("logout") + t("signout") + "</button></div></div>" +
@@ -39,6 +42,31 @@
       '<div class="actions" style="margin-top:1rem"><button class="btn btn-main" data-act="syncnow">' + ic("cloud") + t("set_now") + "</button></div></div></div>";
   }
 
+  function refreshAll() { return A.api.refreshMe().then(function () { A.paint(); }); }
+  A.act("pickavatar", function () { document.getElementById("avatarIn").click(); });
+  document.addEventListener("change", function (e) {
+    var inp = e.target; if (!inp || inp.id !== "avatarIn") return;
+    var f = inp.files[0]; inp.value = ""; if (!f) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(f.type)) { A.toast(t("prof_bad")); return; }
+    if (navigator.onLine === false) { A.toast(t("need_conn")); return; }
+    A.shrinkImage(f, 512).then(function (small) {
+      var fd = new FormData(); fd.append("avatar", small, "profile.jpg");
+      return A.api.upload("me/avatar", fd);
+    }).then(function () { A.toast(t("prof_saved")); return refreshAll(); }, function (er) { A.toast(er.offline ? t("need_conn") : A.msg(er)); });
+  });
+  A.act("rmavatar", function () {
+    A.api.write("DELETE", "me/avatar", null, { online: true }).then(function () { A.toast(t("prof_removed")); return refreshAll(); }, function (e) { A.toast(e.offline ? t("need_conn") : A.msg(e)); });
+  });
+  A.act("chuser", function () {
+    A.sheet(t("un_title"), '<form id="unForm" novalidate>' + A.field("un_username", t("prof_username"), '<p class="note" style="margin:.4rem 0 0">' + t("un_hint") + "</p>", "text", 'dir="ltr" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" value="' + esc((A.user() || {}).username || "") + '"') + A.formEnd() + "</form>");
+  });
+  A.form("unForm", function () {
+    var v = document.getElementById("un_username").value.trim(), btn = document.querySelector("#unForm button[type=submit]"); document.getElementById("un_usernameErr").textContent = "";
+    btn.disabled = true;
+    A.api.write("PATCH", "me/profile", { username: v }, { online: true }).then(function () { A.closeSheet(); A.toast(t("un_saved")); return refreshAll(); }, function (e) {
+      btn.disabled = false; document.getElementById("un_usernameErr").textContent = e.errors && e.errors.username ? e.errors.username[0] : (e.offline ? t("need_conn") : A.msg(e));
+    });
+  });
   A.act("pref", function (el) {
     var k = el.getAttribute("data-k"), u = A.user(), now = !((u.preferences || {})[k] !== false), p = {}; p[k] = now;
     A.api.setPrefs(p); A.paint();

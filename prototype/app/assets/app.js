@@ -10,9 +10,9 @@
     en: {
       brand: "Al Insania Charity Foundation", staff: "Staff portal", signin: "Sign in", email: "Email", password: "Password",
       login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
-      login_err: "Enter your email and password.", login_fail: "Wrong email or password.", login_offline: "The first sign-in needs an internet connection.",
+      login_err: "Enter your email or username, and your password.", login_fail: "Wrong email, username or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a minute and try again.",
-      n_home: "Home", fold_open: "Open", fold_open_profile: "Open profile", n_chat: "Chat", chat_general: "General", chat_new: "New chat", chat_share: "Share to chat", chat_send: "Send", chat_attach: "Attach a card", chat_type: "Write a message…", chat_pick_chat: "Send to…", chat_people: "Start a chat with", chat_shared: "Shared in chat", chat_empty: "No messages yet. Say hello.", chat_nolist: "No one else is in the office chat yet.", chat_cant: "{n} people in this chat cannot open it. They will see only the kind of card.", chat_cant_one: "{names} cannot open it and will see only the kind of card.", chat_sendany: "Send anyway", chat_noaccess: "You do not have access to this.", chat_gone: "No longer available.", chat_offline: "Chat needs an internet connection.", chat_pick_kind: "What do you want to attach?", chat_pick_item: "Choose one", chat_search: "Search", chat_today: "Today", chat_yesterday: "Yesterday", chat_you: "You", chat_none_item: "Nothing to choose.", chat_open: "Open", k_child: "Orphan", k_application: "Application", k_project: "Project", k_payment: "Payment", k_user: "Account", k_report: "Report", k_site: "Landing page", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
+      n_home: "Home", login_id: "Email or username", un_title: "Username", un_hint: "Used to sign in, next to your email. 3 to 30 letters, digits, dots, hyphens or underscores.", un_saved: "Username saved", prof_title: "My profile", prof_photo: "Change photo", prof_remove: "Remove photo", prof_saved: "Photo saved", prof_removed: "Photo removed", prof_username: "Username", prof_change: "Change username", prof_bad: "Choose a JPG, PNG or WebP photo.", fold_open: "Open", fold_open_profile: "Open profile", n_chat: "Chat", chat_general: "General", chat_new: "New chat", chat_share: "Share to chat", chat_send: "Send", chat_attach: "Attach a card", chat_type: "Write a message…", chat_pick_chat: "Send to…", chat_people: "Start a chat with", chat_shared: "Shared in chat", chat_empty: "No messages yet. Say hello.", chat_nolist: "No one else is in the office chat yet.", chat_cant: "{n} people in this chat cannot open it. They will see only the kind of card.", chat_cant_one: "{names} cannot open it and will see only the kind of card.", chat_sendany: "Send anyway", chat_noaccess: "You do not have access to this.", chat_gone: "No longer available.", chat_offline: "Chat needs an internet connection.", chat_pick_kind: "What do you want to attach?", chat_pick_item: "Choose one", chat_search: "Search", chat_today: "Today", chat_yesterday: "Yesterday", chat_you: "You", chat_none_item: "Nothing to choose.", chat_open: "Open", k_child: "Orphan", k_application: "Application", k_project: "Project", k_payment: "Payment", k_user: "Account", k_report: "Report", k_site: "Landing page", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_family: "My family",
       loading: "Loading…", none: "No matches.", back: "Back", cancel: "Cancel", save: "Save", required: "This field is required.", lang_btn: "العربية", signout: "Sign out",
       noaccess: "Your role does not include this page.", per_month: "per month",
       offline_none: "Nothing is saved on this phone for this page yet. Open it once while connected.", load_err: "Could not load. Try again.",
@@ -24,9 +24,9 @@
     ar: {
       brand: "مؤسسة الإنسانية الخيرية", staff: "بوابة الموظفين", signin: "تسجيل الدخول", email: "البريد الإلكتروني", password: "كلمة المرور",
       login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
-      login_err: "أدخل بريدك وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
+      login_err: "أدخل بريدك أو اسم المستخدم وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر دقيقة ثم حاول مجددًا.",
-      n_home: "الرئيسية", fold_open: "فتح", fold_open_profile: "فتح الملف", n_chat: "المحادثات", chat_general: "العام", chat_new: "محادثة جديدة", chat_share: "مشاركة في المحادثة", chat_send: "إرسال", chat_attach: "إرفاق بطاقة", chat_type: "اكتب رسالة…", chat_pick_chat: "أرسل إلى…", chat_people: "ابدأ محادثة مع", chat_shared: "تمت المشاركة في المحادثة", chat_empty: "لا رسائل بعد. ابدأ بالسلام.", chat_nolist: "لا أحد آخر في محادثة المكتب بعد.", chat_cant: "{n} أشخاص في هذه المحادثة لا يستطيعون فتحها. سيرون نوع البطاقة فقط.", chat_cant_one: "{names} لا يستطيع فتحها وسيرى نوع البطاقة فقط.", chat_sendany: "أرسل على أي حال", chat_noaccess: "ليس لديك صلاحية لهذا.", chat_gone: "لم تعد متاحة.", chat_offline: "المحادثة تحتاج إلى اتصال بالإنترنت.", chat_pick_kind: "ماذا تريد أن ترفق؟", chat_pick_item: "اختر واحدًا", chat_search: "بحث", chat_today: "اليوم", chat_yesterday: "أمس", chat_you: "أنت", chat_none_item: "لا شيء للاختيار.", chat_open: "فتح", k_child: "يتيم", k_application: "طلب", k_project: "مشروع", k_payment: "دفعة", k_user: "حساب", k_report: "تقرير", k_site: "الصفحة الرئيسية للموقع", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
+      n_home: "الرئيسية", login_id: "البريد أو اسم المستخدم", un_title: "اسم المستخدم", un_hint: "يُستخدم لتسجيل الدخول بجانب بريدك. من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة.", un_saved: "تم حفظ اسم المستخدم", prof_title: "ملفي الشخصي", prof_photo: "تغيير الصورة", prof_remove: "إزالة الصورة", prof_saved: "تم حفظ الصورة", prof_removed: "تمت إزالة الصورة", prof_username: "اسم المستخدم", prof_change: "تغيير اسم المستخدم", prof_bad: "اختر صورة JPG أو PNG أو WebP.", fold_open: "فتح", fold_open_profile: "فتح الملف", n_chat: "المحادثات", chat_general: "العام", chat_new: "محادثة جديدة", chat_share: "مشاركة في المحادثة", chat_send: "إرسال", chat_attach: "إرفاق بطاقة", chat_type: "اكتب رسالة…", chat_pick_chat: "أرسل إلى…", chat_people: "ابدأ محادثة مع", chat_shared: "تمت المشاركة في المحادثة", chat_empty: "لا رسائل بعد. ابدأ بالسلام.", chat_nolist: "لا أحد آخر في محادثة المكتب بعد.", chat_cant: "{n} أشخاص في هذه المحادثة لا يستطيعون فتحها. سيرون نوع البطاقة فقط.", chat_cant_one: "{names} لا يستطيع فتحها وسيرى نوع البطاقة فقط.", chat_sendany: "أرسل على أي حال", chat_noaccess: "ليس لديك صلاحية لهذا.", chat_gone: "لم تعد متاحة.", chat_offline: "المحادثة تحتاج إلى اتصال بالإنترنت.", chat_pick_kind: "ماذا تريد أن ترفق؟", chat_pick_item: "اختر واحدًا", chat_search: "بحث", chat_today: "اليوم", chat_yesterday: "أمس", chat_you: "أنت", chat_none_item: "لا شيء للاختيار.", chat_open: "فتح", k_child: "يتيم", k_application: "طلب", k_project: "مشروع", k_payment: "دفعة", k_user: "حساب", k_report: "تقرير", k_site: "الصفحة الرئيسية للموقع", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_family: "عائلتي",
       loading: "جارٍ التحميل…", none: "لا نتائج.", back: "رجوع", cancel: "إلغاء", save: "حفظ", required: "هذا الحقل مطلوب.", lang_btn: "English", signout: "تسجيل الخروج",
       noaccess: "دورك لا يشمل هذه الصفحة.", per_month: "شهريًا",
       offline_none: "لا يوجد شيء محفوظ على هذا الهاتف لهذه الصفحة بعد. افتحها مرة واحدة أثناء الاتصال.", load_err: "تعذّر التحميل. حاول مجددًا.",
@@ -139,7 +139,7 @@
       '<a class="mo-circle" id="bellBtn" href="settings.html#outbox" aria-label="' + esc(t("set_sync_short")) + '">' + ic("bell") + (bellDot() ? '<i class="dot"></i>' : "") + "</a>" +
       '<button class="mo-circle" type="button" data-act="lang" aria-label="Language">' + ic("globe") + "</button>" +
       '<a class="mo-circle mo-hide-sm" href="settings.html" aria-label="' + esc(t("n_set")) + '">' + ic("gear") + "</a>" +
-      '<a class="mo-avatar" href="settings.html" aria-label="' + esc(t("n_set")) + '">' + esc(initial()) + "</a></div></div>";
+      '<a class="mo-avatar av" href="settings.html" data-av="' + esc((user() || {}).id) + '" data-v="' + esc((user() || {}).avatar || "") + '" aria-label="' + esc(t("n_set")) + '">' + esc(initial()) + "</a></div></div>";
     /* left rail (large screens): the same sections as icons; the active one sits in a black circle. Settings, language and sign-out below. */
     var main = sorted.filter(function (m) { return m[0] !== "settings"; });
     $("#tabbar").innerHTML = '<div class="mo-rail">' + main.map(function (m) { return '<a href="' + m[1] + '" title="' + esc(t(m[2])) + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + ">" + ic(m[4]) + '<span class="sr">' + t(m[2]) + "</span></a>"; }).join("") + "</div>" +
@@ -270,6 +270,38 @@
   });
 
 
+
+  /* ---------------- profile pictures ---------------- */
+  // A picture is a private file. It is fetched with the sign-in token, once per version, and drawn as the background of any element
+  // marked data-av (the person's id) and data-v (the picture's version). Without a picture the first letter of the name shows.
+  var AVC = {};
+  function avatarHtml(p, cls) {
+    var ini = String((p && p.name) || "?").trim().charAt(0).toUpperCase() || "?";
+    return '<span class="av' + (cls ? " " + cls : "") + '" data-av="' + (p && p.id != null ? p.id : "") + '" data-v="' + ((p && p.avatar) || "") + '">' + esc(ini) + "</span>";
+  }
+  function paintAvatar(el) {
+    var id = el.getAttribute("data-av"), v = el.getAttribute("data-v"); if (!id || !v || el.getAttribute("data-done") === v) return;
+    el.setAttribute("data-done", v); var key = id + ":" + v;
+    (AVC[key] = AVC[key] || API.blobUrl("avatars/" + id + "?v=" + v)).then(function (u) { el.style.backgroundImage = 'url("' + u + '")'; el.classList.add("has"); }, function () { delete AVC[key]; el.removeAttribute("data-done"); });
+  }
+  function scanAvatars(root) { Array.prototype.forEach.call((root || document).querySelectorAll('[data-av][data-v]:not([data-v=""])'), paintAvatar); }
+  if (window.MutationObserver) new MutationObserver(function (muts) {
+    muts.forEach(function (m) { Array.prototype.forEach.call(m.addedNodes, function (n) { if (n.nodeType === 1) { if (n.matches && n.matches("[data-av]")) paintAvatar(n); scanAvatars(n); } }); });
+  }).observe(document.documentElement, { childList: true, subtree: true });
+  /* a photo from the phone is made smaller before it is sent (a camera photo can be several MB) */
+  function shrinkImage(file, max) {
+    return new Promise(function (res) {
+      var img = new Image(), u = URL.createObjectURL(file);
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight, r = Math.min(1, max / Math.max(w, h)), c = document.createElement("canvas"); c.width = Math.round(w * r); c.height = Math.round(h * r);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+        c.toBlob(function (b) { res(b ? new File([b], "profile.jpg", { type: "image/jpeg" }) : file); }, "image/jpeg", 0.88);
+      };
+      img.onerror = function () { URL.revokeObjectURL(u); res(file); };
+      img.src = u;
+    });
+  }
+
   /* ---------------- a collapsible card: name only until it is tapped, then the details and the buttons ---------------- */
   // o = { id, av (letter), title, tone ("ok" | "warn" | "grey"), meta (html), badges (html), actions (html) }
   function fold(o) {
@@ -296,8 +328,8 @@
     Promise.all([API.get("chat/conversations", { cache: false }), API.get("chat/people", { cache: false })]).then(function (r) {
       var convs = r[0].data, people = r[1].data, have = {};
       convs.forEach(function (c) { if (c.other) have[c.other.id] = 1; });
-      var rows = convs.map(function (c) { return '<button class="item" type="button" data-act="sharepick" data-conv="' + c.id + '"><span class="avatar">' + esc((c.type === "general" ? t("chat_general") : c.title).charAt(0)) + '</span><span class="grow"><b>' + esc(c.type === "general" ? t("chat_general") : c.title) + "</b></span>" + ic("send") + "</button>"; }).join("") +
-        people.filter(function (p) { return !have[p.id]; }).map(function (p) { return '<button class="item" type="button" data-act="sharepick" data-user="' + p.id + '"><span class="avatar">' + esc(p.name.charAt(0)) + '</span><span class="grow"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.role_label + (p.department ? " · " + p.department : "")) + "</span></span>" + ic("send") + "</button>"; }).join("");
+      var rows = convs.map(function (c) { return '<button class="item" type="button" data-act="sharepick" data-conv="' + c.id + '">' + (c.other ? avatarHtml(c.other, "avatar") : '<span class="avatar">' + esc(t("chat_general").charAt(0)) + "</span>") + '<span class="grow"><b>' + esc(c.type === "general" ? t("chat_general") : c.title) + "</b></span>" + ic("send") + "</button>"; }).join("") +
+        people.filter(function (p) { return !have[p.id]; }).map(function (p) { return '<button class="item" type="button" data-act="sharepick" data-user="' + p.id + '">' + avatarHtml(p, "avatar") + '<span class="grow"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.role_label + (p.department ? " · " + p.department : "")) + "</span></span>" + ic("send") + "</button>"; }).join("");
       sheet(t("chat_share"), '<p class="note">' + esc(t("chat_pick_chat")) + '</p><div class="list">' + rows + '</div><div class="err" id="shareErr"></div>');
     }, function (e) { sheet(t("chat_share"), '<p class="err">' + esc(msg(e)) + "</p>"); });
   };
@@ -338,7 +370,7 @@
   /* ---------------- start a page ---------------- */
   window.ACF = {
     t: t, strings: strings, esc: esc, ic: ic, name: name, money: money, facts: facts, months: months, monthLabel: monthLabel, toast: toast, msg: msg,
-    can: can, user: user, api: API, fold: fold, shareBtn: shareBtn, setUnread: setUnread, kindPerm: KIND_PERM, ui: UI, saveUI: saveUI, sheet: sheet, closeSheet: closeSheet, field: field, formEnd: formEnd, showErrors: showErrors,
+    can: can, user: user, api: API, avatar: avatarHtml, shrinkImage: shrinkImage, fold: fold, shareBtn: shareBtn, setUnread: setUnread, kindPerm: KIND_PERM, ui: UI, saveUI: saveUI, sheet: sheet, closeSheet: closeSheet, field: field, formEnd: formEnd, showErrors: showErrors,
     act: act, form: form, lang: function () { return lang; }, paint: paint, reload: function (q) { load(q); }, $: $, CUR: CUR,
     start: function (s) {
       spec = s;

@@ -4,7 +4,7 @@
   A.form("loginForm", function () {
     var em = $("#lEmail").value.trim(), pw = $("#lPass").value, err = $("#loginErr"), btn = $("#loginForm button[type=submit]");
     err.textContent = "";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em) || !pw) { err.textContent = t("login_err"); return; }
+    if (!em || !pw) { err.textContent = t("login_err"); return; }
     if (navigator.onLine === false) { err.textContent = t("login_offline"); return; }
     btn.disabled = true; btn.textContent = t("login_busy");
     A.api.login(em, pw).then(function () { location.replace("dashboard.html"); }, function (e) {

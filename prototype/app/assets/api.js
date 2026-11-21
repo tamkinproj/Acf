@@ -100,7 +100,7 @@
 
   /* ---------- public: sign in / out ---------- */
   function login(email, password) {
-    return request("POST", "login", { email: email, password: password, device_name: "staff-app" }).then(function (res) {
+    return request("POST", "login", { login: email, password: password, device_name: "staff-app" }).then(function (res) {
       if (!res.ok) throw fail(res);
       setSession(res.json.data.token, res.json.data.user); setMeta({ expired: false });
       return res.json.data.user;

@@ -24,7 +24,7 @@ final class LoginThrottle
 
     public static function key(object $request): string
     {
-        $identifier = Str::lower((string) ($request->input('email') ?? $request->input('username') ?? ''));
+        $identifier = Str::lower((string) ($request->input('login') ?? $request->input('email') ?? $request->input('username') ?? ''));
 
         return 'login:'.sha1($identifier.'|'.$request->ip());
     }

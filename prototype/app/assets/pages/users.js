@@ -3,7 +3,7 @@
 
   A.strings({
     users_title: "Accounts", users_note: "Account administration needs an internet connection, for safety. Nothing here is saved on the phone.", add_user: "Add office user",
-    f_uname: "Full name", f_uemail: "Email", f_urole: "Role", f_udept: "Department", f_upass: "Password", gen_pass: "Generate", f_uactive: "Account is active",
+    f_uuser: "Username", f_uuser_hint: "Used to sign in. Leave empty to make one from the email.", f_uname: "Full name", f_uemail: "Email", f_urole: "Role", f_udept: "Department", f_upass: "Password", gen_pass: "Generate", f_uactive: "Account is active",
     pass_hint: "At least 12 characters with upper and lower case and a number. Tell the person privately; they should change it.",
     locked_pres: "The President Admin account is managed by the System Admin.", role_system_admin: "System Admin", role_admin_maintenance: "Admin Maintenance", role_security_admin: "Security Admin", role_president_admin: "President Admin", role_staff: "Staff", role_user: "User (family)",
     dept_aytam: "Aytam", dept_finance: "Finance", dept_projects: "Projects", dept_relief: "Relief", dept_teaching: "Teaching", dept_hr: "Human resources", dept_administration: "Administration",
@@ -11,7 +11,7 @@
     family_note: "Family accounts are linked to a guardian record. They are created in the next phase, with the people records.", save_changes: "Save changes", edit_user: "Edit account", you: "you", locked: "Cannot be changed here"
   }, {
     users_title: "الحسابات", users_note: "إدارة الحسابات تحتاج اتصالًا بالإنترنت للأمان. لا يُحفظ شيء هنا على الهاتف.", add_user: "إضافة مستخدم للمكتب",
-    f_uname: "الاسم الكامل", f_uemail: "البريد الإلكتروني", f_urole: "الدور", f_udept: "القسم", f_upass: "كلمة المرور", gen_pass: "توليد", f_uactive: "الحساب نشط",
+    f_uuser: "اسم المستخدم", f_uuser_hint: "يُستخدم لتسجيل الدخول. اتركه فارغًا لإنشائه من البريد.", f_uname: "الاسم الكامل", f_uemail: "البريد الإلكتروني", f_urole: "الدور", f_udept: "القسم", f_upass: "كلمة المرور", gen_pass: "توليد", f_uactive: "الحساب نشط",
     pass_hint: "12 حرفًا على الأقل مع حروف كبيرة وصغيرة ورقم. أبلغ الشخص بها بسرية؛ عليه تغييرها.",
     locked_pres: "حساب رئيس الإدارة يديره مدير النظام.", role_system_admin: "مدير النظام", role_admin_maintenance: "مشرف الصيانة", role_security_admin: "مدير الأمان", role_president_admin: "رئيس الإدارة", role_staff: "موظف", role_user: "مستخدم (عائلة)",
     dept_aytam: "أيتام", dept_finance: "المالية", dept_projects: "المشاريع", dept_relief: "الإغاثة", dept_teaching: "التدريس", dept_hr: "الموارد البشرية", dept_administration: "الإدارة",
@@ -26,7 +26,7 @@
     list = rows; var me = A.user();
     return '<div class="head"><h1 class="title">' + t("users_title") + '</h1></div><p class="note">' + t("users_note") + '</p><div class="list">' + rows.map(function (u) {
       var meta = t("role_" + u.role) + (u.department ? " · " + t("dept_" + u.department) : "");
-      return '<button class="item" type="button" data-focus="' + u.id + '" data-act="edituser" data-id="' + u.id + '"><span class="avatar">' + esc(u.name.charAt(0)) + '</span><span class="grow"><b>' + esc(u.name) + (me && me.id === u.id ? " (" + t("you") + ")" : "") + '</b><span class="sub">' + esc(u.email) + " · " + esc(meta) + '</span></span><span class="right"><span class="badge ' + (u.active ? "" : "warn") + '">' + t(u.active ? "active" : "inactive") + "</span></span></button>";
+      return '<button class="item" type="button" data-focus="' + u.id + '" data-act="edituser" data-id="' + u.id + '">' + A.avatar(u, "avatar") + '<span class="grow"><b>' + esc(u.name) + (me && me.id === u.id ? " (" + t("you") + ")" : "") + '</b><span class="sub"><span dir="ltr">@' + esc(u.username || "") + "</span> · " + esc(meta) + '</span></span><span class="right"><span class="badge ' + (u.active ? "" : "warn") + '">' + t(u.active ? "active" : "inactive") + "</span></span></button>";
     }).join("") + '</div><button class="btn btn-main fab" data-act="adduser">' + ic("plus") + t("add_user") + "</button>";
   }
   function roleOptions(sel, withUser) {
@@ -45,6 +45,7 @@
 
   function adduser() {
     A.sheet(t("add_user"), '<form id="userForm" novalidate>' + A.field("u_name", t("f_uname")) + A.field("u_email", t("f_uemail"), "", "email", 'dir="ltr" autocomplete="off"') +
+      A.field("u_username", t("f_uuser"), '<p class="note" style="margin:.4rem 0 0">' + t("f_uuser_hint") + "</p>", "text", 'dir="ltr" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"') +
       '<div><label for="u_role">' + t("f_urole") + '</label><select id="u_role">' + roleOptions("staff", false) + '</select><div class="err" id="u_roleErr"></div></div>' +
       '<div id="deptBox"><label for="u_department_key">' + t("f_udept") + '</label><select id="u_department_key">' + deptOptions("aytam") + '</select><div class="err" id="u_department_keyErr"></div></div>' +
       A.field("u_password", t("f_upass"), '<div class="actions" style="margin-top:.4rem"><button class="btn btn-line btn-sm" type="button" data-act="genpass">' + t("gen_pass") + '</button></div><p class="note" style="margin:.4rem 0 0">' + t("pass_hint") + "</p>", "text", 'dir="ltr" autocomplete="off"') +
@@ -58,7 +59,7 @@
   A.act("genpass", function () { document.getElementById("u_password").value = genPass(); });
   A.form("userForm", function () {
     clearErr();
-    var body = { name: v("u_name"), email: v("u_email"), role: v("u_role"), password: v("u_password") };
+    var body = { name: v("u_name"), email: v("u_email"), role: v("u_role"), password: v("u_password") }; if (v("u_username")) body.username = v("u_username");
     if (!body.name) { document.getElementById("u_nameErr").textContent = t("required"); return; }
     if (body.role === "staff") body.department_key = v("u_department_key");
     var btn = document.querySelector("#userForm button[type=submit]"); btn.disabled = true;
@@ -70,7 +71,8 @@
     if (!u) return;
     if (u.role === "system_admin" || u.role === "president_admin") { A.toast(t(u.role === "president_admin" ? "locked_pres" : "locked")); return; }
     var self = me && me.id === u.id, fixedRole = self || u.role === "user";
-    A.sheet(t("edit_user"), '<form id="editForm" data-id="' + u.id + '" novalidate><p><b>' + esc(u.name) + '</b><br><span class="note">' + esc(u.email) + "</span></p>" +
+    A.sheet(t("edit_user"), '<form id="editForm" data-id="' + u.id + '" novalidate><div class="prof-head">' + A.avatar(u, "big") + '<div class="grow"><b>' + esc(u.name) + '</b><span class="note" style="display:block">' + esc(u.email) + "</span></div></div>" +
+      A.field("u_username", t("f_uuser"), "", "text", 'dir="ltr" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" value="' + esc(u.username || "") + '"') +
       '<div><label for="u_role">' + t("f_urole") + '</label><select id="u_role"' + (fixedRole ? " disabled" : "") + ">" + roleOptions(u.role, u.role === "user") + '</select><div class="err" id="u_roleErr"></div></div>' +
       '<div id="deptBox"><label for="u_department_key">' + t("f_udept") + '</label><select id="u_department_key">' + deptOptions(u.department || "aytam") + '</select><div class="err" id="u_department_keyErr"></div></div>' +
       (self ? "" : '<div class="setrow"><b>' + t("f_uactive") + '</b><button class="switch" type="button" role="switch" id="u_active" aria-checked="' + !!u.active + '" data-act="flip"></button></div>') +
@@ -83,6 +85,7 @@
     clearErr();
     var id = f.getAttribute("data-id"), u = list.filter(function (x) { return String(x.id) === id; })[0], body = {};
     var role = v("u_role"); if (role !== u.role) body.role = role;
+    if (v("u_username") && v("u_username").toLowerCase() !== (u.username || "")) body.username = v("u_username");
     if (role === "staff") body.department_key = v("u_department_key");
     var act = document.getElementById("u_active"); if (act && (act.getAttribute("aria-checked") === "true") !== !!u.active) body.active = act.getAttribute("aria-checked") === "true";
     if (!Object.keys(body).length) { A.closeSheet(); return; }

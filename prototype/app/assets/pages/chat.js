@@ -16,7 +16,7 @@
     return '<div class="head chat-head"><h1 class="title">' + t("n_chat") + '</h1><button class="btn btn-main btn-sm" type="button" data-act="newchat">' + ic("plus") + "<span>" + t("chat_new") + "</span></button></div>" +
       '<div class="list chat-list">' + rows.map(function (c) {
         var name = c.type === "general" ? t("chat_general") : c.title;
-        return '<a class="item chat-row" href="room.html?c=' + c.id + '"><span class="avatar' + (c.type === "general" ? " grp" : "") + '">' + (c.type === "general" ? ic("users") : esc(String(name).charAt(0))) + '</span><span class="grow"><b>' + esc(name) + '</b><span class="sub">' + esc(preview(c)) + '</span></span>' +
+        return '<a class="item chat-row" href="room.html?c=' + c.id + '">' + (c.type === "general" ? '<span class="avatar grp">' + ic("users") + "</span>" : A.avatar(c.other || { name: name }, "avatar")) + '<span class="grow"><b>' + esc(name) + '</b><span class="sub">' + esc(preview(c)) + '</span></span>' +
           '<span class="right"><span class="sub">' + esc(when(c.last_at)) + "</span>" + (c.unread ? '<span class="nbadge in">' + (c.unread > 99 ? "99+" : c.unread) + "</span>" : "") + "</span></a>";
       }).join("") + "</div>";
   }
@@ -27,7 +27,7 @@
       var people = r[0].data, have = {};
       r[1].data.forEach(function (c) { if (c.other) have[c.other.id] = c.id; });
       var body = people.length ? '<p class="note">' + t("chat_people") + '</p><div class="list">' + people.map(function (p) {
-        return '<button class="item" type="button" data-act="startchat" data-user="' + p.id + '"><span class="avatar">' + esc(p.name.charAt(0)) + '</span><span class="grow"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.role_label + (p.department ? " · " + p.department : "")) + "</span></span>" + ic("chev") + "</button>";
+        return '<button class="item" type="button" data-act="startchat" data-user="' + p.id + '">' + A.avatar(p, "avatar") + '<span class="grow"><b>' + esc(p.name) + '</b><span class="sub">' + esc(p.role_label + (p.department ? " · " + p.department : "")) + "</span></span>" + ic("chev") + "</button>";
       }).join("") + "</div>" : '<p class="note">' + t("chat_nolist") + "</p>";
       A.sheet(t("chat_new"), body + '<div class="err" id="startErr"></div>');
     }, function (e) { A.sheet(t("chat_new"), '<p class="err">' + esc(A.msg(e)) + "</p>"); });

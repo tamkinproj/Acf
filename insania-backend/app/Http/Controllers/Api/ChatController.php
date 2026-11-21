@@ -62,7 +62,7 @@ class ChatController extends Controller
     {
         $out = [
             'id' => $m->id, 'user_id' => $m->user_id, 'user' => $m->user?->name, 'mine' => $m->user_id === $viewer->id,
-            'body' => $m->body, 'at' => $m->created_at?->toIso8601String(), 'card' => null,
+            'av' => $m->user?->avatar_v, 'body' => $m->body, 'at' => $m->created_at?->toIso8601String(), 'card' => null,
         ];
         if ($m->card_kind) {
             $out['card'] = ChatCards::describe($viewer, $m->card_kind, $m->card_id, $m->card_extra);
@@ -95,7 +95,7 @@ class ChatController extends Controller
             if ($c->type === 'direct') {
                 $otherId = ChatMember::where('conversation_id', $c->id)->where('user_id', '!=', $me->id)->value('user_id');
                 $o = $otherId ? User::find($otherId) : null;
-                $other = $o ? ['id' => $o->id, 'name' => $o->name, 'role_label' => config("roles.roles.{$o->role}.label")] : null;
+                $other = $o ? ['id' => $o->id, 'name' => $o->name, 'username' => $o->username, 'avatar' => $o->avatar_v, 'role_label' => config("roles.roles.{$o->role}.label")] : null;
             }
 
             return [
@@ -127,7 +127,7 @@ class ChatController extends Controller
         $me = $this->me($request);
 
         return ApiResponse::collection($this->chatPeople($me)->map(fn (User $u) => [
-            'id' => $u->id, 'name' => $u->name, 'role_label' => config("roles.roles.{$u->role}.label"),
+            'id' => $u->id, 'name' => $u->name, 'username' => $u->username, 'avatar' => $u->avatar_v, 'role_label' => config("roles.roles.{$u->role}.label"),
             'department' => $u->department_key ? config("roles.departments.{$u->department_key}.name_en") : null,
         ]));
     }
@@ -171,7 +171,7 @@ class ChatController extends Controller
         if ($conversation->type === 'direct') {
             $oid = ChatMember::where('conversation_id', $conversation->id)->where('user_id', '!=', $me->id)->value('user_id');
             $o = $oid ? User::find($oid) : null;
-            $other = $o ? ['id' => $o->id, 'name' => $o->name, 'role_label' => config("roles.roles.{$o->role}.label")] : null;
+            $other = $o ? ['id' => $o->id, 'name' => $o->name, 'username' => $o->username, 'avatar' => $o->avatar_v, 'role_label' => config("roles.roles.{$o->role}.label")] : null;
         }
 
         return ApiResponse::collection($rows->map(fn (ChatMessage $m) => $this->messageOut($m, $me)), [

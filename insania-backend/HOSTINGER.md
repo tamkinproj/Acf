@@ -28,6 +28,11 @@ Once installed, `/server/install`, `/server/` and every setup address answer a p
 2. **President Admin**: created by the System Admin from the first-login checklist. Runs every office feature and the public website.
 3. **Everyone else** (Security Admin, Admin Maintenance, staff by department, family accounts): created by the President Admin in the Accounts screen.
 
+## Usernames and profile pictures
+- **Every account has a username** and signs in with **either the username or the email** (type it in the first box). Usernames are lowercase letters, digits, dots, hyphens and underscores, 3 to 30 long, and unique. When an account is created without one, it is made from the email (`amal@example.org` becomes `amal`, or `amal2` if taken). The update gives every existing account a username the same way.
+- **Changing it:** each person changes their own in Settings → My profile → **Change username**. The President Admin (or Security Admin) can change anyone's in Accounts. The old name is free again at once.
+- **Profile pictures:** every account, whatever the role, can add or remove its own picture in Settings → My profile. It is shown in the top bar, in Accounts and in the chat. Pictures are private files on the server (never in the website folder), shrunk on the phone, re-saved on the server, and visible only to people who are signed in to the same foundation.
+
 ## Passwords and changing the President Admin
 - **Everyone** can change their own password: Settings → **Change password** (needs the current one; their other devices are signed out).
 - **System Admin** → **System** page → **President Admin** card → **Change President Admin**: change the name, email or password, or hand the post to another person. It is the same account, so every record stays; the old person is signed out at once. The System Admin types their own password to confirm.

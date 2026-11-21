@@ -30,7 +30,7 @@
       var m = MSGS[i], g = [m], j = i + 1;
       if (sep(MSGS[i - 1], m)) out += '<div class="rm-time">' + esc(stamp(m.at)) + "</div>";
       while (j < MSGS.length && MSGS[j].user_id === m.user_id && !sep(MSGS[j - 1], MSGS[j])) { g.push(MSGS[j]); j++; }
-      out += '<div class="grp ' + (m.mine ? "me" : "you") + '">' + (m.mine ? "" : '<span class="rm-av" aria-hidden="true">' + esc(String(m.user || "?").charAt(0)) + "</span>") +
+      out += '<div class="grp ' + (m.mine ? "me" : "you") + '">' + (m.mine ? "" : A.avatar({ id: m.user_id, name: m.user, avatar: m.av }, "rm-av")) +
         '<div class="stack">' + (!m.mine && META && META.type === "general" ? '<span class="msg-who">' + esc(m.user || "") + "</span>" : "") + g.map(one).join("") + "</div></div>";
       i = j;
     }
@@ -42,7 +42,7 @@
   function render() {
     var title = META ? (META.type === "general" ? t("chat_general") : META.title) : "";
     var sub = META && META.other ? META.other.role_label : (META ? "" : "");
-    return '<div class="rm"><div class="dp-bar"><a class="dp-back" href="chat.html" data-act="rmback" aria-label="' + esc(t("back")) + '">' + ic("back", "flip") + '</a><span class="rm-title"><b>' + esc(title) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span><span class=\"dp-act rm-gap\"></span></div>" +
+    return '<div class="rm"><div class="dp-bar"><a class="dp-back" href="chat.html" data-act="rmback" aria-label="' + esc(t("back")) + '">' + ic("back", "flip") + '</a><span class="rm-title"><b>' + esc(title) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>" + (META && META.other ? A.avatar(META.other, "rm-hav") : '<span class="dp-act rm-gap"></span>') + "</div>" +
       '<div class="rm-list" id="msgs">' + listHtml() + "</div>" +
       '<form class="rm-comp" id="rmForm" novalidate><button type="button" class="rm-clip" data-act="attach" aria-label="' + esc(t("chat_attach")) + '">' + ic("clip") + '</button>' +
       '<textarea id="rmText" rows="1" maxlength="2000" placeholder="' + esc(t("chat_type")) + '" aria-label="' + esc(t("chat_type")) + '">' + esc(draft) + '</textarea>' +

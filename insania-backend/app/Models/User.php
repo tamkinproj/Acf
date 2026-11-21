@@ -12,10 +12,26 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'foundation_id', 'department_id', 'guardian_id', 'phone', 'active', 'preferences',
+        'name', 'email', 'username', 'password', 'role', 'foundation_id', 'department_id', 'guardian_id', 'phone', 'active', 'preferences', 'avatar_path', 'avatar_v',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'avatar_path'];
+
+    protected static function booted(): void
+    {
+        // every account has a username: one is made from the email when none is given
+        static::creating(function (User $u) {
+            $u->username = \App\Support\Usernames::normalise($u->username);
+            if ($u->username === '') {
+                $u->username = \App\Support\Usernames::suggest((string) ($u->email ?: $u->name), fn ($c) => static::where('username', $c)->exists());
+            }
+        });
+    }
+
+    public function setUsernameAttribute($v): void
+    {
+        $this->attributes['username'] = \App\Support\Usernames::normalise($v);
+    }
 
     protected $casts = [
         'email_verified_at' => 'datetime',
@@ -56,6 +72,8 @@ class User extends Authenticatable
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'username' => $this->username,
+            'avatar' => $this->avatar_v,   // a version number when the person has a picture, else null
             'role' => $this->role,
             'role_label' => config("roles.roles.{$this->role}.label"),
             'kind' => config("roles.roles.{$this->role}.kind"),

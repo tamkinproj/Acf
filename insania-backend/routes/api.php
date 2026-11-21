@@ -35,6 +35,10 @@ Route::middleware('api.json')->group(function () {
         Route::get('me', [AuthController::class, 'me'])->name('me');
         Route::post('me/password', [AuthController::class, 'changePassword'])->middleware('throttle:6,1');
         Route::post('logout', [AuthController::class, 'logout'])->name('auth_logout');
+        Route::patch('me/profile', [AuthController::class, 'updateProfile'])->middleware('throttle:20,1');
+        Route::post('me/avatar', [AuthController::class, 'setAvatar'])->middleware(['throttle:20,1', 'block.uploads']);
+        Route::delete('me/avatar', [AuthController::class, 'removeAvatar']);
+        Route::get('avatars/{user}', [AuthController::class, 'avatar'])->whereNumber('user');
         Route::get('me/preferences', [AuthController::class, 'preferences']);
         Route::patch('me/preferences', [AuthController::class, 'updatePreferences']);
         Route::get('dashboard', DashboardController::class);

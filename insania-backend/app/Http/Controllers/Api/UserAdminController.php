@@ -30,6 +30,7 @@ class UserAdminController extends Controller
 
     public function store(Request $request)
     {
+        $this->normaliseUsername($request);
         $data = $request->validate($this->rules(true));
         $actor = $request->user();
         $link = $this->links($request, $data['role'], $data);
@@ -39,7 +40,7 @@ class UserAdminController extends Controller
         }
 
         $user = User::create([
-            'name' => $data['name'], 'email' => $data['email'], 'password' => $data['password'], 'role' => $data['role'],
+            'name' => $data['name'], 'email' => $data['email'], 'username' => $data['username'] ?? null, 'password' => $data['password'], 'role' => $data['role'],
             'foundation_id' => $actor->foundation_id, 'phone' => $data['phone'] ?? null, 'active' => true,
         ] + $link);
 
@@ -54,7 +55,11 @@ class UserAdminController extends Controller
             return $denied;
         }
 
+        $this->normaliseUsername($request);
         $data = $request->validate($this->rules(false, $user->id));
+        if (array_key_exists('username', $data) && ! $data['username']) {
+            unset($data['username']);   // an empty box means "leave it"
+        }
         $changesAccess = array_key_exists('role', $data) || array_key_exists('active', $data) || array_key_exists('department_key', $data);
 
         if ($user->id === $request->user()->id && (isset($data['role']) && $data['role'] !== $user->role || isset($data['active']) && ! $data['active'])) {
@@ -67,7 +72,7 @@ class UserAdminController extends Controller
             return $link;
         }
 
-        $user->fill(collect($data)->only(['name', 'email', 'phone', 'active'])->all() + ['role' => $role] + $link)->save();
+        $user->fill(collect($data)->only(['name', 'email', 'username', 'phone', 'active'])->all() + ['role' => $role] + $link)->save();
 
         if ($changesAccess) {
             $user->tokens()->delete();   // new access applies from the next sign-in
@@ -144,6 +149,13 @@ class UserAdminController extends Controller
         return $out;
     }
 
+    private function normaliseUsername(Request $request): void
+    {
+        if ($request->has('username')) {
+            $request->merge(['username' => \App\Support\Usernames::normalise($request->input('username')) ?: null]);
+        }
+    }
+
     private function rules(bool $creating, ?int $ignoreId = null): array
     {
         $req = $creating ? 'required' : 'sometimes';
@@ -151,6 +163,7 @@ class UserAdminController extends Controller
         return [
             'name' => [$req, 'string', 'max:150'],
             'email' => [$req, 'email:rfc,filter', 'max:190', 'unique:users,email'.($ignoreId ? ",$ignoreId" : '')],
+            'username' => ['nullable', 'string', 'regex:'.\App\Support\Usernames::PATTERN, 'unique:users,username'.($ignoreId ? ",$ignoreId" : '')],
             'password' => $creating ? ['required', Password::min(12)->mixedCase()->numbers()] : ['prohibited'],
             'role' => [$req, 'in:'.implode(',', config('roles.assignable_by_security_admin'))],
             'department_key' => ['nullable', 'string', 'in:'.implode(',', array_keys(config('roles.departments')))],
