@@ -53,6 +53,40 @@
     h_welcome: "أهلًا", h_welcome_sub: "ميزاتك قيد التجهيز", off_note: "ميزات المكتب متوقفة حاليًا وستُفعَّل واحدة تلو الأخرى. يمكنك الآن تغيير كلمة المرور من الإعدادات."
   });
 
+  A.strings({
+    f_hello: "Choose a department.", f_back: "Home", f_aytam: "Aytam", f_finance: "Finance", f_projects: "Projects", f_website: "Website", f_accounts: "Accounts", f_chat: "Chat",
+    fo_aytam: "{n} orphans · {m} new applications", fo_finance: "{p} paid · {d} due", fo_projects: "{n} active of {m}", fo_website: "Edit the landing page", fo_accounts: "{n} accounts",
+    fo_chat: "{n} unread", fo_chat0: "No new messages", f_add_user: "Add office user", f_month: "This month", f_paid: "Paid", f_due: "Due", f_pending_n: "Pending",
+    f_amt_paid: "Paid", f_amt_due: "Still due", f_total: "Total", f_active_p: "Active", f_open: "Open", f_edit_site: "Edit the page", f_site_page: "Website editor", f_pay_page: "Payments", f_rep_page: "Reports",
+    f_proj_page: "Projects", f_site_note: "Click texts on the page to change them, then Save draft and Publish."
+  }, {
+    f_hello: "اختر قسمًا.", f_back: "الرئيسية", f_aytam: "الأيتام", f_finance: "المالية", f_projects: "المشاريع", f_website: "الموقع", f_accounts: "الحسابات", f_chat: "المحادثات",
+    fo_aytam: "{n} يتيمًا · {m} طلبات جديدة", fo_finance: "{p} مدفوعة · {d} مستحقة", fo_projects: "{n} نشطة من {m}", fo_website: "عدّل الصفحة الرئيسية للموقع", fo_accounts: "{n} حسابًا",
+    fo_chat: "{n} غير مقروءة", fo_chat0: "لا رسائل جديدة", f_add_user: "إضافة مستخدم للمكتب", f_month: "هذا الشهر", f_paid: "مدفوعة", f_due: "مستحقة", f_pending_n: "قيد الانتظار",
+    f_amt_paid: "المدفوع", f_amt_due: "المتبقي", f_total: "الإجمالي", f_active_p: "نشطة", f_open: "فتح", f_edit_site: "تعديل الصفحة", f_site_page: "محرر الموقع", f_pay_page: "المدفوعات", f_rep_page: "التقارير",
+    f_proj_page: "المشاريع", f_site_note: "اضغط على النصوص في الصفحة لتغييرها، ثم احفظ المسودة وانشر."
+  });
+  var FOLDERS = ["aytam", "finance", "projects", "website", "accounts"];
+  var ICONS = { aytam: "users", finance: "wallet", projects: "folder", website: "globe", accounts: "shield", chat: "chat" };
+  // The President's Home: one quiet tile per department. Everything else lives inside the department's folder (dashboard.html?d=NAME).
+  function folderTile(key, href, sub) {
+    return '<a class="fo" href="' + href + '"><span class="fo-top">' + ic(ICONS[key]) + ic("chev", "fo-go") + '</span><b>' + t("f_" + key) + '</b><span class="fo-sub">' + sub + "</span></a>";
+  }
+  function homeFolders(d, head) {
+    var tiles = [];
+    if (d.children) tiles.push(folderTile("aytam", "dashboard.html?d=aytam", t("fo_aytam", { n: num(d.children.total), m: num(d.applications ? d.applications.new : 0) })));
+    if (d.payments) tiles.push(folderTile("finance", "dashboard.html?d=finance", t("fo_finance", { p: num(d.payments.paid_count), d: num(d.payments.pending_count) })));
+    if (d.projects) tiles.push(folderTile("projects", "dashboard.html?d=projects", t("fo_projects", { n: num(d.projects.active), m: num(d.projects.total) })));
+    if (A.can("site.edit")) tiles.push(folderTile("website", "dashboard.html?d=website", t("fo_website")));
+    if (d.security) tiles.push(folderTile("accounts", "dashboard.html?d=accounts", t("fo_accounts", { n: num(d.security.active_users) })));
+    if (A.can("chat.use")) tiles.push(folderTile("chat", "chat.html", d.unread ? t("fo_chat", { n: num(d.unread) }) : t("fo_chat0")));
+    return '<div class="mo">' + head + (A.can("users.manage") ? '<a class="fo-add" href="users.html?add=1">' + ic("plus") + "<span>" + t("f_add_user") + "</span></a>" : "") +
+      '<div class="fo-grid">' + tiles.join("") + "</div></div>";
+  }
+  function folderHead(key) {
+    return '<div class="mo-head"><div><a class="fo-back" href="dashboard.html">' + ic("back", "flip") + "<span>" + t("f_back") + '</span></a><h1 class="title">' + t("f_" + key) + "</h1></div></div>";
+  }
+
   var chart = null;   // { sets: [{ key, label, bars: [[label, value]] }], cur: 0, sel: -1 }
   function fmtDate(d) { if (!d) return "-"; var l = A.lang() === "ar" ? "ar" : "en-GB"; try { var x = new Date(d + "T00:00:00"); return '<span title="' + esc(x.toLocaleDateString(l, { day: "numeric", month: "long", year: "numeric" })) + '">' + esc(x.toLocaleDateString(l, { day: "numeric", month: "short" })) + "</span>"; } catch (e) { return esc(d); } }
   function num(n) { return Number(n || 0).toLocaleString("en-US"); }
@@ -112,8 +146,14 @@
     var head = '<div class="mo-head"><div><h1 class="title">' + t(h < 12 ? "gm" : h < 18 ? "ga" : "ge") + (first ? (A.lang() === "ar" ? "، " : ", ") + first : "") + '</h1><p class="lead">' + t("hello_sub") + "</p></div>" +
       (d.children ? '<form class="mo-search" action="people.html" method="get" role="search">' + ic("search") + '<input name="q" type="search" placeholder="' + esc(t("search_ph")) + '" aria-label="' + esc(t("search_ph")) + '"></form>' : "") + "</div>";
     var L = [], R = [], below = [];
+    var pres = u.role === "president_admin", folder = pres ? ((location.search.match(/[?&]d=([a-z]+)/) || [])[1] || "") : "";
+    if (pres && FOLDERS.indexOf(folder) < 0) {
+      var hm = '<div class="mo-head"><div><h1 class="title">' + t(h < 12 ? "gm" : h < 18 ? "ga" : "ge") + (first ? (A.lang() === "ar" ? "، " : ", ") + first : "") + '</h1><p class="lead">' + t("f_hello") + "</p></div></div>";
+      return homeFolders(d, hm);
+    }
+    if (pres) head = folderHead(folder);
 
-    if (d.children) {   // ---- Aytam ----
+    if (d.children && (!pres || folder === "aytam")) {   // ---- Aytam ----
       var c = d.children, bs = c.by_status || {}, apps = d.applications ? d.applications.new : null;
       L.push('<div class="mo-row">' + hero({ title: t("h_orphans"), sub: t("h_orphans_sub"), big: num(c.total), btn: A.can("children.create") ? ["people.html?add=1", t("h_add_orphan")] : null,
         tiles: [["people.html", "users", t("t_orphans")]].concat(d.applications ? [["applications.html", "file", t("t_apps")]] : []).concat([["people.html", "search", t("t_search")]]) }) +
@@ -133,7 +173,7 @@
       var lat = c.latest || [], attn = c.needs_attention || [];
       below.push(table(t("w_latest"), [t("w_name"), t("w_status"), t("w_added")], lat.map(function (x) { return "<tr>" + who(A.name(x), esc(x.ref) + (x.city ? " · " + esc(x.city) : ""), "person.html?id=" + x.id) + "<td>" + badge(x.status || "active") + '</td><td class="muted">' + fmtDate(x.added) + "</td></tr>"; }), "people.html"));
       below.push('<section class="card"><div class="mo-card-head"><h3>' + t("attn") + "</h3></div>" + (attn.length ? '<ul class="fb-rows">' + attn.map(function (a) { return '<li><a class="fb-who" href="person.html?id=' + a.child_id + '"><span class="avatar">' + esc(a.name_en.charAt(0)) + "</span><span><b>" + esc(a.name_en) + "</b><small>" + esc(a.ref) + " · " + t("unverified") + "</small></span></a></li>"; }).join("") + "</ul>" : '<p class="note">' + t("attn_none") + "</p>") + "</section>");
-    } else if (d.security) {   // ---- President (accounts) ----
+    } else if (d.security && (!pres || folder === "accounts")) {   // ---- accounts ----
       var s = d.security, br = s.by_role || {};
       L.push('<div class="mo-row">' + hero({ title: t("h_accounts"), sub: t("h_accounts_sub"), big: num(s.active_users), btn: A.can("users.manage") ? ["users.html?add=1", t("h_add_account")] : null,
         tiles: [["users.html", "shield", t("t_accounts")], ["setup.html", "check", t("t_setup")], ["settings.html", "gear", t("t_settings")]] }) +
@@ -146,6 +186,19 @@
         buttons: [["settings.html", t("b_password")], ["users.html", t("b_accounts")]], actions: [["users.html?add=1", "plus", t("qa_add")], ["users.html", "users", t("t_accounts")]].concat(A.can("site.edit") ? [["../index.html?edit=1", "globe", t("qa_site")]] : [["settings.html", "dots", t("qa_more")]]) }));
       R.push(d.setup && d.setup.steps.length && d.setup.done < d.setup.total ? plan(t("pl_setup"), t("pl_setup_txt", { n: d.setup.done, m: d.setup.total }), ["setup.html", t("pl_setup_btn")]) : plan(t("pl_soon"), t("pl_soon_txt"), ["settings.html", t("pl_soon_btn")]));
       below.push(table(t("w_latest_acc"), [t("w_name"), t("w_status"), t("w_added")], (s.latest_users || []).map(function (x) { return "<tr>" + who(x.name, t("r_" + x.role), "users.html") + "<td>" + badge(x.active ? "active" : "ended", x.active ? null : t("w_off")) + '</td><td class="muted">' + fmtDate(x.added) + "</td></tr>"; }), "users.html"));
+    } else if (pres && folder === "finance" && d.payments) {   // ---- Finance (President's folder) ----
+      var py = d.payments;
+      L.push('<div class="mo-row">' + hero({ title: t("f_finance"), sub: t("f_month") + " · " + esc(A.monthLabel(py.month)), big: A.money(py.paid_total), caption: t("f_amt_paid"),
+        tiles: [["payments.html", "wallet", t("f_pay_page")]].concat(A.can("reports.view") ? [["reports.html", "file", t("f_rep_page")]] : []) }) +
+        '<div class="mo-minis">' + mini("check", t("f_paid"), num(py.paid_count), t("of_n", { n: num(py.children) }), "payments.html", "up") + mini("sliders", t("f_pending_n"), num(py.pending_count), t("of_n", { n: num(py.children) }), "payments.html", py.pending_count ? "down" : "up") +
+        mini("wallet", t("f_amt_due"), A.money(py.due_total), t("f_month"), "payments.html") + "</div></div>");
+    } else if (pres && folder === "projects" && d.projects) {   // ---- Projects ----
+      var pj = d.projects;
+      L.push('<div class="mo-row">' + hero({ title: t("f_projects"), sub: t("f_active_p"), big: num(pj.active), caption: t("of_n", { n: num(pj.total) }),
+        tiles: [["projects.html", "folder", t("f_proj_page")]] }) + '<div class="mo-minis">' + mini("folder", t("f_total"), num(pj.total), "", "projects.html") + mini("check", t("f_active_p"), num(pj.active), t("of_n", { n: num(pj.total) }), "projects.html", "up") + "</div></div>");
+    } else if (pres && folder === "website") {   // ---- Website ----
+      L.push('<div class="mo-row">' + hero({ title: t("f_website"), sub: t("f_site_note"), big: t("f_website"),
+        btn: ["../index.html?edit=1", t("f_edit_site")], tiles: [["../index.html?edit=1", "edit", t("f_edit_site")], ["website.html", "globe", t("f_site_page")], ["../index.html", "search", t("f_open")]] }) + "</div>");
     } else if (d.health) {   // ---- System Admin / Maintenance ----
       var hl = d.health, ck = hl.checks || {}, okAll = hl.status === "ok";
       L.push('<div class="mo-row">' + hero({ title: t("h_system"), sub: t("h_system_sub"), big: t(okAll ? "ok" : "problem"), btn: A.can("system.updates") ? ["updates.html", t("h_update")] : null,
@@ -171,11 +224,12 @@
 
   function load() {
     var jobs = [A.api.get("dashboard"), A.api.get("setup").catch(function () { return null; })];
+    jobs.push(A.can("chat.use") && A.user() && A.user().role === "president_admin" ? A.api.get("chat/unread", { cache: false }).catch(function () { return null; }) : Promise.resolve(null));
     jobs.push(A.can("system.health") ? A.api.get("system/health", { cache: false }).catch(function () { return null; }) : Promise.resolve(null));
     jobs.push(A.can("system.first_admin") ? A.api.get("system/president-admin", { cache: false }).catch(function () { return undefined; }) : Promise.resolve(undefined));
     return Promise.all(jobs).then(function (r) {
-      var d = r[0].data; d.setup = r[1] ? r[1].data : null; if (r[2]) d.health = r[2].data;
-      if (r[3] !== undefined && r[3] !== null) d.president = r[3].data;
+      var d = r[0].data; d.setup = r[1] ? r[1].data : null; if (r[2]) { d.unread = r[2].data.unread || 0; A.setUnread(d.unread); } if (r[3]) d.health = r[3].data;
+      if (r[4] !== undefined && r[4] !== null) d.president = r[4].data;
       return { data: d, stale: r[0].stale, at: r[0].at };
     });
   }

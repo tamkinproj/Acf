@@ -2,7 +2,7 @@
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic, list = [];
 
   A.strings({
-    users_title: "Accounts", users_note: "Account administration needs an internet connection, for safety. Nothing here is saved on the phone.", add_user: "Add account",
+    users_title: "Accounts", users_note: "Account administration needs an internet connection, for safety. Nothing here is saved on the phone.", add_user: "Add office user",
     f_uname: "Full name", f_uemail: "Email", f_urole: "Role", f_udept: "Department", f_upass: "Password", gen_pass: "Generate", f_uactive: "Account is active",
     pass_hint: "At least 12 characters with upper and lower case and a number. Tell the person privately; they should change it.",
     locked_pres: "The President Admin account is managed by the System Admin.", role_system_admin: "System Admin", role_admin_maintenance: "Admin Maintenance", role_security_admin: "Security Admin", role_president_admin: "President Admin", role_staff: "Staff", role_user: "User (family)",
@@ -10,7 +10,7 @@
     inactive: "Switched off", active: "Active", reset_pass: "Set a new password", revoke: "End all sessions", user_saved: "Saved", user_added: "Account created", sessions_ended: "Sessions ended", pass_changed: "Password changed",
     family_note: "Family accounts are linked to a guardian record. They are created in the next phase, with the people records.", save_changes: "Save changes", edit_user: "Edit account", you: "you", locked: "Cannot be changed here"
   }, {
-    users_title: "الحسابات", users_note: "إدارة الحسابات تحتاج اتصالًا بالإنترنت للأمان. لا يُحفظ شيء هنا على الهاتف.", add_user: "إضافة حساب",
+    users_title: "الحسابات", users_note: "إدارة الحسابات تحتاج اتصالًا بالإنترنت للأمان. لا يُحفظ شيء هنا على الهاتف.", add_user: "إضافة مستخدم للمكتب",
     f_uname: "الاسم الكامل", f_uemail: "البريد الإلكتروني", f_urole: "الدور", f_udept: "القسم", f_upass: "كلمة المرور", gen_pass: "توليد", f_uactive: "الحساب نشط",
     pass_hint: "12 حرفًا على الأقل مع حروف كبيرة وصغيرة ورقم. أبلغ الشخص بها بسرية؛ عليه تغييرها.",
     locked_pres: "حساب رئيس الإدارة يديره مدير النظام.", role_system_admin: "مدير النظام", role_admin_maintenance: "مشرف الصيانة", role_security_admin: "مدير الأمان", role_president_admin: "رئيس الإدارة", role_staff: "موظف", role_user: "مستخدم (عائلة)",

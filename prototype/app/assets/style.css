@@ -727,3 +727,22 @@ a.cc:hover{border-color:rgba(0,0,0,.25)}
 @keyframes flashrow{0%{background:var(--lime2)}100%{background:transparent}}
 .focus-flash{animation:flashrow 2.4s ease-out 1;border-radius:var(--r-md)}
 @media(min-width:1024px){.rm{padding-bottom:5.8rem}}
+
+/* =====================================================================================
+   President Home: one quiet tile per department (a folder), nothing else on the page
+   ===================================================================================== */
+.fo-add{display:inline-flex;align-items:center;gap:.5rem;margin:.2rem 0 1.4rem;padding:.7rem 1.2rem;border-radius:999px;background:var(--lime);color:#111;font-weight:800;text-decoration:none;font-size:.95rem}
+.fo-add .icon{width:1.1rem;height:1.1rem}
+.fo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem 1rem;padding-top:.6rem}
+@media(min-width:760px){.fo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.fo{position:relative;display:flex;flex-direction:column;gap:.35rem;min-height:8.2rem;padding:1.15rem 1.1rem 1rem;border-radius:var(--r-lg);background:#fff;box-shadow:var(--cs);color:var(--ink);text-decoration:none;transition:transform .12s}
+.fo::before{content:"";position:absolute;top:-.6rem;inset-inline-start:1.1rem;width:3.2rem;height:.75rem;border-radius:.7rem .7rem 0 0;background:#e6e8e1}
+.fo:active{transform:scale(.985)}
+.fo-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:auto}
+.fo-top .icon{width:1.7rem;height:1.7rem;color:var(--ink)}
+.fo-top .fo-go{width:1.1rem;height:1.1rem;color:var(--muted)}
+[dir=rtl] .fo-go{transform:scaleX(-1)}
+.fo b{font-size:1.05rem;letter-spacing:-.01em}
+.fo-sub{font-size:.8rem;color:var(--muted);line-height:1.35}
+.fo-back{display:inline-flex;align-items:center;gap:.3rem;color:var(--muted);font-weight:700;font-size:.85rem;text-decoration:none;margin-bottom:.3rem}
+.fo-back .icon{width:1rem;height:1rem}
