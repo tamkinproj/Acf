@@ -38,3 +38,10 @@ RewriteRule ^ / [R=302,L]
 </IfModule>
 
 # The API in the "server" folder has its own .htaccess, so these rules do not apply inside it.
+
+# The home page and its script are always checked with the server, so visitors see changes at once.
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|site\.js)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

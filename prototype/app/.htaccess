@@ -5,9 +5,11 @@
   Header always set X-Frame-Options "DENY"
   Header always set Referrer-Policy "same-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
-  <Files "sw.js">
+  # Pages, scripts and styles are always checked with the server (a quick "not changed" answer when nothing changed),
+  # so a phone or the host's cache never keeps an old copy after an update.
+  <FilesMatch "\.(html|js|css|webmanifest|json)$">
     Header set Cache-Control "no-cache"
-  </Files>
+  </FilesMatch>
 </IfModule>
 <IfModule mod_mime.c>
   AddType application/manifest+json .webmanifest

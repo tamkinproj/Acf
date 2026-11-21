@@ -3,7 +3,7 @@
   window.ACF_PWA = { canInstall: false, install: function () { return Promise.resolve(false); }, offlineReady: false };
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js").then(function (reg) {
+      navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(function (reg) {
         function ready() { window.ACF_PWA.offlineReady = true; document.documentElement.setAttribute("data-offline-ready", "1"); }
         if (reg.active) ready();
         navigator.serviceWorker.ready.then(ready);

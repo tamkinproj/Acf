@@ -33,6 +33,9 @@ Once installed, `/server/install`, `/server/` and every setup address answer a p
 - **System Admin** → **System** page → **President Admin** card → **Change President Admin**: change the name, email or password, or hand the post to another person. It is the same account, so every record stays; the old person is signed out at once. The System Admin types their own password to confirm.
 - The System Admin sees only the President's name and email, never any office data.
 
+## If the staff app shows a blank or half-loaded page
+A phone can keep an old copy of the app. Open `https://alinsania.com/app/repair.html`: it removes the old saved copy (your sign-in and unsent changes stay), then press **Open the app**. The app itself also shows a **Load a fresh copy** button whenever it could not start.
+
 ## Step 1. Make an empty database
 hPanel → **Databases → MySQL Databases**. Create a database and a user, give the user all privileges. Write down: database name, user name, password. (Host is `localhost`.)
 
