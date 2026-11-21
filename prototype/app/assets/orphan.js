@@ -31,13 +31,14 @@
 
   /* c = the profile being edited (nothing = a new orphan). */
   /* c = the profile being edited (nothing = a new orphan). only = one group id: just that section (editing one part of a profile). */
-  function formHtml(c, only) {
+  function formHtml(c, only, flat) {
     c = c || {}; var d = c.details || {}, edit = !!c.id, html = "";
     if (edit && (!only || only === "info")) html += '<div><label for="f_status">' + t("f_status") + '</label><select id="f_status">' + [["active", "active"], ["pending", "pending"], ["ended", "ended"]].map(function (s) { return '<option value="' + s[0] + '"' + (c.status === s[0] ? " selected" : "") + ">" + t(s[1]) + "</option>"; }).join("") + "</select></div>";
     S.forEach(function (g, i) {
       if (only && g.id !== only) return;
       var fields = g.fields;
       if (only) { html += fields.map(function (f) { return control(f, d[f.k]); }).join(""); return; }
+      if (flat) { html += '<section class="fpage"><h3>' + esc(lab(g)) + '</h3><div class="fpage-body">' + fields.map(function (f) { return control(f, d[f.k]); }).join("") + "</div></section>"; return; }
       html += '<details class="fsd"' + (i === 0 ? " open" : "") + "><summary>" + esc(lab(g)) + "</summary><div class=\"fsd-body\">" + fields.map(function (f) { return control(f, d[f.k]); }).join("") + "</div></details>";
     });
     if (only === "bank") html += '<p class="note" style="margin:0">' + t("bank_reverify") + "</p>";

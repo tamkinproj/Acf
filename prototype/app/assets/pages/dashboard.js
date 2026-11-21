@@ -155,7 +155,7 @@
 
     if (d.children && (!pres || folder === "aytam")) {   // ---- Aytam ----
       var c = d.children, bs = c.by_status || {}, apps = d.applications ? d.applications.new : null;
-      L.push('<div class="mo-row">' + hero({ title: t("h_orphans"), sub: t("h_orphans_sub"), big: num(c.total), btn: A.can("children.create") ? ["people.html?add=1", t("h_add_orphan")] : null,
+      L.push('<div class="mo-row">' + hero({ title: t("h_orphans"), sub: t("h_orphans_sub"), big: num(c.total), btn: A.can("children.create") ? ["add.html", t("h_add_orphan")] : null,
         tiles: [["people.html", "users", t("t_orphans")]].concat(d.applications ? [["applications.html", "file", t("t_apps")]] : []).concat([["people.html", "search", t("t_search")]]) }) +
         '<div class="mo-minis">' + mini("check", t("s_active"), num(bs.active), t("of_n", { n: num(c.total) }), "people.html") + mini("sliders", t("s_pending"), num(bs.pending), t("of_n", { n: num(c.total) }), "people.html") +
         mini("shield", t("s_verified"), num(c.bank_verified) + '<small>/' + num(c.bank_accounts) + "</small>", c.bank_accounts ? Math.round(c.bank_verified / c.bank_accounts * 100) + "%" : "-", "people.html", "up") +
@@ -168,7 +168,7 @@
       ].filter(function (s) { return s.bars.length; })));
       R.push(people(t("q_latest_orphans"), t("q_latest_sub"), (c.latest || []).map(function (x) { return { name: A.name(x), href: "person.html?id=" + x.id }; }), "people.html"));
       if (d.applications) R.push(dark({ icon: "file", brand: t("dk_form"), number: esc(location.host + "/apply"), foot: [[t("dk_new"), num(apps)], [t("dk_total"), num(c.total)]],
-        buttons: [[null, t("b_copy"), "mocopy"], [location.origin + "/apply", t("b_open")]], actions: [["people.html?add=1", "plus", t("qa_add")], ["applications.html", "down", t("qa_apps")], ["people.html", "dots", t("qa_more")]] }));
+        buttons: [[null, t("b_copy"), "mocopy"], [location.origin + "/apply", t("b_open")]], actions: [["add.html", "plus", t("qa_add")], ["applications.html", "down", t("qa_apps")], ["people.html", "dots", t("qa_more")]] }));
       R.push(c.samples ? plan(t("pl_samples"), t("pl_samples_txt", { n: c.samples }), ["people.html", t("pl_samples_btn")]) : plan(t("pl_soon"), t("pl_soon_txt"), ["settings.html", t("pl_soon_btn")]));
       var lat = c.latest || [], attn = c.needs_attention || [];
       below.push(table(t("w_latest"), [t("w_name"), t("w_status"), t("w_added")], lat.map(function (x) { return "<tr>" + who(A.name(x), esc(x.ref) + (x.city ? " · " + esc(x.city) : ""), "person.html?id=" + x.id) + "<td>" + badge(x.status || "active") + '</td><td class="muted">' + fmtDate(x.added) + "</td></tr>"; }), "people.html"));
