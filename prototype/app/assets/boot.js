@@ -4,10 +4,13 @@
 (function () {
   var failed = [], crashed = [], shown = false;
 
+  // Only the app's OWN files count. Browsers add scripts of their own to every page (Brave's crypto wallet, for example,
+  // throws "window.ethereum..." errors); those have nothing to do with the app and must never trigger this message.
+  function ours(u) { return typeof u === "string" && u.indexOf(location.origin + "/") === 0; }
   window.addEventListener("error", function (e) {
     var t = e.target;
-    if (t && t !== window && (t.src || t.href)) { failed.push(String(t.src || t.href).replace(location.origin, "")); return; }
-    if (e.message && e.message !== "Script error." && e.message !== "Script error") crashed.push(e.message);
+    if (t && t !== window && (t.src || t.href)) { var u = String(t.src || t.href); if (ours(u)) failed.push(u.replace(location.origin, "")); return; }
+    if (e.message && ours(e.filename)) crashed.push(e.message);
   }, true);
 
   /* Removes the copy of the app saved on this phone (not the sign-in, not changes waiting to be sent), then reloads. */
@@ -31,8 +34,8 @@
   function show() {
     if (shown) return; shown = true;
     var a = ar(), box = document.createElement("div");
-    var T = a ? { h: "لم يكتمل تحميل التطبيق", p: "غالبًا يحتفظ هذا الهاتف بنسخة قديمة من التطبيق. اضغط الزر لتحميل نسخة جديدة. تبقى بيانات دخولك والتغييرات غير المرسلة.", b: "حمّل نسخة جديدة", l: "العودة إلى تسجيل الدخول", d: "إن تكرر ذلك، أرسل لقطة شاشة لهذه الرسالة." }
-                : { h: "The app did not load completely", p: "This phone probably kept an old copy of the app. Press the button to load a fresh copy. Your sign-in and any changes not sent yet are kept.", b: "Load a fresh copy", l: "Back to sign in", d: "If this keeps happening, send a screenshot of this message." };
+    var T = a ? { h: "لم يكتمل تحميل التطبيق", p: "غالبًا يحتفظ هذا الهاتف بنسخة قديمة من التطبيق. اضغط الزر لتحميل نسخة جديدة. تبقى بيانات دخولك والتغييرات غير المرسلة.", b: "حمّل نسخة جديدة", l: "العودة إلى تسجيل الدخول", c: "أغلق وتابع", d: "إن تكرر ذلك، أرسل لقطة شاشة لهذه الرسالة." }
+                : { h: "The app did not load completely", p: "This phone probably kept an old copy of the app. Press the button to load a fresh copy. Your sign-in and any changes not sent yet are kept.", b: "Load a fresh copy", l: "Back to sign in", c: "Close and continue", d: "If this keeps happening, send a screenshot of this message." };
     var details = failed.slice(0, 4).map(function (f) { return "✗ " + f; }).concat(crashed.slice(0, 2).map(function (m) { return "! " + m; })).join("\n");
     box.setAttribute("role", "alert");
     box.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(255,255,255,.96);font:16px/1.5 system-ui,-apple-system,sans-serif;color:#17300d";
@@ -40,9 +43,11 @@
       '<h2 style="margin:0 0 .5rem;font-size:1.2rem"></h2><p style="margin:0 0 1rem;color:#4b5a45"></p>' +
       '<button type="button" style="width:100%;padding:.85rem;border:0;border-radius:999px;background:#8cc63f;color:#111;font-weight:700;font-size:1rem"></button>' +
       '<a href="login.html" style="display:block;text-align:center;margin-top:.8rem;color:#2f6b1c"></a>' +
+      '<button type="button" data-close style="display:block;margin:.6rem auto 0;border:0;background:none;color:#4b5a45;text-decoration:underline;font-size:.9rem"></button>' +
       '<pre dir="ltr" style="white-space:pre-wrap;word-break:break-all;font-size:.72rem;color:#7a8574;margin:1rem 0 0"></pre><p style="font-size:.8rem;color:#7a8574;margin:.5rem 0 0"></p></div>';
     box.querySelector("h2").textContent = T.h; box.querySelector("p").textContent = T.p; box.querySelector("a").textContent = T.l;
     var btn = box.querySelector("button"); btn.textContent = T.b; btn.onclick = function () { btn.disabled = true; btn.textContent = "…"; fresh(); };
+    var cl = box.querySelector("[data-close]"); cl.textContent = T.c; cl.onclick = function () { box.remove(); };
     box.querySelector("pre").textContent = details; box.querySelectorAll("p")[1].textContent = details ? T.d : "";
     document.body.appendChild(box);
   }
@@ -50,7 +55,7 @@
   function check() {
     var bar = document.getElementById("tabbar");
     var blank = !!bar && !bar.children.length;            // the app always draws the bottom bar first: empty means it never started
-    var loginBroken = !bar && document.getElementById("loginForm") && crashed.length; // the sign-in page has no bar
+    var loginBroken = !bar && document.getElementById("loginForm") && !(window.ACF && window.ACF.api); // the sign-in page has no bar: did the app start?
     if (blank || failed.length || loginBroken) show();
   }
 
