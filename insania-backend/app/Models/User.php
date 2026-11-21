@@ -12,7 +12,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'username', 'password', 'role', 'foundation_id', 'department_id', 'guardian_id', 'phone', 'active', 'preferences', 'avatar_path', 'avatar_v', 'child_id', 'must_change_password',
+        'name', 'email', 'username', 'password', 'role', 'foundation_id', 'department_id', 'guardian_id', 'phone', 'active', 'preferences', 'access_overrides', 'avatar_path', 'avatar_v', 'child_id', 'must_change_password',
     ];
 
     protected $hidden = ['password', 'remember_token', 'avatar_path'];
@@ -39,6 +39,7 @@ class User extends Authenticatable
         'active' => 'boolean',
         'must_change_password' => 'boolean',
         'preferences' => 'array',
+        'access_overrides' => 'array',
     ];
 
     public function foundation()

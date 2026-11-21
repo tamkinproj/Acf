@@ -8,6 +8,7 @@ use App\Models\Guardian;
 use App\Models\User;
 use App\Support\ApiResponse;
 use App\Support\Audit;
+use App\Support\PermissionCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 
@@ -26,9 +27,30 @@ class UserAdminController extends Controller
         $users = User::with('department')->where('foundation_id', $request->user()->foundation_id)
             ->when($request->query('role'), fn ($q, $r) => $q->where('role', $r))
             ->orderBy('name')->paginate(50);
-        $users->setCollection($users->getCollection()->map->toApi());
+        $users->setCollection($users->getCollection()->map(fn ($u) => $this->shape($u)));
 
         return ApiResponse::collection($users);
+    }
+
+    /** An account as the Accounts screen shows it: the usual fields plus, for staff, which features are ticked. */
+    private function shape(User $u): array
+    {
+        $o = $u->toApi();
+        if ($u->role === 'staff') {
+            $o['access'] = PermissionCatalog::ticked($u);
+            $o['access_custom'] = ! empty($u->access_overrides);
+        }
+
+        return $o;
+    }
+
+    /** The features that can be ticked, grouped, with what each department gives by default. */
+    public function accessCatalog()
+    {
+        return ApiResponse::ok([
+            'groups' => collect(config('roles.access_groups'))->map(fn ($perms, $key) => ['key' => $key, 'permissions' => $perms])->values(),
+            'defaults' => collect(array_keys(config('roles.departments')))->mapWithKeys(fn ($d) => [$d => PermissionCatalog::departmentDefaults($d)]),
+        ]);
     }
 
     /** Account changes ask for the signed-in person's own password again, so a phone left unlocked cannot be used to make a back door. */
@@ -67,15 +89,26 @@ class UserAdminController extends Controller
             return $link;
         }
 
+        if (array_key_exists('access', $data) && ($denied = $this->accessAllowed($request, $data['role']))) {
+            return $denied;
+        }
+
         $user = User::create([
             'name' => $data['name'], 'email' => $data['email'], 'username' => $data['username'] ?? null, 'password' => $data['password'], 'role' => $data['role'],
             'foundation_id' => $actor->foundation_id, 'phone' => $data['phone'] ?? null, 'active' => true,
         ] + $link);
+        if (array_key_exists('access', $data)) {
+            $diff = PermissionCatalog::setTicked($user, $data['access'], $data['department_key'] ?? null);
+            $user->save();
+            if ($diff['added'] || $diff['removed']) {
+                Audit::record('user.access_changed', $request, 'user', $user->id, $diff);
+            }
+        }
 
         \App\Support\Notify::to($user->id, (int) $user->foundation_id, 'system', 'Welcome to Al Insania', 'Your account is ready. You will see messages and reminders for you here.', 'settings.html');
         Audit::record('user.created', $request, 'user', $user->id, ['role' => $user->role]);
 
-        return ApiResponse::created($user->load('department')->toApi());
+        return ApiResponse::created($this->shape($user->load('department')));
     }
 
     public function update(Request $request, User $user)
@@ -89,10 +122,10 @@ class UserAdminController extends Controller
         if (array_key_exists('username', $data) && ! $data['username']) {
             unset($data['username']);   // an empty box means "leave it"
         }
-        if (array_intersect(['role', 'active', 'department_key', 'email'], array_keys($data)) && ($denied = $this->stepUp($request))) {
+        if (array_intersect(['role', 'active', 'department_key', 'email', 'access'], array_keys($data)) && ($denied = $this->stepUp($request))) {
             return $denied;
         }
-        $changesAccess = array_key_exists('role', $data) || array_key_exists('active', $data) || array_key_exists('department_key', $data);
+        $changesAccess = array_key_exists('role', $data) || array_key_exists('active', $data) || array_key_exists('department_key', $data) || array_key_exists('access', $data);
 
         if ($user->id === $request->user()->id && (isset($data['role']) && $data['role'] !== $user->role || isset($data['active']) && ! $data['active'])) {
             return ApiResponse::error('SELF_CHANGE', 'You cannot change your own role or switch yourself off.', 422);
@@ -104,7 +137,21 @@ class UserAdminController extends Controller
             return $link;
         }
 
-        $user->fill(collect($data)->only(['name', 'email', 'username', 'phone', 'active'])->all() + ['role' => $role] + $link)->save();
+        if (array_key_exists('access', $data) && ($denied = $this->accessAllowed($request, $role))) {
+            return $denied;
+        }
+        $oldDept = $user->department_key;
+        $user->fill(collect($data)->only(['name', 'email', 'username', 'phone', 'active'])->all() + ['role' => $role] + $link);
+        $diff = null;
+        if (array_key_exists('access', $data)) {
+            $diff = PermissionCatalog::setTicked($user, $data['access'], $data['department_key'] ?? $oldDept);
+        } elseif ($role !== 'staff' || (isset($data['department_key']) && $data['department_key'] !== $oldDept)) {
+            $user->access_overrides = null;   // a new department or role starts from its own usual access
+        }
+        $user->save();
+        if ($diff && ($diff['added'] || $diff['removed'])) {
+            Audit::record('user.access_changed', $request, 'user', $user->id, $diff);
+        }
 
         if ($changesAccess) {
             $user->tokens()->delete();   // new access applies from the next sign-in
@@ -112,7 +159,7 @@ class UserAdminController extends Controller
 
         Audit::record('user.updated', $request, 'user', $user->id, ['fields' => array_keys($data)]);
 
-        return ApiResponse::updated($user->load('department')->toApi());
+        return ApiResponse::updated($this->shape($user->load('department')));
     }
 
     public function resetPassword(Request $request, User $user)
@@ -162,6 +209,19 @@ class UserAdminController extends Controller
         return null;
     }
 
+    /** Only the President changes what a staff account can open, and only staff accounts have it. */
+    private function accessAllowed(Request $request, string $role): ?\Illuminate\Http\JsonResponse
+    {
+        if ($request->user()->role !== 'president_admin') {
+            return ApiResponse::forbidden('Only the President Admin can change what an account can open.');
+        }
+        if ($role !== 'staff') {
+            return ApiResponse::error('ACCESS_ONLY_STAFF', 'Choosing what an account can open only applies to staff accounts.', 422);
+        }
+
+        return null;
+    }
+
     /** Works out department / guardian for the role, or a 422 explaining what is missing. */
     private function links(Request $request, string $role, array $data): array|\Illuminate\Http\JsonResponse
     {
@@ -204,6 +264,8 @@ class UserAdminController extends Controller
             'role' => [$req, 'in:'.implode(',', config('roles.assignable_by_security_admin'))],
             'department_key' => ['nullable', 'string', 'in:'.implode(',', array_keys(config('roles.departments')))],
             'guardian_id' => ['nullable', 'integer'],
+            'access' => ['sometimes', 'array'],
+            'access.*' => ['string', 'in:'.implode(',', PermissionCatalog::grantable())],
             'phone' => ['nullable', 'string', 'max:40'],
             'active' => $creating ? ['prohibited'] : ['sometimes', 'boolean'],
         ];

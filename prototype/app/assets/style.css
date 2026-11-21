@@ -1106,3 +1106,9 @@ div.at-row{cursor:default}
 .at-row .grow b{display:block}
 .at-fwd{transform:scaleX(-1)}
 [dir=rtl] .at-fwd{transform:none}
+
+/* ---- Accounts: what an account can open ---- */
+.acc-g{margin:.5rem 0 .8rem;padding:.7rem .9rem;border-radius:1rem;background:#f4f6ef}
+.acc-g>b{display:block;margin-bottom:.35rem}
+.acc-r{display:flex;align-items:center;gap:.6rem;padding:.3rem 0;font-weight:500}
+.acc-r input{width:1.2rem;height:1.2rem;accent-color:#3f6a10;flex:none}

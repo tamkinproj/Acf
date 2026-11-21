@@ -78,6 +78,17 @@ return [
         'administration' => ['name_en' => 'Administration', 'name_ar' => 'الإدارة', 'grants' => ['chat.use', 'attendance.clock']],
     ],
 
+    // What the President can tick for each staff account (starting from the department's usual access).
+    // The system tools, the Accounts screen, the activity log and the website stay with their own roles and are never in this list.
+    'access_groups' => [
+        'orphans' => ['children.view', 'children.create', 'children.update', 'bank.verify', 'documents.view', 'documents.upload', 'orphans.accounts', 'applications.review'],
+        'finance' => ['payments.view', 'payments.mark_cash', 'reports.view', 'reports.export'],
+        'projects' => ['projects.view', 'projects.manage'],
+        'education' => ['education.view', 'education.manage', 'education.salary'],
+        'attendance' => ['attendance.clock', 'attendance.manage', 'attendance.salary'],
+        'chat' => ['chat.use'],
+    ],
+
     // Roles that may be handed out on the Accounts screen (by the President Admin, or a Security Admin once their accounts
     // feature is on). System Admin and President Admin are deliberately not on this list: only the installer makes the
     // System Admin, and only the System Admin makes and changes the President Admin.

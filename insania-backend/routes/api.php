@@ -74,6 +74,7 @@ Route::middleware('api.json')->group(function () {
 
         Route::middleware('permission:users.manage')->group(function () {
             Route::get('users', [UserAdminController::class, 'index']);
+            Route::get('users/access-catalog', [UserAdminController::class, 'accessCatalog']);
             Route::post('users', [UserAdminController::class, 'store']);
             Route::patch('users/{user}', [UserAdminController::class, 'update']);
             Route::post('users/{user}/password', [UserAdminController::class, 'resetPassword']);

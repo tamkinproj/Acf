@@ -48,6 +48,40 @@ final class PermissionCatalog
         ];
     }
 
+    /** Every permission the President may tick for a staff account. @return list<string> */
+    public static function grantable(): array
+    {
+        return array_values(array_unique(array_merge(...array_values(config('roles.access_groups', [])))));
+    }
+
+    /** What a department gives its staff before the President changes anything. @return list<string> */
+    public static function departmentDefaults(?string $dept): array
+    {
+        return array_values(array_intersect(config("roles.departments.$dept.grants", []), self::grantable()));
+    }
+
+    /** The ticked permissions of a staff account (the department's access with the President's changes), for the Accounts screen. */
+    public static function ticked(User $user): array
+    {
+        return array_values(array_intersect(self::forUser($user), self::grantable()));
+    }
+
+    /**
+     * Saves the ticks of a staff account as the difference from the department's usual access.
+     * Nothing is stored when the ticks are exactly the department's.
+     */
+    public static function setTicked(User $user, array $ticked, ?string $dept = null): array
+    {
+        $g = self::grantable();
+        $want = array_values(array_intersect($ticked, $g));
+        $base = self::departmentDefaults($dept ?? $user->department_key);
+        $add = array_values(array_diff($want, $base));
+        $remove = array_values(array_diff($base, $want));
+        $user->access_overrides = ($add || $remove) ? ['add' => $add, 'remove' => $remove] : null;
+
+        return ['added' => $add, 'removed' => $remove];
+    }
+
     public static function isValidPermissionKey(string $key): bool
     {
         return array_key_exists($key, self::permissionKeys());
@@ -65,6 +99,13 @@ final class PermissionCatalog
 
         if ($role === 'staff' && $user->department_key) {
             $keys = array_merge($keys, config("roles.departments.{$user->department_key}.grants", []));
+        }
+
+        if ($role === 'staff') {
+            $o = $user->access_overrides ?? [];
+            $grantable = self::grantable();
+            $keys = array_merge($keys, array_intersect((array) ($o['add'] ?? []), $grantable));
+            $keys = array_diff($keys, array_intersect((array) ($o['remove'] ?? []), $grantable));
         }
 
         $keys = array_filter($keys, [self::class, 'isValidPermissionKey']);
