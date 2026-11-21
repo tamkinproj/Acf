@@ -30,8 +30,15 @@
   }
   function badge(s) { return '<span class="badge ' + (s === "active" ? "" : s === "ended" ? "grey" : "warn") + '">' + t(s) + "</span>"; }
   /* the grouped list, like Settings: a title with its pencil, then rows (label on the start, value on the end) */
-  function row(label, val, extra) { return '<div class="ios-row no-tile dp-row' + (extra ? " " + extra : "") + '"><span class="ios-lbl">' + label + '</span><span class="ios-val">' + val + "</span></div>"; }
-  function pen(g) { return A.can("children.update") && !editing ? '<button class="ios-pen" type="button" data-act="editsec" data-g="' + g + '" aria-label="' + esc(t("o_edit")) + '">' + ic("edit") + "</button>" : ""; }
+  function row(label, val, extra, tap) { return '<div class="ios-row no-tile dp-row' + (extra ? " " + extra : "") + (tap ? " dp-tap" : "") + '"' + (tap ? ' role="button" tabindex="0" ' + tap : "") + '><span class="ios-lbl">' + label + '</span><span class="ios-val">' + val + "</span></div>"; }
+  function pen() { return ""; }   // no pencil on the cards: tap a value to change it
+  function fieldDef(k) { var out = null; A.orphan.schema.forEach(function (g) { g.fields.forEach(function (f) { if (f.k === k) out = f; }); }); return out; }
+  function inlineEditor(k, d) {   // one field turned into an input, right where its value was
+    var ctl;
+    if (k === "status") ctl = '<div><label for="f_status">' + t("f_status") + '</label><select id="f_status">' + ["active", "pending", "ended"].map(function (x) { return '<option value="' + x + '"' + ((current.status || "active") === x ? " selected" : "") + ">" + t(x) + "</option>"; }).join("") + '</select><div class="err" id="f_statusErr"></div></div>';
+    else ctl = A.orphan.control(fieldDef(k), d[k]);
+    return '<div class="dp-inrow">' + ctl + '<div class="dp-inbtns"><button class="btn btn-line btn-sm" type="button" data-act="cancelfield">' + t("cancel") + '</button><button class="btn btn-main btn-sm" type="button" data-act="savefield">' + t("save") + "</button></div></div>";
+  }
   function sec(title, inner, pencil, id) { return '<section class="dp-sec"' + (id ? ' id="' + id + '"' : "") + '><div class="ios-head"><h3>' + esc(title) + "</h3>" + (pencil || "") + "</div>" + inner + "</section>"; }
   function rows(list) { return '<div class="ios-group dp-rows">' + list.join("") + "</div>"; }
   function fields(g) { return '<div class="ios-group ios-edit">' + A.orphan.formHtml(current, g) + "</div>"; }
@@ -52,14 +59,16 @@
 
     var groups = A.orphan.schema.filter(function (g) { return g.id !== "bank" && g.fields.length; }).map(function (g) {
       var ed = editing === "all" || editing === g.id, list = [];
-      if (g.id === "info") list.push(row(t("f_status"), esc(t(c.status || "active"))));
-      g.fields.forEach(function (f) { list.push(row(esc(A.orphan.lab(f)), A.orphan.show(f, d[f.k]))); });
+      var one = function (k) { return canEdit && editing && editing.field === k; };
+      if (g.id === "info") list.push(one("status") ? inlineEditor("status", d) : row(t("f_status"), esc(t(c.status || "active")), "", canEdit ? 'data-act="editfield" data-k="status"' : ""));
+      g.fields.forEach(function (f) { list.push(one(f.k) ? inlineEditor(f.k, d) : row(esc(A.orphan.lab(f)), A.orphan.show(f, d[f.k]), "", canEdit ? 'data-act="editfield" data-k="' + f.k + '"' : "")); });
       return sec(A.orphan.lab(g), ed ? fields(g.id) : rows(list), ed ? "" : pen(g.id), "sec-" + g.id);
     }).join("");
 
     var bg = A.orphan.schema.filter(function (g) { return g.id === "bank"; })[0], bed = editing === "all" || editing === "bank";
-    var bankRows = c.bank ? [row(t("f_holder"), dash(c.bank.holder)), row(t("f_bankname"), dash(c.bank.bank_name)), row(t("f_last4"), '<span dir="ltr">•••• ' + esc(c.bank.last4) + "</span>"),
-      '<div class="ios-row no-tile"><span class="ios-lbl">' + t("verify") + "</span>" + (A.can("bank.verify") ? '<button class="switch" type="button" role="switch" aria-checked="' + !!c.bank.verified + '" aria-label="' + t("verify") + '" data-act="verify"></button>' : '<span class="ios-val">' + t(c.bank.verified ? "verify" : "notver") + "</span>") + "</div>"] : [row(t("no_bank"), "")];
+    var bt = canEdit ? 'data-act="editsec" data-g="bank"' : "";
+    var bankRows = c.bank ? [row(t("f_holder"), dash(c.bank.holder), "", bt), row(t("f_bankname"), dash(c.bank.bank_name), "", bt), row(t("f_last4"), '<span dir="ltr">•••• ' + esc(c.bank.last4) + "</span>", "", bt),
+      '<div class="ios-row no-tile"><span class="ios-lbl">' + t("verify") + "</span>" + (A.can("bank.verify") ? '<button class="switch" type="button" role="switch" aria-checked="' + !!c.bank.verified + '" aria-label="' + t("verify") + '" data-act="verify"></button>' : '<span class="ios-val">' + t(c.bank.verified ? "verify" : "notver") + "</span>") + "</div>"] : [row(t("no_bank"), canEdit ? ic("plus") : "", "", bt)];
     var bank = sec(t("sec_bank"), bed ? fields("bank") : rows(bankRows), bed ? "" : pen("bank"), "sec-bank");
 
     var photos = sec(t("sec_photos"), '<div class="ios-group dp-pad"><div class="photos" id="photos">' + (c.photos || []).map(function (pid) {
@@ -76,7 +85,7 @@
       (c.account ? '<span dir="ltr">@' + esc(c.account) + "</span>" : t("p_noacct")) + '</span><span class="ios-val">' + t(c.account ? "acc_reset" : "acc_one") + "</span>" + ic("chev", "ios-chev") + "</button></div>") : "";
 
     var record = sec(t("sec_record"), rows([row(t("p_added"), dash(c.created_at)), row(t("p_updated"), dash(c.updated_at)), row(t("p_submitted"), dash(c.form_submitted_at)), row(t("p_photos"), String((c.photos || []).length))]));
-    var bar2 = editing ? '<div class="err" id="formErr" role="alert"></div><div class="dp-savebar"><button class="btn btn-line" type="button" data-act="canceledit">' + t("cancel") + '</button><button class="btn btn-main" type="button" data-act="saveedit">' + t("save") + "</button></div>" : "";
+    var bar2 = typeof editing === "string" ? '<div class="err" id="formErr" role="alert"></div><div class="dp-savebar"><button class="btn btn-line" type="button" data-act="canceledit">' + t("cancel") + '</button><button class="btn btn-main" type="button" data-act="saveedit">' + t("save") + "</button></div>" : "";
     return '<div class="dp">' + bar(A.name(c)) + head + '<div class="dp-grid">' + groups + bank + photos + docs + acct + record + "</div>" + bar2 + "</div>";
   }
 
@@ -84,6 +93,35 @@
   A.act("editall", function () { if (current) { editing = "all"; A.paint(); } });
   A.act("editsec", function (el) { if (current) { editing = el.getAttribute("data-g"); A.paint(); } });
   A.act("canceledit", function () { editing = null; A.paint(); });
+  A.act("editfield", function (el) { if (!current) return; editing = { field: el.getAttribute("data-k") }; A.paint(); });
+  A.act("cancelfield", function () { editing = null; A.paint(); });
+  function saveField(el) {
+    var k = editing && editing.field; if (!k) return;
+    Array.prototype.forEach.call(document.querySelectorAll(".dp .err"), function (e) { e.textContent = ""; });
+    var body, d = (current && current.details) || {};
+    if (k.indexOf("guardian_") === 0) {   // the guardian is saved as a whole: the other two answers stay as they were
+      var v = (document.getElementById("f_" + k).value || "").trim(), gd = { name: d.guardian_name, relation: d.guardian_relation, phone: d.guardian_phone }; gd[k.slice(9)] = v;
+      if (!gd.name) { if (k === "guardian_name") { document.getElementById("f_" + k + "Err").textContent = t("required"); return; } gd.name = "-"; }
+      Object.keys(gd).forEach(function (x) { if (gd[x] === undefined || gd[x] === null || gd[x] === "") delete gd[x]; });
+      body = { guardian: gd };
+    } else {
+      body = A.orphan.readBody(true);
+      if (body.error) { var box = document.getElementById(body.error[0] + "Err"); if (box) box.textContent = body.error[1]; return; }
+    }
+    if (el) el.disabled = true;
+    A.api.write("PATCH", "children/" + id, body, { online: true }).then(function () { editing = null; A.toast(t("p_saved")); A.reload(true); }, function (e) {
+      if (el) el.disabled = false;
+      var err = document.getElementById("f_" + k + "Err"); if (!err) return;
+      if (e.offline) { err.textContent = t("p_conn"); return; }
+      if (!(e.errors && A.showErrors(e.errors, "f_"))) err.textContent = A.msg(e);
+    });
+  }
+  A.act("savefield", function (el) { saveField(el); });
+  document.addEventListener("keydown", function (e) {
+    if (!editing || !editing.field || !e.target || !e.target.closest || !e.target.closest(".dp-inrow")) return;
+    if (e.key === "Escape") { editing = null; A.paint(); }
+    else if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") { e.preventDefault(); saveField(document.querySelector(".dp-inrow [data-act=savefield]")); }
+  });
   A.act("saveedit", function (el) {
     Array.prototype.forEach.call(document.querySelectorAll(".dp .err"), function (e) { e.textContent = ""; });
     var body = A.orphan.readBody(true);
@@ -132,6 +170,6 @@
 
   A.start({
     page: "person", nav: "people", title: "child_title", perm: "children.view", shell: true, bare: true, load: load, render: render,
-    after: function (c) { if (c && c.ref) { document.title = A.name(c) + " | " + t("brand"); loadPhotos(c); } }
+    after: function (c) { if (c && c.ref) { document.title = A.name(c) + " | " + t("brand"); loadPhotos(c); if (editing && editing.field) { var inp = document.getElementById("f_" + editing.field); if (inp && inp.focus) { inp.focus(); } } } }
   });
 })();

@@ -95,5 +95,5 @@
       return '<div class="card osec" id="sec-' + g.id + '"><div class="osec-head"><h3>' + esc(lab(g)) + "</h3>" + (opts.edit ? '<button class="osec-edit" type="button" data-act="editsec" data-g="' + g.id + '" aria-label="' + esc(t("o_edit") + ": " + lab(g)) + '">' + A.ic("edit") + "<span>" + t("o_edit") + "</span></button>" : "") + "</div>" + A.facts(fields.map(function (f) { return [esc(lab(f)), show(f, d[f.k])]; })) + "</div>";
     }).join("");
   }
-  A.orphan = { lab: lab, formHtml: formHtml, wire: wire, readBody: readBody, view: view, show: show, schema: S };
+  A.orphan = { control: control, lab: lab, formHtml: formHtml, wire: wire, readBody: readBody, view: view, show: show, schema: S };
 })();

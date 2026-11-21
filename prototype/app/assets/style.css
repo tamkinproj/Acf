@@ -777,7 +777,8 @@ a.cc:hover{border-color:rgba(0,0,0,.25)}
 .fold-a:empty{display:none}
 
 /* ---- phones: nothing zooms (pinch, double-tap), and text boxes are never small enough to make iOS zoom in ---- */
-html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{touch-action:pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:clip}
+body{overflow-x:clip;overscroll-behavior-x:none}
 @media (hover:none){input,select,textarea{font-size:16px!important}}
 
 /* =====================================================================================
@@ -910,3 +911,10 @@ button.dp-avatar.has-photo{color:transparent}
 .dp-head .share-ic span{display:none}
 .dp-savebar{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:.6rem;padding:.8rem 0 calc(.8rem + env(safe-area-inset-bottom));background:#f2f3ef}
 .dp-savebar .btn{min-width:7rem}
+
+/* ---- profile: tap a value to change it ---- */
+.dp-tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dp-tap:active{background:rgba(23,48,13,.05)}
+.dp-inrow{display:grid;gap:.7rem;padding:.8rem 1rem}
+.dp-inrow label{margin-bottom:.3rem}
+.dp-inbtns{display:flex;justify-content:flex-end;gap:.5rem}
