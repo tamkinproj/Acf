@@ -142,7 +142,10 @@
       '<div class="mo-rail mo-rail-foot"><a href="settings.html" title="' + esc(t("n_set")) + '"' + (cur === "settings" ? ' class="active" aria-current="page"' : "") + ">" + ic("gear") + '<span class="sr">' + t("n_set") + "</span></a>" +
       '<button type="button" data-act="lang" title="Language">' + ic("globe") + '<span class="sr">' + t("lang_btn") + "</span></button>" +
       '<button type="button" data-act="signout" title="' + esc(t("signout")) + '">' + ic("logout") + '<span class="sr">' + t("signout") + "</span></button></div>";
-    moreItems = [];
+    /* bottom bar (phones and tablets): up to five places; when a role has more, four stay and the rest open under "More" */
+    var bottom = sorted.length > 5 ? sorted.slice(0, 4) : sorted; moreItems = sorted.length > 5 ? sorted.slice(4) : [];
+    $("#tabbar").insertAdjacentHTML("beforeend", '<div class="mo-bottom">' + bottom.map(function (m) { return '<a href="' + m[1] + '"' + (cur === m[0] ? ' class="active" aria-current="page"' : "") + "><span class=\"bi\">" + ic(m[4]) + "</span><span>" + t(m[2]) + "</span></a>"; }).join("") +
+      (moreItems.length ? '<a href="#" data-act="more"' + (moreItems.some(function (m) { return m[0] === cur; }) ? ' class="active"' : "") + '><span class="bi">' + ic("menu") + "</span><span>" + t("n_more") + "</span></a>" : "") + "</div>");
     var act = $(".mo-tabs a.active"); if (act && act.scrollIntoView && window.innerWidth < 1024) { try { act.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {} }
   }
   function refreshChip() { var b = $("#chipBox"); if (b) b.innerHTML = chipHtml(); var bell = $("#bellBtn"); if (bell) { var d = bell.querySelector(".dot"); if (bellDot() && !d) bell.insertAdjacentHTML("beforeend", '<i class="dot"></i>'); else if (!bellDot() && d) d.remove(); } }
@@ -151,7 +154,8 @@
     root.lang = lang; root.dir = lang === "ar" ? "rtl" : "ltr";
     document.title = t(spec.title) + " | " + t("brand");
     Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function (n) { n.textContent = t(n.getAttribute("data-t")); });
-    if (spec.shell) shell();
+    root.classList.toggle("bare", !!spec.bare);
+    if (spec.shell && !spec.bare) shell();
   }
   function paint() {
     chrome();

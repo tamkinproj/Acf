@@ -316,4 +316,16 @@ class UpdatesTest extends TestCase
     {
         return $this->makePatch(['insania_app/app/b.php' => "<?php\nreturn 1;\n", 'insania_app/BUILD' => 'B2'], [], $priv, $tamper);
     }
+
+    public function test_a_patch_too_large_for_php_gets_a_clear_message(): void
+    {
+        $this->world();
+        $this->actingAsRole('system_admin');
+        $tmp = tempnam(sys_get_temp_dir(), 'big');
+        $big = new UploadedFile($tmp, 'patch.zip', 'application/zip', UPLOAD_ERR_INI_SIZE, true);
+        $r = $this->post('/api/system/updates/auto', ['patch' => $big], ['Accept' => 'application/json']);
+        $r->assertStatus(413)->assertJsonPath('code', 'TOO_LARGE');
+        $this->assertStringContainsString('upload_max_filesize', $r->json('message'));
+        @unlink($tmp);
+    }
 }

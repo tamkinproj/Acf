@@ -84,6 +84,9 @@ Route::middleware('api.json')->group(function () {
         Route::delete('children/samples', [ChildController::class, 'removeSamples'])->middleware('permission:children.update');
         Route::get('children/{child}', [ChildController::class, 'show'])->middleware('permission:children.view');
         Route::get('children/{child}/photos/{photo}', [ChildController::class, 'photo'])->middleware('permission:children.view')->whereNumber('photo');
+        Route::post('children/{child}/photos', [ChildController::class, 'addPhoto'])->middleware(['permission:children.update', 'block.uploads']);
+        Route::delete('children/{child}/photos/{photo}', [ChildController::class, 'removePhoto'])->middleware('permission:children.update')->whereNumber('photo');
+        Route::get('applications/{application}/documents/{n}', [\App\Http\Controllers\Api\ApplicationController::class, 'document'])->middleware('permission:applications.review')->whereNumber('n');
         Route::post('children', [ChildController::class, 'store'])->middleware('permission:children.create');
         Route::patch('children/{child}', [ChildController::class, 'update'])->middleware('permission:children.update');
         Route::put('children/{child}/bank/verification', [BankVerificationController::class, 'update'])->middleware('permission:bank.verify');

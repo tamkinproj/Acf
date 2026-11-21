@@ -67,6 +67,13 @@ final class ApiExceptions
                 'Too many requests. Retry later.',
                 429
             ),
+            // the web server refused the upload before the app saw it (PHP post_max_size / upload_max_filesize)
+            $e instanceof \Illuminate\Http\Exceptions\PostTooLargeException => ApiResponse::error(
+                'TOO_LARGE',
+                'The upload is larger than this server accepts (limit '.ini_get('post_max_size').'). The System Admin can raise '
+                .'upload_max_filesize and post_max_size in hPanel, PHP Configuration, PHP options (for example to 64M).',
+                413
+            ),
             $e instanceof HttpExceptionInterface => ApiResponse::error(
                 'HTTP_ERROR',
                 $e->getMessage() !== '' ? $e->getMessage() : 'Request failed.',

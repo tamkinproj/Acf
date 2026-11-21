@@ -21,7 +21,7 @@ class PublicApplyController extends Controller
 {
     public function status()
     {
-        return ApiResponse::ok(['open' => (bool) config('features.public_apply') && Foundation::primary() !== null, 'max_photos' => (int) config('orphan_fields.photos.max_files')]);
+        return ApiResponse::ok(['open' => (bool) config('features.public_apply') && Foundation::primary() !== null, 'max_photos' => (int) config('orphan_fields.photos.max_files'), 'max_documents' => (int) config('orphan_fields.documents.max_files')]);
     }
 
     public function store(Request $request)
@@ -40,6 +40,9 @@ class PublicApplyController extends Controller
         $rules = OrphanFields::rules(true) + [
             'photos' => ['nullable', 'array', 'max:'.$maxFiles],
             'photos.*' => ['file', 'max:'.(int) config('orphan_fields.photos.max_kb'), 'mimes:jpg,jpeg,png,webp'],
+            'documents' => ['nullable', 'array', 'max:'.(int) config('orphan_fields.documents.max_files')],
+            'documents.*' => ['file', 'max:'.(int) config('orphan_fields.documents.max_kb'), 'mimes:jpg,jpeg,png,webp'],
+            'method' => ['nullable', 'in:form,documents'],
         ];
         $rules['birth_date'] = ['required', 'date', 'before:today', 'after:1990-01-01'];
         $rules['gender'] = ['required', 'in:m,f'];
@@ -49,27 +52,30 @@ class PublicApplyController extends Controller
         $rules['name_ar'] = ['required_without:name_en', 'nullable', 'string', 'max:150'];
         $data = $request->validate($rules);
 
-        $answers = collect($data)->except('photos')->filter(fn ($v) => $v !== null && $v !== '')->all();
+        $answers = collect($data)->except(['photos', 'documents', 'method'])->filter(fn ($v) => $v !== null && $v !== '')->all();
         $app = ChildApplication::withoutGlobalScopes()->create([
-            'foundation_id' => $foundation->id, 'status' => 'new', 'data' => $answers, 'photos' => [],
+            'foundation_id' => $foundation->id, 'status' => 'new', 'data' => $answers, 'photos' => [], 'documents' => [], 'method' => $data['method'] ?? 'form',
             'ip_hash' => hash('sha256', $request->ip().'|'.config('app.key')),
         ]);
 
-        $paths = [];
-        foreach ((array) $request->file('photos', []) as $i => $file) {
-            $saved = PrivateImages::store($file, "applications/{$app->id}");
-            if (is_string($saved)) {
-                foreach ($paths as $p) {
-                    Storage::disk('local')->delete($p['path']);
-                }
-                $app->delete();
+        $saved = ['photos' => [], 'documents' => []];
+        foreach (['photos' => [1400, null], 'documents' => [2200, (int) config('orphan_fields.documents.max_kb')]] as $kind => [$side, $kb]) {
+            foreach ((array) $request->file($kind, []) as $file) {
+                $one = PrivateImages::store($file, "applications/{$app->id}/$kind", $side, $kb);
+                if (is_string($one)) {
+                    foreach (array_merge($saved['photos'], $saved['documents']) as $p) {
+                        Storage::disk('local')->delete($p['path']);
+                    }
+                    $app->delete();
 
-                return ApiResponse::error('VALIDATION_ERROR', $saved, 422, ['photos' => [$saved]]);
+                    return ApiResponse::error('VALIDATION_ERROR', $one, 422, [$kind => [$one]]);
+                }
+                $saved[$kind][] = $one;
             }
-            $paths[] = $saved;
         }
-        $app->update(['photos' => $paths]);
-        Audit::record('application.received', $request, 'application', $app->id, ['photos' => count($paths)], null, $foundation->id);
+        $paths = $saved['photos'];
+        $app->update($saved);
+        Audit::record('application.received', $request, 'application', $app->id, ['photos' => count($paths), 'documents' => count($saved['documents']), 'method' => $app->method], null, $foundation->id);
 
         return ApiResponse::created(['reference' => $app->reference()]);
     }

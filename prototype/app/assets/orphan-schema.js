@@ -64,7 +64,7 @@
     { id: "bank", en: "Bank account", ar: "الحساب البنكي", note: { en: "Only the last 4 digits of the account number are kept.", ar: "يُحفظ آخر 4 أرقام فقط من رقم الحساب." }, fields: [
       f("bank_holder", "Account name", "اسم صاحب الحساب", "text"),
       f("bank_name", "Bank (AUB / Hello Money)", "البنك (AUB / Hello Money)", "text"),
-      f("bank_last4", "Account number (last 4 digits)", "رقم الحساب (آخر 4 أرقام)", "text", { dir: "ltr", max: 4, create: 1 })
+      f("bank_last4", "Account number (last 4 digits)", "رقم الحساب (آخر 4 أرقام)", "text", { dir: "ltr", max: 4 })
     ] },
     { id: "notes", en: "Foundation notes", ar: "ملاحظات المؤسسة", staff: 1, fields: [
       f("notable_changes", "Notable changes this year", "تغييرات ملحوظة هذا العام", "long", { staff: 1 }),

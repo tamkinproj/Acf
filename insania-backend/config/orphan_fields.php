@@ -68,7 +68,9 @@ return [
         'expected_send_date' => ['date', 'staff' => true],
     ],
 
-    'photos' => ['max_files' => 2, 'max_kb' => 4096],
+    'photos' => ['max_files' => 2, 'max_kb' => 4096, 'max_per_child' => 8],
+    // Papers sent with an application (birth certificate, death certificate, school record...): photos of the pages.
+    'documents' => ['max_files' => 5, 'max_kb' => 8192],
     // Applications from the public form: how many a visitor may send per hour, and in total per day.
     'apply' => ['per_hour' => 6, 'per_day' => 200],
 ];

@@ -9,9 +9,9 @@ class ChildApplication extends Model
 {
     use BelongsToFoundation;
 
-    protected $fillable = ['foundation_id', 'status', 'data', 'photos', 'child_id', 'ip_hash', 'reviewed_by', 'reviewed_at', 'note'];
+    protected $fillable = ['foundation_id', 'status', 'data', 'photos', 'child_id', 'ip_hash', 'reviewed_by', 'reviewed_at', 'note', 'documents', 'method'];
 
-    protected $casts = ['data' => 'array', 'photos' => 'array', 'reviewed_at' => 'datetime'];
+    protected $casts = ['data' => 'array', 'photos' => 'array', 'documents' => 'array', 'reviewed_at' => 'datetime'];
 
     public function reference(): string
     {

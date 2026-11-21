@@ -32,6 +32,9 @@ class UpdateController extends Controller
 
     public function check(Request $request)
     {
+        if ($big = \App\Support\UploadLimit::refused($request, 'patch')) {
+            return ApiResponse::error('TOO_LARGE', $big, 413);
+        }
         $request->validate(['patch' => ['required', 'file', 'max:61440'], 'signature' => ['required', 'file', 'max:16']]);
 
         try {
@@ -52,6 +55,9 @@ class UpdateController extends Controller
     /** Upload and update in one step: check the signature and the files, back up, apply. Undo stays available. */
     public function auto(Request $request)
     {
+        if ($big = \App\Support\UploadLimit::refused($request, 'patch')) {
+            return ApiResponse::error('TOO_LARGE', $big, 413);
+        }
         $request->validate(['patch' => ['required', 'file', 'max:61440'], 'signature' => ['nullable', 'file', 'max:16']]);
 
         try {

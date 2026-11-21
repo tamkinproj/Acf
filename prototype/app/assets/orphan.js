@@ -4,9 +4,9 @@
   var A = ACF, t = A.t, S = window.ORPHAN_SCHEMA || [];
 
   A.strings({
-    f_status: "Status", active: "Active", pending: "Pending", ended: "Ended", bank_all_or_none: "Fill in all three bank fields, or none.", o_none: "-", o_yes_note: ""
+    f_status: "Status", o_edit: "Edit", active: "Active", pending: "Pending", ended: "Ended", bank_all_or_none: "Fill in all three bank fields, or none.", bank_reverify: "A changed bank account must be verified again.", o_none: "-", o_yes_note: ""
   }, {
-    f_status: "الحالة", active: "نشط", pending: "معلّق", ended: "منتهٍ", bank_all_or_none: "املأ حقول البنك الثلاثة كلها أو اتركها فارغة.", o_none: "-", o_yes_note: ""
+    f_status: "الحالة", o_edit: "تعديل", active: "نشط", pending: "معلّق", ended: "منتهٍ", bank_all_or_none: "املأ حقول البنك الثلاثة كلها أو اتركها فارغة.", bank_reverify: "يجب توثيق الحساب البنكي من جديد بعد تغييره.", o_none: "-", o_yes_note: ""
   });
 
   function ar() { return A.lang() === "ar"; }
@@ -30,39 +30,45 @@
   }
 
   /* c = the profile being edited (nothing = a new orphan). */
-  function formHtml(c) {
+  /* c = the profile being edited (nothing = a new orphan). only = one group id: just that section (editing one part of a profile). */
+  function formHtml(c, only) {
     c = c || {}; var d = c.details || {}, edit = !!c.id, html = "";
-    if (edit) html += '<div><label for="f_status">' + t("f_status") + '</label><select id="f_status">' + [["active", "active"], ["pending", "pending"], ["ended", "ended"]].map(function (s) { return '<option value="' + s[0] + '"' + (c.status === s[0] ? " selected" : "") + ">" + t(s[1]) + "</option>"; }).join("") + "</select></div>";
+    if (edit && (!only || only === "info")) html += '<div><label for="f_status">' + t("f_status") + '</label><select id="f_status">' + [["active", "active"], ["pending", "pending"], ["ended", "ended"]].map(function (s) { return '<option value="' + s[0] + '"' + (c.status === s[0] ? " selected" : "") + ">" + t(s[1]) + "</option>"; }).join("") + "</select></div>";
     S.forEach(function (g, i) {
-      var fields = g.fields.filter(function (f) { return !(edit && f.create); });                  // the bank account is set when the orphan is added; staff verify it on the profile
-      if (!fields.length) return;
+      if (only && g.id !== only) return;
+      var fields = g.fields;
+      if (only) { html += fields.map(function (f) { return control(f, d[f.k]); }).join(""); return; }
       html += '<details class="fsd"' + (i === 0 ? " open" : "") + "><summary>" + esc(lab(g)) + "</summary><div class=\"fsd-body\">" + fields.map(function (f) { return control(f, d[f.k]); }).join("") + "</div></details>";
     });
+    if (only === "bank") html += '<p class="note" style="margin:0">' + t("bank_reverify") + "</p>";
     return html;
   }
   function wire() {}
   function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
 
   /* Returns the request body, or { error: [fieldId, message] }. */
+  function here(id) { return !!document.getElementById(id); }
   function readBody(edit) {
-    var body = {}, g = {}, b = {};
-    if (!v("f_name_en") && !v("f_name_ar")) return { error: ["f_name_en", t("required")] };
+    var body = {}, g = {}, b = {}, bankShown = here("f_bank_holder");
+    if (here("f_name_en") && !v("f_name_en") && !v("f_name_ar")) return { error: ["f_name_en", t("required")] };
     S.forEach(function (grp) {
       grp.fields.forEach(function (f) {
-        var raw = v("f_" + f.k); if (edit && f.create) return;
+        if (!here("f_" + f.k)) return;                                       // a field not on screen is never changed
+        var raw = v("f_" + f.k);
         var val = raw === "" ? null : (f.t === "num" ? parseInt(raw, 10) : f.t === "dec" ? Number(raw) : raw);
         if (f.k.indexOf("guardian_") === 0) { if (val !== null) g[f.k.slice(9)] = val; return; }
         if (f.k.indexOf("bank_") === 0) { if (val !== null) b[f.k === "bank_name" ? "bank_name" : f.k.slice(5)] = val; return; }
         if (edit) body[f.k] = val; else if (val !== null) body[f.k] = val;
       });
     });
-    if (!body.name_en) { if (edit) body.name_en = body.name_ar || v("f_name_ar"); else body.name_en = body.name_ar; }   // the record is listed under the English name; fall back to Arabic
-    if (edit) body.status = v("f_status");
+    if (here("f_name_en") && !body.name_en) body.name_en = body.name_ar || v("f_name_ar");   // the record is listed under the English name; fall back to Arabic
+    if (edit && here("f_status")) body.status = v("f_status");
     if (g.name) body.guardian = g;
-    if (!edit) {
+    if (bankShown) {
       var filled = ["holder", "bank_name", "last4"].filter(function (k) { return b[k]; }).length;
       if (filled && filled < 3) return { error: ["formErr", t("bank_all_or_none")] };
-      body.pay_type = filled === 3 ? "bank" : "cash"; if (filled === 3) body.bank = b;
+      if (filled === 3) body.bank = b;
+      if (!edit) body.pay_type = filled === 3 ? "bank" : "cash";
     }
     return body;
   }
@@ -85,8 +91,8 @@
     return S.filter(function (g) { return opts.bank || g.id !== "bank"; }).map(function (g) {
       var fields = g.fields.filter(function (f) { return !(opts.skipStaff && f.staff); });
       if (!fields.length) return "";
-      return '<div class="card"><h3>' + esc(lab(g)) + "</h3>" + A.facts(fields.map(function (f) { return [esc(lab(f)), show(f, d[f.k])]; })) + "</div>";
+      return '<div class="card osec" id="sec-' + g.id + '"><div class="osec-head"><h3>' + esc(lab(g)) + "</h3>" + (opts.edit ? '<button class="osec-edit" type="button" data-act="editsec" data-g="' + g.id + '" aria-label="' + esc(t("o_edit") + ": " + lab(g)) + '">' + A.ic("edit") + "<span>" + t("o_edit") + "</span></button>" : "") + "</div>" + A.facts(fields.map(function (f) { return [esc(lab(f)), show(f, d[f.k])]; })) + "</div>";
     }).join("");
   }
-  A.orphan = { formHtml: formHtml, wire: wire, readBody: readBody, view: view, show: show, schema: S };
+  A.orphan = { lab: lab, formHtml: formHtml, wire: wire, readBody: readBody, view: view, show: show, schema: S };
 })();

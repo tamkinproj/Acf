@@ -1,0 +1,16 @@
+# Text reading (OCR) for the "upload documents" way of applying. It runs in the visitor's own browser: nothing is sent elsewhere.
+# The reading engine is WebAssembly, so this folder (and only this folder) also allows WebAssembly from this site.
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+  <FilesMatch "\.(js|gz)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+</IfModule>
+# The language files are already compressed: send them as they are (the reader unpacks them itself).
+<IfModule mod_mime.c>
+  RemoveEncoding .gz
+  AddType application/octet-stream .gz
+</IfModule>
+<IfModule mod_deflate.c>
+  SetEnvIfNoCase Request_URI \.gz$ no-gzip
+</IfModule>

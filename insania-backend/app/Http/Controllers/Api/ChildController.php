@@ -49,6 +49,36 @@ class ChildController extends Controller
         return ApplicationController::file($p?->path, $p?->mime ?? 'image/jpeg');
     }
 
+    /** Staff add a photo of the child (private, re-saved, shrunk). */
+    public function addPhoto(Request $request, Child $child)
+    {
+        $request->validate(['photo' => ['required', 'file', 'max:'.(int) config('orphan_fields.photos.max_kb'), 'mimes:jpg,jpeg,png,webp']]);
+        if ($child->photos()->count() >= (int) config('orphan_fields.photos.max_per_child', 8)) {
+            return ApiResponse::error('TOO_MANY', 'This child already has the most photos allowed. Remove one first.', 422);
+        }
+        $saved = \App\Support\PrivateImages::store($request->file('photo'), "children/{$child->foundation_id}/{$child->id}");
+        if (is_string($saved)) {
+            return ApiResponse::error('VALIDATION_ERROR', $saved, 422, ['photo' => [$saved]]);
+        }
+        $photo = \App\Models\ChildPhoto::create(['foundation_id' => $child->foundation_id, 'child_id' => $child->id] + $saved);
+        Audit::record('child.photo_added', $request, 'child', $child->id);
+
+        return ApiResponse::created(['id' => $photo->id]);
+    }
+
+    public function removePhoto(Request $request, Child $child, int $photo)
+    {
+        $p = $child->photos()->where('id', $photo)->first();
+        if (! $p) {
+            return ApiResponse::notFound('No such photo.');
+        }
+        \Illuminate\Support\Facades\Storage::disk('local')->delete($p->path);
+        $p->delete();
+        Audit::record('child.photo_removed', $request, 'child', $child->id);
+
+        return ApiResponse::deleted('Photo removed.');
+    }
+
     /** Removes the sample orphans that came with the system (and only those). */
     public function removeSamples(Request $request)
     {
@@ -91,6 +121,18 @@ class ChildController extends Controller
                 $child->guardian_id = $guardian->id;
             }
             $child->fill(collect($data)->except(['guardian', 'bank', 'pay_type', 'monthly_amount', 'channel', 'sponsor_id'])->all())->save();
+
+            // The bank account can be corrected. A changed account is not verified any more: staff check it again.
+            if (! empty($data['bank'])) {
+                $bank = $child->bankAccount ?? new \App\Models\BankAccount(['foundation_id' => $child->foundation_id, 'child_id' => $child->id]);
+                $bank->fill($data['bank']);
+                if (! $bank->exists || $bank->isDirty(['holder', 'bank_name', 'last4'])) {
+                    $bank->verified = false;
+                    $bank->verified_by = null;
+                    $bank->verified_at = null;
+                }
+                $bank->save();
+            }
         });
 
         Audit::record('child.updated', $request, 'child', $child->id, ['fields' => array_keys($data)]);
@@ -116,7 +158,7 @@ class ChildController extends Controller
             'monthly_amount' => $creating ? ['nullable', 'numeric', 'min:0', 'max:100000'] : ['prohibited'],
             'channel' => $creating ? ['nullable', 'in:direct,partner'] : ['prohibited'],
             'sponsor_id' => $creating ? ['nullable', 'integer'] : ['prohibited'],
-            'bank' => $creating ? ['nullable', 'array'] : ['prohibited'],
+            'bank' => ['nullable', 'array'],
             'bank.holder' => ['required_with:bank', 'string', 'max:150'],
             'bank.bank_name' => ['required_with:bank', 'string', 'max:100'],
             'bank.last4' => ['required_with:bank', 'regex:/^\d{4}$/'],

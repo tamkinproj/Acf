@@ -169,6 +169,9 @@ class InstallController extends Controller
             return $deny;
         }
         $token = (string) $request->input('token');
+        if ($big = \App\Support\UploadLimit::refused($request, 'patch')) {
+            return response()->view('install.patch', ['error' => $big, 'summary' => null, 'result' => null, 'token' => $token], 413);
+        }
         if (! $request->hasFile('patch') || ! $request->hasFile('signature')) {
             return response()->view('install.patch', ['error' => 'Choose both the patch zip and its signature file.', 'summary' => null, 'result' => null, 'token' => $token], 422);
         }

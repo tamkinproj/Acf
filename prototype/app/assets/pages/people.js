@@ -3,10 +3,10 @@
 
   A.strings({
     people: "Orphans", search: "Search name, reference or guardian", all: "All", unverified: "Bank not verified",
-    add_child: "Add orphan", add_title: "Add orphan", waiting: "Waiting to send", child_saved: "Orphan saved", yrs: "{n} yrs", total_n: "{n} orphans", sample_tag: "Sample", rm_samples: "Remove sample orphans", rm_q: "Remove all {n} sample orphans? Real records are not touched. This cannot be undone.", rm_done: "Sample orphans removed.", apps_btn: "Applications"
+    add_child: "Add orphan", add_title: "Add orphan", waiting: "Waiting to send", child_saved: "Orphan saved", yrs: "{n} yrs", total_n: "{n} orphans", sample_tag: "Sample", rm_samples: "Remove sample orphans", rm_q: "Remove all {n} sample orphans? Real records are not touched. This cannot be undone.", rm_done: "Sample orphans removed.", apps_btn: "Applications", q_edit: "Edit", q_saved: "Saved", q_conn: "Editing needs a connection."
   }, {
     people: "الأيتام", search: "ابحث بالاسم أو الرقم المرجعي أو الوصي", all: "الكل", unverified: "الحساب البنكي غير موثّق",
-    add_child: "إضافة يتيم", add_title: "إضافة يتيم", waiting: "بانتظار الإرسال", child_saved: "تم حفظ اليتيم", yrs: "{n} سنة", total_n: "{n} يتيمًا", sample_tag: "تجريبي", rm_samples: "احذف الأيتام التجريبيين", rm_q: "حذف كل الأيتام التجريبيين ({n})؟ لن تُمس السجلات الحقيقية. لا يمكن التراجع.", rm_done: "تم حذف الأيتام التجريبيين.", apps_btn: "الطلبات"
+    add_child: "إضافة يتيم", add_title: "إضافة يتيم", waiting: "بانتظار الإرسال", child_saved: "تم حفظ اليتيم", yrs: "{n} سنة", total_n: "{n} يتيمًا", sample_tag: "تجريبي", rm_samples: "احذف الأيتام التجريبيين", rm_q: "حذف كل الأيتام التجريبيين ({n})؟ لن تُمس السجلات الحقيقية. لا يمكن التراجع.", rm_done: "تم حذف الأيتام التجريبيين.", apps_btn: "الطلبات", q_edit: "تعديل", q_saved: "تم الحفظ", q_conn: "التعديل يحتاج اتصالًا."
   });
 
   var rows = [];
@@ -21,8 +21,9 @@
     return list.map(function (c) {
       var st = c._pending ? '<span class="badge grey">' + t("waiting") + "</span>" : '<span class="badge ' + ((c.status || "active") === "active" ? "" : (c.status === "ended" ? "grey" : "warn")) + '">' + t(c.status || "active") + "</span>";
       var bits = [esc(c.ref)]; if (c.age !== null && c.age !== undefined) bits.push(t("yrs", { n: c.age })); if (c.guardian) bits.push(esc(c.guardian));
-      return '<a class="item" href="person.html?id=' + c.id + '"><span class="avatar">' + esc(A.name(c).charAt(0)) + '</span><span class="grow"><b>' + esc(A.name(c)) + '</b><span class="sub">' + bits.join(" · ") + '</span></span><span class="right">' + (c.is_sample ? '<span class="badge grey">' + t("sample_tag") + "</span>" : "") + st +
-        (c.pay_type === "bank" && c.bank_verified === false ? '<span class="badge warn" title="' + esc(t("unverified")) + '" aria-label="' + esc(t("unverified")) + '">!</span>' : "") + "</span></a>";
+      return '<div class="orow"><a class="item" href="person.html?id=' + c.id + '"><span class="avatar">' + esc(A.name(c).charAt(0)) + '</span><span class="grow"><b>' + esc(A.name(c)) + '</b><span class="sub">' + bits.join(" · ") + '</span></span><span class="right">' + (c.is_sample ? '<span class="badge grey">' + t("sample_tag") + "</span>" : "") + st +
+        (c.pay_type === "bank" && c.bank_verified === false ? '<span class="badge warn" title="' + esc(t("unverified")) + '" aria-label="' + esc(t("unverified")) + '">!</span>' : "") + "</span></a>" +
+        (A.can("children.update") && c.id > 0 ? '<button class="orow-edit" type="button" data-act="quickedit" data-id="' + c.id + '" aria-label="' + esc(t("q_edit") + ": " + A.name(c)) + '">' + ic("edit") + "</button>" : "") + "</div>";
     }).join("");
   }
   function tools() {
@@ -60,6 +61,27 @@
     A.orphan.wire();
   }
   A.act("add", openAdd);
+
+  /* edit one orphan straight from the list */
+  var qid = 0;
+  A.act("quickedit", function (el) {
+    qid = +el.getAttribute("data-id"); el.disabled = true;
+    A.api.get("children/" + qid).then(function (r) {
+      el.disabled = false;
+      A.sheet(t("q_edit") + ": " + A.name(r.data), '<form id="qeForm" novalidate>' + A.orphan.formHtml(r.data) + A.formEnd() + "</form>");
+    }, function (e) { el.disabled = false; A.toast(e.offline ? t("q_conn") : A.msg(e)); });
+  });
+  A.form("qeForm", function () {
+    Array.prototype.forEach.call(document.querySelectorAll("#sheetRoot .err"), function (e) { e.textContent = ""; });
+    var body = A.orphan.readBody(true);
+    if (body.error) { document.getElementById(body.error[0] === "formErr" ? "formErr" : body.error[0] + "Err").textContent = body.error[1]; return; }
+    var btn = document.querySelector("#qeForm button[type=submit]"); btn.disabled = true;
+    A.api.write("PATCH", "children/" + qid, body, { online: true }).then(function () { A.closeSheet(); A.toast(t("q_saved")); A.reload(true); }, function (e) {
+      btn.disabled = false;
+      if (e.offline) { document.getElementById("formErr").textContent = t("q_conn"); return; }
+      if (!(e.errors && A.showErrors(e.errors, "f_"))) document.getElementById("formErr").textContent = A.msg(e);
+    });
+  });
 
   A.form("addForm", function () {
     Array.prototype.forEach.call(document.querySelectorAll("#sheetRoot .err"), function (e) { e.textContent = ""; });

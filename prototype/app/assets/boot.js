@@ -54,7 +54,8 @@
 
   function check() {
     var bar = document.getElementById("tabbar");
-    var blank = !!bar && !bar.children.length;            // the app always draws the bottom bar first: empty means it never started
+    var view = document.getElementById("view"), drawn = !!(view && view.querySelector(":scope > :not(noscript)"));
+    var blank = !!bar && !bar.children.length && !drawn;   // the app draws its bars (or, on a detail page, the page itself) first: nothing at all means it never started
     var loginBroken = !bar && document.getElementById("loginForm") && !(window.ACF && window.ACF.api); // the sign-in page has no bar: did the app start?
     if (blank || failed.length || loginBroken) show();
   }

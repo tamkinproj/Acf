@@ -174,7 +174,7 @@
     if (navigator.onLine === false) { var e = new Error("This needs a connection."); e.offline = true; return Promise.reject(e); }
     var s = session(), headers = { Accept: "application/json" }; if (s && s.token) headers.Authorization = "Bearer " + s.token;
     return fetch(base() + path, { method: "POST", headers: headers, body: formData, credentials: "omit" }).then(function (r) {
-      return r.text().then(function (txt) { var j = null; try { j = JSON.parse(txt); } catch (x) {} if (!r.ok) { var er = new Error((j && j.message) || "Upload failed."); er.status = r.status; er.code = j && j.code; throw er; } return j && j.data; });
+      return r.text().then(function (txt) { var j = null; try { j = JSON.parse(txt); } catch (x) {} if (!r.ok) { var fk = j && j.errors && Object.keys(j.errors)[0], first = fk && j.errors[fk] && j.errors[fk][0]; var er = new Error(first || (j && j.message) || "Upload failed."); er.status = r.status; er.code = j && j.code; er.errors = j && j.errors; throw er; } return j && j.data; });
     }, function () { var er = new Error("network"); er.network = true; er.offline = true; er.message = "This needs a connection."; throw er; });
   }
 

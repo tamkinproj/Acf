@@ -38,10 +38,15 @@ a = ap.parse_args()
 old, new = walk(a.old), walk(a.new)
 read = lambda d: open(os.path.join(d, "insania_app", "BUILD")).read().strip()
 build, from_build = read(a.new), read(a.old)
-# The website and staff app (public_html) are small, so every patch carries ALL of their files, changed or not.
+# The website and staff app pages, scripts and styles (public_html) are small, so every patch carries ALL of them, changed or not.
 # A server where an old file survived (for example when a folder was moved in File Manager without replacing it)
 # is then made whole again by any patch, and old and new files can never stay mixed.
-changed = sorted(k for k in new if k.startswith("public_html/") or k not in old or sha(new[k]) != sha(old[k]))
+# Pictures and the document reader (app/ocr/, about 6 MB) are only sent when they are new or changed: they never mix with
+# other versions, and carrying them every time would push patches over the hosts' usual 8 MB upload limit.
+def always(k):
+    return k.startswith("public_html/") and not k.startswith("public_html/app/ocr/") and not k.lower().endswith(BINARY)
+BINARY = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".woff", ".woff2", ".gz", ".wasm")
+changed = sorted(k for k in new if always(k) or k not in old or sha(new[k]) != sha(old[k]))
 deleted = sorted(k for k in old if k not in new)
 if build == from_build: sys.exit("The two packages have the same BUILD; build the new one with deploy/build-package.sh")
 
@@ -50,3 +55,5 @@ with zipfile.ZipFile(a.out, "w", zipfile.ZIP_DEFLATED) as z:
     z.writestr("manifest.json", json.dumps(manifest, indent=1))
     for k in changed: z.write(new[k], k)
 print("patch %s -> %s: %d files, %d removed, %d bytes" % (from_build, build, len(changed), len(deleted), os.path.getsize(a.out)))
+if os.path.getsize(a.out) > 7.5 * 1024 * 1024:
+    print("WARNING: over 7.5 MB. Many hosts refuse uploads over 8 MB (PHP post_max_size); tell the owner how to raise it, or split the patch.")

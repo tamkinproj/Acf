@@ -168,4 +168,62 @@ class OrphanApplicationTest extends TestCase
             $this->deleteJson('/api/children/samples')->assertForbidden();
         }
     }
+
+    public function test_documents_can_be_sent_with_an_application_and_only_reviewers_see_them(): void
+    {
+        Storage::fake('local');
+        $this->world();
+        config(['orphan_fields.apply.per_hour' => 1000]);
+        $this->getJson('/api/public/apply')->assertJsonPath('data.max_documents', 5);
+        $docs = array_map(fn ($i) => $this->png("d$i.png"), range(1, 3));
+        $this->post('/api/public/apply', $this->body() + ['method' => 'documents', 'documents' => $docs], ['Accept' => 'application/json'])->assertCreated();
+        $a = ChildApplication::withoutGlobalScopes()->first();
+        $this->assertSame('documents', $a->method);
+        $this->assertCount(3, $a->documents);
+        $this->post('/api/public/apply', $this->body() + ['documents' => array_map(fn ($i) => $this->png("e$i.png"), range(1, 6))], ['Accept' => 'application/json'])->assertStatus(422);
+        $this->post('/api/public/apply', $this->body() + ['method' => 'robot'], ['Accept' => 'application/json'])->assertStatus(422);
+
+        $this->actingAsRole('staff:finance');
+        $this->getJson("/api/applications/{$a->id}/documents/0")->assertForbidden();
+        $this->app['auth']->forgetGuards();
+        $this->actingAsRole('staff:aytam');
+        $this->getJson('/api/applications')->assertJsonPath('data.items.0.documents', 3)->assertJsonPath('data.items.0.method', 'documents');
+        $this->get("/api/applications/{$a->id}/documents/2", ['Accept' => 'application/json'])->assertOk()->assertHeader('Content-Type', 'image/jpeg');
+        $this->getJson("/api/applications/{$a->id}/documents/3")->assertNotFound();
+    }
+
+    public function test_staff_can_correct_the_bank_account_and_photos_and_it_must_be_verified_again(): void
+    {
+        Storage::fake('local');
+        $this->world();
+        config(['features.switches' => (require base_path('config/features.php'))['switches']]);
+        $this->actingAsRole('staff:aytam');
+        $id = $this->postJson('/api/children', ['name_en' => 'Bank Fix', 'bank' => ['holder' => 'A', 'bank_name' => 'AUB', 'last4' => '1111']])->assertCreated()->json('data.id');
+        $this->putJson("/api/children/$id/bank/verification", ['verified' => true])->assertOk();
+        $this->patchJson("/api/children/$id", ['grade' => 'Grade 2'])->assertOk()->assertJsonPath('data.bank.verified', true);          // other edits keep it verified
+        $this->patchJson("/api/children/$id", ['bank' => ['holder' => 'A', 'bank_name' => 'AUB', 'last4' => '1111']])->assertOk()->assertJsonPath('data.bank.verified', true);   // same values: still verified
+        $this->patchJson("/api/children/$id", ['bank' => ['holder' => 'A', 'bank_name' => 'Hello Money', 'last4' => '2222']])->assertOk()
+            ->assertJsonPath('data.bank.last4', '2222')->assertJsonPath('data.bank.verified', false);
+        $this->patchJson("/api/children/$id", ['bank' => ['holder' => 'A', 'bank_name' => 'X', 'last4' => '12']])->assertStatus(422);
+        $id2 = $this->postJson('/api/children', ['name_en' => 'No Bank Yet'])->assertCreated()->json('data.id');
+        $this->patchJson("/api/children/$id2", ['bank' => ['holder' => 'B', 'bank_name' => 'AUB', 'last4' => '3333']])->assertOk()->assertJsonPath('data.bank.last4', '3333');
+
+        $pid = $this->post("/api/children/$id/photos", ['photo' => $this->png()], ['Accept' => 'application/json'])->assertCreated()->json('data.id');
+        $this->getJson("/api/children/$id")->assertJsonPath('data.photos.0', $pid);
+        $this->post("/api/children/$id/photos", ['photo' => UploadedFile::fake()->createWithContent('x.png', 'not an image')], ['Accept' => 'application/json'])->assertStatus(422);
+        $this->deleteJson("/api/children/$id/photos/$pid")->assertOk();
+        $this->getJson("/api/children/$id")->assertJsonPath('data.photos', []);
+
+        $this->app['auth']->forgetGuards();
+        $this->actingAsRole('staff:finance');
+        $this->post("/api/children/$id/photos", ['photo' => $this->png()], ['Accept' => 'application/json'])->assertForbidden();
+        $this->patchJson("/api/children/$id", ['bank' => ['holder' => 'Z', 'bank_name' => 'Z', 'last4' => '9999']])->assertForbidden();
+    }
+
+    public function test_an_upload_over_the_server_limit_gets_a_clear_message(): void
+    {
+        $r = $this->call('POST', '/api/public/apply', [], [], [], ['CONTENT_LENGTH' => 1024 * 1024 * 1024, 'HTTP_ACCEPT' => 'application/json']);
+        $r->assertStatus(413)->assertJsonPath('code', 'TOO_LARGE');
+        $this->assertStringContainsString('post_max_size', $r->json('message'));
+    }
 }

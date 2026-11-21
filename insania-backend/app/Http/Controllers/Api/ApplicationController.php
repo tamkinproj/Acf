@@ -24,7 +24,7 @@ class ApplicationController extends Controller
             'id' => $a->id, 'reference' => $a->reference(), 'status' => $a->status,
             'name_en' => $d['name_en'] ?? null, 'name_ar' => $d['name_ar'] ?? null,
             'guardian' => $d['guardian_name'] ?? null, 'phone' => $d['guardian_phone'] ?? null, 'city' => $d['city'] ?? null,
-            'birth_date' => $d['birth_date'] ?? null, 'photos' => count($a->photos ?? []),
+            'birth_date' => $d['birth_date'] ?? null, 'photos' => count($a->photos ?? []), 'documents' => count($a->documents ?? []), 'method' => $a->method ?? 'form',
             'submitted_at' => $a->created_at?->format('Y-m-d H:i'), 'child_id' => $a->child_id,
         ];
     }
@@ -54,6 +54,13 @@ class ApplicationController extends Controller
     public function photo(ChildApplication $application, int $n)
     {
         $p = ($application->photos ?? [])[$n] ?? null;
+
+        return $this->file($p['path'] ?? null, $p['mime'] ?? 'image/jpeg');
+    }
+
+    public function document(ChildApplication $application, int $n)
+    {
+        $p = ($application->documents ?? [])[$n] ?? null;
 
         return $this->file($p['path'] ?? null, $p['mime'] ?? 'image/jpeg');
     }
