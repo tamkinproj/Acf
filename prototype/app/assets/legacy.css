@@ -573,3 +573,11 @@
         margin-right: .2rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .wk-dot {
+        right: -.05rem
+    }
+    html[dir=rtl] .wk-dot {
+        left: -.05rem
+    }
+}

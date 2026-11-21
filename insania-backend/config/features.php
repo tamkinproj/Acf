@@ -29,6 +29,7 @@ return [
         'activity_log' => ['president_admin'],        // reading the activity (audit) log (President only)
         'chat' => ['staff', 'president_admin'],        // the office chat: General group and one-to-one chats (President + all staff; never the system roles)
         'education' => ['staff', 'president_admin'],   // Alimni teachers, their contracts and salaries, madrasa and markaz partners, curriculum (Education department + President)
+        'work_tracker' => ['staff', 'president_admin'], // the work tracker: active time and activity of staff in the app (HR and the President)
         'attendance' => ['staff', 'president_admin'],  // office attendance: face clock in/out, late and absent deductions, payroll (all staff clock; HR and the President manage)
         'family' => ['user'],                         // the orphans' own accounts (and family accounts): they see their own information
     ],
@@ -49,6 +50,7 @@ return [
         'chat' => ['chat.use'],
         'education' => ['education.view', 'education.manage', 'education.salary'],
         'attendance' => ['attendance.clock', 'attendance.manage', 'attendance.salary'],
+        'work_tracker' => ['work.view'],
         'family' => ['family.view_own'],
     ],
 ];

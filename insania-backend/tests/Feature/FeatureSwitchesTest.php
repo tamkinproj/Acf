@@ -32,7 +32,7 @@ class FeatureSwitchesTest extends TestCase
             $expected = [
                 'children' => ['staff', 'president_admin'], 'applications' => ['staff', 'president_admin'], 'payments' => ['staff', 'president_admin'],
                 'projects' => ['staff', 'president_admin'], 'reports' => ['staff', 'president_admin'], 'website' => ['president_admin'],
-                'accounts' => ['president_admin'], 'activity_log' => ['president_admin'], 'chat' => ['staff', 'president_admin'], 'education' => ['staff', 'president_admin'], 'attendance' => ['staff', 'president_admin'], 'family' => ['user'],
+                'accounts' => ['president_admin'], 'activity_log' => ['president_admin'], 'chat' => ['staff', 'president_admin'], 'education' => ['staff', 'president_admin'], 'attendance' => ['staff', 'president_admin'], 'work_tracker' => ['staff', 'president_admin'], 'family' => ['user'],
             ][$feature] ?? false;   // orphans' and families' own accounts are on for the User role only
             $this->assertSame($expected, $on, "$feature switch as shipped");
         }

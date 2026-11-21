@@ -40,6 +40,7 @@ final class PermissionCatalog
             'orphans.accounts' => 'Create sign-in accounts for orphans and reset their passwords',
             'education.view' => 'See the Education department: Alimni teachers, institutions, curriculum',
             'education.manage' => 'Add and edit Alimni teachers, contracts, institutions and curriculum',
+            'work.view' => 'See what staff do in the app: active time, last seen, what they looked at and did (work tracker)',
             'attendance.clock' => 'Clock in and out with a face photo (for staff who are office employees)',
             'attendance.manage' => 'Attendance: employees, corrections, leaves, holidays and the office board',
             'attendance.salary' => 'See employee salaries, deductions and the monthly payroll',

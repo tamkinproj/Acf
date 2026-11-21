@@ -49,7 +49,7 @@ return [
             'orphans.accounts',
             'education.view', 'education.manage', 'education.salary',
             'chat.use',                         // office chat
-            'attendance.clock', 'attendance.manage', 'attendance.salary',
+            'attendance.clock', 'attendance.manage', 'attendance.salary', 'work.view',
         ],
         'staff' => [],
         'user' => ['family.view_own'],
@@ -74,7 +74,7 @@ return [
             'name_en' => 'Education', 'name_ar' => 'التعليم',
             'grants' => ['education.view', 'education.manage', 'education.salary', 'chat.use', 'attendance.clock'],
         ],
-        'hr' => ['name_en' => 'HR', 'name_ar' => 'الموارد البشرية', 'grants' => ['chat.use', 'attendance.clock', 'attendance.manage', 'attendance.salary']],
+        'hr' => ['name_en' => 'HR', 'name_ar' => 'الموارد البشرية', 'grants' => ['chat.use', 'attendance.clock', 'attendance.manage', 'attendance.salary', 'work.view']],
         'administration' => ['name_en' => 'Administration', 'name_ar' => 'الإدارة', 'grants' => ['chat.use', 'attendance.clock']],
     ],
 
@@ -86,6 +86,7 @@ return [
         'projects' => ['projects.view', 'projects.manage'],
         'education' => ['education.view', 'education.manage', 'education.salary'],
         'attendance' => ['attendance.clock', 'attendance.manage', 'attendance.salary'],
+        'work' => ['work.view'],
         'chat' => ['chat.use'],
     ],
 

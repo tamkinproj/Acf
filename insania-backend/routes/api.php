@@ -30,7 +30,7 @@ Route::middleware('api.json')->group(function () {
     Route::post('public/apply', [\App\Http\Controllers\Api\PublicApplyController::class, 'store'])->middleware(['throttle:apply', 'block.uploads']);
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth_login');
 
-    Route::middleware(['auth:sanctum', 'password.fresh', 'idempotent'])->group(function () {
+    Route::middleware(['auth:sanctum', 'password.fresh', 'idempotent', 'work.track'])->group(function () {
         // Any signed-in account
         Route::get('me', [AuthController::class, 'me'])->name('me');
         Route::post('me/password', [AuthController::class, 'changePassword'])->middleware('throttle:6,1');
@@ -113,6 +113,15 @@ Route::middleware('api.json')->group(function () {
                 Route::post('salaries/generate', [$c, 'generateSalaries'])->middleware('throttle:20,1');
                 Route::put('teachers/{teacher}/salaries/{month}', [$c, 'setSalary'])->whereNumber('teacher');
             });
+        });
+
+        // Work tracker (HR and the President): how staff use the app
+        Route::middleware('permission:work.view')->prefix('work')->group(function () {
+            $w = \App\Http\Controllers\Api\WorkTrackerController::class;
+            Route::get('summary', [$w, 'summary']);
+            Route::get('staff/{user}', [$w, 'staffDetail'])->whereNumber('user');
+            Route::post('samples', [$w, 'loadSamples']);
+            Route::delete('samples', [$w, 'removeSamples']);
         });
 
         // Attendance: clock in and out with a face photo, the office board, employees, records, leaves, holidays, payroll

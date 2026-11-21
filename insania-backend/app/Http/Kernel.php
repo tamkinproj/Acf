@@ -62,6 +62,7 @@ class Kernel extends HttpKernel
         'password.fresh' => \App\Http\Middleware\PasswordChangeRequired::class,
         'idempotent' => \App\Http\Middleware\Idempotent::class,
         'block.uploads' => \App\Http\Middleware\BlockUnsafeUploads::class,
+        'work.track' => \App\Http\Middleware\TrackWorkActivity::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
