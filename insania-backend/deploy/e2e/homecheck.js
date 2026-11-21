@@ -1,0 +1,25 @@
+const { chromium, devices } = require('playwright'); const fs = require('fs'); const B = 'http://127.0.0.1:8090', SP = process.argv[2], SITE = '/srv/apxtest/site';
+let bad = 0; const ok = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) bad++; };
+async function signIn(b, email, vp) { const c = await b.newContext(vp === 'd' ? { viewport: { width: 1280, height: 900 } } : { ...devices['iPhone 13'] }); c.setDefaultTimeout(20000); const p = await c.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.goto(B + '/app/login.html'); await p.fill('#lEmail', email); await p.fill('#lPass', 'DemoPass#2026'); await p.click('button[type=submit]'); await p.waitForTimeout(3500); return { c, p, errs }; }
+const home = async p => { for (let i = 0; i < 2; i++) { await p.goto(B + '/app/dashboard.html'); await p.waitForTimeout(3000); } return p.locator('#view').innerText(); };
+(async () => { const b = await chromium.launch();
+  let { c, p } = await signIn(b, 'system@insania.test'); await p.goto(B + '/app/updates.html'); await p.waitForSelector('#autoBtn'); await p.setInputFiles('#pz', SP + '/u11.zip'); await p.setInputFiles('#ps', SP + '/u11.sig'); await p.click('#autoBtn');
+  await p.waitForFunction(() => /Updated to/.test(document.getElementById('found').innerText), null, { timeout: 60000 });
+  ok('UPDATE-11 applied from the app', fs.readFileSync(SITE + '/insania_app/BUILD', 'utf8').trim() === fs.readFileSync(SP + '/bid23', 'utf8').trim());
+  let v = await home(p); ok('System Admin Home: status cards, system status list, President card (name+email only), no office data', /System status/.test(v) && /Database/.test(v) && /President Admin/.test(v) && /president@insania.test/.test(v) && !/Orphans|Latest accounts|Failed sign-ins/.test(v)); await c.close();
+  let errs; ({ c, p, errs } = await signIn(b, 'aytam@insania.test')); v = await home(p);
+  ok('Aytam Home: Orphans overview + stacked status + Latest orphans table + Needs attention + Add orphan', /Orphans overview/.test(v) && /Latest orphans/.test(v) && /Needs attention/.test(v) && /Add orphan/.test(v) && (await p.locator('.fb-stack i').count()) >= 1 && (await p.locator('.fb-table tbody tr').count()) >= 1);
+  ok('Aytam Home: no accounts or system info', !/Latest accounts|System status|Active accounts/.test(v));
+  await p.click('.fb-table tbody a.fb-who'); await p.waitForURL(/person\.html\?id=/); ok('a table row opens that orphan\'s profile', true);
+  ok('no script errors (Aytam)', errs.length === 0); await c.close();
+  ({ c, p, errs } = await signIn(b, 'president@insania.test')); v = await home(p);
+  ok('President Home: Accounts overview by role, Latest accounts, Manage accounts; no orphans', /Accounts overview/.test(v) && /Latest accounts/.test(v) && /Manage accounts/.test(v) && !/Orphans overview|Latest orphans/.test(v));
+  ok('President Home shows no email addresses', !/@insania/.test(v)); ok('no script errors (President)', errs.length === 0); await c.close();
+  ({ c, p } = await signIn(b, 'aytam@insania.test', 'd')); await home(p); const cols = await p.evaluate(() => getComputedStyle(document.querySelector('.fb-main')).gridTemplateColumns.split(' ').length); ok('desktop: two-column main area (' + cols + ')', cols === 2);
+  ok('desktop: no sideways scroll', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth)); await c.close();
+  ({ c, p } = await signIn(b, 'aytam@insania.test')); await home(p); ok('phone: no sideways scroll', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await p.click('#view .btn-main, .head [data-act=lang]').catch(() => {}); await c.close();
+  ({ c, p } = await signIn(b, 'aytam@insania.test')); await p.click('[data-act=lang]'); await p.waitForTimeout(800); await p.goto(B + '/app/dashboard.html'); await p.waitForTimeout(3000); const ar = await p.locator('#view').innerText();
+  ok('Arabic Home renders (' + ar.slice(0, 30).replace(/\n/g, ' ') + '…)', /نظرة على الأيتام/.test(ar) && (await p.evaluate(() => document.documentElement.dir)) === 'rtl' && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth)); await c.close();
+  await b.close(); console.log(bad ? 'FAILURES ' + bad : 'HOME CHECKS PASSED'); })().catch(e => { console.error('ERR', e.message.split('\n').slice(0, 5).join(' | ')); process.exit(1); });

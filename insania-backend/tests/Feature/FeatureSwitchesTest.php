@@ -177,4 +177,32 @@ class FeatureSwitchesTest extends TestCase
             $this->patchJson("/api/children/{$made['id']}", ['grade' => 'X'])->assertForbidden();
         }
     }
+
+    public function test_home_figures_are_shaped_by_role(): void
+    {
+        $this->world();
+        $this->shipped();
+
+        $this->as('staff:aytam');
+        $d = $this->getJson('/api/dashboard')->assertOk()->json('data');
+        $this->assertSame(\App\Models\Child::count(), array_sum($d['children']['by_status']));
+        $this->assertLessThanOrEqual(5, count($d['children']['latest']));
+        $this->assertArrayHasKey('name_en', $d['children']['latest'][0]);
+        $this->assertArrayNotHasKey('security', $d);
+
+        $this->as('president_admin');
+        $d = $this->getJson('/api/dashboard')->assertOk()->json('data');
+        $this->assertArrayNotHasKey('children', $d);
+        $this->assertGreaterThan(0, array_sum($d['security']['by_role']));
+        $this->assertArrayHasKey('role', $d['security']['latest_users'][0]);
+        $this->assertStringNotContainsString('password', json_encode($d));
+        $this->assertStringNotContainsString('@', json_encode($d['security']));    // no email addresses on Home
+
+        foreach (['system_admin', 'admin_maintenance', 'staff:finance', 'user'] as $role) {
+            $this->as($role);
+            $d = $this->getJson('/api/dashboard')->assertOk()->json('data');
+            $this->assertArrayNotHasKey('children', $d, $role);
+            $this->assertArrayNotHasKey('security', $d, $role);
+        }
+    }
 }

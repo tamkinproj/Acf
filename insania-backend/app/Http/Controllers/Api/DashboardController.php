@@ -28,6 +28,8 @@ class DashboardController extends Controller
                 'total' => Child::count(),
                 'bank_accounts' => (clone $banks)->count(),
                 'bank_verified' => (clone $banks)->where('verified', true)->count(),
+                'by_status' => ['active' => Child::where('status', 'active')->count(), 'pending' => Child::where('status', 'pending')->count(), 'ended' => Child::where('status', 'ended')->count()],
+                'latest' => Child::orderByDesc('id')->limit(5)->get()->map(fn ($c) => ['id' => $c->id, 'ref' => $c->ref, 'name_en' => $c->name_en, 'name_ar' => $c->name_ar, 'city' => $c->city, 'status' => $c->status, 'added' => $c->created_at?->toDateString()])->values(),
                 'needs_attention' => Child::whereHas('bankAccount', fn ($b) => $b->where('verified', false))->orderBy('ref')->limit(6)->get()
                     ->map(fn ($c) => ['child_id' => $c->id, 'ref' => $c->ref, 'name_en' => $c->name_en, 'reason' => 'bank_not_verified'])->values(),
             ];
@@ -46,6 +48,8 @@ class DashboardController extends Controller
             $out['security'] = [
                 'active_users' => User::where('foundation_id', $user->foundation_id)->where('active', true)->count(),
                 'inactive_users' => User::where('foundation_id', $user->foundation_id)->where('active', false)->count(),
+                'by_role' => User::where('foundation_id', $user->foundation_id)->where('active', true)->selectRaw('role, count(*) as n')->groupBy('role')->pluck('n', 'role'),
+                'latest_users' => User::where('foundation_id', $user->foundation_id)->orderByDesc('id')->limit(5)->get()->map(fn ($u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role, 'department' => $u->department_key, 'active' => (bool) $u->active, 'added' => $u->created_at?->toDateString()])->values(),
                 'failed_logins_24h' => AuditLog::where('foundation_id', $user->foundation_id)->where('action', 'login.failed')->where('created_at', '>=', now()->subDay())->count(),
             ];
         }
