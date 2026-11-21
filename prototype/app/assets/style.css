@@ -878,3 +878,35 @@ html[dir=rtl] .login-back .icon{transform:scaleX(-1)}
 .fpage-body{display:grid;gap:1rem}
 .addwrap-actions{position:sticky;bottom:0;padding:.8rem 0 calc(.8rem + env(safe-area-inset-bottom));background:#f2f3ef;justify-content:flex-end;gap:.6rem;margin-bottom:1rem}
 .addwrap-actions .btn{min-width:7rem}
+
+/* ---- Orphans list: one plain row per orphan, tap to open the profile ---- */
+.orow-card{display:flex;align-items:center;gap:.9rem;margin:0 0 .6rem;padding:.8rem 1rem;border-radius:1.4rem;background:#fff;color:var(--ink);text-decoration:none;-webkit-tap-highlight-color:transparent}
+a.orow-card:active{background:rgba(23,48,13,.06)}
+.orow-card .avatar{flex:none;width:3.2rem;height:3.2rem;font-size:1.2rem;background-size:cover;background-position:center}
+.orow-card .avatar.has-photo{color:transparent}
+.orow-name{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orow-card .ios-chev{flex:none}
+
+/* ---- Profile: grouped lists like Settings, edited right on the page ---- */
+.dp-sec{margin:0 0 1rem}
+.ios-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:0 .3rem .45rem}
+.ios-head h3{margin:0;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.ios-pen{width:2.3rem;height:2.3rem;border-radius:50%;border:0;background:#fff;display:grid;place-items:center;color:var(--ink);cursor:pointer;padding:0}
+.ios-pen .icon{width:1.05rem;height:1.05rem}
+.dp-rows .ios-row{align-items:flex-start;flex-wrap:wrap;padding:.75rem 1rem}
+.dp-rows .ios-lbl{flex:0 1 42%;white-space:normal;overflow:visible;color:var(--muted);font-size:.95rem}
+.dp-rows .ios-val{flex:1 1 0;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;color:var(--ink);font-weight:600}
+.dp-rows .ios-row .switch{margin-inline-start:auto}
+.dp-rows .ios-row:has(.switch){align-items:center}
+.dp-rows .docrow .ios-val{flex:0 0 auto;font-weight:500;color:var(--muted)}
+.dp-btns{display:flex;gap:.4rem;margin-inline-start:auto}
+.dp-pad{padding:.9rem}
+.ios-edit{padding:1rem;display:grid;gap:1rem}
+.dp-cam{position:absolute;bottom:-.1rem;inset-inline-end:-.1rem;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;border:2px solid #fff}
+.dp-cam .icon{width:.85rem;height:.85rem;stroke:#fff}
+button.dp-avatar{position:relative;border:0;padding:0;cursor:pointer;font:inherit;font-weight:700;color:var(--ink)}
+button.dp-avatar.has-photo{color:transparent}
+.dp-head .share-ic{flex:none;width:2.6rem;height:2.6rem;border-radius:50%;background:#f5f5f2;border:0;display:grid;place-items:center;padding:0}
+.dp-head .share-ic span{display:none}
+.dp-savebar{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:.6rem;padding:.8rem 0 calc(.8rem + env(safe-area-inset-bottom));background:#f2f3ef}
+.dp-savebar .btn{min-width:7rem}

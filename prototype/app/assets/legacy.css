@@ -509,3 +509,27 @@
         left: .6rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .dp-rows .ios-row .switch {
+        margin-left: auto
+    }
+    html[dir=rtl] .dp-rows .ios-row .switch {
+        margin-right: auto
+    }
+}
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .dp-btns {
+        margin-left: auto
+    }
+    html[dir=rtl] .dp-btns {
+        margin-right: auto
+    }
+}
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .dp-cam {
+        right: -.1rem
+    }
+    html[dir=rtl] .dp-cam {
+        left: -.1rem
+    }
+}

@@ -26,7 +26,7 @@ class ChildController extends Controller
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $query = Child::query()->with(['guardian', 'bankAccount', 'sponsorship', 'account:id,child_id,username'])->search($request->query('q'))->orderBy('ref');
+        $query = Child::query()->with(['guardian', 'bankAccount', 'sponsorship', 'account:id,child_id,username', 'photos:id,child_id'])->search($request->query('q'))->orderBy('ref');
 
         if ($request->filled('status')) {
             $query->where('status', $request->query('status'));

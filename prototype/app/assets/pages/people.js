@@ -36,14 +36,25 @@
     }));
     if (!list.length) return '<p class="note">' + t("none") + "</p>";
     return list.map(function (c) {
-      var st = c._pending ? '<span class="badge grey">' + t("waiting") + "</span>" : '<span class="badge ' + ((c.status || "active") === "active" ? "" : (c.status === "ended" ? "grey" : "warn")) + '">' + t(c.status || "active") + "</span>";
-      var bits = [esc(c.ref)]; if (c.external_no) bits.push("#" + esc(c.external_no)); if (c.account) bits.push("@" + esc(c.account)); if (c.age !== null && c.age !== undefined) bits.push(t("yrs", { n: c.age })); if (c.guardian) bits.push(esc(c.guardian));
-      var tone = c._pending || c.status === "ended" ? "grey" : (c.status || "active") === "active" ? "ok" : "warn";
-      return A.fold({ id: c.id, av: A.name(c), title: A.name(c), tone: tone, meta: '<span dir="ltr">' + bits.join(" · ") + "</span>",
-        badges: (c.is_sample ? '<span class="badge grey">' + t("sample_tag") + "</span>" : "") + (c.pay_type ? '<span class="badge grey">' + t(c.pay_type === "cash" ? "imp_cash" : "imp_bank") + "</span>" : "") + st + (c.pay_type === "bank" && c.bank_verified === false ? '<span class="badge warn" title="' + esc(t("unverified")) + '">! ' + esc(t("unverified")) + "</span>" : ""),
-        actions: (c.id > 0 ? '<a class="btn btn-main btn-sm" href="person.html?id=' + c.id + '">' + t("fold_open_profile") + "</a>" : "") + (c.id > 0 ? A.shareBtn("child", c.id) : "") + (c.id > 0 && A.can("orphans.accounts") ? '<button class="btn btn-line btn-sm" type="button" data-act="oacct" data-id="' + c.id + '" data-name="' + esc(A.name(c)) + '" data-has="' + (c.account ? 1 : 0) + '">' + ic("lock") + "<span>" + t(c.account ? "acc_reset" : "acc_one") + "</span></button>" : "") +
-          (A.can("children.update") && c.id > 0 ? '<button class="btn btn-line btn-sm" type="button" data-act="quickedit" data-id="' + c.id + '">' + ic("edit") + "<span>" + t("q_edit") + "</span></button>" : "") });
+      var inner = '<span class="avatar" data-id="' + c.id + '"' + (c.photo ? ' data-photo="' + c.photo + '"' : "") + ">" + esc(String(A.name(c) || "?").charAt(0)) + '</span><span class="orow-name">' + esc(A.name(c)) + "</span>" +
+        (c._pending ? '<span class="badge grey">' + t("waiting") + "</span>" : ic("chev", "ios-chev"));
+      return c.id > 0 ? '<a class="orow-card" href="person.html?id=' + c.id + '">' + inner + "</a>" : '<div class="orow-card">' + inner + "</div>";
     }).join("");
+  }
+  /* profile pictures load only for the rows on screen */
+  var picUrls = {}, picIO = null;
+  function showPic(av) {
+    var id = av.getAttribute("data-id"), pid = av.getAttribute("data-photo"); if (!pid) return;
+    var apply = function (u) { av.style.backgroundImage = 'url("' + u + '")'; av.classList.add("has-photo"); };
+    if (picUrls[pid]) { apply(picUrls[pid]); return; }
+    A.api.blobUrl("children/" + id + "/photos/" + pid).then(function (u) { picUrls[pid] = u; apply(u); }, function () {});
+  }
+  function watchPics() {
+    var list = document.querySelectorAll("#plist .avatar[data-photo]"); if (!list.length) return;
+    if (!("IntersectionObserver" in window)) return;
+    if (picIO) picIO.disconnect();
+    picIO = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { picIO.unobserve(e.target); showPic(e.target); } }); }, { rootMargin: "200px" });
+    Array.prototype.forEach.call(list, function (el) { picIO.observe(el); });
   }
   function tools() {
     var samples = rows.filter(function (c) { return c.is_sample; }).length, out = "";
@@ -79,7 +90,8 @@
   }
   function after(data, st) {
     var box = document.getElementById("q");
-    box.addEventListener("input", function () { q = box.value; document.getElementById("plist").innerHTML = items(); });
+    box.addEventListener("input", function () { q = box.value; document.getElementById("plist").innerHTML = items(); watchPics(); });
+    watchPics();
     if (!st.stale) { // save every profile on the phone so each one also opens offline
       var ids = data.filter(function (c) { return c.id > 0; }).slice(0, 200).map(function (c) { return "children/" + c.id; });
       A.api.prefetch(ids, 900000);
@@ -87,26 +99,6 @@
     if (/[?&]add=1/.test(location.search) && A.can("children.create")) { location.replace("add.html"); }
   }
 
-  /* edit one orphan straight from the list */
-  var qid = 0;
-  A.act("quickedit", function (el) {
-    qid = +el.getAttribute("data-id"); el.disabled = true;
-    A.api.get("children/" + qid).then(function (r) {
-      el.disabled = false;
-      A.sheet(t("q_edit") + ": " + A.name(r.data), '<form id="qeForm" novalidate>' + A.orphan.formHtml(r.data) + A.formEnd() + "</form>");
-    }, function (e) { el.disabled = false; A.toast(e.offline ? t("q_conn") : A.msg(e)); });
-  });
-  A.form("qeForm", function () {
-    Array.prototype.forEach.call(document.querySelectorAll("#sheetRoot .err"), function (e) { e.textContent = ""; });
-    var body = A.orphan.readBody(true);
-    if (body.error) { document.getElementById(body.error[0] === "formErr" ? "formErr" : body.error[0] + "Err").textContent = body.error[1]; return; }
-    var btn = document.querySelector("#qeForm button[type=submit]"); btn.disabled = true;
-    A.api.write("PATCH", "children/" + qid, body, { online: true }).then(function () { A.closeSheet(); A.toast(t("q_saved")); A.reload(true); }, function (e) {
-      btn.disabled = false;
-      if (e.offline) { document.getElementById("formErr").textContent = t("q_conn"); return; }
-      if (!(e.errors && A.showErrors(e.errors, "f_"))) document.getElementById("formErr").textContent = A.msg(e);
-    });
-  });
 
 
   A.start({ page: "people", nav: "people", title: "n_people", perm: "children.view", shell: true, load: function () { return A.api.getEvery("children"); }, render: render, after: after });

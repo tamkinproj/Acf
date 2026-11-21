@@ -91,6 +91,7 @@ class Child extends Model
             'id' => $this->id,
             'ref' => $this->ref,
             'external_no' => $this->external_no,
+            'photo' => $this->relationLoaded('photos') ? $this->photos->max('id') : null,   // the newest photo is the profile picture
             'account' => $this->relationLoaded('account') ? $this->account?->username : null,
             'name_en' => $this->name_en,
             'name_ar' => $this->name_ar,
@@ -107,7 +108,7 @@ class Child extends Model
     /** Full profile, in the sections the staff app shows. */
     public function toProfileApi(bool $withDocuments = true): array
     {
-        $this->loadMissing(['guardian', 'bankAccount', 'histories', 'sponsorship.sponsor', 'documents', 'photos']);
+        $this->loadMissing(['guardian', 'bankAccount', 'histories', 'sponsorship.sponsor', 'documents', 'photos', 'account:id,child_id,username']);
         $s = $this->sponsorship;
         $docs = $this->documents->keyBy('type');
 
@@ -115,7 +116,7 @@ class Child extends Model
             'created_at' => $this->created_at?->toDateString(), 'updated_at' => $this->updated_at?->toDateString(),
             'form_submitted_at' => $this->form_submitted_at?->format('Y-m-d H:i'),
             'details' => \App\Support\OrphanFields::details($this),
-            'photos' => $this->photos->pluck('id')->values(),
+            'photos' => $this->photos->sortBy('id')->pluck('id')->values(),
             'personal' => [
                 'gender' => $this->gender, 'birth_date' => $this->birth_date?->toDateString(), 'city' => $this->city,
                 'health_status' => $this->health_status, 'grade' => $this->grade,
