@@ -30,11 +30,11 @@ function expand(d) {
   const R = { common: [], ltr: [], rtl: [] };
   if (p === 'inset') { const [t, r, b, l] = box(v); R.common = [['top', t], ['right', r], ['bottom', b], ['left', l]]; return { ...R, kind: 'a' }; }
   if ((m = p.match(/^inset-block(-start|-end)?$/))) { const [s, e] = pair(v); R.common = m[1] === '-start' ? [['top', v]] : m[1] === '-end' ? [['bottom', v]] : [['top', s], ['bottom', e]]; return { ...R, kind: 'a' }; }
-  if (p === 'inset-inline') { const [s, e] = pair(v); R.ltr = [['left', s], ['right', e]]; R.rtl = [['right', s], ['left', e]]; return { ...R, kind: 'a' }; }
+  if (p === 'inset-inline') { const [s, e] = pair(v); if (s === e) { R.common = [['left', s], ['right', e]]; return { ...R, kind: 'a' }; } R.ltr = [['left', s], ['right', e]]; R.rtl = [['right', s], ['left', e]]; return { ...R, kind: 'a' }; }
   if (p === 'inset-inline-start') { R.ltr = [['left', v]]; R.rtl = [['right', v]]; return { ...R, kind: 'a' }; }
   if (p === 'inset-inline-end') { R.ltr = [['right', v]]; R.rtl = [['left', v]]; return { ...R, kind: 'a' }; }
   for (const k of IN) {
-    if (p === k + '-inline') { const [s, e] = pair(v); R.ltr = [[k + '-left', s], [k + '-right', e]]; R.rtl = [[k + '-right', s], [k + '-left', e]]; return { ...R, kind: 'a' }; }
+    if (p === k + '-inline') { const [s, e] = pair(v); if (s === e) { R.common = [[k + '-left', s], [k + '-right', e]]; return { ...R, kind: 'a' }; } R.ltr = [[k + '-left', s], [k + '-right', e]]; R.rtl = [[k + '-right', s], [k + '-left', e]]; return { ...R, kind: 'a' }; }
     if (p === k + '-inline-start') { R.ltr = [[k + '-left', v]]; R.rtl = [[k + '-right', v]]; return { ...R, kind: 'a' }; }
     if (p === k + '-inline-end') { R.ltr = [[k + '-right', v]]; R.rtl = [[k + '-left', v]]; return { ...R, kind: 'a' }; }
     if (p === k + '-block') { const [s, e] = pair(v); R.common = [[k + '-top', s], [k + '-bottom', e]]; return { ...R, kind: 'a' }; }
