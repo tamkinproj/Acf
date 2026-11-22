@@ -55,6 +55,13 @@ Route::middleware('api.json')->group(function () {
         Route::get('setup', [\App\Http\Controllers\Api\SetupController::class, 'steps']);
 
         // Technical roles
+        Route::middleware('permission:system.cloudflare')->group(function () {
+            Route::get('system/cloudflare', [\App\Http\Controllers\Api\CloudflareController::class, 'show']);
+            Route::post('system/cloudflare', [\App\Http\Controllers\Api\CloudflareController::class, 'connect'])->middleware('throttle:6,1');
+            Route::patch('system/cloudflare', [\App\Http\Controllers\Api\CloudflareController::class, 'update'])->middleware('throttle:30,1');
+            Route::patch('system/cloudflare/rules/{rule}', [\App\Http\Controllers\Api\CloudflareController::class, 'rule'])->middleware('throttle:30,1');
+            Route::delete('system/cloudflare', [\App\Http\Controllers\Api\CloudflareController::class, 'disconnect']);
+        });
         Route::get('system/health', [SystemController::class, 'health'])->middleware('permission:system.health');
         Route::get('system/settings', [SystemController::class, 'settings'])->middleware('permission:system.settings');
         Route::patch('system/settings', [SystemController::class, 'updateSettings'])->middleware('permission:system.settings');

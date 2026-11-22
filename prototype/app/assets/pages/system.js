@@ -17,6 +17,73 @@ sec_title: "فحص الأمان", sec_ok: "سليم", sec_fix: "يحتاج ان�
     sys_note: "هذه الصفحة تحتاج اتصالًا بالإنترنت. لا تحوي بيانات شخصية."
   });
 
+  /* ---- Cloudflare: the website's protections, switched from here ---- */
+  A.strings({
+    cf_title: "Cloudflare", cf_note: "Switch the website's Cloudflare protections on and off here, without opening Cloudflare. If a protection stops the app with \"too many requests\" (429), switch the rule off here.",
+    cf_load: "Loading from Cloudflare…", cf_fail: "Could not read Cloudflare. Check the token and try again.",
+    cf_steps: "How to connect: in Cloudflare open My Profile > API Tokens > Create Token > Custom token. Give it these Zone permissions for your website only: Zone Settings: Edit, Zone: Edit, Zone WAF: Edit, Bot Management: Edit. Create it and paste it below. It is stored encrypted and never shown again.",
+    cf_token: "Cloudflare API token", cf_zone: "Zone ID (leave empty to find it automatically)", cf_pw: "Your own password, to confirm", cf_connect: "Connect Cloudflare",
+    cf_zone_l: "Website", cf_on: "Cloudflare protection", cf_on_note: "Off = Cloudflare is paused: the site is reached directly, with none of Cloudflare's security. Back on any time.",
+    cf_level: "Security level", cf_bot: "Bot Fight Mode", cf_bot_note: "Challenges visitors it takes for bots. Can block real people and the app.", cf_leak: "Leaked credentials detection", cf_leak_note: "Checks sign-ins against leaked passwords. Its rate-limit rule can stop sign-ups and new users with a 429.",
+    cf_rules: "Rules", cf_rules_note: "Each rule can be switched off without deleting it.", cf_no_rules: "No rules.", cf_refresh: "Refresh", cf_disc: "Disconnect", cf_disc_q: "Disconnect Cloudflare? The token is deleted from this system. Cloudflare itself stays as it is.", cf_saved: "Changed in Cloudflare", cf_disc_done: "Disconnected",
+    cf_active: "Active", cf_paused: "Paused", cf_rate: "Rate limit", cf_custom: "Custom rule", cf_no_read: "Not readable with this token",
+    cf_l_off: "Off", cf_l_essentially_off: "Essentially off", cf_l_low: "Low", cf_l_medium: "Medium", cf_l_high: "High", cf_l_under_attack: "I'm under attack"
+  }, {
+    cf_title: "كلاودفلير", cf_note: "بدّل حمايات كلاودفلير للموقع هنا دون فتح كلاودفلير. إذا أوقفت حماية التطبيق برسالة «طلبات كثيرة» (429) فأوقف القاعدة من هنا.",
+    cf_load: "جارٍ التحميل من كلاودفلير…", cf_fail: "تعذّرت القراءة من كلاودفلير. تحقق من الرمز وحاول مرة أخرى.",
+    cf_steps: "طريقة الربط: في كلاودفلير افتح My Profile ثم API Tokens ثم Create Token ثم Custom token. امنحه صلاحيات Zone لموقعك فقط: Zone Settings: Edit و Zone: Edit و Zone WAF: Edit و Bot Management: Edit. أنشئه والصقه أدناه. يُحفظ مشفرًا ولا يُعرض مرة أخرى.",
+    cf_token: "رمز واجهة كلاودفلير (API token)", cf_zone: "معرّف النطاق Zone ID (اتركه فارغًا للعثور عليه تلقائيًا)", cf_pw: "كلمة مرورك أنت، للتأكيد", cf_connect: "اربط كلاودفلير",
+    cf_zone_l: "الموقع", cf_on: "حماية كلاودفلير", cf_on_note: "إيقاف = كلاودفلير متوقفة مؤقتًا: يُوصل الموقع مباشرة دون أي حماية منها. وتعود في أي وقت.",
+    cf_level: "مستوى الأمان", cf_bot: "وضع مكافحة الروبوتات", cf_bot_note: "يتحدى الزوار الذين يظنهم روبوتات. قد يحجب أشخاصًا حقيقيين والتطبيق.", cf_leak: "كشف بيانات الدخول المسرّبة", cf_leak_note: "يفحص تسجيلات الدخول مقابل كلمات المرور المسرّبة. وقاعدة تحديد المعدل فيه قد توقف إنشاء المستخدمين برسالة 429.",
+    cf_rules: "القواعد", cf_rules_note: "يمكن إيقاف كل قاعدة دون حذفها.", cf_no_rules: "لا توجد قواعد.", cf_refresh: "تحديث", cf_disc: "فصل", cf_disc_q: "فصل كلاودفلير؟ يُحذف الرمز من هذا النظام وتبقى كلاودفلير كما هي.", cf_saved: "تم التغيير في كلاودفلير", cf_disc_done: "تم الفصل",
+    cf_active: "فعّالة", cf_paused: "متوقفة", cf_rate: "تحديد المعدل", cf_custom: "قاعدة مخصصة", cf_no_read: "لا يمكن قراءته بهذا الرمز",
+    cf_l_off: "متوقف", cf_l_essentially_off: "شبه متوقف", cf_l_low: "منخفض", cf_l_medium: "متوسط", cf_l_high: "مرتفع", cf_l_under_attack: "أنا تحت الهجوم"
+  });
+  var LEVELS = ["off", "essentially_off", "low", "medium", "high", "under_attack"];
+  function cfRow(label, note, ctl) { return '<div class="setrow" style="align-items:flex-start"><span class="grow"><b>' + label + "</b>" + (note ? '<span class="sub" style="display:block">' + note + "</span>" : "") + "</span>" + ctl + "</div>"; }
+  function cfSw(on, k, extra) { return '<button class="switch" type="button" role="switch" aria-checked="' + !!on + '" data-act="cfset" data-k="' + k + '"' + (extra || "") + "></button>"; }
+  function cfPaint(s) {
+    var box = document.getElementById("cfBox"); if (!box) return;
+    if (!s.connected) {
+      box.innerHTML = '<p class="note" style="margin-top:0">' + t("cf_note") + '</p><p class="note">' + t("cf_steps") + '</p><form id="cfForm" novalidate>' + A.field("cf_api_token", t("cf_token"), "", "password", 'dir="ltr" autocomplete="off"') +
+        A.field("cf_zone_id", t("cf_zone"), "", "text", 'dir="ltr" autocomplete="off"') + A.field("cf_admin_password", t("cf_pw"), "", "password", 'dir="ltr" autocomplete="current-password"') +
+        '<div class="err" id="cfErr"></div><div class="actions"><button class="btn btn-main" type="submit">' + t("cf_connect") + "</button></div></form>";
+      return;
+    }
+    var er = s.errors || {}, no = function (k) { return er[k] ? '<span class="sub" style="display:block;color:var(--danger,#b3261e)">' + t("cf_no_read") + ": " + esc(er[k]) + "</span>" : ""; };
+    var z = s.zone, h = '<p class="note" style="margin-top:0">' + t("cf_note") + "</p>";
+    h += '<div class="setrow"><span class="grow"><b>' + t("cf_zone_l") + '</b></span><span dir="ltr">' + esc(z ? z.name : "") + (z ? ' <span class="badge ' + (z.paused ? "warn" : "") + '">' + t(z.paused ? "cf_paused" : "cf_active") + "</span>" : "") + "</span></div>";
+    h += cfRow(t("cf_on"), t("cf_on_note") + no("zone"), z ? cfSw(!z.paused, "paused", ' data-inv="1"') : "");
+    h += cfRow(t("cf_level"), no("security_level"), s.security_level ? '<select data-cfsel="security_level" aria-label="' + esc(t("cf_level")) + '">' + LEVELS.map(function (l) { return '<option value="' + l + '"' + (l === s.security_level ? " selected" : "") + ">" + t("cf_l_" + l) + "</option>"; }).join("") + "</select>" : "");
+    h += cfRow(t("cf_bot"), t("cf_bot_note") + no("bot_fight"), s.bot_fight === null ? "" : cfSw(s.bot_fight, "bot_fight"));
+    h += cfRow(t("cf_leak"), t("cf_leak_note") + no("leaked"), s.leaked === null ? "" : cfSw(s.leaked, "leaked"));
+    h += '<h4 class="optlbl" style="margin-top:1rem">' + t("cf_rules") + '</h4><p class="note" style="margin-top:0">' + t("cf_rules_note") + "</p>";
+    h += (s.rules && s.rules.length ? s.rules.map(function (r) {
+      return cfRow(esc(r.name || r.id), esc(t(r.kind === "rate" ? "cf_rate" : "cf_custom") + " · " + r.action), '<button class="switch" type="button" role="switch" aria-checked="' + !!r.enabled + '" data-act="cfrule" data-id="' + esc(r.id) + '" data-phase="' + esc(r.phase) + '"></button>');
+    }).join("") : '<p class="note">' + t("cf_no_rules") + "</p>") + (er.rate ? '<p class="note">' + esc(er.rate) + "</p>" : "") + (er.custom ? '<p class="note">' + esc(er.custom) + "</p>" : "");
+    h += '<div class="actions" style="margin-top:1rem"><button class="btn btn-line btn-sm" type="button" data-act="cfrefresh">' + t("cf_refresh") + '</button><button class="btn btn-line btn-sm" type="button" data-act="cfdisc">' + t("cf_disc") + "</button></div>";
+    box.innerHTML = h;
+  }
+  function cfLoad() {
+    var box = document.getElementById("cfBox"); if (box) box.innerHTML = '<p class="note">' + t("cf_load") + "</p>";
+    A.api.get("system/cloudflare", { cache: false }).then(function (r) { cfPaint(r.data); }, function (e) { if (box) box.innerHTML = '<p class="err">' + esc(failMsg(e)) + "</p>"; });
+  }
+  function cfWrite(method, path, body, done) {
+    A.api.write(method, path, body, { online: true }).then(function (r) { A.toast(t(done || "cf_saved")); cfPaint(r.data); }, function (e) { A.toast(failMsg(e)); cfLoad(); });
+  }
+  A.act("cfset", function (el) { var on = el.getAttribute("aria-checked") !== "true", inv = el.getAttribute("data-inv"), b = {}; b[el.getAttribute("data-k")] = inv ? !on : on; el.disabled = true; cfWrite("PATCH", "system/cloudflare", b); });
+  A.act("cfrule", function (el) { el.disabled = true; cfWrite("PATCH", "system/cloudflare/rules/" + el.getAttribute("data-id"), { enabled: el.getAttribute("aria-checked") !== "true", phase: el.getAttribute("data-phase") }); });
+  A.act("cfrefresh", cfLoad);
+  A.act("cfdisc", function () { if (!confirm(t("cf_disc_q"))) return; cfWrite("DELETE", "system/cloudflare", undefined, "cf_disc_done"); });
+  document.addEventListener("change", function (e) { var el = e.target; if (el && el.getAttribute && el.getAttribute("data-cfsel")) { var b = {}; b[el.getAttribute("data-cfsel")] = el.value; cfWrite("PATCH", "system/cloudflare", b); } });
+  A.form("cfForm", function () {
+    var er = document.getElementById("cfErr"); er.textContent = "";
+    var body = { api_token: v("cf_api_token"), admin_password: document.getElementById("cf_admin_password").value };
+    if (v("cf_zone_id")) body.zone_id = v("cf_zone_id");
+    if (!body.api_token || !body.admin_password) { er.textContent = t("required"); return; }
+    A.api.write("POST", "system/cloudflare", body, { online: true }).then(function (r) { A.toast(t("cf_saved")); cfPaint(r.data); }, function (e) { er.textContent = failMsg(e); });
+  });
+
   function load() {
     var jobs = [A.api.get("system/health", { cache: false })];
     jobs.push(A.can("system.settings") ? A.api.get("system/settings", { cache: false }) : Promise.resolve(null));
@@ -47,6 +114,7 @@ sec_title: "فحص الأمان", sec_ok: "سليم", sec_fix: "يحتاج ان�
       out += '<div class="card" style="margin-top:1rem"><h3>' + t("pres_title") + '</h3>' + (pres ? '<p class="note">' + t("pres_note") + "</p>" + A.facts([[t("pres_name"), esc(pres.name)], [t("pres_email"), '<span dir="ltr">' + esc(pres.email) + "</span>"], ["", '<span class="badge ' + (pres.active ? "" : "warn") + '">' + t(pres.active ? "pres_on" : "pres_off") + "</span>"]]) +
         '<div class="actions" style="margin-top:1rem"><button class="btn btn-main" data-act="chgpres">' + t("pres_change") + "</button></div>" : '<p class="note">' + t("pres_none") + '</p><div class="actions"><a class="btn btn-main" href="setup.html">' + t("pres_goto") + "</a></div>") + "</div>";
     }
+    if (A.can("system.cloudflare")) out += '<div class="card" style="margin-top:1rem"><h3>' + t("cf_title") + '</h3><div id="cfBox"><p class="note">' + t("cf_load") + "</p></div></div>";
     if (d.keys) {
       keys = d.keys;
       out += '<div class="card" style="margin-top:1rem"><h3>' + t("sys_keys") + '</h3><p class="note">' + t("sys_keys_note") + '</p><div class="list">' + (keys.length ? keys.map(function (k) {
@@ -104,5 +172,5 @@ sec_title: "فحص الأمان", sec_ok: "سليم", sec_fix: "يحتاج ان�
     A.api.write("DELETE", "system/api-keys/" + el.getAttribute("data-id"), undefined, { online: true }).then(function () { A.toast(t("revoked")); A.reload(true); }, function (e) { A.toast(failMsg(e)); });
   });
 
-  A.start({ page: "system", nav: "system", title: "n_system", needsConn: true, perm: "system.health", shell: true, load: load, render: render });
+  A.start({ page: "system", nav: "system", title: "n_system", needsConn: true, perm: "system.health", shell: true, load: load, render: render, after: function () { if (A.can("system.cloudflare")) cfLoad(); } });
 })();

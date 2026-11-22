@@ -18,6 +18,7 @@ final class PermissionCatalog
             'system.settings' => 'Change system settings',
             'site.edit' => 'Edit the public landing page draft (texts, photos, projects, team, news)',
             'site.publish' => 'Publish the public landing page',
+            'system.cloudflare' => 'Switch the website\'s Cloudflare protections on and off',
             'system.api_keys' => 'Issue and revoke partner API keys',
             'system.updates' => 'Apply signed update patches and undo them',
             'system.first_admin' => 'Create the first Security Admin (only while none exists)',

@@ -99,6 +99,8 @@
   function message(res) {
     var j = res && res.json;
     if (j && j.errors) { var f = Object.keys(j.errors)[0]; if (f && j.errors[f] && j.errors[f][0]) return j.errors[f][0]; }
+    if (!j && res && res.status === 429) return "The website's protection (Cloudflare or the host) stopped this request because there were too many. Wait a minute and try again. The System Admin can switch the rule off in System > Cloudflare.";
+    if (!j && res && res.status === 403 && /cloudflare|firewall|blocked/i.test(res.text || "")) return "The website's protection (Cloudflare or the host) blocked this request. The System Admin can check it in System > Cloudflare.";
     return (j && j.message) || "Something went wrong.";
   }
   function fail(res) { var e = new Error(message(res)); e.status = res.status; e.code = res.json && res.json.code; e.errors = res.json && res.json.errors; return e; }
