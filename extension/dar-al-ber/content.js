@@ -138,11 +138,11 @@
     var s3 = [].concat(nameRows("ar", respPartsAr, rBase), nameRows("en", respPartsEn, rBase), [
       { label: "علاقة المسؤول المباشر باليتيم", kind: "select", cands: relationOf(relation), key: "Relation to the orphan" },
     ]);
-    var latest = (p.photos && p.photos.length) ? p.photos[p.photos.length - 1] : null, docs = {};
+    var latest = (p.photos && p.photos.length) ? p.photos[p.photos.length - 1] : null, docs = {}, files = p.files || null;
     (p.documents || []).forEach(function (x) { if (x.on_file) docs[x.type] = true; });
-    var doc = function (t) { return docs[t] ? "children/" + p.id + "/documents/" + t + "/download" : ""; };
+    var doc = function (t) { return files ? (files[t] || "") : (docs[t] ? "children/" + p.id + "/documents/" + t + "/download" : ""); };
     var s4 = [
-      { label: "صورة شخصية لليتيم", kind: "file", path: latest ? "children/" + p.id + "/photos/" + latest : "", key: "Photo of the orphan", name: "photo" },
+      { label: "صورة شخصية لليتيم", kind: "file", path: files ? (files.photo || "") : (latest ? "children/" + p.id + "/photos/" + latest : ""), key: "Photo of the orphan", name: "photo" },
       { label: "صورة شهادة ميلاد اليتيم", kind: "file", path: doc("birth_certificate"), key: "Birth certificate", name: "birth-certificate" },
       { label: "صورة شهادة وفاة الاب", kind: "file", path: doc("father_death_certificate"), key: "Father's death certificate", name: "death-certificate" },
       { label: "صورة هوية المسؤول", prefix: true, kind: "file", path: doc("guardian_id"), key: "Guardian ID", name: "guardian-id" },

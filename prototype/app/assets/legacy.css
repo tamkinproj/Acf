@@ -581,3 +581,21 @@
         left: -.05rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .mo-rail .rail-fb .rail-chev {
+        right: .18rem;
+        border-right: 1.6px solid currentColor
+    }
+    html[dir=rtl] .mo-rail .rail-fb .rail-chev {
+        left: .18rem;
+        border-left: 1.6px solid currentColor
+    }
+}
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .accf-h .rail-chev {
+        border-right: 2px solid currentColor
+    }
+    html[dir=rtl] .accf-h .rail-chev {
+        border-left: 2px solid currentColor
+    }
+}

@@ -1,7 +1,9 @@
 (function () {
-  var A = ACF, t = A.t, esc = A.esc, ic = A.ic, list = [];
+  var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
 
   A.strings({
+    accf_staff: "Staff accounts", accf_orphan: "Orphan accounts", accf_family: "Family accounts", accf_load: "Loading…", accf_empty: "No accounts here.", accf_more: "Show more", accf_search: "Search accounts by name or username",
+    accf_orphan_note: "The sign-in accounts of orphans. Make or reset them from Orphans > Accounts.",
     users_title: "Accounts", users_note: "Account administration needs an internet connection, for safety. Nothing here is saved on the phone.", add_user: "Add office user",
     u_confirm: "Your own password", u_confirm_hint: "Type your own password to confirm this change.", f_uuser: "Username", f_uuser_hint: "Used to sign in. Leave empty to make one from the email.", f_uname: "Full name", f_uemail: "Email", f_urole: "Role", f_udept: "Department", f_upass: "Password", gen_pass: "Generate", f_uactive: "Account is active",
     pass_hint: "At least 12 characters with upper and lower case and a number. Tell the person privately; they should change it.",
@@ -10,6 +12,8 @@
     inactive: "Switched off", active: "Active", reset_pass: "Set a new password", revoke: "End all sessions", user_saved: "Saved", user_added: "Account created", sessions_ended: "Sessions ended", pass_changed: "Password changed",
     family_note: "Family accounts are linked to a guardian record. They are created in the next phase, with the people records.", save_changes: "Save changes", edit_user: "Edit account", you: "you", locked: "Cannot be changed here"
   }, {
+    accf_staff: "حسابات الموظفين", accf_orphan: "حسابات الأيتام", accf_family: "حسابات العائلات", accf_load: "جارٍ التحميل…", accf_empty: "لا توجد حسابات هنا.", accf_more: "عرض المزيد", accf_search: "ابحث في الحسابات بالاسم أو اسم المستخدم",
+    accf_orphan_note: "حسابات دخول الأيتام. أنشئها أو أعد تعيينها من الأيتام ثم الحسابات.",
     users_title: "الحسابات", users_note: "إدارة الحسابات تحتاج اتصالًا بالإنترنت للأمان. لا يُحفظ شيء هنا على الهاتف.", add_user: "إضافة مستخدم للمكتب",
     u_confirm: "كلمة مرورك أنت", u_confirm_hint: "اكتب كلمة مرورك أنت لتأكيد هذا التغيير.", f_uuser: "اسم المستخدم", f_uuser_hint: "يُستخدم لتسجيل الدخول. اتركه فارغًا لإنشائه من البريد.", f_uname: "الاسم الكامل", f_uemail: "البريد الإلكتروني", f_urole: "الدور", f_udept: "القسم", f_upass: "كلمة المرور", gen_pass: "توليد", f_uactive: "الحساب نشط",
     pass_hint: "12 حرفًا على الأقل مع حروف كبيرة وصغيرة ورقم. أبلغ الشخص بها بسرية؛ عليه تغييرها.",
@@ -22,13 +26,57 @@
   var ROLES = ["admin_maintenance", "security_admin", "staff"];   // President Admin: only the System Admin makes and changes it
   var DEPTS = ["aytam", "finance", "projects", "relief", "education", "hr", "administration"];
 
-  function render(rows) {
-    list = rows; var me = A.user();
-    return '<div class="head"><h1 class="title">' + t("users_title") + '</h1></div><p class="note">' + t("users_note") + '</p><div class="list">' + rows.map(function (u) {
-      var meta = t("role_" + u.role) + (u.department ? " · " + t("dept_" + u.department) : "") + (u.access_custom ? " · " + t("acc_custom") : "");
-      return '<button class="item" type="button" data-focus="' + u.id + '" data-act="edituser" data-id="' + u.id + '">' + A.avatar(u, "avatar") + '<span class="grow"><b>' + esc(u.name) + (me && me.id === u.id ? " (" + t("you") + ")" : "") + '</b><span class="sub"><span dir="ltr">@' + esc(u.username || "") + "</span> · " + esc(meta) + '</span></span><span class="right"><span class="badge ' + (u.active ? "" : "warn") + '">' + t(u.active ? "active" : "inactive") + "</span></span></button>";
-    }).join("") + '</div><button class="btn btn-main fab" data-act="adduser">' + ic("plus") + t("add_user") + "</button>";
+  /* ---- Accounts, in folders: Staff, Orphan and Family accounts (each opens and closes; only the open ones are loaded) ---- */
+  var KINDS = ["staff", "orphan", "family"], F = {}, counts = { staff: 0, orphan: 0, family: 0 }, Q = "", qTimer = 0;
+  KINDS.forEach(function (k) { F[k] = { rows: [], page: 0, last: 1, loaded: false }; });
+  function allRows() { return F.staff.rows.concat(F.orphan.rows, F.family.rows); }
+  function foldState() { try { var x = JSON.parse(localStorage.getItem("acf_acc_open") || "null"); if (x) return x; } catch (e) {} return { staff: 1, orphan: 0, family: 0 }; }
+  function saveFold(st) { try { localStorage.setItem("acf_acc_open", JSON.stringify(st)); } catch (e) {} }
+  function pageOf(k, page) { return A.api.get("users?type=" + k + "&per_page=30&page=" + page + (Q ? "&q=" + encodeURIComponent(Q) : ""), { cache: false }); }
+  function takePage(k, r, append) {
+    var f = F[k]; f.rows = append ? f.rows.concat(r.data) : r.data; f.page = (r.meta && r.meta.page) || 1; f.last = (r.meta && r.meta.last_page) || 1; f.loaded = true;
+    if (r.meta && r.meta.counts) counts = r.meta.counts;
   }
+  function itemHtml(u, me) {
+    var meta = t("role_" + u.role) + (u.department ? " · " + t("dept_" + u.department) : "") + (u.access_custom ? " · " + t("acc_custom") : "");
+    return '<button class="item" type="button" data-focus="' + u.id + '" data-act="edituser" data-id="' + u.id + '">' + A.avatar(u, "avatar") + '<span class="grow"><b>' + esc(u.name) + (me && me.id === u.id ? " (" + t("you") + ")" : "") + '</b><span class="sub"><span dir="ltr">@' + esc(u.username || "") + "</span> · " + esc(meta) + '</span></span><span class="right"><span class="badge ' + (u.active ? "" : "warn") + '">' + t(u.active ? "active" : "inactive") + "</span></span></button>";
+  }
+  function bodyHtml(k) {
+    var f = F[k], me = A.user();
+    if (!f.loaded) return '<p class="note">' + t("accf_load") + "</p>";
+    return (k === "orphan" ? '<p class="note" style="margin-top:0">' + t("accf_orphan_note") + "</p>" : k === "family" ? '<p class="note" style="margin-top:0">' + t("family_note") + "</p>" : "") +
+      (f.rows.length ? '<div class="list">' + f.rows.map(function (u) { return itemHtml(u, me); }).join("") + "</div>" : '<p class="note">' + t("accf_empty") + "</p>") +
+      (f.page < f.last ? '<div class="actions" style="margin-top:.6rem"><button class="btn btn-line btn-sm" type="button" data-act="accmore" data-f="' + k + '">' + t("accf_more") + "</button></div>" : "");
+  }
+  function folderHtml(k) {
+    var open = !!foldState()[k];
+    return '<section class="accf' + (open ? " open" : "") + '" data-f="' + k + '"><button class="accf-h" type="button" data-act="accfold" data-f="' + k + '" aria-expanded="' + open + '">' + ic("folder") + "<b>" + t("accf_" + k) + '</b><span class="badge">' + (counts[k] || 0) + '</span><i class="rail-chev" aria-hidden="true"></i></button>' +
+      '<div class="accf-b" id="accf_' + k + '"' + (open ? "" : " hidden") + ">" + (open ? bodyHtml(k) : "") + "</div></section>";
+  }
+  function render(d) {
+    KINDS.forEach(function (k) { if (d.pages[k]) takePage(k, d.pages[k], false); else F[k].loaded = false; });
+    counts = d.counts || counts;
+    return '<div class="head"><h1 class="title">' + t("users_title") + '</h1></div><p class="note">' + t("users_note") + '</p><input id="accQ" class="accq" type="search" placeholder="' + esc(t("accf_search")) + '" value="' + esc(Q) + '" autocomplete="off">' +
+      KINDS.map(folderHtml).join("") + '<button class="btn btn-main fab" data-act="adduser">' + ic("plus") + t("add_user") + "</button>";
+  }
+  function fillFolder(k) { var b = document.getElementById("accf_" + k); if (b) b.innerHTML = bodyHtml(k); var h = document.querySelector('.accf[data-f="' + k + '"] .accf-h .badge'); if (h) h.textContent = counts[k] || 0; }
+  function loadFolder(k, page) {
+    return pageOf(k, page).then(function (r) { takePage(k, r, page > 1); fillFolder(k); KINDS.forEach(function (x) { var h = document.querySelector('.accf[data-f="' + x + '"] .accf-h .badge'); if (h) h.textContent = counts[x] || 0; }); },
+      function (e) { var b = document.getElementById("accf_" + k); if (b) b.innerHTML = '<p class="err">' + esc(e.offline ? t("need_conn") : A.msg(e)) + "</p>"; });
+  }
+  A.act("accfold", function (el) {
+    var k = el.getAttribute("data-f"), st = foldState(), open = !st[k], sec = el.closest(".accf"), b = document.getElementById("accf_" + k);
+    st[k] = open ? 1 : 0; saveFold(st); sec.classList.toggle("open", open); el.setAttribute("aria-expanded", open);
+    if (open) { b.removeAttribute("hidden"); b.innerHTML = bodyHtml(k); if (!F[k].loaded) loadFolder(k, 1); } else b.setAttribute("hidden", "");
+  });
+  A.act("accmore", function (el) { var k = el.getAttribute("data-f"); el.disabled = true; loadFolder(k, F[k].page + 1); });
+  document.addEventListener("input", function (e) {
+    if (!e.target || e.target.id !== "accQ") return;
+    clearTimeout(qTimer); qTimer = setTimeout(function () {
+      Q = e.target.value.trim(); var st = foldState();
+      KINDS.forEach(function (k) { F[k].loaded = false; F[k].rows = []; if (st[k]) { fillFolder(k); loadFolder(k, 1); } });
+    }, 350);
+  });
   function roleOptions(sel, withUser) {
     return ROLES.concat(withUser ? ["user"] : []).map(function (r) { return '<option value="' + r + '"' + (r === sel ? " selected" : "") + ">" + t("role_" + r) + "</option>"; }).join("");
   }
@@ -122,7 +170,7 @@
   });
 
   A.act("edituser", function (el) {
-    var u = list.filter(function (x) { return x.id === parseInt(el.getAttribute("data-id"), 10); })[0], me = A.user();
+    var u = allRows().filter(function (x) { return x.id === parseInt(el.getAttribute("data-id"), 10); })[0], me = A.user();
     if (!u) return;
     if (u.role === "system_admin" || u.role === "president_admin") { A.toast(t(u.role === "president_admin" ? "locked_pres" : "locked")); return; }
     var self = me && me.id === u.id, fixedRole = self || u.role === "user";
@@ -139,7 +187,7 @@
   A.act("flip", function (el) { el.setAttribute("aria-checked", String(el.getAttribute("aria-checked") !== "true")); });
   A.form("editForm", function (f) {
     clearErr();
-    var id = f.getAttribute("data-id"), u = list.filter(function (x) { return String(x.id) === id; })[0], body = {};
+    var id = f.getAttribute("data-id"), u = allRows().filter(function (x) { return String(x.id) === id; })[0], body = {};
     var role = v("u_role"); if (role !== u.role) body.role = role;
     if (v("u_username") && v("u_username").toLowerCase() !== (u.username || "")) body.username = v("u_username");
     if (role === "staff") body.department_key = v("u_department_key");
@@ -162,6 +210,15 @@
     A.api.write("POST", "users/" + f.getAttribute("data-id") + "/password", { password: v("u_password"), confirm_password: document.getElementById("u_confirm_password").value }, { online: true }).then(function () { A.closeSheet(); A.toast(t("pass_changed")); }, fail);
   });
 
+  function load() {
+    var st = foldState(), jobs = KINDS.map(function (k) { return st[k] ? pageOf(k, 1).then(function (r) { return r; }) : null; });
+    if (!jobs.some(Boolean)) jobs[0] = pageOf("staff", 1);
+    return Promise.all(jobs.map(function (j) { return j || Promise.resolve(null); })).then(function (rs) {
+      var d = { pages: {}, counts: counts };
+      KINDS.forEach(function (k, i) { if (rs[i]) { d.pages[k] = rs[i]; if (rs[i].meta && rs[i].meta.counts) d.counts = rs[i].meta.counts; } });
+      return { data: d };
+    });
+  }
   function openFromLink() { if (/[?&]add=1/.test(location.search) && !openFromLink.done) { openFromLink.done = true; adduser(); } }
-  A.start({ page: "users", nav: "users", title: "n_users", needsConn: true, perm: "users.manage", shell: true, load: function () { return A.api.get("users", { cache: false }); }, render: render, after: openFromLink });
+  A.start({ page: "users", nav: "users", title: "n_users", needsConn: true, perm: "users.manage", shell: true, load: load, render: render, after: openFromLink });
 })();

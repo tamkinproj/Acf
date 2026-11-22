@@ -24,18 +24,39 @@ class UserAdminController extends Controller
 
     public function index(Request $request)
     {
-        $users = User::with('department')->where('foundation_id', $request->user()->foundation_id)
+        $request->validate(['type' => ['nullable', 'in:staff,orphan,family'], 'per_page' => ['nullable', 'integer', 'min:1', 'max:100'], 'q' => ['nullable', 'string', 'max:80']]);
+        $fid = $request->user()->foundation_id;
+        $users = User::with('department')->where('foundation_id', $fid)
             ->when($request->query('role'), fn ($q, $r) => $q->where('role', $r))
-            ->orderBy('name')->paginate(50);
+            ->when($request->query('type'), fn ($q, $type) => $this->ofType($q, $type))
+            ->when(trim((string) $request->query('q')), function ($q, $term) {
+                $like = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $term).'%';
+                $q->where(fn ($w) => $w->where('name', 'like', $like)->orWhere('username', 'like', $like)->orWhere('email', 'like', $like));
+            })
+            ->orderBy('name')->paginate((int) $request->query('per_page', 50));
         $users->setCollection($users->getCollection()->map(fn ($u) => $this->shape($u)));
+        $base = fn () => User::where('foundation_id', $fid);
 
-        return ApiResponse::collection($users);
+        return ApiResponse::collection($users, ['counts' => [
+            'staff' => $this->ofType($base(), 'staff')->count(), 'orphan' => $this->ofType($base(), 'orphan')->count(), 'family' => $this->ofType($base(), 'family')->count(),
+        ]]);
+    }
+
+    /** The three kinds of account: office and technical staff, the sign-in accounts of orphans, and family (guardian) accounts. */
+    private function ofType($q, string $type)
+    {
+        return match ($type) {
+            'orphan' => $q->whereNotNull('child_id'),
+            'family' => $q->where('role', 'user')->whereNull('child_id'),
+            default => $q->where('role', '!=', 'user')->whereNull('child_id'),
+        };
     }
 
     /** An account as the Accounts screen shows it: the usual fields plus, for staff, which features are ticked. */
     private function shape(User $u): array
     {
         $o = $u->toApi();
+        $o['account_type'] = $u->child_id ? 'orphan' : ($u->role === 'user' ? 'family' : 'staff');
         if ($u->role === 'staff') {
             $o['access'] = PermissionCatalog::ticked($u);
             $o['access_custom'] = ! empty($u->access_overrides);

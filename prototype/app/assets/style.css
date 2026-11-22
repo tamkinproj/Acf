@@ -1209,3 +1209,24 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:3px s
 /* ---- Dar Al Ber attachments (apply form) and captioned papers (application review) ---- */
 .ap-slot{margin:.2rem 0 1.1rem}.ap-slotlbl{font-weight:600;margin:0 0 .45rem}
 .phcap{display:flex;flex-direction:column;gap:.25rem}.phcap small{display:block;font-size:.72rem;line-height:1.25;text-align:center;color:var(--muted,#667)}
+
+/* ---- the left rail: folders that open and close (large screens) ---- */
+.rail-f{display:flex;flex-direction:column;align-items:center;gap:.35rem;width:100%}
+.mo-rail .rail-fb{position:relative}
+.mo-rail .rail-fb.has:not(.open){background:var(--ink);color:#fff}
+.mo-rail .rail-fb .rail-chev{position:absolute;bottom:.18rem;inset-inline-end:.18rem;width:.42rem;height:.42rem;border-inline-end:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);opacity:.6;transition:transform .2s}
+.rail-f.open>.rail-fb .rail-chev{transform:rotate(-135deg)}
+.rail-kids{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.35rem 0;background:#f4f5f1;border-radius:999px;width:2.8rem}
+.rail-kids[hidden]{display:none}
+.mo-rail .rail-kids a.rail-kid{width:2.3rem;height:2.3rem}
+.mo-rail .rail-kids .icon{width:1.15rem;height:1.15rem}
+@media(min-width:1024px){.mo-rail-main{max-height:calc(100vh - 15rem);overflow-y:auto;scrollbar-width:none;border-radius:1.6rem}.mo-rail-main::-webkit-scrollbar{display:none}}
+
+/* ---- Accounts in folders ---- */
+.accq{display:block;width:100%;margin:.2rem 0 .9rem;padding:.75rem 1rem;border:1px solid rgba(0,0,0,.1);border-radius:1rem;background:#fff;font:inherit}
+.accf{background:#fff;border-radius:1.2rem;box-shadow:var(--cs);margin:0 0 .9rem;overflow:hidden}
+.accf-h{display:flex;align-items:center;gap:.7rem;width:100%;padding:.95rem 1.1rem;background:none;border:0;font:inherit;font-size:1.02rem;cursor:pointer;text-align:start;color:var(--ink)}
+.accf-h b{flex:1}.accf-h .icon{width:1.25rem;height:1.25rem}
+.accf-h .rail-chev{position:static;width:.5rem;height:.5rem;border-inline-end:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);opacity:.55;transition:transform .2s}
+.accf.open>.accf-h .rail-chev{transform:rotate(-135deg)}
+.accf-b{padding:0 1.1rem 1rem}.accf-b[hidden]{display:none}

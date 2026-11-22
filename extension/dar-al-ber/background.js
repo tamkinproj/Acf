@@ -30,6 +30,15 @@ async function call(path, opt) {
   return j;
 }
 
+/* An application, shaped like the record the portal filler expects; its papers are fetched by path when you press Attach files. */
+async function application(id) {
+  const a = (await call("applications/" + encodeURIComponent(id))).data;
+  const files = {};
+  if (a.photos > 0) files.photo = "applications/" + a.id + "/photos/0";
+  (a.document_types || []).forEach((t, i) => { if (t && t !== "other" && !files[t]) files[t] = "applications/" + a.id + "/documents/" + i; });
+  return { id: a.id, source: "application", ref: a.reference, external_no: null, status: a.status, name_ar: a.name_ar, name_en: a.name_en, details: a.details || {}, files, photos: [], documents: [] };
+}
+
 const handlers = {
   async state() { const s = await S.get(["base", "token", "user", "active", "synced"]); return { base: s.base || DEFAULT_BASE, signedIn: !!s.token, user: s.user || null, active: s.active || null, synced: s.synced || null }; },
   async login(m) {
@@ -40,9 +49,15 @@ const handlers = {
     return true;
   },
   async logout() { try { await call("logout", { method: "POST" }); } catch (e) {} await S.del(["token", "user", "device", "active", "synced"]); return true; },
-  async list(m) { const j = await call("children?per_page=30&q=" + encodeURIComponent(m.q || "")); return j.data; },
-  async choose(m) { const j = await call("children/" + encodeURIComponent(m.id)); await S.set({ active: j.data, synced: Date.now() }); return j.data; },
-  async sync() { const s = await S.get(["active"]); if (!s.active) return null; const j = await call("children/" + s.active.id); await S.set({ active: j.data, synced: Date.now() }); return j.data; },
+  /* Only the NEW applications from the Aytam apply form (not approved yet): that is what gets entered in the Dar Al Ber portal. */
+  async list(m) {
+    const j = await call("applications?status=new");
+    const q = String(m.q || "").trim().toLowerCase();
+    const rows = (j.data.items || []).filter((a) => !q || [a.name_en, a.name_ar, a.reference, a.guardian, a.phone, a.city].join(" ").toLowerCase().includes(q));
+    return rows.map((a) => ({ id: a.id, reference: a.reference, name_en: a.name_en, name_ar: a.name_ar, phone: a.phone, city: a.city, when: a.submitted_at, photos: a.photos, documents: a.documents }));
+  },
+  async choose(m) { const a = await application(m.id); await S.set({ active: a, synced: Date.now() }); return a; },
+  async sync() { const s = await S.get(["active"]); if (!s.active) return null; const a = await application(s.active.id); await S.set({ active: a, synced: Date.now() }); return a; },
   async file(m) { return call(String(m.path), { binary: true }); },
 };
 
