@@ -86,8 +86,13 @@
   var slash = function (d) { return d ? String(d).replace(/-/g, "/") : ""; };
   var has = function (v) { return v !== null && v !== undefined && String(v).trim() !== ""; };
 
-  function nameRows(lang, full, base) {
-    var w = words(full), sfx = lang === "ar" ? " (بالعربية)" : " (بالانجليزية)";
+  /* The four parts the system keeps (child_first_ar ...); an older record without them is split from its full name. */
+  function partsOf(d, who, lang, full) {
+    var p = ["first", "father", "grand", "family"].map(function (x) { return d[who + "_" + x + "_" + lang] || ""; });
+    return p.some(Boolean) ? p : words(full);
+  }
+  function nameRows(lang, w, base) {
+    var sfx = lang === "ar" ? " (بالعربية)" : " (بالانجليزية)";
     return [[base[0] + sfx, w[0]], [base[1] + sfx, w[1]], [base[2] + sfx, w[2]], [base[3] + sfx, w[3]]].map(function (r, i) { return { label: r[0], kind: "text", value: r[1], key: (lang === "ar" ? "Arabic" : "English") + " name part " + (i + 1) }; });
   }
 
@@ -98,11 +103,13 @@
     var motherIsResp = /mother|^ام|الام/.test(norm(relation));
     var respAr = d.responsible_name_ar || (hasAr(d.guardian_name) ? d.guardian_name : "") || (motherIsResp ? d.mother_name_ar : "");
     var respEn = d.responsible_name_en || (has(d.guardian_name) && !hasAr(d.guardian_name) ? d.guardian_name : "") || (motherIsResp ? d.mother_name : "");
+    var respPartsAr = partsOf(d, "resp", "ar", respAr), respPartsEn = partsOf(d, "resp", "en", respEn);
+    if (motherIsResp && !respPartsAr.some(Boolean) && !respPartsEn.some(Boolean)) { respPartsAr = partsOf(d, "mother", "ar", d.mother_name_ar); respPartsEn = partsOf(d, "mother", "en", d.mother_name); }
     var none = d.study_level === "none";
     var works = d.mother_works === "yes" ? ["تعمل"] : d.mother_works === "no" ? ["لا تعمل"] : [];
     var s1 = [].concat(
-      nameRows("ar", d.name_ar, ["الاسم الاول لليتيم", "اسم والد اليتيم", "اسم جد اليتيم", "اسم جد اليتيم/العائلة"]),
-      nameRows("en", d.name_en, ["الاسم الاول لليتيم", "اسم والد اليتيم", "اسم جد اليتيم", "اسم جد اليتيم/العائلة"]),
+      nameRows("ar", partsOf(d, "child", "ar", d.name_ar), ["الاسم الاول لليتيم", "اسم والد اليتيم", "اسم جد اليتيم", "اسم جد اليتيم/العائلة"]),
+      nameRows("en", partsOf(d, "child", "en", d.name_en), ["الاسم الاول لليتيم", "اسم والد اليتيم", "اسم جد اليتيم", "اسم جد اليتيم/العائلة"]),
       [
         { label: "النوع", kind: "select", cands: d.gender === "m" ? ["ذكر"] : d.gender === "f" ? ["انثى"] : [], key: "Gender" },
         { label: "محل الميلاد", kind: "select", cands: country(d.birth_country || d.nationality || d.residence_country), key: "Birth country" },
@@ -117,7 +124,7 @@
         { label: "الصف الدراسي", kind: "text", value: d.grade || d.madrasa_grade, key: "School grade", optional: none },
       ]);
     var mBase = ["الاسم الاول للأم", "اسم والد الأم", "اسم جد الأم", "اسم جد الأم/العائلة"];
-    var s2 = [].concat(nameRows("ar", d.mother_name_ar, mBase), nameRows("en", d.mother_name, mBase), [
+    var s2 = [].concat(nameRows("ar", partsOf(d, "mother", "ar", d.mother_name_ar), mBase), nameRows("en", partsOf(d, "mother", "en", d.mother_name), mBase), [
       { label: "الحالة الاجتماعية للأم", kind: "select", cands: marital(d.mother_marital_status), key: "Mother's status" },
       { label: "عمل الأم", kind: "select", cands: works, key: "Mother works" },
       { label: "راتب الام ان كانت تعمل", kind: "text", value: has(d.mother_salary) ? String(parseFloat(d.mother_salary)) : d.mother_works === "no" ? "0" : "", key: "Mother's salary" },
@@ -128,7 +135,7 @@
       { label: "مصادر اخرى للمساعدات", kind: "text", value: has(d.other_aid) ? d.other_aid : "لا يوجد", key: "Other aid" },
     ]);
     var rBase = ["الاسم الاول للمسؤول المباشر", "اسم والد المسؤول المباشر", "اسم جد المسؤول المباشر", "اسم جد المسؤول المباشر/العائلة"];
-    var s3 = [].concat(nameRows("ar", respAr, rBase), nameRows("en", respEn, rBase), [
+    var s3 = [].concat(nameRows("ar", respPartsAr, rBase), nameRows("en", respPartsEn, rBase), [
       { label: "علاقة المسؤول المباشر باليتيم", kind: "select", cands: relationOf(relation), key: "Relation to the orphan" },
     ]);
     var latest = (p.photos && p.photos.length) ? p.photos[p.photos.length - 1] : null, docs = {};
@@ -140,6 +147,7 @@
       { label: "صورة شهادة وفاة الاب", kind: "file", path: doc("father_death_certificate"), key: "Father's death certificate", name: "death-certificate" },
       { label: "صورة هوية المسؤول", prefix: true, kind: "file", path: doc("guardian_id"), key: "Guardian ID", name: "guardian-id" },
       { label: "صورة الشهادة الدراسية", kind: "file", path: doc("school_record"), key: "School certificate", name: "school-certificate" },
+      { label: "صورة بحث الحالة", kind: "file", path: doc("case_study"), key: "Case study", name: "case-study" },
     ];
     return { 1: s1, 2: s2, 3: s3, 4: s4 };
   }

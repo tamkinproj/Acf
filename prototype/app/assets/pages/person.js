@@ -7,14 +7,14 @@
     p_added: "Added on", p_updated: "Last updated", p_submitted: "Form submitted", p_photos: "Photos uploaded", sec_record: "Record", sec_photos: "Photos", sec_docs: "Documents", sec_bank: "Bank account",
     p_saved: "Saved", p_conn: "Editing needs a connection.", p_samplebadge: "Sample", p_back: "Back", p_add_photo: "Add photo", p_remove_q: "Remove this photo?", p_removed: "Photo removed", p_photo_added: "Photo added",
     f_holder: "Account holder", f_bankname: "Bank", f_last4: "Last 4 digits", verify: "Verified", notver: "Not verified", ver_on: "Bank account verified", ver_off: "Verification removed", no_bank: "No bank account yet (cash).",
-    doc_on: "On file", doc_missing: "Missing", doc_view: "View", doc_upload: "Upload", doc_replace: "Replace", doc_done: "Document saved", d_birth_certificate: "Birth certificate", d_father_death_certificate: "Father's death certificate", d_school_record: "School record", d_guardian_id: "Guardian ID",
+    doc_on: "On file", doc_missing: "Missing", doc_view: "View", doc_upload: "Upload", doc_replace: "Replace", doc_done: "Document saved", d_birth_certificate: "Orphan's birth certificate", d_father_death_certificate: "Father's death certificate", d_school_record: "School certificate", d_guardian_id: "Direct responsible person's ID", d_case_study: "Case study",
     waiting: "Waiting to send", wait_note: "This orphan was added offline. Details appear once it has been sent.", active: "Active", pending: "Pending", ended: "Ended", p_edit_sec: "Edit: {s}", p_from_app: "Original application", p_account: "Sign-in account", p_noacct: "No account yet"
   }, {
     child_title: "ملف اليتيم", p_edit_all: "تعديل الكل", p_call: "اتصل بالوصي", p_age: "العمر", p_years: "{n} سنة", p_grade: "الصف", f_health: "الحالة الصحية", good: "جيدة", needs_followup: "تحتاج متابعة",
     p_added: "تاريخ الإضافة", p_updated: "آخر تحديث", p_submitted: "تاريخ تقديم النموذج", p_photos: "الصور المرفوعة", sec_record: "السجل", sec_photos: "الصور", sec_docs: "المستندات", sec_bank: "الحساب البنكي",
     p_saved: "تم الحفظ", p_conn: "التعديل يحتاج اتصالًا.", p_samplebadge: "تجريبي", p_back: "رجوع", p_add_photo: "أضف صورة", p_remove_q: "حذف هذه الصورة؟", p_removed: "تم حذف الصورة", p_photo_added: "تمت إضافة الصورة",
     f_holder: "صاحب الحساب", f_bankname: "البنك", f_last4: "آخر 4 أرقام", verify: "موثّق", notver: "غير موثّق", ver_on: "تم توثيق الحساب البنكي", ver_off: "أُلغي التوثيق", no_bank: "لا يوجد حساب بنكي بعد (نقدًا).",
-    doc_on: "موجود", doc_missing: "ناقص", doc_view: "عرض", doc_upload: "رفع", doc_replace: "استبدال", doc_done: "تم حفظ المستند", d_birth_certificate: "شهادة الميلاد", d_father_death_certificate: "شهادة وفاة الأب", d_school_record: "السجل المدرسي", d_guardian_id: "هوية الوصي",
+    doc_on: "موجود", doc_missing: "ناقص", doc_view: "عرض", doc_upload: "رفع", doc_replace: "استبدال", doc_done: "تم حفظ المستند", d_birth_certificate: "صورة شهادة ميلاد اليتيم", d_father_death_certificate: "صورة شهادة وفاة الاب", d_school_record: "صورة الشهادة الدراسية", d_guardian_id: "صورة هوية المسؤول المباشر", d_case_study: "صورة بحث الحالة",
     waiting: "بانتظار الإرسال", wait_note: "أُضيف هذا اليتيم بدون اتصال. تظهر التفاصيل بعد إرساله.", active: "نشط", pending: "معلّق", ended: "منتهٍ", p_edit_sec: "تعديل: {s}", p_from_app: "الطلب الأصلي", p_account: "حساب الدخول", p_noacct: "لا يوجد حساب بعد"
   });
 

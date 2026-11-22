@@ -51,7 +51,7 @@
   function here(id) { return !!document.getElementById(id); }
   function readBody(edit) {
     var body = {}, g = {}, b = {}, bankShown = here("f_bank_holder");
-    if (here("f_name_en") && !v("f_name_en") && !v("f_name_ar")) return { error: ["f_name_en", t("required")] };
+    if ((here("f_child_first_en") || here("f_child_first_ar")) && !v("f_child_first_en") && !v("f_child_first_ar")) return { error: [here("f_child_first_en") ? "f_child_first_en" : "f_child_first_ar", t("required")] };
     S.forEach(function (grp) {
       grp.fields.forEach(function (f) {
         if (!here("f_" + f.k)) return;                                       // a field not on screen is never changed
@@ -62,9 +62,8 @@
         if (edit) body[f.k] = val; else if (val !== null) body[f.k] = val;
       });
     });
-    if (here("f_name_en") && !body.name_en) body.name_en = body.name_ar || v("f_name_ar");   // the record is listed under the English name; fall back to Arabic
     if (edit && here("f_status")) body.status = v("f_status");
-    if (g.name) body.guardian = g;
+    if (Object.keys(g).length) body.guardian = g;                            // the guardian's name comes from the responsible person (the server fills it in)
     if (bankShown) {
       var filled = ["holder", "bank_name", "last4"].filter(function (k) { return b[k]; }).length;
       if (filled && filled < 3) return { error: ["formErr", t("bank_all_or_none")] };
@@ -95,5 +94,7 @@
       return '<div class="card osec" id="sec-' + g.id + '"><div class="osec-head"><h3>' + esc(lab(g)) + "</h3>" + (opts.edit ? '<button class="osec-edit" type="button" data-act="editsec" data-g="' + g.id + '" aria-label="' + esc(t("o_edit") + ": " + lab(g)) + '">' + A.ic("edit") + "<span>" + t("o_edit") + "</span></button>" : "") + "</div>" + A.facts(fields.map(function (f) { return [esc(lab(f)), show(f, d[f.k])]; })) + "</div>";
     }).join("");
   }
-  A.orphan = { control: control, lab: lab, formHtml: formHtml, wire: wire, readBody: readBody, view: view, show: show, schema: S };
+  /* "Alyusep Noron Kasim Kali": the full name joined from the four parts of a request body (who: child | mother | resp, lang: ar | en). */
+  function full(body, who, lang) { return ["first", "father", "grand", "family"].map(function (p) { return body[who + "_" + p + "_" + lang] || ""; }).join(" ").replace(/\s+/g, " ").trim(); }
+  A.orphan = { full: full, control: control, lab: lab, formHtml: formHtml, wire: wire, readBody: readBody, view: view, show: show, schema: S };
 })();

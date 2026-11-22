@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Child;
 use App\Models\ChildApplication;
 use App\Models\ChildPhoto;
 use App\Services\ChildRecords;
@@ -24,7 +25,7 @@ class ApplicationController extends Controller
             'id' => $a->id, 'reference' => $a->reference(), 'status' => $a->status,
             'name_en' => $d['name_en'] ?? null, 'name_ar' => $d['name_ar'] ?? null,
             'guardian' => $d['guardian_name'] ?? null, 'phone' => $d['guardian_phone'] ?? null, 'city' => $d['city'] ?? null,
-            'birth_date' => $d['birth_date'] ?? null, 'photos' => count($a->photos ?? []), 'documents' => count($a->documents ?? []), 'method' => $a->method ?? 'form',
+            'birth_date' => $d['birth_date'] ?? null, 'photos' => count($a->photos ?? []), 'documents' => count($a->documents ?? []), 'document_types' => array_map(fn ($d) => $d['type'] ?? 'other', array_values($a->documents ?? [])), 'method' => $a->method ?? 'form',
             'submitted_at' => $a->created_at?->toIso8601String(), 'child_id' => $a->child_id,
         ];
     }
@@ -79,6 +80,17 @@ class ApplicationController extends Controller
                 $to = "children/{$child->foundation_id}/{$child->id}/photo-".($i + 1).'-'.bin2hex(random_bytes(6)).'.jpg';
                 if (Storage::disk('local')->exists($p['path']) && Storage::disk('local')->copy($p['path'], $to)) {
                     ChildPhoto::create(['foundation_id' => $child->foundation_id, 'child_id' => $child->id, 'path' => $to, 'mime' => $p['mime'] ?? 'image/jpeg']);
+                }
+            }
+            foreach ($application->documents ?? [] as $d) {                           // a paper sent under its own name (birth certificate...) goes to the profile
+                $type = $d['type'] ?? null;
+                if (! in_array($type, Child::DOCUMENT_TYPES, true) || ! Storage::disk('local')->exists($d['path'] ?? '')) {
+                    continue;
+                }
+                $to = "children/{$child->foundation_id}/{$child->id}/".bin2hex(random_bytes(20)).'.jpg';
+                if (Storage::disk('local')->copy($d['path'], $to)) {
+                    \App\Models\ChildDocument::updateOrCreate(['child_id' => $child->id, 'type' => $type], ['foundation_id' => $child->foundation_id, 'path' => $to,
+                        'original_name' => $type.'.jpg', 'mime' => $d['mime'] ?? 'image/jpeg', 'size' => Storage::disk('local')->size($to), 'uploaded_by' => $user->id]);
                 }
             }
             $application->update(['status' => 'approved', 'child_id' => $child->id, 'reviewed_by' => $user->id, 'reviewed_at' => now()]);

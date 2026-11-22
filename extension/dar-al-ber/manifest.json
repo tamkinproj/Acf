@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ACF to Dar Al Ber",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Fills the Dar Al Ber orphan update form (4 steps) from your ACF system: names, family, guardian and the attachments.",
   "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
   "action": { "default_title": "ACF to Dar Al Ber", "default_popup": "popup.html", "default_icon": "icons/48.png" },

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Child;
 use App\Models\ChildApplication;
 use App\Models\Foundation;
 use App\Support\ApiResponse;
 use App\Support\Audit;
+use App\Support\NameParts;
 use App\Support\OrphanFields;
 use App\Support\PrivateImages;
 use Illuminate\Http\Request;
@@ -36,12 +38,15 @@ class PublicApplyController extends Controller
             return ApiResponse::error('BUSY', 'Many applications were received today. Please try again tomorrow.', 429);
         }
 
+        $request->merge(NameParts::prepare($request->all()));
         $maxFiles = (int) config('orphan_fields.photos.max_files');
         $rules = OrphanFields::rules(true) + [
             'photos' => ['nullable', 'array', 'max:'.$maxFiles],
             'photos.*' => ['file', 'max:'.(int) config('orphan_fields.photos.max_kb'), 'mimes:jpg,jpeg,png,webp'],
             'documents' => ['nullable', 'array', 'max:'.(int) config('orphan_fields.documents.max_files')],
             'documents.*' => ['file', 'max:'.(int) config('orphan_fields.documents.max_kb'), 'mimes:jpg,jpeg,png,webp'],
+            'document_types' => ['nullable', 'array'],
+            'document_types.*' => ['nullable', 'in:'.implode(',', array_merge(Child::DOCUMENT_TYPES, ['other']))],
             'method' => ['nullable', 'in:form,documents'],
         ];
         $rules['birth_date'] = ['required', 'date', 'before:today', 'after:1990-01-01'];
@@ -52,7 +57,7 @@ class PublicApplyController extends Controller
         $rules['name_ar'] = ['required_without:name_en', 'nullable', 'string', 'max:150'];
         $data = $request->validate($rules);
 
-        $answers = collect($data)->except(['photos', 'documents', 'method'])->filter(fn ($v) => $v !== null && $v !== '')->all();
+        $answers = collect($data)->except(['photos', 'documents', 'document_types', 'method'])->filter(fn ($v) => $v !== null && $v !== '')->all();
         $app = ChildApplication::withoutGlobalScopes()->create([
             'foundation_id' => $foundation->id, 'status' => 'new', 'data' => $answers, 'photos' => [], 'documents' => [], 'method' => $data['method'] ?? 'form',
             'ip_hash' => hash('sha256', $request->ip().'|'.config('app.key')),
@@ -60,7 +65,7 @@ class PublicApplyController extends Controller
 
         $saved = ['photos' => [], 'documents' => []];
         foreach (['photos' => [1400, null], 'documents' => [2200, (int) config('orphan_fields.documents.max_kb')]] as $kind => [$side, $kb]) {
-            foreach ((array) $request->file($kind, []) as $file) {
+            foreach ((array) $request->file($kind, []) as $i => $file) {
                 $one = PrivateImages::store($file, "applications/{$app->id}/$kind", $side, $kb);
                 if (is_string($one)) {
                     foreach (array_merge($saved['photos'], $saved['documents']) as $p) {
@@ -70,7 +75,7 @@ class PublicApplyController extends Controller
 
                     return ApiResponse::error('VALIDATION_ERROR', $one, 422, [$kind => [$one]]);
                 }
-                $saved[$kind][] = $one;
+                $saved[$kind][] = $kind === 'documents' ? $one + ['type' => ($data['document_types'][$i] ?? null) ?: 'other'] : $one;
             }
         }
         $paths = $saved['photos'];

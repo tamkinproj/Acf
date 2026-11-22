@@ -100,6 +100,7 @@ class ChildController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge(\App\Support\NameParts::prepare($request->all()));
         $data = $request->validate($this->rules(true));
         $user = $request->user();
 
@@ -112,6 +113,7 @@ class ChildController extends Controller
 
     public function update(Request $request, Child $child)
     {
+        $request->merge(\App\Support\NameParts::prepare($request->all(), $child));
         $data = $request->validate($this->rules(false));
 
         DB::transaction(function () use ($data, $child, $request) {

@@ -20,7 +20,8 @@
     A.wizard(document.getElementById("addForm"), {
       steps: ".fpage", page: true, cancelHref: "people.html", create: "save",
       validate: function (i, step) {
-        if (step.querySelector("#f_name_en") && !document.getElementById("f_name_en").value.trim() && !document.getElementById("f_name_ar").value.trim()) { document.getElementById("f_name_enErr").textContent = t("required"); return false; }
+        var fe = step.querySelector("#f_child_first_en"), fa = step.querySelector("#f_child_first_ar");
+        if (fe && fa && !fe.value.trim() && !fa.value.trim()) { document.getElementById("f_child_first_enErr").textContent = t("required"); fe.focus(); return false; }
         return true;
       }
     });
@@ -37,9 +38,9 @@
     }
     var btn = document.querySelector("#addForm button[type=submit]"); btn.disabled = true;
     A.api.write("POST", "children", body, {
-      label: t("add_child") + ": " + body.name_en,
+      label: t("add_child") + ": " + (A.orphan.full(body, "child", "en") || A.orphan.full(body, "child", "ar")),
       optimistic: function () {
-        var item = { id: --tmp - Date.now() % 100000, ref: "…", name_en: body.name_en, name_ar: body.name_ar || null, guardian: body.guardian ? body.guardian.name : null, pay_type: body.pay_type,
+        var item = { id: --tmp - Date.now() % 100000, ref: "…", name_en: A.orphan.full(body, "child", "en") || A.orphan.full(body, "child", "ar"), name_ar: A.orphan.full(body, "child", "ar") || null, guardian: body.guardian ? body.guardian.name : null, pay_type: body.pay_type,
           monthly_amount: 0, bank_verified: body.bank ? false : null, status: "pending", _pending: true };
         A.api.patchCache("children?", function (p, key) { if (!/[?&]page=/.test(key)) { p.data = p.data.concat([item]); return p; } });
       }

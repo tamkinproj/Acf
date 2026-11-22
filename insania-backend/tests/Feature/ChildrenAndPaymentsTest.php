@@ -41,7 +41,7 @@ class ChildrenAndPaymentsTest extends TestCase
         $this->assertSame('1137', $p['bank']['last4']);
         $this->assertSame(['holder', 'bank_name', 'last4', 'verified'], array_keys($p['bank']));
         $this->assertSame('Dar Al Ber Society', $p['channel']['sponsor']);
-        $this->assertCount(4, $p['documents']);
+        $this->assertCount(5, $p['documents']);
     }
 
     public function test_a_new_child_shows_its_payment_type_in_the_list_straight_away(): void

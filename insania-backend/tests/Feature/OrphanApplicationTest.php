@@ -177,13 +177,13 @@ class OrphanApplicationTest extends TestCase
         Storage::fake('local');
         $this->world();
         config(['orphan_fields.apply.per_hour' => 1000]);
-        $this->getJson('/api/public/apply')->assertJsonPath('data.max_documents', 5);
+        $this->getJson('/api/public/apply')->assertJsonPath('data.max_documents', 10);
         $docs = array_map(fn ($i) => $this->png("d$i.png"), range(1, 3));
         $this->post('/api/public/apply', $this->body() + ['method' => 'documents', 'documents' => $docs], ['Accept' => 'application/json'])->assertCreated();
         $a = ChildApplication::withoutGlobalScopes()->first();
         $this->assertSame('documents', $a->method);
         $this->assertCount(3, $a->documents);
-        $this->post('/api/public/apply', $this->body() + ['documents' => array_map(fn ($i) => $this->png("e$i.png"), range(1, 6))], ['Accept' => 'application/json'])->assertStatus(422);
+        $this->post('/api/public/apply', $this->body() + ['documents' => array_map(fn ($i) => $this->png("e$i.png"), range(1, 11))], ['Accept' => 'application/json'])->assertStatus(422);
         $this->post('/api/public/apply', $this->body() + ['method' => 'robot'], ['Accept' => 'application/json'])->assertStatus(422);
 
         $this->actingAsRole('staff:finance');

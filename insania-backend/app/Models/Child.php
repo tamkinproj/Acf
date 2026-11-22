@@ -10,7 +10,12 @@ class Child extends Model
 {
     use BelongsToFoundation;
 
-    public const DOCUMENT_TYPES = ['birth_certificate', 'father_death_certificate', 'school_record', 'guardian_id'];
+    public const DOCUMENT_TYPES = ['birth_certificate', 'father_death_certificate', 'school_record', 'guardian_id', 'case_study'];
+
+    protected static function booted(): void
+    {
+        static::saving(fn (Child $c) => \App\Support\NameParts::sync($c));
+    }
 
     protected $fillable = ['foundation_id', 'ref', 'guardian_id', 'status', 'form_submitted_at', 'is_sample'];
 

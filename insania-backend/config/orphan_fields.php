@@ -8,8 +8,18 @@
  *   'staff' => true   only the foundation fills this in: it is never asked on the public form.
  *   guardian_* and bank_* belong to the guardian record and the bank account; every other key is a column of `children`.
  */
+// the names the way the Dar Al Ber form asks for them: first, father, grandfather, family - in Arabic and English, for the orphan, the mother and the direct responsible person
+$nameParts = [];
+foreach (['child', 'mother', 'resp'] as $who) {
+    foreach (['first', 'father', 'grand', 'family'] as $part) {
+        foreach (['ar', 'en'] as $lang) {
+            $nameParts["{$who}_{$part}_{$lang}"] = ['string', 'max:100'];
+        }
+    }
+}
+
 return [
-    'fields' => [
+    'fields' => $nameParts + [
         // Information
         'name_en' => ['string', 'max:150'],
         'name_ar' => ['string', 'max:150'],
@@ -70,7 +80,7 @@ return [
 
     'photos' => ['max_files' => 2, 'max_kb' => 4096, 'max_per_child' => 8],
     // Papers sent with an application (birth certificate, death certificate, school record...): photos of the pages.
-    'documents' => ['max_files' => 5, 'max_kb' => 8192],
+    'documents' => ['max_files' => 10, 'max_kb' => 8192],
     // Applications from the public form: how many a visitor may send per hour, and in total per day.
     'apply' => ['per_hour' => 6, 'per_day' => 200],
 ];

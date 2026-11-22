@@ -9,57 +9,61 @@
   var MARITAL = [["", "-", "-"], ["Widow", "Widow", "أرملة"], ["Married", "Married", "متزوجة"], ["Divorced", "Divorced", "مطلقة"], ["Other", "Other", "أخرى"]];
   function f(k, en, ar, t, x) { var o = { k: k, en: en, ar: ar, t: t || "text" }; for (var i in x) o[i] = x[i]; return o; }
 
+  var RELATION = [["", "-", "-"], ["Mother", "Mother", "الأم"], ["Father", "Father", "الأب"], ["Grandfather", "Grandfather", "الجد"], ["Grandmother", "Grandmother", "الجدة"], ["Uncle", "Uncle", "العم / الخال"], ["Aunt", "Aunt", "العمة / الخالة"], ["Brother", "Brother", "الأخ"], ["Sister", "Sister", "الأخت"], ["Other", "Other", "أخرى"]];
+  /* The names the way the Dar Al Ber form asks for them: first, father, grandfather, family - Arabic row, then English row.
+     who: child | mother | resp. The columns are child_first_ar ... resp_family_en (the full names are kept too, joined from these). */
+  function names(who, en, ar) {
+    var out = [], L = [["ar", "(بالعربية)", "(Arabic)", "rtl"], ["en", "(بالانجليزية)", "(English)", "ltr"]];
+    L.forEach(function (l) {
+      [["first", 0], ["father", 1], ["grand", 2], ["family", 3]].forEach(function (p) {
+        out.push(f(who + "_" + p[0] + "_" + l[0], en[p[1]] + " " + l[2], ar[p[1]] + " " + l[1], "text", { dir: l[3] }));
+      });
+    });
+    return out;
+  }
+
+  /* The first three groups are the four steps of the Dar Al Ber form (the fourth, the papers, is the Attachments card). */
   window.ORPHAN_SCHEMA = [
-    { id: "info", en: "Information", ar: "المعلومات", fields: [
-      f("name_en", "Full name (English)", "الاسم الكامل (بالإنجليزية)", "text", { dir: "ltr" }),
-      f("name_ar", "Orphan name (Arabic)", "اسم اليتيم (بالعربية)", "text", { dir: "rtl" }),
-      f("gender", "Gender", "الجنس", "sel", { req: 1, o: [["", "-", "-"], ["m", "Male", "ذكر"], ["f", "Female", "أنثى"]] }),
+    { id: "basic", en: "Basic data", ar: "البيانات الاساسية", fields: names("child", ["Orphan first name", "Orphan's father name", "Orphan's grandfather name", "Grandfather / family name"], ["الاسم الاول لليتيم", "اسم والد اليتيم", "اسم جد اليتيم", "اسم جد اليتيم/العائلة"]).concat([
+      f("gender", "Gender", "النوع", "sel", { req: 1, o: [["", "-", "-"], ["m", "Male", "ذكر"], ["f", "Female", "أنثى"]] }),
+      f("birth_country", "Place of birth (country)", "محل الميلاد", "text"),
+      f("residence_country", "Country of residence", "دولة الاقامة", "text"),
+      f("city", "City of residence", "مدينة الاقامة", "text"),
       f("birth_date", "Date of birth", "تاريخ الميلاد", "date", { req: 1 }),
+      f("address_ar", "Address (Arabic)", "العنوان (بالعربية)", "long", { dir: "rtl" }),
+      f("address_en", "Address (English)", "العنوان (بالانجليزية)", "long", { dir: "ltr" }),
+      f("health_status", "Health status", "الحالة الصحية", "sel", { o: [["", "-", "-"], ["good", "Good", "جيدة"], ["needs_followup", "Needs follow-up", "تحتاج متابعة"]] }),
+      f("study_level", "Study stage", "المرحلة الدراسية", "sel", { o: LEVEL }),
+      f("reason_not_studying", "Reason for not studying, if any", "سبب عدم الدراسة ان وجد", "long"),
+      f("grade", "School grade", "الصف الدراسي", "text")
+    ]) },
+    { id: "family", en: "Family data", ar: "بيانات العائلة", fields: names("mother", ["Mother first name", "Mother's father name", "Mother's grandfather name", "Grandfather / family name"], ["الاسم الاول للأم", "اسم والد الأم", "اسم جد الأم", "اسم جد الأم/العائلة"]).concat([
+      f("mother_marital_status", "Mother's marital status", "الحالة الاجتماعية للأم", "sel", { o: MARITAL }),
+      f("mother_works", "Mother's work", "عمل الأم", "sel", { o: [["", "-", "-"], ["yes", "Works", "تعمل"], ["no", "Does not work", "لا تعمل"]] }),
+      f("mother_salary", "Mother's salary, if she works", "راتب الام ان كانت تعمل", "dec"),
+      f("father_death_date", "Father's date of death", "تاريخ وفاة الأب", "date"),
+      f("brothers", "Number of brothers", "عدد الأشقاء الذكور", "num"),
+      f("sisters", "Number of sisters", "عدد الأشقاء الاناث", "num"),
+      f("aided_siblings", "Total brothers and sisters receiving aid", "اجمالي عدد الاشقاء الذين يتلقون المساعدات ذكور و اناث", "num"),
+      f("other_aid", "Other sources of aid", "مصادر اخرى للمساعدات", "long")
+    ]) },
+    { id: "responsible", en: "Direct responsible person", ar: "بيانات المسؤول المباشر", fields: names("resp", ["Responsible person first name", "Responsible person's father name", "Responsible person's grandfather name", "Grandfather / family name"], ["الاسم الاول للمسؤول المباشر", "اسم والد المسؤول المباشر", "اسم جد المسؤول المباشر", "اسم جد المسؤول المباشر/العائلة"]).concat([
+      f("responsible_relation", "Relation of the responsible person to the orphan", "علاقة المسؤول المباشر باليتيم", "sel", { o: RELATION }),
+      f("guardian_phone", "Responsible person's phone", "هاتف المسؤول المباشر", "tel", { req: 1, dir: "ltr" })
+    ]) },
+    { id: "more", en: "More details", ar: "تفاصيل أخرى", fields: [
       f("nationality", "Nationality", "الجنسية", "text"),
+      f("health_details", "Health details", "تفاصيل الحالة الصحية", "long"),
+      f("madrasa_grade", "Madrasa grade", "صف المدرسة الدينية", "text"),
+      f("quran_memorization", "Quran memorization", "حفظ القرآن", "text"),
+      f("responsible_since", "Responsible since", "مسؤول منذ", "date"),
+      f("responsible_person", "Responsible organization", "الجهة المسؤولة", "text", { staff: 1 }),
       f("channel_label", "Channel", "القناة", "text", { staff: 1 }),
       f("source_label", "Source", "المصدر", "text", { staff: 1 }),
       f("sponsor_name", "Sponsor name", "اسم الكفيل", "text", { staff: 1 }),
-      f("sponsor_file_no", "Sponsor file no.", "رقم ملف الكفيل", "text", { staff: 1, dir: "ltr" })
-    ] },
-    { id: "study", en: "Health and study", ar: "الصحة والدراسة", fields: [
-      f("health_status", "Health status", "الحالة الصحية", "sel", { o: [["", "-", "-"], ["good", "Good", "جيدة"], ["needs_followup", "Needs follow-up", "تحتاج متابعة"]] }),
-      f("health_details", "Health details", "تفاصيل الحالة الصحية", "long"),
-      f("study_level", "Study level", "المرحلة الدراسية", "sel", { o: LEVEL }),
-      f("grade", "Grade", "الصف", "text"),
-      f("madrasa_grade", "Madrasa grade", "صف المدرسة الدينية", "text"),
-      f("reason_not_studying", "Reason for not studying", "سبب عدم الدراسة", "long"),
-      f("quran_memorization", "Quran memorization", "حفظ القرآن", "text"),
+      f("sponsor_file_no", "Sponsor file no.", "رقم ملف الكفيل", "text", { staff: 1, dir: "ltr" }),
       f("performance", "Performance", "الأداء", "sel", { staff: 1, o: RATE }),
       f("islamic_commitment", "Commitment to Islamic teachings", "الالتزام بالتعاليم الإسلامية", "sel", { staff: 1, o: RATE })
-    ] },
-    { id: "place", en: "Where the child lives", ar: "مكان السكن", fields: [
-      f("birth_country", "Birth country", "بلد الميلاد", "text"),
-      f("residence_country", "Residence country", "بلد الإقامة", "text"),
-      f("city", "City", "المدينة", "text"),
-      f("address_ar", "Address (Arabic)", "العنوان (بالعربية)", "long", { dir: "rtl" }),
-      f("address_en", "Address (English)", "العنوان (بالإنجليزية)", "long", { dir: "ltr" })
-    ] },
-    { id: "family", en: "Mother and family", ar: "الأم والأسرة", fields: [
-      f("mother_name_ar", "Mother name (Arabic)", "اسم الأم (بالعربية)", "text", { dir: "rtl" }),
-      f("mother_name", "Mother name (English)", "اسم الأم (بالإنجليزية)", "text", { dir: "ltr" }),
-      f("mother_marital_status", "Mother marital status", "الحالة الاجتماعية للأم", "sel", { o: MARITAL }),
-      f("mother_works", "Mother works", "هل تعمل الأم", "sel", { o: [["", "-", "-"], ["yes", "Yes", "نعم"], ["no", "No", "لا"]] }),
-      f("mother_salary", "Mother salary", "راتب الأم", "dec"),
-      f("father_death_date", "Father death date", "تاريخ وفاة الأب", "date"),
-      f("brothers", "Number of brothers", "عدد الإخوة", "num"),
-      f("sisters", "Number of sisters", "عدد الأخوات", "num"),
-      f("aided_siblings", "Aided brothers and sisters", "الإخوة والأخوات المكفولون", "num"),
-      f("other_aid", "Other aid", "مساعدات أخرى", "long")
-    ] },
-    { id: "guardian", en: "Guardian and responsible person", ar: "الوصي والمسؤول", fields: [
-      f("guardian_name", "Guardian", "الوصي", "text", { req: 1 }),
-      f("guardian_relation", "Relation to orphan", "صلة القرابة باليتيم", "text"),
-      f("guardian_phone", "Guardian phone", "هاتف الوصي", "tel", { req: 1, dir: "ltr" }),
-      f("responsible_person", "Responsible person", "الجهة المسؤولة", "text", { staff: 1 }),
-      f("responsible_name_ar", "Responsible person (Arabic)", "المسؤول (بالعربية)", "text", { dir: "rtl" }),
-      f("responsible_name_en", "Responsible person (English)", "المسؤول (بالإنجليزية)", "text", { dir: "ltr" }),
-      f("responsible_relation", "Responsible person relation", "صلة المسؤول", "text"),
-      f("responsible_since", "Since", "منذ", "date")
     ] },
     { id: "bank", en: "Bank account", ar: "الحساب البنكي", note: { en: "Only the last 4 digits of the account number are kept.", ar: "يُحفظ آخر 4 أرقام فقط من رقم الحساب." }, fields: [
       f("bank_holder", "Account name", "اسم صاحب الحساب", "text"),

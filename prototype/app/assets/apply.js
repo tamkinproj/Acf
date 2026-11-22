@@ -5,7 +5,12 @@
   var S = window.ORPHAN_SCHEMA || [], root = document.getElementById("apply"), API = new URL("../server/api/", location.href).href;
   var OCR_BASE = new URL("ocr/", location.href).href, DRAFT = "acf_apply_draft";
   var lang = "en"; try { if (localStorage.getItem("acf_lang") === "ar") lang = "ar"; } catch (e) {}
-  var st = { view: "choose", step: 0, values: {}, fromDoc: {}, photos: [], docs: [], method: "form", maxP: 2, maxD: 5, open: true, ocrText: "" };
+  var st = { view: "choose", step: 0, values: {}, fromDoc: {}, photos: [], docs: [], method: "form", maxP: 2, maxD: 10, open: true, ocrText: "" };
+  /* The papers of the Dar Al Ber form (step 4), each under its own name. "photos" is the orphan's personal photo. */
+  var SLOTS = [["photos", "Orphan's personal photo", "صورة شخصية لليتيم"], ["s_birth_certificate", "Orphan's birth certificate", "صورة شهادة ميلاد اليتيم"], ["s_father_death_certificate", "Father's death certificate", "صورة شهادة وفاة الاب"],
+    ["s_guardian_id", "Direct responsible person's ID", "صورة هوية المسؤول المباشر"], ["s_school_record", "School certificate", "صورة الشهادة الدراسية"], ["s_case_study", "Case study", "صورة بحث الحالة"]];
+  SLOTS.forEach(function (x) { if (x[0] !== "photos") st[x[0]] = []; });
+  var slotFiles = function () { return SLOTS.reduce(function (n, x) { return n + st[x[0]].length; }, 0); };
   try { var dr = JSON.parse(sessionStorage.getItem(DRAFT) || "null"); if (dr && dr.values) { st.values = dr.values; st.fromDoc = dr.fromDoc || {}; st.method = dr.method || "form"; } } catch (e) {}
 
   var T = {
@@ -16,6 +21,7 @@
     need: ["You will need: the child's name, gender and date of birth, and the guardian's name and phone.", "ستحتاج إلى: اسم الطفل وجنسه وتاريخ ميلاده، واسم الوصي ورقم هاتفه."],
     lang: ["العربية", "English"], back: ["Back", "رجوع"], next: ["Next", "التالي"], review: ["Review", "مراجعة"], step: ["Step {n} of {m}", "الخطوة {n} من {m}"],
     up_title: ["Upload documents", "رفع المستندات"], up_txt: ["Add clear photos of the papers, up to {n}: the orphan information sheet, birth certificate, father's death certificate, school record.", "أضف صورًا واضحة للأوراق، حتى {n}: ورقة معلومات اليتيم، شهادة الميلاد، شهادة وفاة الأب، السجل المدرسي."],
+    att_txt: ["The papers of the Dar Al Ber form. Add the ones you have (clear photos); the foundation will ask for any that are missing.", "أوراق نموذج دار البر. أضف ما لديك (صور واضحة)، وستطلب المؤسسة ما ينقص."],
     up_tip: ["Tip: lay the page flat in good light and let it fill the photo.", "نصيحة: ضع الورقة مستوية في إضاءة جيدة واجعلها تملأ الصورة."], up_add: ["Add a page", "أضف صفحة"],
     up_read: ["Read the documents", "اقرأ المستندات"], up_skip: ["I will type the answers", "سأكتب الإجابات بنفسي"], up_reading: ["Reading page {n} of {m}…", "جارٍ قراءة الصفحة {n} من {m}…"], up_loading: ["Preparing the reader (first time only)…", "جارٍ تجهيز القارئ (أول مرة فقط)…"],
     up_found: ["We found {n} answers", "وجدنا {n} إجابة"], up_found_txt: ["They are filled in for you. Go through each step and correct anything that is wrong or missing.", "تمت تعبئتها لك. راجع كل خطوة وصحّح أي خطأ أو نقص."], up_check: ["Check the answers", "راجع الإجابات"],
@@ -45,7 +51,34 @@
   };
 
   /* ---- the steps: the public parts of the schema, then photos, then review ---- */
-  function steps() { var out = S.map(function (g) { return { id: g.id, g: g, fields: g.fields.filter(function (f) { return !f.staff; }) }; }).filter(function (s) { return s.fields.length; }); out.push({ id: "photos" }); return out; }
+  function steps() {
+    var out = [];
+    S.forEach(function (g) { var fl = g.fields.filter(function (f) { return !f.staff; }); if (fl.length) out.push({ id: g.id, g: g, fields: fl }); if (g.id === "responsible") out.push({ id: "attach" }); });   // the four steps of the Dar Al Ber form, then the extras
+    return out;
+  }
+  var ATT = { ar: "المرفقات", en: "Attachments" };
+  function attachHtml() {
+    return '<p class="ap-sub">' + tx("att_txt") + "</p>" + SLOTS.map(function (x) {
+      return '<div class="ap-slot"><div class="ap-slotlbl">' + esc(lang === "ar" ? x[2] : x[1]) + "</div>" + tiles(st[x[0]], x[0], x[0] === "photos" ? st.maxP : 1) + "</div>";
+    }).join("");
+  }
+  var NAMEMAP = { child: ["name_ar", "name_en"], mother: ["mother_name_ar", "mother_name"], resp: ["responsible_name_ar", "responsible_name_en"] };
+  var REL = ["Mother", "Father", "Grandfather", "Grandmother", "Uncle", "Aunt", "Brother", "Sister", "Other"];
+  /* Answers read from a document that hold a whole name become the four parts of the form (the first three words, then the family name). */
+  function splitFull(full) { var w = String(full).trim().split(/\s+/); return [w[0] || "", w[1] || "", w[2] || "", w.slice(3).join(" ")]; }
+  function partsFromFull() {
+    var v = st.values, P = ["first", "father", "grand", "family"];
+    if (v.guardian_name && !v.resp_first_ar && !v.resp_first_en) { v[/[\u0600-\u06FF]/.test(v.guardian_name) ? "responsible_name_ar" : "responsible_name_en"] = v.guardian_name; st.fromDoc.resp_first_ar = st.fromDoc.resp_first_en = 1; }
+    if (v.guardian_relation && !v.responsible_relation) REL.forEach(function (r) { if (r.toLowerCase() === String(v.guardian_relation).trim().toLowerCase()) v.responsible_relation = r; });
+    Object.keys(NAMEMAP).forEach(function (who) {
+      [0, 1].forEach(function (li) {
+        var lang2 = li === 0 ? "ar" : "en", k = NAMEMAP[who][li], keys = P.map(function (p) { return who + "_" + p + "_" + lang2; });
+        if (v[k] && !keys.some(function (x) { return v[x]; })) { splitFull(v[k]).forEach(function (w, i) { if (w) { v[keys[i]] = w; st.fromDoc[keys[i]] = 1; } }); }
+        delete v[k];
+      });
+    });
+    delete v.guardian_name; delete v.guardian_relation;
+  }
   // a new step opens at its top at once (the site scrolls smoothly elsewhere, which would slide each step up from the bottom)
   function toTop() { var h = document.documentElement, b = h.style.scrollBehavior; h.style.scrollBehavior = "auto"; void getComputedStyle(h).scrollBehavior; window.scrollTo(0, 0); h.style.scrollBehavior = b; }
   function save() { try { sessionStorage.setItem(DRAFT, JSON.stringify({ values: st.values, fromDoc: st.fromDoc, method: st.method })); } catch (e) {} }
@@ -60,7 +93,6 @@
     if (f.t === "sel") inp = '<select id="' + id + '" data-k="' + f.k + '">' + f.o.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === v ? " selected" : "") + ">" + esc(lang === "ar" ? o[2] : o[1]) + "</option>"; }).join("") + "</select>";
     else if (f.t === "long") inp = '<textarea id="' + id + '" data-k="' + f.k + '" rows="3" maxlength="1000"' + dir + ">" + esc(v) + "</textarea>";
     else inp = '<input id="' + id + '" data-k="' + f.k + '" type="' + (f.t === "date" ? "date" : f.t === "num" || f.t === "dec" ? "number" : f.t === "tel" ? "tel" : "text") + '"' + dir + (f.t === "num" ? ' min="0" max="30" inputmode="numeric"' : "") + (f.t === "dec" ? ' min="0" step="0.01" inputmode="decimal"' : "") + (f.t === "tel" ? ' inputmode="tel" autocomplete="tel"' : "") + ' maxlength="' + (f.max || 150) + '"' + (f.k === "bank_last4" ? ' inputmode="numeric" pattern="[0-9]*"' : "") + ' value="' + esc(v) + '">';
-    var req = f.req || (f.k === "name_en" || f.k === "name_ar");
     return '<div class="ap-field' + (st.fromDoc[f.k] ? " doc" : "") + '"><label for="' + id + '">' + esc(lab(f)) + (f.req ? ' <span class="star">*</span>' : "") + "</label>" + inp + (st.fromDoc[f.k] ? '<span class="ap-fromdoc">' + tx("from_doc") + "</span>" : "") + '<div class="err" id="' + id + 'Err"></div></div>';
   }
   function progress(i, m) { return '<div class="ap-prog" role="progressbar" aria-valuemin="1" aria-valuemax="' + m + '" aria-valuenow="' + (i + 1) + '">' + Array.apply(null, Array(m)).map(function (_, k) { return '<i class="' + (k < i ? "done" : k === i ? "on" : "") + '"></i>'; }).join("") + "</div>"; }
@@ -84,8 +116,8 @@
     } else if (v === "wizard") {
       var all = steps(), s = all[st.step], m = all.length;
       html = header(st.step === 0 ? (st.method === "documents" ? "upload" : "choose") : "prev") +
-        '<div class="ap-stephead"><span>' + tx("step", { n: st.step + 1, m: m + 1 }) + "</span><b>" + (s.g ? esc(lab(s.g)) : tx("photos")) + "</b>" + progress(st.step, m + 1) + "</div>" +
-        '<section class="ap-card">' + (s.g ? (s.g.note ? '<p class="ap-sub">' + esc(lab(s.g.note)) + "</p>" : "") + s.fields.map(control).join("") : '<p class="ap-sub">' + tx("photos_txt", { n: st.maxP }) + "</p>" + tiles(st.photos, "photos", st.maxP)) + "</section>" +
+        '<div class="ap-stephead"><span>' + tx("step", { n: st.step + 1, m: m + 1 }) + "</span><b>" + (s.g ? esc(lab(s.g)) : esc(ATT[lang])) + "</b>" + progress(st.step, m + 1) + "</div>" +
+        '<section class="ap-card">' + (s.g ? (s.g.note ? '<p class="ap-sub">' + esc(lab(s.g.note)) + "</p>" : "") + s.fields.map(control).join("") : attachHtml()) + "</section>" +
         (s.id === "bank" ? '<p class="ap-note">' + tx("privacy") + "</p>" : "") + '<div class="err ap-err" id="a_stepErr" role="alert"></div>' +
         '<div class="ap-bar"><button class="ap-btn white" type="button" data-go="prev">' + tx("back") + '</button><button class="ap-btn lime" type="button" data-go="next">' + (st.step === m - 1 ? tx("review") : tx("next")) + "</button></div>";
     } else if (v === "review") {
@@ -93,8 +125,8 @@
       html = header("prev") + '<div class="ap-stephead"><span>' + tx("step", { n: allS.length + 1, m: allS.length + 1 }) + "</span><b>" + tx("rv_title") + "</b>" + progress(allS.length, allS.length + 1) + "</div>" + '<p class="ap-sub" style="margin:0 .2rem">' + tx("rv_txt") + "</p>" +
         allS.map(function (s, i) {
           var rows = s.g ? s.fields.filter(function (f) { return st.values[f.k]; }).map(function (f) { return "<div><dt>" + esc(lab(f)) + "</dt><dd>" + esc(show(f, st.values[f.k])) + "</dd></div>"; }).join("") : "";
-          if (!s.g) rows = "<div><dt>" + tx("rv_photos") + "</dt><dd>" + tx("n_files", { n: st.photos.length }) + "</dd></div>" + (st.docs.length ? "<div><dt>" + tx("rv_docs") + "</dt><dd>" + tx("n_files", { n: st.docs.length }) + "</dd></div>" : "");
-          return '<section class="ap-card"><div class="ap-rvhead"><h3>' + (s.g ? esc(lab(s.g)) : tx("photos")) + '</h3><button type="button" class="ap-edit" data-edit="' + i + '">' + I.edit + "<span>" + tx("edit") + "</span></button></div>" + (rows ? '<dl class="ap-dl">' + rows + "</dl>" : '<p class="ap-sub">' + tx("rv_none") + "</p>") + "</section>";
+          if (!s.g) rows = SLOTS.filter(function (x) { return st[x[0]].length; }).map(function (x) { return "<div><dt>" + esc(lang === "ar" ? x[2] : x[1]) + "</dt><dd>" + tx("n_files", { n: st[x[0]].length }) + "</dd></div>"; }).join("") + (st.docs.length ? "<div><dt>" + tx("rv_docs") + "</dt><dd>" + tx("n_files", { n: st.docs.length }) + "</dd></div>" : "");
+          return '<section class="ap-card"><div class="ap-rvhead"><h3>' + (s.g ? esc(lab(s.g)) : esc(ATT[lang])) + '</h3><button type="button" class="ap-edit" data-edit="' + i + '">' + I.edit + "<span>" + tx("edit") + "</span></button></div>" + (rows ? '<dl class="ap-dl">' + rows + "</dl>" : '<p class="ap-sub">' + tx("rv_none") + "</p>") + "</section>";
         }).join("") +
         '<label class="ap-confirm"><input type="checkbox" id="a_confirm"><span>' + tx("confirm") + '</span></label><div class="hp" aria-hidden="true"><label>Website<input type="text" id="a_website" tabindex="-1" autocomplete="off"></label></div>' +
         '<div class="err ap-err" id="a_formErr" role="alert"></div><div class="ap-bar"><button class="ap-btn white" type="button" data-go="prev">' + tx("back") + '</button><button class="ap-btn lime" type="button" id="sendBtn">' + tx("send") + "</button></div>";
@@ -117,7 +149,7 @@
     var sk = root.querySelector("[data-skip]"); if (sk) sk.onclick = function () { st.view = "wizard"; st.step = 0; render(); toTop(); };
     var rb = document.getElementById("readBtn"); if (rb) rb.onclick = readDocs;
     var sb = document.getElementById("sendBtn"); if (sb) sb.onclick = submit;
-    var an = document.getElementById("anew"); if (an) an.onclick = function () { st.values = {}; st.fromDoc = {}; st.photos = []; st.docs = []; st.view = "choose"; save(); render(); };
+    var an = document.getElementById("anew"); if (an) an.onclick = function () { st.values = {}; st.fromDoc = {}; st.photos = []; st.docs = []; SLOTS.forEach(function (x) { st[x[0]] = []; }); st.view = "choose"; save(); render(); };
     Array.prototype.forEach.call(root.querySelectorAll("[data-k]"), function (el) {
       el.addEventListener("change", function () { delete st.fromDoc[el.getAttribute("data-k")]; collect(); });
       if (el.id) el.setAttribute("aria-describedby", el.id + "Err");
@@ -127,7 +159,7 @@
   }
   // a message goes away as soon as its answer is changed (the name pair and the three bank fields share one message)
   function clearErr(k) {
-    var keys = /^name_(en|ar)$/.test(k) ? ["name_en", "name_ar"] : /^bank_/.test(k) ? ["bank_holder", "bank_name", "bank_last4"] : [k];
+    var keys = /^child_first_(en|ar)$/.test(k) ? ["child_first_en", "child_first_ar"] : /^bank_/.test(k) ? ["bank_holder", "bank_name", "bank_last4"] : [k];
     keys.forEach(function (x) { var e = document.getElementById("a_" + x + "Err"), i = document.getElementById("a_" + x); if (e) e.textContent = ""; if (i) i.removeAttribute("aria-invalid"); });
     var se = document.getElementById("a_stepErr"); if (se && !root.querySelector("[aria-invalid=true]")) se.textContent = "";
   }
@@ -142,7 +174,7 @@
     var bad = [], v = st.values, today = new Date().toISOString().slice(0, 10);
     if (!s.g) return bad;
     var keys = s.fields.map(function (f) { return f.k; });
-    if (keys.indexOf("name_en") > -1 && !v.name_en && !v.name_ar) bad.push(["name_en", tx("name_need")]);
+    if (keys.indexOf("child_first_en") > -1 && !v.child_first_en && !v.child_first_ar) bad.push(["child_first_en", tx("name_need")]);
     s.fields.forEach(function (f) {
       if (f.req && !v[f.k]) bad.push([f.k, tx("req")]);
       if (v[f.k] && f.t === "date" && !(/^\d{4}-\d{2}-\d{2}$/.test(v[f.k]) && v[f.k] <= today && v[f.k] > "1900")) bad.push([f.k, tx("bad_date")]);
@@ -215,6 +247,7 @@
         var got = window.OCR_PARSE ? window.OCR_PARSE(t, S) : { values: {} };
         Object.keys(got.values).forEach(function (k) { if (!st.values[k]) { st.values[k] = got.values[k]; st.fromDoc[k] = 1; added++; } });
       });
+      partsFromFull(); added = Object.keys(st.fromDoc).length;
       save();
       ocrStatus(added ? '<div class="ap-result"><b>' + tx("up_found", { n: added }) + "</b><p>" + tx("up_found_txt") + '</p><button class="ap-btn lime wide" type="button" data-skip="1">' + tx("up_check") + "</button></div>"
         : '<div class="ap-result"><b>' + tx("up_none") + "</b><p>" + tx("up_none_txt") + '</p><button class="ap-btn lime wide" type="button" data-skip="1">' + tx("up_cont") + "</button></div>");
@@ -238,11 +271,13 @@
     S.forEach(function (g) { g.fields.forEach(function (f) { if (!f.staff) pub[f.k] = 1; }); });
     Object.keys(st.values).forEach(function (k) { if (pub[k] && st.values[k] !== "") fd.append(k, st.values[k]); });
     fd.append("website", document.getElementById("a_website").value); fd.append("method", st.method);
-    st.photos.forEach(function (p) { fd.append("photos[]", p.file); }); st.docs.forEach(function (p) { fd.append("documents[]", p.file); });
+    st.photos.forEach(function (p) { fd.append("photos[]", p.file); });
+    SLOTS.forEach(function (x) { if (x[0] !== "photos") st[x[0]].forEach(function (p) { fd.append("documents[]", p.file); fd.append("document_types[]", x[0].slice(2)); }); });   // each paper with its name
+    st.docs.forEach(function (p) { fd.append("documents[]", p.file); fd.append("document_types[]", "other"); });
     btn.disabled = true; btn.textContent = tx("sending");
     fetch(API + "public/apply", { method: "POST", headers: { Accept: "application/json" }, body: fd, credentials: "omit" }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { r: r, j: j }; }); }).then(function (x) {
       btn.disabled = false; btn.textContent = tx("send");
-      if (x.r.ok) { st.ref = (x.j.data && x.j.data.reference) || ""; st.values = {}; st.fromDoc = {}; st.photos = []; st.docs = []; try { sessionStorage.removeItem(DRAFT); } catch (e) {} st.view = "done"; render(); toTop(); return; }
+      if (x.r.ok) { st.ref = (x.j.data && x.j.data.reference) || ""; st.values = {}; st.fromDoc = {}; st.photos = []; st.docs = []; SLOTS.forEach(function (x) { st[x[0]] = []; }); try { sessionStorage.removeItem(DRAFT); } catch (e) {} st.view = "done"; render(); toTop(); return; }
       if (x.r.status === 429) { er.textContent = tx("busy"); return; }
       if (x.r.status === 503) { er.textContent = tx("closed"); return; }
       if (x.r.status === 413) {   // too large for the server: take them where a picture can be removed
@@ -252,7 +287,7 @@
       }
       if (x.j && x.j.errors) {   // send the applicant to the step that holds the first problem
         var k = Object.keys(x.j.errors)[0].replace(/\.\d+$/, ""), msg = x.j.errors[Object.keys(x.j.errors)[0]][0];
-        for (var s = 0; s < all.length; s++) { var has = all[s].fields ? all[s].fields.some(function (f) { return f.k === k; }) : (k === "photos"); if (has) { st.view = "wizard"; st.step = s; render(); var d = document.getElementById("a_" + k + "Err") || document.getElementById("a_stepErr"); if (d) d.textContent = msg; return; } }
+        for (var s = 0; s < all.length; s++) { var has = all[s].fields ? all[s].fields.some(function (f) { return f.k === k; }) : (k === "photos" || (k === "documents" && !st.docs.length)); if (has) { st.view = "wizard"; st.step = s; render(); var d = document.getElementById("a_" + k + "Err") || document.getElementById("a_stepErr"); if (d) d.textContent = msg; return; } }
         if (k === "documents") { st.view = "upload"; render(); ocrStatus('<p class="err">' + esc(msg) + "</p>"); return; }
         er.textContent = msg; return;
       }
@@ -262,7 +297,7 @@
 
   /* ---- start ---- */
   fetch(API + "public/apply", { headers: { Accept: "application/json" }, credentials: "omit" }).then(function (r) { return r.json(); }).then(function (j) {
-    if (j.data) { st.open = j.data.open !== false; st.maxP = j.data.max_photos || 2; st.maxD = j.data.max_documents || 5; }
+    if (j.data) { st.open = j.data.open !== false; st.maxP = j.data.max_photos || 2; st.maxD = (j.data.max_documents || 10) - 5; }
     render();
   }, function () { render(); });
 })();

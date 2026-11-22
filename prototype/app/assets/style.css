@@ -1205,3 +1205,7 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:3px s
 /* ---- Trust this device ---- */
 .trust-row{display:flex;align-items:center;gap:.7rem;cursor:pointer;font-weight:600;margin:.2rem 0 0}
 .trust-note{margin:.1rem 0 0;font-size:.82rem}
+
+/* ---- Dar Al Ber attachments (apply form) and captioned papers (application review) ---- */
+.ap-slot{margin:.2rem 0 1.1rem}.ap-slotlbl{font-weight:600;margin:0 0 .45rem}
+.phcap{display:flex;flex-direction:column;gap:.25rem}.phcap small{display:block;font-size:.72rem;line-height:1.25;text-align:center;color:var(--muted,#667)}

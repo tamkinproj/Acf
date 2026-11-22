@@ -3,10 +3,10 @@
 
   A.strings({
     fam_title: "My family", fam_me: "My information", fam_num: "Number", fam_age: "{n} years old", fam_tip: "You can change your photo, username and password in Settings.", fam_none: "No children are linked to your account yet.", fam_docs: "Documents", doc_on: "On file", doc_missing: "Missing",
-    d_birth_certificate: "Birth certificate", d_father_death_certificate: "Father's death certificate", d_school_record: "School record", d_guardian_id: "Guardian ID", f_grade: "Grade"
+    d_birth_certificate: "Orphan's birth certificate", d_father_death_certificate: "Father's death certificate", d_school_record: "School certificate", d_guardian_id: "Direct responsible person's ID", d_case_study: "Case study", f_grade: "Grade"
   }, {
     fam_title: "عائلتي", fam_me: "معلوماتي", fam_num: "الرقم", fam_age: "العمر {n} سنة", fam_tip: "يمكنك تغيير صورتك واسم المستخدم وكلمة المرور من الإعدادات.", fam_none: "لا يوجد أطفال مرتبطون بحسابك بعد.", fam_docs: "المستندات", doc_on: "موجود", doc_missing: "ناقص",
-    d_birth_certificate: "شهادة الميلاد", d_father_death_certificate: "شهادة وفاة الأب", d_school_record: "السجل المدرسي", d_guardian_id: "هوية الوصي", f_grade: "الصف"
+    d_birth_certificate: "صورة شهادة ميلاد اليتيم", d_father_death_certificate: "صورة شهادة وفاة الاب", d_school_record: "صورة الشهادة الدراسية", d_guardian_id: "صورة هوية المسؤول المباشر", d_case_study: "صورة بحث الحالة", f_grade: "الصف"
   });
 
   function render(list) {
