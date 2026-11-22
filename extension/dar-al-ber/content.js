@@ -209,7 +209,8 @@
   /* ---------- the panel ---------- */
   var host = null, root = null, active = null, shownStep = 0, autoDone = {}, auto = true, busy = false;
   try { auto = localStorage.getItem("acfAuto") !== "0"; } catch (e) {}
-  var CSS = ":host{all:initial}.p{position:fixed;left:16px;bottom:16px;z-index:2147483647;width:300px;font:13px/1.4 system-ui,Segoe UI,Arial,sans-serif;color:#111;background:#fff;border:1px solid #cfe58a;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.18);direction:ltr;text-align:left}" +
+  var CSS = ".pp{position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font:13px system-ui,Arial,sans-serif}.ppb{background:#fff;border-radius:16px;width:min(900px,94vw);max-height:90vh;overflow:auto;padding:14px;direction:ltr}.pph{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.ppg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}.ppg figure{margin:0;text-align:center}.ppi{height:170px;display:grid;place-items:center;background:#f1f8dc;border-radius:10px;overflow:hidden;color:#666}.ppi img{max-width:100%;max-height:100%;cursor:zoom-in}.ppg figcaption{margin-top:4px;font-weight:600}" +
+    ":host{all:initial}.p{position:fixed;left:16px;bottom:16px;z-index:2147483647;width:300px;font:13px/1.4 system-ui,Segoe UI,Arial,sans-serif;color:#111;background:#fff;border:1px solid #cfe58a;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.18);direction:ltr;text-align:left}" +
     ".h{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#e9f6c2;border-radius:16px 16px 0 0;font-weight:700;cursor:pointer}.h span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}" +
     ".b{padding:10px 12px}.b[hidden]{display:none}.who{font-weight:600}.sm{color:#666;font-size:12px}button{font:inherit;font-weight:600;border-radius:999px;border:1px solid #111;background:#fff;color:#111;padding:8px 12px;cursor:pointer;margin:6px 6px 0 0}" +
     "button.m{background:#b6e04a;border-color:#b6e04a}button:disabled{opacity:.5}label{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:12px}ul{margin:6px 0 0;padding-left:18px;font-size:12px}.ok{color:#2c6b00}.w{color:#9a6200}.e{color:#b3261e}";
@@ -245,9 +246,28 @@
     who.textContent = (active.name_ar || active.name_en) + " · " + (active.external_no || active.ref);
     st.textContent = shownStep ? "Step " + shownStep + " of 4 is open." : "";
     var b1 = btn(shownStep === 4 ? "Attach files" : "Fill this step", "m", function () { run(shownStep, true); }); b1.disabled = busy || !shownStep; bt.appendChild(b1);
+    if (active.gallery && active.gallery.length) bt.appendChild(btn("View uploaded papers (" + active.gallery.length + ")", "", showPapers));
     var b2 = btn("Refresh from system", "", async function () { b2.disabled = true; var r = await ask({ type: "sync" }); b2.disabled = false; if (r.ok && r.data) { active = r.data; autoDone = {}; paint(); } else if (!r.ok) report({ done: 0, kept: 0, missing: [], notFound: [], noOption: [r.error] }, "Refresh"); }); bt.appendChild(b2);
   }
 
+  /* What the applicant uploaded, shown over the portal page so it can be compared with what is typed. */
+  var pics = {};
+  function bytes(d) { var bin = atob(d.b64), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+  function showPapers() {
+    var old = root.getElementById("pp"); if (old) { old.remove(); return; }
+    var ov = document.createElement("div"); ov.id = "pp"; ov.className = "pp";
+    ov.innerHTML = '<div class="ppb"><div class="pph"><b></b><button type="button">Close</button></div><div class="ppg"></div></div>';
+    ov.querySelector("b").textContent = (active.name_ar || active.name_en) + " · uploaded papers";
+    ov.querySelector("button").onclick = function () { ov.remove(); };
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    var grid = ov.querySelector(".ppg"); root.appendChild(ov);
+    active.gallery.forEach(function (x) {
+      var f = document.createElement("figure"); f.innerHTML = '<div class="ppi">Loading…</div><figcaption></figcaption>'; f.lastChild.textContent = x.label; grid.appendChild(f);
+      var show = function (d) { var img = document.createElement("img"); img.alt = x.label; img.src = "data:" + d.type + ";base64," + d.b64; img.onclick = function () { window.open(URL.createObjectURL(new Blob([bytes(d)], { type: d.type })), "_blank"); }; f.firstChild.textContent = ""; f.firstChild.appendChild(img); };
+      if (pics[x.path]) return show(pics[x.path]);
+      ask({ type: "file", path: x.path }).then(function (r) { if (r.ok) { pics[x.path] = r.data; show(r.data); } else f.firstChild.textContent = r.error; });
+    });
+  }
   function tick() {
     if (document.hidden) return;
     var step = currentStep();

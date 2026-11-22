@@ -3,8 +3,34 @@ const send = (m) => new Promise((res) => chrome.runtime.sendMessage(m, (r) => re
 let timer = 0;
 function err(t) { $("err").textContent = t || ""; }
 function when(ts) { return ts ? new Date(ts).toLocaleString() : ""; }
+/* The pictures and papers the applicant uploaded, as small previews; tap one to open it large in a new tab. */
+const pics = {};
+function dataUrl(d) { return "data:" + d.type + ";base64," + d.b64; }
+function openLarge(d) {
+  const bin = atob(d.b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  window.open(URL.createObjectURL(new Blob([u], { type: d.type })), "_blank");
+}
+async function showGallery(a) {
+  const box = $("galBox"), g = $("gal"); g.textContent = "";
+  const list = (a && a.gallery) || []; box.hidden = !a;
+  if (a && !list.length) { g.innerHTML = '<p class="note">Nothing was uploaded with this application.</p>'; return; }
+  const cells = list.map((x) => {
+    const c = document.createElement("button"); c.type = "button"; c.className = "thumb"; c.title = x.label;
+    c.innerHTML = '<span class="ph"></span><small></small>'; c.lastChild.textContent = x.label; g.appendChild(c); return c;
+  });
+  let next = 0;
+  const worker = async () => {
+    while (next < list.length) {
+      const i = next++, x = list[i], c = cells[i];
+      let d = pics[x.path]; if (!d) { const r = await send({ type: "file", path: x.path }); if (!r.ok) { c.classList.add("bad"); c.firstChild.textContent = "!"; c.title = x.label + ": " + r.error; continue; } d = pics[x.path] = r.data; }
+      c.firstChild.style.backgroundImage = 'url("' + dataUrl(d) + '")'; c.onclick = () => openLarge(d);
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+}
 function showActive(a, synced) {
   $("active").innerHTML = a ? "<b></b><small></small>" : "No orphan chosen yet.";
+  showGallery(a);
   if (a) { $("active").firstChild.textContent = (a.name_ar || a.name_en) + " · " + (a.ref || a.external_no); $("active").lastChild.textContent = (a.name_en || "") + " · synced " + when(synced); }
 }
 async function load(q) {
@@ -22,17 +48,13 @@ async function load(q) {
 function handle(r) { if (r.code === "AUTH") return render(); err(r.error); }
 async function render() {
   const r = await send({ type: "state" }); const s = r.data;
-  $("vLogin").hidden = s.signedIn; $("vMain").hidden = !s.signedIn; $("base").value = s.base;
+  $("vLogin").hidden = s.signedIn; $("vMain").hidden = !s.signedIn;
   $("who").textContent = s.signedIn ? "Signed in" + (s.user && s.user.name ? " as " + s.user.name : "") : "Not signed in";
   if (s.signedIn) { showActive(s.active, s.synced); load(""); }
 }
 $("go").onclick = async () => {
-  err(""); const base = $("base").value.trim().replace(/\/+$/, "");
-  try { const u = new URL(base); const origin = u.origin + "/*";
-    if (!/^https:\/\/(www\.)?alinsania\.com$/.test(u.origin) && !(await chrome.permissions.request({ origins: [origin] }))) return err("Allow the extension to reach that address.");
-  } catch (e) { return err("The server address is not valid."); }
-  $("go").disabled = true;
-  const r = await send({ type: "login", base, login: $("login").value.trim(), password: $("pass").value });
+  err(""); $("go").disabled = true;
+  const r = await send({ type: "login", login: $("login").value.trim(), password: $("pass").value });
   $("go").disabled = false; $("pass").value = "";
   if (!r.ok) return err(r.error); render();
 };

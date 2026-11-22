@@ -36,13 +36,18 @@ async function application(id) {
   const files = {};
   if (a.photos > 0) files.photo = "applications/" + a.id + "/photos/0";
   (a.document_types || []).forEach((t, i) => { if (t && t !== "other" && !files[t]) files[t] = "applications/" + a.id + "/documents/" + i; });
-  return { id: a.id, source: "application", ref: a.reference, external_no: null, status: a.status, name_ar: a.name_ar, name_en: a.name_en, details: a.details || {}, files, photos: [], documents: [] };
+  /* everything the applicant uploaded, so it can be looked at: photos, the named papers, and loose pages */
+  const NAMES = { birth_certificate: "Birth certificate", father_death_certificate: "Father's death certificate", guardian_id: "Responsible person's ID", school_record: "School certificate", case_study: "Case study" };
+  const gallery = [];
+  for (let i = 0; i < (a.photos || 0); i++) gallery.push({ label: i === 0 ? "Personal photo" : "Photo " + (i + 1), path: "applications/" + a.id + "/photos/" + i });
+  (a.document_types || []).forEach((t, i) => gallery.push({ label: NAMES[t] || "Page " + (i + 1), path: "applications/" + a.id + "/documents/" + i }));
+  return { id: a.id, source: "application", ref: a.reference, external_no: null, status: a.status, name_ar: a.name_ar, name_en: a.name_en, details: a.details || {}, files, gallery, photos: [], documents: [] };
 }
 
 const handlers = {
   async state() { const s = await S.get(["base", "token", "user", "active", "synced"]); return { base: s.base || DEFAULT_BASE, signedIn: !!s.token, user: s.user || null, active: s.active || null, synced: s.synced || null }; },
   async login(m) {
-    const base = String(m.base || DEFAULT_BASE).trim().replace(/\/+$/, "");
+    const base = String(m.base || (await S.get("base")).base || DEFAULT_BASE).trim().replace(/\/+$/, "");
     await S.set({ base }); await S.del(["device"]);
     const j = await call("login", { method: "POST", body: { login: m.login, password: m.password, device_name: "Chrome extension", trust_device: true } });
     await S.set({ token: j.data.token, user: { name: j.data.user && (j.data.user.name || j.data.user.username), role: j.data.user && j.data.user.role }, device: j.data.device_token || "" });

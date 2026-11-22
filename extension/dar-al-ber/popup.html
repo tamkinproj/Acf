@@ -3,7 +3,6 @@
 <header><img src="icons/48.png" alt=""><div><b>ACF to Dar Al Ber</b><span id="who">Not signed in</span></div></header>
 <p class="err" id="err" role="alert"></p>
 <section id="vLogin" hidden>
-  <label>Server address<input id="base" type="url" value="https://alinsania.com" autocomplete="off"></label>
   <label>Username or email<input id="login" autocomplete="username"></label>
   <label>Password<input id="pass" type="password" autocomplete="current-password"></label>
   <button id="go" class="main">Sign in</button>
@@ -11,6 +10,7 @@
 </section>
 <section id="vMain" hidden>
   <div class="active" id="active"></div>
+  <div id="galBox" hidden><h4>Uploaded with the application</h4><div id="gal" class="gal"></div></div>
   <div class="row"><button id="sync">Sync now</button><button id="out" class="line">Sign out</button></div>
   <input id="q" type="search" placeholder="Search new applications" autocomplete="off">
   <div id="list" class="list"></div>
