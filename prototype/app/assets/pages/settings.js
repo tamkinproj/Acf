@@ -62,9 +62,45 @@
       '<div class="actions" style="margin-top:1rem"><button class="btn btn-main btn-sm" type="button" data-act="pickavatar">' + A.ic("edit") + "<span>" + t("prof_photo") + "</span></button>" + (u.avatar ? '<button class="btn btn-line btn-sm" type="button" data-act="rmavatar">' + t("prof_remove") + "</button>" : "") +
       '<button class="btn btn-line btn-sm" type="button" data-act="chuser">' + t("prof_change") + "</button></div>");
   });
+  A.strings({
+    tr_title: "Trusted devices", tr_note: "A trusted phone or computer is never slowed down by the request limits, so it does not run into \"too many requests\". Trust only devices that only you use. It lasts 90 days, and ends when you change your password.",
+    tr_this_on: "This device is trusted", tr_this_off: "This device is not trusted", tr_trust: "Trust this device", tr_remove: "Stop trusting", tr_pw: "Your password", tr_pw_hint: "Type your password to trust this device.",
+    tr_done: "This device is trusted", tr_removed: "This device is no longer trusted", tr_others: "Other trusted devices", tr_until: "Until {d}", tr_cancel: "Cancel"
+  }, {
+    tr_title: "الأجهزة الموثوقة", tr_note: "الهاتف أو الحاسوب الموثوق لا تبطّئه حدود الطلبات، فلا تظهر له رسالة «طلبات كثيرة». وثّق فقط الأجهزة التي تستخدمها وحدك. تستمر 90 يومًا وتنتهي عند تغيير كلمة المرور.",
+    tr_this_on: "هذا الجهاز موثوق", tr_this_off: "هذا الجهاز غير موثوق", tr_trust: "الوثوق بهذا الجهاز", tr_remove: "إيقاف الوثوق", tr_pw: "كلمة مرورك", tr_pw_hint: "اكتب كلمة مرورك للوثوق بهذا الجهاز.",
+    tr_done: "تم الوثوق بهذا الجهاز", tr_removed: "لم يعد هذا الجهاز موثوقًا", tr_others: "أجهزة موثوقة أخرى", tr_until: "حتى {d}", tr_cancel: "إلغاء"
+  });
+  function loadTrust() {
+    var box = document.getElementById("trustBox"); if (!box) return;
+    A.api.get("me/devices", { cache: false }).then(function (r) {
+      var d = r.data, mine = d.this_device, others = d.devices.filter(function (x) { return !x.current; });
+      box.innerHTML = '<h4 class="optlbl">' + t("tr_title") + '</h4><p class="note" style="margin-top:0">' + t("tr_note") + "</p>" +
+        '<div class="item"><span class="grow"><b>' + t(mine ? "tr_this_on" : "tr_this_off") + "</b></span>" +
+        (mine ? '<button class="btn btn-line btn-sm" type="button" data-act="trustoff" data-id="' + (d.devices.filter(function (x) { return x.current; })[0] || {}).id + '">' + t("tr_remove") + "</button>" : '<button class="btn btn-main btn-sm" type="button" data-act="trustpw">' + t("tr_trust") + "</button>") + "</div>" +
+        (others.length ? '<h4 class="optlbl">' + t("tr_others") + "</h4>" + others.map(function (x) {
+          return '<div class="item"><span class="grow"><b>' + esc(x.name) + '</b><span class="sub">' + esc(t("sess_last", { d: A.dateTime(x.last_used) })) + " · " + esc(t("tr_until", { d: A.dateOnly(x.expires) })) + '</span></span><button class="btn btn-line btn-sm" type="button" data-act="trustoff" data-id="' + x.id + '">' + t("tr_remove") + "</button></div>";
+        }).join("") : "");
+    }, function () { box.innerHTML = ""; });
+  }
+  A.act("trustpw", function () {
+    A.sheet(t("tr_trust"), '<form id="trForm" novalidate><p class="note" style="margin-top:0">' + t("tr_pw_hint") + "</p>" + A.field("tr_password", t("tr_pw"), "", "password", 'dir="ltr" autocomplete="current-password"') + A.formEnd("tr_trust") + "</form>");
+  });
+  A.form("trForm", function () {
+    var pw = document.getElementById("tr_password").value, er = document.getElementById("formErr"), btn = document.querySelector("#trForm button[type=submit]"); er.textContent = "";
+    if (!pw) { document.getElementById("tr_passwordErr").textContent = t("required"); return; }
+    btn.disabled = true;
+    A.api.write("POST", "me/devices", { password: pw }, { online: true }).then(function (r) {
+      A.api.setDeviceToken((r.data || r).device_token); A.closeSheet(); A.toast(t("tr_done"));
+    }, function (e) { btn.disabled = false; er.textContent = e.errors && e.errors.password ? e.errors.password[0] : (e.offline ? t("need_conn") : A.msg(e)); });
+  });
+  A.act("trustoff", function (el) {
+    var id = el.getAttribute("data-id"); el.disabled = true;
+    A.api.write("DELETE", "me/devices/" + id, null, { online: true }).then(function () { A.toast(t("tr_removed")); A.api.get("me/devices", { cache: false }).then(function (r) { if (!r.data.this_device) A.api.setDeviceToken(""); loadTrust(); }, loadTrust); }, function (e) { el.disabled = false; A.toast(e.offline ? t("need_conn") : A.msg(e)); });
+  });
   A.act("devices", function () {
-    A.sheet(t("sess_title"), '<p class="note" style="margin-top:0">' + t("sess_note") + '</p><div class="list" id="sessBox"><p class="note">' + t("sess_load") + "</p></div>");
-    loadSessions();
+    A.sheet(t("sess_title"), '<p class="note" style="margin-top:0">' + t("sess_note") + '</p><div class="list" id="sessBox"><p class="note">' + t("sess_load") + '</p></div><div id="trustBox"></div>');
+    loadSessions(); loadTrust();
   });
   A.act("outbox", function () {
     var items = A.api.outbox();

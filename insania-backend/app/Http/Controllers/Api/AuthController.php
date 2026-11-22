@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\ApiResponse;
 use App\Support\Audit;
+use App\Support\TrustedDevices;
 use App\Support\LoginThrottle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -24,6 +25,7 @@ class AuthController extends Controller
             'email' => ['required_without:login', 'nullable', 'string', 'max:190', 'regex:/^[^\x00-\x1F\x7F]*$/'],   // older copies of the app still send "email"
             'password' => ['required', 'string', 'max:200'],
             'device_name' => ['nullable', 'string', 'max:60'],
+            'trust_device' => ['nullable', 'boolean'],
         ]);
 
         if ($blocked = LoginThrottle::blocked($request)) {
@@ -51,7 +53,15 @@ class AuthController extends Controller
         $token = $user->createToken(self::deviceLabel($request, $data['device_name'] ?? 'staff-app'), ['*'], now()->addHours($hours))->plainTextToken;
         Audit::record('login', $request, 'user', $user->id, [], $user->id, $user->foundation_id);
 
-        return ApiResponse::ok(['token' => $token, 'user' => $user->toApi()]);
+        $out = ['token' => $token, 'user' => $user->toApi()];
+        if (! empty($data['trust_device'])) {
+            $out['device_token'] = TrustedDevices::create($request, $user, self::deviceLabel($request, $data['device_name'] ?? 'staff-app'));
+            Audit::record('device.trusted', $request, 'user', $user->id, [], $user->id, $user->foundation_id);
+        } else {
+            TrustedDevices::renew($request, $user);
+        }
+
+        return ApiResponse::ok($out);
     }
 
     /** "iPhone · Safari" style label, so a person can recognise their own devices in the list of sign-ins. */
@@ -110,6 +120,7 @@ class AuthController extends Controller
 
         $user->update(['password' => $data['password'], 'must_change_password' => false]);
         $user->tokens()->where('id', '!=', $user->currentAccessToken()?->id)->delete();
+        TrustedDevices::forgetAll($user->id);   // every trusted device must be trusted again
         Audit::record('password.changed', $request, 'user', $user->id);
 
         return ApiResponse::deleted('Password changed. Other devices were signed out.');
@@ -203,6 +214,47 @@ class AuthController extends Controller
             'id' => $t->id, 'device' => $t->name, 'current' => $t->id === $current,
             'signed_in' => $t->created_at?->toIso8601String(), 'last_used' => $t->last_used_at?->toIso8601String(), 'expires' => $t->expires_at?->toIso8601String(),
         ])->values());
+    }
+
+    /** Devices this account trusts (no request limits). */
+    public function trustedDevices(Request $request)
+    {
+        $mine = TrustedDevices::device($request, (int) $request->user()->id);
+
+        return ApiResponse::ok(['devices' => \App\Models\TrustedDevice::where('user_id', $request->user()->id)->orderByDesc('last_used_at')->get()->map(fn ($d) => [
+            'id' => $d->id, 'name' => $d->name, 'current' => $mine && $mine->id === $d->id,
+            'last_used' => $d->last_used_at?->toIso8601String(), 'expires' => $d->expires_at?->toIso8601String(),
+        ])->values(), 'this_device' => (bool) $mine, 'days' => TrustedDevices::DAYS]);
+    }
+
+    /** Trust this device from Settings (asks for the password again). */
+    public function trustThisDevice(Request $request)
+    {
+        $data = $request->validate(['password' => ['required', 'string', 'max:200']]);
+        if (! Hash::check($data['password'], $request->user()->password)) {
+            Audit::record('password.change_failed', $request, 'user', $request->user()->id);
+
+            return ApiResponse::error('WRONG_PASSWORD', 'The password is not right.', 422, ['password' => ['The password is not right.']]);
+        }
+        if ($d = TrustedDevices::device($request, (int) $request->user()->id)) {
+            TrustedDevices::forget($d);   // trusting again replaces the old secret
+        }
+        $token = TrustedDevices::create($request, $request->user(), self::deviceLabel($request, 'staff-app'));
+        Audit::record('device.trusted', $request, 'user', $request->user()->id);
+
+        return ApiResponse::created(['device_token' => $token]);
+    }
+
+    public function removeTrustedDevice(Request $request, int $id)
+    {
+        $d = \App\Models\TrustedDevice::where('user_id', $request->user()->id)->where('id', $id)->first();
+        if (! $d) {
+            return ApiResponse::notFound('No such trusted device.');
+        }
+        TrustedDevices::forget($d);
+        Audit::record('device.trust_removed', $request, 'user', $request->user()->id);
+
+        return ApiResponse::deleted('This device is no longer trusted.');
     }
 
     public function endSession(Request $request, int $id)

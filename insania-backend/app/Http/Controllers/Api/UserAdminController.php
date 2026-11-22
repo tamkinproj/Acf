@@ -155,6 +155,9 @@ class UserAdminController extends Controller
 
         if ($changesAccess) {
             $user->tokens()->delete();   // new access applies from the next sign-in
+            if (isset($data['active']) && ! $data['active']) {
+                \App\Support\TrustedDevices::forgetAll($user->id);
+            }
         }
 
         Audit::record('user.updated', $request, 'user', $user->id, ['fields' => array_keys($data)]);
@@ -174,6 +177,7 @@ class UserAdminController extends Controller
         }
         $user->update(['password' => $data['password']]);
         $user->tokens()->delete();
+        \App\Support\TrustedDevices::forgetAll($user->id);
 
         \App\Support\Notify::to($user->id, (int) $user->foundation_id, 'security', 'Your password was reset', 'An administrator set a new password for your account. Sign in with it and change it in Settings.', 'settings.html');
         Audit::record('user.password_reset', $request, 'user', $user->id);
@@ -188,6 +192,7 @@ class UserAdminController extends Controller
         }
 
         $user->tokens()->delete();
+        \App\Support\TrustedDevices::forgetAll($user->id);
         Audit::record('user.sessions_revoked', $request, 'user', $user->id);
 
         return ApiResponse::deleted('All sessions ended.');

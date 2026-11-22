@@ -1201,3 +1201,7 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:3px s
 @media(min-width:900px){.ov-charts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .ov-charts .mo-chart{margin:0}
 .ov-charts .mo-chart .note{margin:1rem 0 .4rem}
+
+/* ---- Trust this device ---- */
+.trust-row{display:flex;align-items:center;gap:.7rem;cursor:pointer;font-weight:600;margin:.2rem 0 0}
+.trust-note{margin:.1rem 0 0;font-size:.82rem}

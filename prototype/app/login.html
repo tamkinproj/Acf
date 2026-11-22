@@ -27,6 +27,8 @@
     <form id="loginForm" novalidate>
       <div><label for="lEmail" data-t="login_id">Email or username</label><input id="lEmail" type="text" placeholder="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" dir="ltr"></div>
       <div><label for="lPass" data-t="password">Password</label><input id="lPass" type="password" autocomplete="current-password" dir="ltr"></div>
+      <label class="trust-row" for="lTrust"><input id="lTrust" type="checkbox"><span data-t="trust_login">Trust this device</span></label>
+      <p class="note trust-note" data-t="trust_hint">On a phone or computer only you use: no request limits, so it does not run into "too many requests". Turn it off in Settings any time.</p>
       <div class="err" id="loginErr" role="alert"></div>
       <p class="note" data-t="login_hint">Sign in with your account. After the first sign-in the app also works without internet.</p>
       <div class="login-foot">

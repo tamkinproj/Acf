@@ -41,6 +41,9 @@ Route::middleware('api.json')->group(function () {
         Route::get('avatars/{user}', [AuthController::class, 'avatar'])->whereNumber('user');
         Route::get('system/security', [\App\Http\Controllers\Api\SystemController::class, 'security'])->middleware('permission:system.health');
         Route::get('me/sessions', [AuthController::class, 'sessions']);
+        Route::get('me/devices', [AuthController::class, 'trustedDevices']);
+        Route::post('me/devices', [AuthController::class, 'trustThisDevice'])->middleware('throttle:6,1');
+        Route::delete('me/devices/{id}', [AuthController::class, 'removeTrustedDevice'])->whereNumber('id');
         Route::post('me/sessions/end-others', [AuthController::class, 'endOtherSessions'])->middleware('throttle:10,1');
         Route::delete('me/sessions/{id}', [AuthController::class, 'endSession'])->whereNumber('id');
         Route::get('notices/count', [\App\Http\Controllers\Api\NoticeController::class, 'count']);

@@ -74,11 +74,16 @@
   function setMeta(o) { var m = rd(META, {}); for (var k in o) m[k] = o[k]; wr(META, m); }
 
   /* ---------- network ---------- */
+  /* The secret of a trusted device: sent with every request so the server does not slow this device down. Kept on the device. */
+  var DEV = "acf_device";
+  function deviceToken() { try { return localStorage.getItem(DEV) || ""; } catch (e) { return ""; } }
+  function setDeviceToken(v) { try { if (v) localStorage.setItem(DEV, v); else localStorage.removeItem(DEV); } catch (e) {} }
   function request(method, path, body, extra) {
     var s = session(), ctl = window.AbortController ? new AbortController() : null;
     var to = setTimeout(function () { if (ctl) ctl.abort(); }, (extra && extra.timeout) || 9000);
     var headers = { Accept: "application/json" };
     if (s && s.token) headers.Authorization = "Bearer " + s.token;
+    if (deviceToken()) headers["X-Device-Token"] = deviceToken();
     if (body !== undefined) headers["Content-Type"] = "application/json";
     if (extra && extra.key) headers["Idempotency-Key"] = extra.key;
     return fetch(base() + path, { method: method, headers: headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl ? ctl.signal : undefined, credentials: "omit" })
@@ -99,9 +104,10 @@
   function fail(res) { var e = new Error(message(res)); e.status = res.status; e.code = res.json && res.json.code; e.errors = res.json && res.json.errors; return e; }
 
   /* ---------- public: sign in / out ---------- */
-  function login(email, password) {
-    return request("POST", "login", { login: email, password: password, device_name: "staff-app" }).then(function (res) {
+  function login(email, password, trust) {
+    return request("POST", "login", { login: email, password: password, device_name: "staff-app", trust_device: !!trust }).then(function (res) {
       if (!res.ok) throw fail(res);
+      if (res.json.data.device_token) setDeviceToken(res.json.data.device_token);
       setSession(res.json.data.token, res.json.data.user); setMeta({ expired: false });
       return res.json.data.user;
     });
@@ -172,7 +178,7 @@
   /** Sends files (never queued: it needs a connection). Resolves the envelope's data, rejects with the server's message. */
   function upload(path, formData) {
     if (navigator.onLine === false) { var e = new Error("This needs a connection."); e.offline = true; return Promise.reject(e); }
-    var s = session(), headers = { Accept: "application/json" }; if (s && s.token) headers.Authorization = "Bearer " + s.token;
+    var s = session(), headers = { Accept: "application/json" }; if (s && s.token) headers.Authorization = "Bearer " + s.token; if (deviceToken()) headers["X-Device-Token"] = deviceToken();
     return fetch(base() + path, { method: "POST", headers: headers, body: formData, credentials: "omit" }).then(function (r) {
       return r.text().then(function (txt) { var j = null; try { j = JSON.parse(txt); } catch (x) {} if (!r.ok) { var fk = j && j.errors && Object.keys(j.errors)[0], first = fk && j.errors[fk] && j.errors[fk][0]; var er = new Error(first || (j && j.message) || "Upload failed."); er.status = r.status; er.code = j && j.code; er.errors = j && j.errors; throw er; } return j && j.data; });
     }, function () { var er = new Error("network"); er.network = true; er.offline = true; er.message = "This needs a connection."; throw er; });
@@ -181,7 +187,7 @@
   /** Fetches a private file (a photo) with the sign-in token and resolves a blob: address an <img> can show. Never saved on the phone. */
   function blobUrl(path) {
     if (navigator.onLine === false) return Promise.reject(new Error("offline"));
-    var s = session(), headers = {}; if (s && s.token) headers.Authorization = "Bearer " + s.token;
+    var s = session(), headers = {}; if (s && s.token) headers.Authorization = "Bearer " + s.token; if (deviceToken()) headers["X-Device-Token"] = deviceToken();
     return fetch(base() + path, { headers: headers, credentials: "omit" }).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.blob(); }).then(function (b) { return URL.createObjectURL(b); });
   }
 
@@ -254,7 +260,7 @@
   window.addEventListener("load", function () { setTimeout(sync, 600); });
 
   window.ACFAPI = {
-    base: base, session: session, user: user, can: can, blobUrl: blobUrl, login: login, logout: logout, refreshMe: refreshMe,
+    deviceToken: deviceToken, setDeviceToken: setDeviceToken, base: base, session: session, user: user, can: can, blobUrl: blobUrl, login: login, logout: logout, refreshMe: refreshMe,
     get: get, getAll: getAll, upload: upload, getEvery: getEvery, prefetch: prefetch, setPrefs: setPrefs, updateUser: updateUser, write: write, patchCache: patchCache, wipeCache: wipeCache,
     outbox: mine, counts: counts, state: state, onChange: onChange, sync: sync, discard: discard, retry: retry,
     expired: function () { return !!rd(META, {}).expired; }, clearExpired: function () { setMeta({ expired: false }); }
