@@ -194,7 +194,7 @@
   A.act("savedraft", function () { save().then(function () { A.toast(t("ws_saved")); }, function () {}); });
   A.act("preview", function () {
     var w = window.open("", "_blank"); // opened now so phones do not block it; filled in once saved
-    (dirty ? save() : Promise.resolve()).then(function () { var u = "../index.html?preview=1"; if (w) w.location.href = u; else location.href = u; }, function () { if (w) w.close(); });
+    (dirty ? save() : Promise.resolve()).then(function () { var u = "/?preview=1"; if (w) w.location.href = u; else location.href = u; }, function () { if (w) w.close(); });
   });
   A.act("publish", function () {
     if (!confirm(t("ws_publish_q"))) return;
