@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"><title>ACF to Dar Al Ber</title></head>
+<body>
+<header><img src="icons/48.png" alt=""><div><b>ACF to Dar Al Ber</b><span id="who">Not signed in</span></div></header>
+<p class="err" id="err" role="alert"></p>
+<section id="vLogin" hidden>
+  <label>Server address<input id="base" type="url" value="https://alinsania.com" autocomplete="off"></label>
+  <label>Username or email<input id="login" autocomplete="username"></label>
+  <label>Password<input id="pass" type="password" autocomplete="current-password"></label>
+  <button id="go" class="main">Sign in</button>
+  <p class="note">Use your ACF staff account (it needs access to Orphans and their documents). This computer is remembered, so the system does not slow it down.</p>
+</section>
+<section id="vMain" hidden>
+  <div class="active" id="active"></div>
+  <div class="row"><button id="sync">Sync now</button><button id="out" class="line">Sign out</button></div>
+  <input id="q" type="search" placeholder="Search orphan name or number" autocomplete="off">
+  <div id="list" class="list"></div>
+  <p class="note">Open the Dar Al Ber orphan update page. A green panel appears on it: press <b>Fill this step</b>, check, then press Next yourself.</p>
+</section>
+<script src="popup.js"></script></body></html>
