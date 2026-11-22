@@ -52,6 +52,16 @@ RewriteRule ^ / [R=302,L]
   Header always set Strict-Transport-Security "max-age=31536000"
   Header always set Cross-Origin-Opener-Policy "same-origin"
   <FilesMatch "^(index\.html|site\.js)$">
-    Header set Cache-Control "no-cache"
+    Header set Cache-Control "no-cache, no-transform"
   </FilesMatch>
 </IfModule>
+
+# Pages are always labelled as web pages. With "nosniff" a page that arrives without this label is downloaded instead of shown.
+<IfModule mod_mime.c>
+  AddType text/html .html
+  AddType text/javascript .js
+  AddCharset utf-8 .html .js .css
+</IfModule>
+<FilesMatch "\.html$">
+  ForceType "text/html; charset=utf-8"
+</FilesMatch>
