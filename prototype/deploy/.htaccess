@@ -51,7 +51,23 @@ RewriteRule ^ / [R=302,L]
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Strict-Transport-Security "max-age=31536000"
   Header always set Cross-Origin-Opener-Policy "same-origin"
-  <FilesMatch "^(index\.html|site\.js)$">
+  <FilesMatch "^site\.js$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
+  # Pages are always sent whole and fresh: never a bodiless "not modified" answer (iPhone browsers behind a proxy can turn that
+  # into a downloaded empty file), and Cloudflare or the host may not rewrite them on the way.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-store, no-transform"
+    Header unset ETag
+    Header unset Last-Modified
+  </FilesMatch>
+</IfModule>
+<FilesMatch "\.html$">
+  FileETag None
+</FilesMatch>
+
+# Every page is labelled as a web page in UTF-8. With "nosniff" a page without this label is downloaded instead of shown.
+<IfModule mod_mime.c>
+  AddType text/html .html
+  AddDefaultCharset UTF-8
 </IfModule>
