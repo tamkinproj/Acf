@@ -87,16 +87,29 @@
         return r.text().then(function (txt) {
           var j = null; try { j = JSON.parse(txt); } catch (e) {}
           if (r.status === 401 && s) { setMeta({ expired: true }); emit(); }
-          return { status: r.status, ok: r.ok, json: j, text: txt };
+          // A security check (for example Cloudflare's) answers with a web page, not our data.
+          var check = !j && (/^\s*</.test(txt) || r.status === 403 || r.status === 429 || r.status === 503) && !r.ok;
+          return { status: r.status, ok: r.ok, json: j, text: txt, check: check };
         });
       }, function (e) { clearTimeout(to); var err = new Error("network"); err.network = true; throw err; });
+  }
+  /* A read that hits a security check is tried once more after a short pause (the check often clears on the second request). */
+  function retried(method, path, body, extra) {
+    return request(method, path, body, extra).then(function (res) {
+      if (!res.check || method !== "GET") return res;
+      return new Promise(function (ok) { setTimeout(ok, 900); }).then(function () { return request(method, path, body, extra); });
+    });
   }
   function message(res) {
     var j = res && res.json;
     if (j && j.errors) { var f = Object.keys(j.errors)[0]; if (f && j.errors[f] && j.errors[f][0]) return j.errors[f][0]; }
     return (j && j.message) || "Something went wrong.";
   }
-  function fail(res) { var e = new Error(message(res)); e.status = res.status; e.code = res.json && res.json.code; e.errors = res.json && res.json.errors; return e; }
+  function fail(res) {
+    var e = new Error(message(res)); e.status = res.status; e.code = res.json && res.json.code; e.errors = res.json && res.json.errors;
+    if (res.check) { e.code = "SECURITY_CHECK"; e.security = true; }
+    return e;
+  }
 
   /* ---------- public: sign in / out ---------- */
   function login(email, password) {
@@ -123,7 +136,7 @@
     opts = opts || {};
     var useCache = opts.cache !== false;
     if (navigator.onLine === false && !opts.forceNet) return new Promise(function (res, rej) { try { res(fromCache()); } catch (e) { rej(e); } });
-    return request("GET", path).then(function (res) {
+    return retried("GET", path, undefined, opts).then(function (res) {
       if (res.ok && res.json) {
         var p = { data: res.json.data, meta: res.json.meta || {} };
         if (useCache) putCache(path, p);
