@@ -19,7 +19,6 @@ use Illuminate\Support\Str;
  */
 final class LoginThrottle
 {
-    public const MAX_ATTEMPTS = 5;
     public const DECAY_SECONDS = 60;
 
     public static function key(object $request): string
@@ -39,8 +38,8 @@ final class LoginThrottle
 
     public static function blocked(object $request): ?\Illuminate\Http\JsonResponse
     {
-        $max = (int) config('security.lockout.attempts', 10);
-        foreach ([[self::key($request), self::MAX_ATTEMPTS], [self::accountKey($request), $max]] as [$key, $limit]) {
+        $max = SecurityLimits::get('lockout_attempts');
+        foreach ([[self::key($request), SecurityLimits::get('attempts_per_minute')], [self::accountKey($request), $max]] as [$key, $limit]) {
             if (RateLimiter::tooManyAttempts($key, $limit)) {
                 $seconds = RateLimiter::availableIn($key);
 
@@ -59,9 +58,9 @@ final class LoginThrottle
     public static function hit(object $request): bool
     {
         RateLimiter::hit(self::key($request), self::DECAY_SECONDS);
-        RateLimiter::hit(self::accountKey($request), (int) config('security.lockout.minutes', 15) * 60);
+        RateLimiter::hit(self::accountKey($request), SecurityLimits::get('lockout_minutes') * 60);
 
-        return RateLimiter::attempts(self::accountKey($request)) === (int) config('security.lockout.attempts', 10);
+        return RateLimiter::attempts(self::accountKey($request)) === SecurityLimits::get('lockout_attempts');
     }
 
     public static function clear(object $request): void

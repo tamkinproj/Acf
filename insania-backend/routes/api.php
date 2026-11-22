@@ -64,6 +64,8 @@ Route::middleware('api.json')->group(function () {
         });
         Route::get('system/health', [SystemController::class, 'health'])->middleware('permission:system.health');
         Route::get('system/settings', [SystemController::class, 'settings'])->middleware('permission:system.settings');
+        Route::get('system/limits', [SystemController::class, 'limits'])->middleware('permission:system.settings');
+        Route::patch('system/limits', [SystemController::class, 'updateLimits'])->middleware(['permission:system.settings', 'throttle:10,1']);
         Route::patch('system/settings', [SystemController::class, 'updateSettings'])->middleware('permission:system.settings');
         Route::middleware('permission:system.api_keys')->group(function () {
             Route::get('system/api-keys', [\App\Http\Controllers\Api\ApiKeyController::class, 'index']);

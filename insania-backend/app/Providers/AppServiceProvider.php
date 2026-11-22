@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
             }
             $key = in_array($user->role, (array) config('security.privileged_roles'), true) ? 'privileged' : 'default';
             $last = $token->last_used_at ?? $token->created_at;
-            if ($last && $last->lt(now()->subMinutes((int) config("security.idle_minutes.$key", 240)))) {
+            if ($last && $last->lt(now()->subMinutes(\App\Support\SecurityLimits::get($key === 'privileged' ? 'idle_minutes_privileged' : 'idle_minutes_default')))) {
                 $token->delete();
 
                 return false;

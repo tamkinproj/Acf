@@ -39,6 +39,41 @@ sec_title: "فحص الأمان", sec_ok: "سليم", sec_fix: "يحتاج ان�
     cf_active: "فعّالة", cf_paused: "متوقفة", cf_rate: "تحديد المعدل", cf_custom: "قاعدة مخصصة", cf_no_read: "لا يمكن قراءته بهذا الرمز",
     cf_l_off: "متوقف", cf_l_essentially_off: "شبه متوقف", cf_l_low: "منخفض", cf_l_medium: "متوسط", cf_l_high: "مرتفع", cf_l_under_attack: "أنا تحت الهجوم"
   });
+  /* ---- Sign-in and request limits (System Admin): each has a safe range; a change needs your own password ---- */
+  A.strings({
+    lim_title: "Sign-in and limits", lim_note: "How many tries and requests are allowed before the app says \"Too many attempts\". Each value stays inside its safe range. Changes apply within a minute.",
+    lim_try: "Wrong passwords", lim_try_h: "Wrong passwords for one account from one address, per minute.", lim_lock: "Lock an account after", lim_lock_h: "Wrong passwords for one account from any address.", lim_lock_min: "Keep it locked for (minutes)",
+    lim_login: "Sign-in requests per minute, from one address", lim_api_u: "Requests per minute, signed-in account", lim_api_ip: "Requests per minute, not signed in",
+    lim_idle_p: "Idle sign-out, System, Security and President (minutes)", lim_idle_d: "Idle sign-out, everyone else (minutes)", lim_max_p: "Longest sign-in, System, Security and President (hours)", lim_max_d: "Longest sign-in, everyone else (hours)",
+    lim_range: "Allowed {min} to {max} (usual {d})", lim_save: "Save limits", lim_pw: "Your own password, to confirm", lim_saved: "Limits saved", lim_bad: "The lock-out must be at least the wrong passwords per minute."
+  }, {
+    lim_title: "الدخول والحدود", lim_note: "عدد المحاولات والطلبات المسموح بها قبل أن يقول التطبيق «طلبات كثيرة». كل قيمة تبقى ضمن نطاقها الآمن. تُطبَّق التغييرات خلال دقيقة.",
+    lim_try: "كلمات المرور الخاطئة", lim_try_h: "كلمات مرور خاطئة لحساب واحد من عنوان واحد، في الدقيقة.", lim_lock: "قفل الحساب بعد", lim_lock_h: "كلمات مرور خاطئة لحساب واحد من أي عنوان.", lim_lock_min: "يبقى مقفلًا (دقائق)",
+    lim_login: "طلبات الدخول في الدقيقة، من عنوان واحد", lim_api_u: "الطلبات في الدقيقة، لحساب دخل", lim_api_ip: "الطلبات في الدقيقة، لعنوان لم يدخل",
+    lim_idle_p: "الخروج عند الخمول، مدير النظام والأمن ورئيس الإدارة (دقائق)", lim_idle_d: "الخروج عند الخمول، الباقون (دقائق)", lim_max_p: "أطول دخول، مدير النظام والأمن ورئيس الإدارة (ساعات)", lim_max_d: "أطول دخول، الباقون (ساعات)",
+    lim_range: "المسموح من {min} إلى {max} (المعتاد {d})", lim_save: "احفظ الحدود", lim_pw: "كلمة مرورك أنت، للتأكيد", lim_saved: "تم حفظ الحدود", lim_bad: "يجب أن يكون القفل على الأقل بعدد كلمات المرور الخاطئة في الدقيقة."
+  });
+  var LIM_FIELDS = [["attempts_per_minute", "lim_try", "lim_try_h"], ["lockout_attempts", "lim_lock", "lim_lock_h"], ["lockout_minutes", "lim_lock_min"], ["login_per_minute", "lim_login"],
+    ["api_per_minute_user", "lim_api_u"], ["api_per_minute_ip", "lim_api_ip"], ["idle_minutes_privileged", "lim_idle_p"], ["idle_minutes_default", "lim_idle_d"], ["max_hours_privileged", "lim_max_p"], ["max_hours_default", "lim_max_d"]];
+  function limitsCard(d) {
+    var v = d.values, r = d.ranges;
+    return '<div class="card" style="margin-top:1rem"><h3>' + t("lim_title") + '</h3><p class="note" style="margin-top:0">' + t("lim_note") + '</p><form id="limForm" novalidate>' +
+      LIM_FIELDS.map(function (f) {
+        var rg = r[f[0]], hint = t("lim_range", { min: rg.min, max: rg.max, d: rg.default });
+        return A.field("lm_" + f[0], t(f[1]), '<p class="note" style="margin:.25rem 0 0">' + esc(f[2] ? t(f[2]) + " " : "") + esc(hint) + "</p>", "number", 'min="' + rg.min + '" max="' + rg.max + '" inputmode="numeric" value="' + esc(v[f[0]]) + '"');
+      }).join("") + A.field("lm_admin_password", t("lim_pw"), "", "password", 'dir="ltr" autocomplete="current-password"') +
+      '<div class="err" id="formErr"></div><div class="actions"><button class="btn btn-main" type="submit">' + t("lim_save") + "</button></div></form></div>";
+  }
+  A.form("limForm", function () {
+    Array.prototype.forEach.call(document.querySelectorAll("#limForm .err"), function (e) { e.textContent = ""; });
+    var body = { admin_password: document.getElementById("lm_admin_password").value };
+    if (!body.admin_password) { document.getElementById("lm_admin_passwordErr").textContent = t("required"); return; }
+    LIM_FIELDS.forEach(function (f) { body[f[0]] = parseInt(document.getElementById("lm_" + f[0]).value, 10); });
+    A.api.write("PATCH", "system/limits", body, { online: true }).then(function () { A.toast(t("lim_saved")); A.reload(true); }, function (e) {
+      if (!(e.errors && A.showErrors(e.errors, "lm_"))) document.getElementById("formErr").textContent = failMsg(e);
+    });
+  });
+
   var LEVELS = ["off", "essentially_off", "low", "medium", "high", "under_attack"];
   function cfRow(label, note, ctl) { return '<div class="setrow" style="align-items:flex-start"><span class="grow"><b>' + label + "</b>" + (note ? '<span class="sub" style="display:block">' + note + "</span>" : "") + "</span>" + ctl + "</div>"; }
   function cfSw(on, k, extra) { return '<button class="switch" type="button" role="switch" aria-checked="' + !!on + '" data-act="cfset" data-k="' + k + '"' + (extra || "") + "></button>"; }
@@ -90,7 +125,8 @@ sec_title: "فحص الأمان", sec_ok: "سليم", sec_fix: "يحتاج ان�
     jobs.push(A.can("system.api_keys") ? A.api.get("system/api-keys", { cache: false }) : Promise.resolve(null));
     jobs.push(A.can("system.first_admin") ? A.api.get("system/president-admin", { cache: false }) : Promise.resolve(null));
     jobs.push(A.api.get("system/security", { cache: false }).catch(function () { return null; }));
-    return Promise.all(jobs).then(function (r) { return { data: { health: r[0].data, settings: r[1] && r[1].data, keys: r[2] && r[2].data, pres: r[3] ? { have: true, p: r[3].data } : null, sec: r[4] && r[4].data }, stale: false }; });
+    jobs.push(A.can("system.settings") ? A.api.get("system/limits", { cache: false }).catch(function () { return null; }) : Promise.resolve(null));
+    return Promise.all(jobs).then(function (r) { return { data: { health: r[0].data, settings: r[1] && r[1].data, keys: r[2] && r[2].data, pres: r[3] ? { have: true, p: r[3].data } : null, sec: r[4] && r[4].data, limits: r[5] && r[5].data }, stale: false }; });
   }
   function render(d) {
     var h = d.health, ok = h.status === "ok", out = '<div class="head"><h1 class="title">' + t("sys_title") + '</h1></div><p class="note">' + t("sys_note") + "</p>";
@@ -114,6 +150,7 @@ sec_title: "فحص الأمان", sec_ok: "سليم", sec_fix: "يحتاج ان�
       out += '<div class="card" style="margin-top:1rem"><h3>' + t("pres_title") + '</h3>' + (pres ? '<p class="note">' + t("pres_note") + "</p>" + A.facts([[t("pres_name"), esc(pres.name)], [t("pres_email"), '<span dir="ltr">' + esc(pres.email) + "</span>"], ["", '<span class="badge ' + (pres.active ? "" : "warn") + '">' + t(pres.active ? "pres_on" : "pres_off") + "</span>"]]) +
         '<div class="actions" style="margin-top:1rem"><button class="btn btn-main" data-act="chgpres">' + t("pres_change") + "</button></div>" : '<p class="note">' + t("pres_none") + '</p><div class="actions"><a class="btn btn-main" href="setup.html">' + t("pres_goto") + "</a></div>") + "</div>";
     }
+    if (d.limits) out += limitsCard(d.limits);
     if (A.can("system.cloudflare")) out += '<div class="card" style="margin-top:1rem"><h3>' + t("cf_title") + '</h3><div id="cfBox"><p class="note">' + t("cf_load") + "</p></div></div>";
     if (d.keys) {
       keys = d.keys;

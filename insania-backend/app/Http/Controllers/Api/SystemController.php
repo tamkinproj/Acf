@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Support\ApiResponse;
 use App\Support\Audit;
+use App\Support\SecurityLimits;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -44,14 +46,36 @@ class SystemController extends Controller
             ['key' => 'cors_own_site', 'ok' => ! in_array('*', (array) config('cors.allowed_origins'), true)],
             ['key' => 'update_key', 'ok' => trim((string) config('updates.public_key')) !== ''],
             ['key' => 'no_demo_accounts', 'ok' => ! \App\Models\User::withoutGlobalScopes()->where('email', 'like', '%.test')->exists()],
-            ['key' => 'strong_limits', 'ok' => (int) config('security.idle_minutes.privileged') <= 120 && (int) config('security.max_hours.privileged') <= 12],
+            ['key' => 'strong_limits', 'ok' => \App\Support\SecurityLimits::get('idle_minutes_privileged') <= 120 && \App\Support\SecurityLimits::get('max_hours_privileged') <= 12],
         ];
 
         return ApiResponse::ok([
             'checks' => $checks,
-            'limits' => ['idle_minutes' => config('security.idle_minutes'), 'max_hours' => config('security.max_hours'), 'lockout' => config('security.lockout')],
+            'limits' => ['idle_minutes' => ['privileged' => SecurityLimits::get('idle_minutes_privileged'), 'default' => SecurityLimits::get('idle_minutes_default')], 'max_hours' => ['privileged' => SecurityLimits::get('max_hours_privileged'), 'default' => SecurityLimits::get('max_hours_default')], 'lockout' => ['attempts' => SecurityLimits::get('lockout_attempts'), 'minutes' => SecurityLimits::get('lockout_minutes')]],
             'attention' => count(array_filter($checks, fn ($c) => ! $c['ok'])),
         ]);
+    }
+
+    /** The limits and the lock-outs the System Admin can change (each within a safe range). */
+    public function limits()
+    {
+        return ApiResponse::ok(['values' => SecurityLimits::all(), 'ranges' => collect(SecurityLimits::FIELDS)->map(fn ($f) => ['default' => $f[0], 'min' => $f[1], 'max' => $f[2]])]);
+    }
+
+    public function updateLimits(Request $request)
+    {
+        $data = $request->validate(['admin_password' => ['required', 'string', 'max:200']]);
+        if (! Hash::check($data['admin_password'], $request->user()->password)) {
+            Audit::record('limits.change_denied', $request);
+
+            return ApiResponse::error('WRONG_PASSWORD', 'Your own password is not right.', 422, ['admin_password' => ['Your own password is not right.']]);
+        }
+        $values = $request->validate(collect(SecurityLimits::FIELDS)->mapWithKeys(fn ($f, $k) => [$k => ['sometimes', 'integer', 'min:'.$f[1], 'max:'.$f[2]]])->all());
+        $before = SecurityLimits::all();
+        $after = SecurityLimits::save((int) $request->user()->foundation_id, $values);
+        Audit::record('limits.changed', $request, null, null, ['changed' => array_keys(array_diff_assoc($after, $before))]);
+
+        return ApiResponse::ok(['values' => $after]);
     }
 
     public function settings()

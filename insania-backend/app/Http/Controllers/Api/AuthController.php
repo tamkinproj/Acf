@@ -41,7 +41,7 @@ class AuthController extends Controller
             $locked = LoginThrottle::hit($request);
             Audit::record('login.failed', $request, 'user', $user?->id, [], $user?->id, $user?->foundation_id);
             if ($locked && $user) {
-                Audit::record('login.locked', $request, 'user', $user->id, ['minutes' => (int) config('security.lockout.minutes', 15)], $user->id, $user->foundation_id);
+                Audit::record('login.locked', $request, 'user', $user->id, ['minutes' => \App\Support\SecurityLimits::get('lockout_minutes')], $user->id, $user->foundation_id);
             }
 
             return LoginThrottle::genericFailure();
@@ -49,7 +49,7 @@ class AuthController extends Controller
 
         LoginThrottle::clear($request);
         $privileged = in_array($user->role, (array) config('security.privileged_roles'), true);
-        $hours = (int) config('security.max_hours.'.($privileged ? 'privileged' : 'default'), 12);
+        $hours = \App\Support\SecurityLimits::get($privileged ? 'max_hours_privileged' : 'max_hours_default');
         $token = $user->createToken(self::deviceLabel($request, $data['device_name'] ?? 'staff-app'), ['*'], now()->addHours($hours))->plainTextToken;
         Audit::record('login', $request, 'user', $user->id, [], $user->id, $user->foundation_id);
 

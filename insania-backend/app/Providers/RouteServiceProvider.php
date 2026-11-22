@@ -25,7 +25,7 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Broad per-address cap on the sign-in route; LoginThrottle adds the per-account cap.
-        RateLimiter::for('login', fn (Request $request) => \App\Support\TrustedDevices::trusted($request) ? Limit::none() : Limit::perMinute(30)->by($request->ip()));
+        RateLimiter::for('login', fn (Request $request) => \App\Support\TrustedDevices::trusted($request) ? Limit::none() : Limit::perMinute(\App\Support\SecurityLimits::get('login_per_minute'))->by($request->ip()));
 
         // The public application form: a few per hour for each address (config/orphan_fields.php).
         RateLimiter::for('apply', fn (Request $request) => Limit::perHour((int) config('orphan_fields.apply.per_hour', 6))->by($request->ip()));
@@ -36,7 +36,9 @@ class RouteServiceProvider extends ServiceProvider
                 return Limit::none();   // a device the person chose to trust is never slowed down
             }
 
-            return $request->user() ? Limit::perMinute(300)->by('u'.$request->user()->id) : Limit::perMinute(60)->by($request->ip());
+            return $request->user()
+                ? Limit::perMinute(\App\Support\SecurityLimits::get('api_per_minute_user'))->by('u'.$request->user()->id)
+                : Limit::perMinute(\App\Support\SecurityLimits::get('api_per_minute_ip'))->by($request->ip());
         });
 
         $this->routes(function () {

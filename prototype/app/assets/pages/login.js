@@ -9,7 +9,7 @@
     btn.disabled = true; btn.textContent = t("login_busy");
     A.api.login(em, pw, $("#lTrust") && $("#lTrust").checked).then(function () { location.replace("dashboard.html"); }, function (e) {
       btn.disabled = false; btn.textContent = t("signin");
-      err.textContent = e.network ? t("login_offline") : e.status === 429 ? t("login_locked") : e.status === 401 || e.status === 422 ? t("login_fail") : (e.message || t("login_fail"));
+      err.textContent = e.network ? t("login_offline") : e.code === "THROTTLED" ? e.message : e.status === 429 ? t("login_locked") : e.status === 401 || e.status === 422 ? t("login_fail") : (e.message || t("login_fail"));
     });
   });
 
