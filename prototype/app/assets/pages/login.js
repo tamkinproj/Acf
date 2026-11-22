@@ -9,7 +9,8 @@
     btn.disabled = true; btn.textContent = t("login_busy");
     A.api.login(em, pw).then(function () { location.replace("dashboard.html"); }, function (e) {
       btn.disabled = false; btn.textContent = t("signin");
-      err.textContent = e.network ? t("login_offline") : e.security ? t("sec_login") : e.status === 429 ? t("login_locked") : e.status === 401 || e.status === 422 ? t("login_fail") : (e.message || t("login_fail"));
+      err.textContent = e.network ? t("login_offline") : e.security ? t(e.source === "host" ? "sec_host_login" : "sec_login") + A.errDetail(e) : e.serverError ? t("server_err") + A.errDetail(e)
+        : e.status === 429 ? t("login_locked") : e.status === 401 || e.status === 422 ? t("login_fail") : (e.message || t("login_fail"));
     });
   });
 

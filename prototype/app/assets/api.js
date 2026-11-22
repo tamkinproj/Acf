@@ -87,9 +87,14 @@
         return r.text().then(function (txt) {
           var j = null; try { j = JSON.parse(txt); } catch (e) {}
           if (r.status === 401 && s) { setMeta({ expired: true }); emit(); }
-          // A security check (for example Cloudflare's) answers with a web page, not our data.
-          var check = !j && (/^\s*</.test(txt) || r.status === 403 || r.status === 429 || r.status === 503) && !r.ok;
-          return { status: r.status, ok: r.ok, json: j, text: txt, check: check };
+          // When the answer is a web page instead of our data, work out who sent it: Cloudflare (its block or challenge page),
+          // the host's own firewall (a plain 403/429 page), or the server itself failing (any other error page).
+          var check = false, src = null, ray = r.headers.get("cf-ray") || ((txt || "").match(/Ray ID:?\s*(?:<[^>]*>\s*)*([0-9a-f]{12,20})/i) || [])[1] || null;
+          if (!j && !r.ok) {
+            if (r.headers.get("cf-mitigated") || /cloudflare|cf-ray|ray id|attention required|just a moment|cf-chl|challenge-platform|cf-error/i.test(txt || "")) { check = true; src = "cloudflare"; }
+            else if (r.status === 403 || r.status === 429) { check = true; src = "host"; }
+          }
+          return { status: r.status, ok: r.ok, json: j, text: txt, check: check, source: src, ray: ray ? String(ray).split("-")[0] : null, serverError: !j && !r.ok && !check && r.status >= 400 };
         });
       }, function (e) { clearTimeout(to); var err = new Error("network"); err.network = true; throw err; });
   }
@@ -107,7 +112,8 @@
   }
   function fail(res) {
     var e = new Error(message(res)); e.status = res.status; e.code = res.json && res.json.code; e.errors = res.json && res.json.errors;
-    if (res.check) { e.code = "SECURITY_CHECK"; e.security = true; }
+    if (res.check) { e.code = "SECURITY_CHECK"; e.security = true; e.source = res.source; e.ray = res.ray; }
+    else if (res.serverError) { e.serverError = true; e.ray = res.ray; }
     return e;
   }
 
