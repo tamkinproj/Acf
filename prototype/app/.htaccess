@@ -1,6 +1,6 @@
 # Staff app: only its own files may run here. The sign-in token lives on the phone, so no outside script is ever allowed.
 <IfModule mod_headers.c>
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://cloudflareinsights.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'"
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "DENY"
   Header always set Referrer-Policy "same-origin"
@@ -10,19 +10,10 @@
   Header always set Cross-Origin-Resource-Policy "same-origin"
   # Pages, scripts and styles are always checked with the server (a quick "not changed" answer when nothing changed),
   # so a phone or the host's cache never keeps an old copy after an update.
-  # no-transform: Cloudflare and the host must deliver these files exactly as they are (no script rewriting, no minifying).
   <FilesMatch "\.(html|js|css|webmanifest|json)$">
-    Header set Cache-Control "no-cache, no-transform"
+    Header set Cache-Control "no-cache"
   </FilesMatch>
 </IfModule>
 <IfModule mod_mime.c>
   AddType application/manifest+json .webmanifest
-  AddType text/html .html
-  AddType text/javascript .js
-  AddType text/css .css
-  AddCharset utf-8 .html .js .css
 </IfModule>
-# Pages are always labelled as web pages. With "nosniff" a page that arrives without this label is downloaded instead of shown.
-<FilesMatch "\.html$">
-  ForceType "text/html; charset=utf-8"
-</FilesMatch>

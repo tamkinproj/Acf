@@ -87,35 +87,16 @@
         return r.text().then(function (txt) {
           var j = null; try { j = JSON.parse(txt); } catch (e) {}
           if (r.status === 401 && s) { setMeta({ expired: true }); emit(); }
-          // When the answer is a web page instead of our data, work out who sent it: Cloudflare (its block or challenge page),
-          // the host's own firewall (a plain 403/429 page), or the server itself failing (any other error page).
-          var check = false, src = null, ray = r.headers.get("cf-ray") || ((txt || "").match(/Ray ID:?\s*(?:<[^>]*>\s*)*([0-9a-f]{12,20})/i) || [])[1] || null;
-          if (!j && !r.ok) {
-            if (r.headers.get("cf-mitigated") || /cloudflare|cf-ray|ray id|attention required|just a moment|cf-chl|challenge-platform|cf-error/i.test(txt || "")) { check = true; src = "cloudflare"; }
-            else if (r.status === 403 || r.status === 429) { check = true; src = "host"; }
-          }
-          return { status: r.status, ok: r.ok, json: j, text: txt, check: check, source: src, ray: ray ? String(ray).split("-")[0] : null, serverError: !j && !r.ok && !check && r.status >= 400 };
+          return { status: r.status, ok: r.ok, json: j, text: txt };
         });
       }, function (e) { clearTimeout(to); var err = new Error("network"); err.network = true; throw err; });
-  }
-  /* A read that hits a security check is tried once more after a short pause (the check often clears on the second request). */
-  function retried(method, path, body, extra) {
-    return request(method, path, body, extra).then(function (res) {
-      if (!res.check || method !== "GET") return res;
-      return new Promise(function (ok) { setTimeout(ok, 900); }).then(function () { return request(method, path, body, extra); });
-    });
   }
   function message(res) {
     var j = res && res.json;
     if (j && j.errors) { var f = Object.keys(j.errors)[0]; if (f && j.errors[f] && j.errors[f][0]) return j.errors[f][0]; }
     return (j && j.message) || "Something went wrong.";
   }
-  function fail(res) {
-    var e = new Error(message(res)); e.status = res.status; e.code = res.json && res.json.code; e.errors = res.json && res.json.errors;
-    if (res.check) { e.code = "SECURITY_CHECK"; e.security = true; e.source = res.source; e.ray = res.ray; }
-    else if (res.serverError) { e.serverError = true; e.ray = res.ray; }
-    return e;
-  }
+  function fail(res) { var e = new Error(message(res)); e.status = res.status; e.code = res.json && res.json.code; e.errors = res.json && res.json.errors; return e; }
 
   /* ---------- public: sign in / out ---------- */
   function login(email, password) {
@@ -142,7 +123,7 @@
     opts = opts || {};
     var useCache = opts.cache !== false;
     if (navigator.onLine === false && !opts.forceNet) return new Promise(function (res, rej) { try { res(fromCache()); } catch (e) { rej(e); } });
-    return retried("GET", path, undefined, opts).then(function (res) {
+    return request("GET", path).then(function (res) {
       if (res.ok && res.json) {
         var p = { data: res.json.data, meta: res.json.meta || {} };
         if (useCache) putCache(path, p);

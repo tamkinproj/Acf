@@ -9,33 +9,20 @@ var FILES = [
   "assets/logo.jpg", "assets/pwa.js", "assets/icon-192.png", "assets/icon-512.png", "assets/icon-maskable-512.png", "manifest.webmanifest"
 ];
 
-/* Only a complete, real answer is kept: not a redirect, not a security-check page, and a page must be labelled as a page. */
-function isPage(path) { return path === "./" || /\.html$/.test(path.split("?")[0]) || /\/$/.test(path.split("?")[0]); }
-function storable(path, res) {
-  if (!res || !res.ok || res.redirected || res.type === "opaqueredirect") return false;
-  var ct = (res.headers.get("Content-Type") || "").toLowerCase();
-  return isPage(path) ? ct.indexOf("text/html") > -1 || ct === "" : true;
-}
-/* A page is always handed to the browser labelled as a web page, without the old compression header (the stored body is already
-   unpacked). If anything on the way (a proxy, a security service) lost the label, the browser would otherwise download the page. */
-function asPage(res) {
-  if (!res) return Promise.resolve(null);
-  return res.blob().then(function (b) {
-    if (!b.size) return null;
-    var h = new Headers(res.headers);
-    h.set("Content-Type", "text/html; charset=utf-8");
-    ["Content-Encoding", "Content-Length", "Content-Disposition", "Transfer-Encoding"].forEach(function (k) { h.delete(k); });
-    return new Response(b, { status: 200, statusText: "OK", headers: h });
-  });
+function inTurns(list, n, fn) {
+  var i = 0;
+  function next() { if (i >= list.length) return Promise.resolve(); var part = list.slice(i, i += n); return Promise.all(part.map(fn)).then(next); }
+  return next();
 }
 
 self.addEventListener("install", function (e) {
   // Every file is fetched fresh from the server ("reload"), never from the browser's own cache, so a new version is never mixed
   // with old files. One file that fails does not stop the update: the old copy must never stay stuck on the phone.
+  // Four files at a time, not all ~90 at once: a burst like that trips the host's or Cloudflare's "too many requests" limit (429).
   e.waitUntil(caches.open(VERSION).then(function (c) {
-    return Promise.all(FILES.map(function (f) {
-      return fetch(new Request(f, { cache: "reload" })).then(function (res) { if (storable(f, res)) return c.put(f, res); }).catch(function () {});
-    }));
+    return inTurns(FILES, 4, function (f) {
+      return fetch(new Request(f, { cache: "reload" })).then(function (res) { if (res && res.ok) return c.put(f, res); }).catch(function () {});
+    });
   }).then(function () { return self.skipWaiting(); }));
 });
 
@@ -54,20 +41,12 @@ self.addEventListener("fetch", function (e) {
 
   // The app's own files come from the stored copy of THIS release (instant, works offline). They are never refreshed one by one:
   // a new release brings a new sw.js (its VERSION is the release id), which stores the whole new set at once, so old and new never mix.
-  var page = isPage(url.pathname);   // only .html addresses and folders: an image or a file opened directly is served as it is
   e.respondWith(caches.open(VERSION).then(function (cache) {
     return cache.match(req, { ignoreSearch: true }).then(function (hit) {
-      if (hit && !page) return hit;
-      var stored = hit ? asPage(hit) : Promise.resolve(null);
-      return stored.then(function (ok) {
-        if (ok) return ok;
-        return fetch(req).then(function (res) {
-          // A page from the network is also given its proper label; anything that is not a real page (a redirect, an error) goes as it came.
-          return page && res.ok && !res.redirected ? asPage(res.clone()).then(function (p) { return p || res; }) : res;
-        }).catch(function () {
-          // Offline and not stored: pages fall back to the sign-in page, anything else fails quietly.
-          return page ? cache.match("login.html").then(asPage).then(function (p) { return p || Response.error(); }) : Response.error();
-        });
+      if (hit) return hit;
+      return fetch(req).catch(function () {
+        // Offline and not stored: pages fall back to the sign-in page, anything else fails quietly.
+        return req.mode === "navigate" ? cache.match("login.html") : Response.error();
       });
     });
   }));
