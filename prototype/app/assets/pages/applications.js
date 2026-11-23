@@ -14,7 +14,7 @@
   });
 
   var data = { items: [], counts: {} };
-  function link() { return location.origin + "/apply"; }
+  function link() { return location.origin + "/apply?partner=" + encodeURIComponent(A.api.partner() || "dar_al_ber"); }   // each partner has its own link
   function list() {
     var items = data.items.filter(function (a) { return a.status === cur; });
     if (!items.length) return '<p class="note">' + t("ap_none") + "</p>";

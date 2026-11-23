@@ -3,7 +3,9 @@
    anywhere to be read), the answers found are filled in, and the applicant checks every step before sending. */
 (function () {
   var S = window.ORPHAN_SCHEMA || [], root = document.getElementById("apply"), API = new URL("../server/api/", location.href).href;
-  var OCR_BASE = new URL("ocr/", location.href).href, DRAFT = "acf_apply_draft";
+  /* each partner has its own link: apply.html?partner=dar_al_ber (a link without one is Dar Al Ber's, as before) */
+  var PARTNER = (location.search.match(/[?&]partner=([a-z0-9_]{2,40})/) || [])[1] || "";
+  var OCR_BASE = new URL("ocr/", location.href).href, DRAFT = "acf_apply_draft" + (PARTNER && PARTNER !== "dar_al_ber" ? ":" + PARTNER : "");
   var lang = "en"; try { if (localStorage.getItem("acf_lang") === "ar") lang = "ar"; } catch (e) {}
   var st = { view: "choose", step: 0, values: {}, fromDoc: {}, photos: [], docs: [], method: "form", maxP: 2, maxD: 10, open: true, ocrText: "" };
   /* The papers of the Dar Al Ber form (step 4), each under its own name. "photos" is the orphan's personal photo. */
@@ -36,7 +38,8 @@
     req: ["This field is required.", "هذا الحقل إلزامي."], name_need: ["Enter the child's name in English or Arabic.", "أدخل اسم الطفل بالإنجليزية أو بالعربية."], fix: ["Please check the highlighted fields.", "يرجى مراجعة الحقول المظللة."],
     bad_phone: ["Enter a valid phone number.", "أدخل رقم هاتف صحيحًا."], bad_last4: ["Enter exactly 4 digits.", "أدخل 4 أرقام بالضبط."], bank_all: ["Fill in all three bank fields, or none.", "املأ حقول البنك الثلاثة كلها أو اتركها فارغة."], bad_date: ["Enter a real date in the past.", "أدخل تاريخًا صحيحًا في الماضي."],
     thanks: ["Thank you. Your application was received.", "شكرًا لك. تم استلام طلبك."], ref: ["Your reference number", "رقمك المرجعي"], keep: ["Please keep this number. The foundation will contact the guardian on the phone number you gave.", "يرجى الاحتفاظ بهذا الرقم. ستتواصل المؤسسة مع الوصي على الرقم الذي أدخلته."],
-    another: ["Send another application", "إرسال طلب آخر"], closed: ["The application form is closed for now.", "نموذج التقديم مغلق حاليًا."], net: ["Could not reach the server. Check your connection and try again.", "تعذر الوصول إلى الخادم. تحقق من الاتصال وحاول مرة أخرى."],
+    another: ["Send another application", "إرسال طلب آخر"], closed: ["The application form is closed for now.", "نموذج التقديم مغلق حاليًا."],
+    notopen: ["This application form is not open yet.", "نموذج التقديم هذا غير مفتوح بعد."], notopen_sub: ["Please use the link the foundation sent you.", "يرجى استخدام الرابط الذي أرسلته لك المؤسسة."], for_partner: ["Partner: {p}", "الشريك: {p}"], net: ["Could not reach the server. Check your connection and try again.", "تعذر الوصول إلى الخادم. تحقق من الاتصال وحاول مرة أخرى."],
     busy: ["Too many applications were sent from this connection. Please try again later.", "أُرسل عدد كبير من الطلبات من هذا الاتصال. يرجى المحاولة لاحقًا."], remove: ["Remove", "إزالة"], optional: ["optional", "اختياري"],
     privacy: ["Only the last 4 digits of a bank account are asked for. Never send full card or account numbers, or passwords.", "يُطلب آخر 4 أرقام فقط من الحساب البنكي. لا ترسل أرقام البطاقات أو الحسابات كاملة ولا كلمات المرور."]
   };
@@ -86,7 +89,8 @@
 
   function header(backTo) {
     return '<header class="ap-top">' + (backTo ? '<button class="ap-round" type="button" data-go="' + backTo + '" aria-label="' + tx("back") + '">' + I.back + "</button>" : '<span class="ap-logo" role="img" aria-label="Al Insania"></span>') +
-      '<div class="ap-brand"><b>' + tx("title") + "</b><small>" + tx("org") + '</small></div><button class="ap-round" type="button" id="aplang" aria-label="Language">' + I.globe + "</button></header>";
+      '<div class="ap-brand"><b>' + tx("title") + "</b><small>" + tx("org") + "</small>" + (st.partner ? '<small class="ap-partner">' + (st.partner.logo ? '<img src="' + esc(st.partner.logo) + '" alt="">' : "") + esc(tx("for_partner", { p: lang === "ar" && st.partner.name_ar ? st.partner.name_ar : st.partner.name_en })) + "</small>" : "") +
+      '</div><button class="ap-round" type="button" id="aplang" aria-label="Language">' + I.globe + "</button></header>";
   }
   function control(f) {
     var id = "a_" + f.k, v = st.values[f.k] || "", dir = f.dir ? ' dir="' + f.dir + '"' : "", inp;
@@ -104,7 +108,7 @@
   /* ---- views ---- */
   function render() {
     var v = st.view, html = "";
-    if (!st.open) html = header() + '<section class="ap-card ap-center"><h1>' + tx("closed") + "</h1></section>";
+    if (!st.open) html = header() + '<section class="ap-card ap-center"><h1>' + tx(st.reason === "not_setup" || st.reason === "unknown" ? "notopen" : "closed") + "</h1>" + (st.reason === "unknown" ? '<p class="ap-sub">' + tx("notopen_sub") + "</p>" : "") + "</section>";
     else if (v === "choose") {
       html = header() + '<section class="ap-hero"><h1>' + tx("title") + "</h1><p>" + tx("intro") + "</p></section>" +
         '<button class="ap-option" type="button" data-start="form"><span class="ap-oi">' + I.edit + '</span><span class="grow"><b>' + tx("o1") + "</b><small>" + tx("o1s") + '</small></span><span class="ap-chev">' + I.chev + "</span></button>" +
@@ -275,11 +279,13 @@
     SLOTS.forEach(function (x) { if (x[0] !== "photos") st[x[0]].forEach(function (p) { fd.append("documents[]", p.file); fd.append("document_types[]", x[0].slice(2)); }); });   // each paper with its name
     st.docs.forEach(function (p) { fd.append("documents[]", p.file); fd.append("document_types[]", "other"); });
     btn.disabled = true; btn.textContent = tx("sending");
+    if (PARTNER) fd.append("partner", PARTNER);
     fetch(API + "public/apply", { method: "POST", headers: { Accept: "application/json" }, body: fd, credentials: "omit" }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { r: r, j: j }; }); }).then(function (x) {
       btn.disabled = false; btn.textContent = tx("send");
       if (x.r.ok) { st.ref = (x.j.data && x.j.data.reference) || ""; st.values = {}; st.fromDoc = {}; st.photos = []; st.docs = []; SLOTS.forEach(function (x) { st[x[0]] = []; }); try { sessionStorage.removeItem(DRAFT); } catch (e) {} st.view = "done"; render(); toTop(); return; }
       if (x.r.status === 429) { er.textContent = tx("busy"); return; }
       if (x.r.status === 503) { er.textContent = tx("closed"); return; }
+      if (x.r.status === 404 && x.j && x.j.code === "NOT_OPEN") { st.open = false; st.reason = "not_setup"; render(); toTop(); return; }
       if (x.r.status === 413) {   // too large for the server: take them where a picture can be removed
         if (st.docs.length) { st.view = "upload"; render(); toTop(); ocrStatus('<p class="err" role="alert">' + tx("too_big") + "</p>"); }
         else { st.view = "wizard"; st.step = all.length - 1; render(); toTop(); var se = document.getElementById("a_stepErr"); if (se) se.textContent = tx("too_big"); }
@@ -296,8 +302,8 @@
   }
 
   /* ---- start ---- */
-  fetch(API + "public/apply", { headers: { Accept: "application/json" }, credentials: "omit" }).then(function (r) { return r.json(); }).then(function (j) {
-    if (j.data) { st.open = j.data.open !== false; st.maxP = j.data.max_photos || 2; st.maxD = (j.data.max_documents || 10) - 5; }
+  fetch(API + "public/apply" + (PARTNER ? "?partner=" + PARTNER : ""), { headers: { Accept: "application/json" }, credentials: "omit" }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j.data) { st.open = j.data.open !== false; st.reason = j.data.reason || ""; st.partner = j.data.partner || null; st.maxP = j.data.max_photos || 2; st.maxD = (j.data.max_documents || 10) - 5; }
     render();
   }, function () { render(); });
 })();

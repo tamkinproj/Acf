@@ -26,6 +26,27 @@ class Kernel extends HttpKernel
     ];
 
     /**
+     * The order route middleware run in. PartnerScope must run after sign-in and before route-model binding,
+     * so that a record of another partner is never found.
+     *
+     * @var array<int, class-string|string>
+     */
+    protected $middlewarePriority = [
+        \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
+        \Illuminate\Cookie\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+        \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class,
+        \Illuminate\Contracts\Session\Middleware\AuthenticatesSessions::class,
+        \App\Http\Middleware\PartnerScope::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        \Illuminate\Auth\Middleware\Authorize::class,
+    ];
+
+    /**
      * The application's route middleware groups.
      *
      * @var array<string, array<int, class-string|string>>
@@ -63,6 +84,7 @@ class Kernel extends HttpKernel
         'idempotent' => \App\Http\Middleware\Idempotent::class,
         'block.uploads' => \App\Http\Middleware\BlockUnsafeUploads::class,
         'work.track' => \App\Http\Middleware\TrackWorkActivity::class,
+        'partner' => \App\Http\Middleware\PartnerScope::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,

@@ -1,5 +1,6 @@
 /* Talks to the ACF system for the popup and the portal page. The sign-in token stays here, in the extension's own storage. */
 const DEFAULT_BASE = "https://alinsania.com";
+const PARTNER = "dar_al_ber";
 const S = { get: (k) => chrome.storage.local.get(k), set: (o) => chrome.storage.local.set(o), del: (k) => chrome.storage.local.remove(k) };
 const apiUrl = (base) => String(base || DEFAULT_BASE).replace(/\/+$/, "") + "/server/api/";
 
@@ -11,6 +12,7 @@ async function call(path, opt) {
   const h = { Accept: "application/json" };
   if (s.token && !login) h.Authorization = "Bearer " + s.token;
   if (s.device) h["X-Device-Token"] = s.device;
+  h["X-Partner"] = PARTNER;   // this extension fills the Dar Al Ber portal, so it works in Dar Al Ber's records
   if (opt.body) h["Content-Type"] = "application/json";
   let r;
   try { r = await fetch(apiUrl(s.base) + path, { method: opt.method || "GET", headers: h, body: opt.body ? JSON.stringify(opt.body) : undefined }); }

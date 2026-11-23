@@ -12,6 +12,7 @@
       trust_login: "Trust this device", trust_hint: "On a phone or computer only you use: no request limits, so it does not run into \"too many requests\". Turn it off in Settings any time.", login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
       login_err: "Enter your email or username, and your password.", login_fail: "Wrong email, username or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a few minutes and try again.",
+      n_partners: "Partners", pt_working: "Working in", pt_paused: "Paused", pt_paused_note: "{n} is paused. Its orphans, applications and education cannot be used until the President Admin resumes it.", pt_paused_pres: "{n} is paused. You can look, but nothing can be changed until you resume it.",
       n_f_office: "Office", n_f_staff: "Staff", n_f_money: "Money and projects", n_f_system: "System", n_home: "Home", n_edu: "Education", notif_title: "Notifications", notif_new: "New notification", login_id: "Email or username", un_title: "Username", un_hint: "Used to sign in, next to your email. 3 to 30 letters, digits, dots, hyphens or underscores.", un_saved: "Username saved", prof_title: "My profile", prof_photo: "Change photo", prof_remove: "Remove photo", prof_saved: "Photo saved", prof_removed: "Photo removed", prof_username: "Username", prof_change: "Change username", prof_bad: "Choose a JPG, PNG or WebP photo.", fold_open: "Open", fold_open_profile: "Open profile", n_chat: "Chat", chat_general: "General", chat_new: "New chat", chat_share: "Share to chat", chat_send: "Send", chat_attach: "Attach a card", chat_type: "Write a message…", chat_pick_chat: "Send to…", chat_people: "Start a chat with", chat_shared: "Shared in chat", chat_empty: "No messages yet. Say hello.", chat_nolist: "No one else is in the office chat yet.", chat_cant: "{n} people in this chat cannot open it. They will see only the kind of card.", chat_cant_one: "{names} cannot open it and will see only the kind of card.", chat_sendany: "Send anyway", chat_noaccess: "You do not have access to this.", chat_gone: "No longer available.", chat_offline: "Chat needs an internet connection.", chat_pick_kind: "What do you want to attach?", chat_pick_item: "Choose one", chat_search: "Search", chat_today: "Today", chat_yesterday: "Yesterday", chat_you: "You", chat_none_item: "Nothing to choose.", chat_open: "Open", k_child: "Orphan", k_application: "Application", k_project: "Project", k_payment: "Payment", k_user: "Account", k_report: "Report", k_site: "Landing page", n_people: "Orphans", n_apps: "Applications", set_sync_short: "Offline and sync", n_pay: "Payments", n_proj: "Projects", n_rep: "Reports", n_set: "Settings", n_users: "Accounts", n_audit: "Activity", n_system: "System", n_updates: "Updates", n_website: "Website", n_more: "More", n_dept: "Departments", n_att: "Attendance", n_work: "Work tracker", wz_step: "Step {n} of {m}", wz_next: "Next", wz_back: "Back", wz_cancel: "Cancel", wz_bad_email: "Enter a valid email address.", n_family: "My family",
       loading: "Loading…", none: "No matches.", back: "Back", cancel: "Cancel", save: "Save", required: "This field is required.", lang_btn: "العربية", signout: "Sign out",
       noaccess: "Your role does not include this page.", per_month: "per month",
@@ -26,6 +27,7 @@
       trust_login: "الوثوق بهذا الجهاز", trust_hint: "لهاتف أو حاسوب تستخدمه وحدك: دون حدود للطلبات، فلا تظهر رسالة «طلبات كثيرة». يمكنك إيقافه من الإعدادات في أي وقت.", login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
       login_err: "أدخل بريدك أو اسم المستخدم وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر بضع دقائق ثم حاول مجددًا.",
+      n_partners: "الشركاء", pt_working: "تعمل مع", pt_paused: "متوقف مؤقتًا", pt_paused_note: "{n} متوقف مؤقتًا. لا يمكن استخدام أيتامه وطلباته وتعليمه حتى يستأنفه رئيس الإدارة.", pt_paused_pres: "{n} متوقف مؤقتًا. يمكنك الاطلاع فقط، ولا يمكن تغيير شيء حتى تستأنفه.",
       n_f_office: "المكتب", n_f_staff: "الموظفون", n_f_money: "المال والمشاريع", n_f_system: "النظام", n_home: "الرئيسية", n_edu: "التعليم", notif_title: "الإشعارات", notif_new: "إشعار جديد", login_id: "البريد أو اسم المستخدم", un_title: "اسم المستخدم", un_hint: "يُستخدم لتسجيل الدخول بجانب بريدك. من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة.", un_saved: "تم حفظ اسم المستخدم", prof_title: "ملفي الشخصي", prof_photo: "تغيير الصورة", prof_remove: "إزالة الصورة", prof_saved: "تم حفظ الصورة", prof_removed: "تمت إزالة الصورة", prof_username: "اسم المستخدم", prof_change: "تغيير اسم المستخدم", prof_bad: "اختر صورة JPG أو PNG أو WebP.", fold_open: "فتح", fold_open_profile: "فتح الملف", n_chat: "المحادثات", chat_general: "العام", chat_new: "محادثة جديدة", chat_share: "مشاركة في المحادثة", chat_send: "إرسال", chat_attach: "إرفاق بطاقة", chat_type: "اكتب رسالة…", chat_pick_chat: "أرسل إلى…", chat_people: "ابدأ محادثة مع", chat_shared: "تمت المشاركة في المحادثة", chat_empty: "لا رسائل بعد. ابدأ بالسلام.", chat_nolist: "لا أحد آخر في محادثة المكتب بعد.", chat_cant: "{n} أشخاص في هذه المحادثة لا يستطيعون فتحها. سيرون نوع البطاقة فقط.", chat_cant_one: "{names} لا يستطيع فتحها وسيرى نوع البطاقة فقط.", chat_sendany: "أرسل على أي حال", chat_noaccess: "ليس لديك صلاحية لهذا.", chat_gone: "لم تعد متاحة.", chat_offline: "المحادثة تحتاج إلى اتصال بالإنترنت.", chat_pick_kind: "ماذا تريد أن ترفق؟", chat_pick_item: "اختر واحدًا", chat_search: "بحث", chat_today: "اليوم", chat_yesterday: "أمس", chat_you: "أنت", chat_none_item: "لا شيء للاختيار.", chat_open: "فتح", k_child: "يتيم", k_application: "طلب", k_project: "مشروع", k_payment: "دفعة", k_user: "حساب", k_report: "تقرير", k_site: "الصفحة الرئيسية للموقع", n_people: "الأيتام", n_apps: "الطلبات", set_sync_short: "العمل دون اتصال والمزامنة", n_pay: "المدفوعات", n_proj: "المشاريع", n_rep: "التقارير", n_set: "الإعدادات", n_users: "الحسابات", n_audit: "النشاط", n_system: "النظام", n_updates: "التحديثات", n_website: "الموقع", n_more: "المزيد", n_dept: "الأقسام", n_att: "الحضور", n_work: "متابعة العمل", wz_step: "الخطوة {n} من {m}", wz_next: "التالي", wz_back: "السابق", wz_cancel: "إلغاء", wz_bad_email: "أدخل بريدًا إلكترونيًا صحيحًا.", n_family: "عائلتي",
       loading: "جارٍ التحميل…", none: "لا نتائج.", back: "رجوع", cancel: "إلغاء", save: "حفظ", required: "هذا الحقل مطلوب.", lang_btn: "English", signout: "تسجيل الخروج",
       noaccess: "دورك لا يشمل هذه الصفحة.", per_month: "شهريًا",
@@ -122,7 +124,7 @@
     ["dashboard", "dashboard.html", "n_home", null, "grid"], ["chat", "chat.html", "n_chat", "chat.use", "chat"], ["departments", "departments.html", "n_dept", "children.view|education.view", "folder"], ["attendance", "attendance.html", "n_att", "attendance.clock|attendance.manage", "clock"], ["work", "work.html", "n_work", "work.view", "pulse"],
     ["applications", "applications.html", "n_apps", "applications.review", "file"], ["payments", "payments.html", "n_pay", "payments.view", "wallet"], ["projects", "projects.html", "n_proj", "projects.view", "folder"], ["website", "website.html", "n_website", "site.edit", "globe"],
     ["reports", "reports.html", "n_rep", "reports.view", "file"], ["family", "family.html", "n_family", "family.view_own", "users"],
-    ["users", "users.html", "n_users", "users.manage", "shield"], ["audit", "audit.html", "n_audit", "audit.read", "file"],
+    ["users", "users.html", "n_users", "users.manage", "shield"], ["partners", "partners.html", "n_partners", "partners.manage", "share"], ["audit", "audit.html", "n_audit", "audit.read", "file"],
     ["system", "system.html", "n_system", "system.health", "sliders"], ["updates", "updates.html", "n_updates", "system.updates", "download"], ["settings", "settings.html", "n_set", null, "sliders"]
   ];
   function allowed() { return MENU.filter(function (m) { return !m[3] || m[3].split("|").some(can); }); }
@@ -141,7 +143,7 @@
   function bellDot() { var st = API.state(); return st.failed > 0 || st.waiting > 0 || st.expired; }
   function shell() {
     var cur = (spec.nav === "people" || spec.nav === "education") ? "departments" : spec.nav, items = allowed();
-    var PRI = ["dashboard", "departments", "attendance", "work", "applications", "payments", "website", "projects", "users", "system", "updates", "audit", "family", "reports", "settings"];
+    var PRI = ["dashboard", "departments", "partners", "attendance", "work", "applications", "payments", "website", "projects", "users", "system", "updates", "audit", "family", "reports", "settings"];
     var sorted = items.slice().sort(function (a, b) { return PRI.indexOf(a[0]) - PRI.indexOf(b[0]); });
     /* the top bar keeps only three core places (Home first); everything else, Chat and Education included, sits under More */
     var find = function (k) { return sorted.filter(function (x) { return x[0] === k; })[0]; }, core = [], FILL = ["departments", "payments", "applications", "projects", "system", "updates", "audit", "reports", "website", "family"];
@@ -172,7 +174,7 @@
     var act = $(".mo-tabs a.active"); if (act && act.scrollIntoView && window.innerWidth < 1024) { try { act.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {} }
   }
   /* The left rail keeps Home and Chat on their own and gathers the rest into folders that open and close; a folder with one page shows that page alone. */
-  var RAIL = [["office", "n_f_office", "folder", ["departments", "applications", "reports", "family"]], ["staff", "n_f_staff", "users", ["attendance", "work", "users"]],
+  var RAIL = [["office", "n_f_office", "folder", ["departments", "partners", "applications", "reports", "family"]], ["staff", "n_f_staff", "users", ["attendance", "work", "users"]],
     ["money", "n_f_money", "wallet", ["payments", "projects"]], ["system", "n_f_system", "sliders", ["website", "audit", "system", "updates"]]];
   function railState() { try { return JSON.parse(localStorage.getItem("acf_rail") || "{}") || {}; } catch (e) { return {}; } }
   function railHtml(main, cur) {
@@ -220,13 +222,36 @@
     return '<div class="sk" role="status" aria-busy="true"><span class="sr">' + esc(t("loading")) + "</span>" + head + body + "</div>";
   }
 
+  /* ---- the partner the app works in (Dar Al Ber Society, ...): orphans, applications and education belong to one ---- */
+  var PARTNER_NAV = { people: 1, education: 1, applications: 1 };
+  function partnerInfo() { try { return JSON.parse(localStorage.getItem("acf_partner_info") || "null"); } catch (e) { return null; } }
+  /* keep the chosen partner while it works; a paused one gives way to a working one; with none working, the paused one stays (and says so) */
+  function choosePartner(list, want) {
+    var by = function (c) { return list.filter(function (p) { return p.code === c; })[0]; }, cur = by(want), active = list.filter(function (p) { return p.status === "active"; });
+    var pick = (cur && cur.status === "active" ? cur : null) || active[0] || (cur && cur.status === "paused" ? cur : null) || by("dar_al_ber") || null;
+    if (pick) { API.setPartner(pick.code); try { localStorage.setItem("acf_partner_info", JSON.stringify(pick)); } catch (e) {} }
+    return pick;
+  }
+  function refreshPartners() { return API.get("partners", { cache: false }).then(function (r) { var list = r.data || []; choosePartner(list, API.partner()); return list; }); }
+  function partnerName(p) { return lang === "ar" && p.name_ar ? p.name_ar : p.name_en; }
+  function partnerLogo(p, cls) {
+    return p.logo ? '<span class="' + (cls || "pchip-logo") + '" style="background-image:url(&quot;' + esc(p.logo) + '&quot;)" role="img" aria-label="' + esc(partnerName(p)) + '"></span>'
+      : '<span class="' + (cls || "pchip-logo") + ' ini" aria-hidden="true">' + esc(p.name_en.replace(/[^A-Z]/g, "").slice(0, 3)) + "</span>";
+  }
+  function partnerChip() {
+    var p = partnerInfo(); if (!p) return "";
+    var paused = p.status === "paused";
+    return '<div class="pchip-wrap"><a class="pchip" href="departments.html">' + partnerLogo(p) + '<span class="pchip-t"><small>' + t("pt_working") + "</small><b>" + esc(partnerName(p)) + "</b></span>" + (paused ? '<span class="badge warn">' + t("pt_paused") + "</span>" : "") + "</a>" +
+      (paused ? '<p class="banner warn">' + esc(t(can("partners.manage") ? "pt_paused_pres" : "pt_paused_note", { n: partnerName(p) })) + "</p>" : "") + "</div>";
+  }
   function paint() {
     chrome();
     if (!spec.render) return;
     var v = $("#view");
-    if (state && state.error) { v.innerHTML = '<p class="note">' + esc(state.error) + '</p><div class="actions"><button class="btn btn-line" data-act="reload">' + t("retry") + "</button></div>"; return; }
+    var chip = PARTNER_NAV[spec.nav] ? partnerChip() : "";
+    if (state && state.error) { v.innerHTML = chip + '<p class="note">' + esc(state.error) + '</p><div class="actions"><button class="btn btn-line" data-act="reload">' + t("retry") + "</button></div>"; return; }
     if (!state || state.loading) { v.innerHTML = skeleton(spec.skel || SKEL[spec.page] || "list"); return; }
-    v.innerHTML = (state.stale ? '<p class="banner">' + ic("cloud") + t("stale") + "</p>" : "") + spec.render(state.data, state);
+    v.innerHTML = chip + (state.stale ? '<p class="banner">' + ic("cloud") + t("stale") + "</p>" : "") + spec.render(state.data, state);
     if (spec.after) spec.after(state.data, state);
     focusFromUrl();
   }
@@ -532,6 +557,7 @@
     t: t, strings: strings, esc: esc, ic: ic, name: name, money: money, facts: facts, months: months, monthLabel: monthLabel, toast: toast, msg: msg,
     can: can, user: user, api: API, avatar: avatarHtml, shrinkImage: shrinkImage, fold: fold, shareBtn: shareBtn, setUnread: setUnread, kindPerm: KIND_PERM, ui: UI, saveUI: saveUI, sheet: sheet, closeSheet: closeSheet, field: field, formEnd: formEnd, showErrors: showErrors,
     act: act, form: form, lang: function () { return lang; }, paint: paint, reload: function (q) { load(q); }, $: $, CUR: CUR,
+    partners: { refresh: refreshPartners, choose: choosePartner, info: partnerInfo, chip: partnerChip, name: partnerName, logo: partnerLogo },
     start: function (s) {
       spec = s;
       var holder = document.createElement("div"); holder.innerHTML = SPRITE; document.body.insertBefore(holder.firstChild, document.body.firstChild);
@@ -545,7 +571,11 @@
       if (s.page === "welcome") { if (!mustChange) { location.replace("dashboard.html"); return; } chrome(); if (s.after) s.after(); return; }
       if (mustChange) { location.replace("welcome.html"); return; }
       if (s.perm && !can(s.perm)) { chrome(); $("#view").innerHTML = '<p class="note">' + t("noaccess") + "</p>"; return; }
-      load();
+      if (PARTNER_NAV[s.nav]) {
+        // the partner must be known before its records are asked for; later changes (a pause) show on the next page
+        if (!partnerInfo() && navigator.onLine !== false) refreshPartners().then(function () { load(); }, function () { load(); });
+        else { load(); if (navigator.onLine !== false) refreshPartners().then(function () { var c = document.querySelector(".pchip-wrap"); if (c) c.outerHTML = partnerChip(); }, function () {}); }
+      } else load();
       if (s.shell && !s.bare) { pollUnread(); pollNotices(); }
       var before = JSON.stringify((user() || {}).permissions || []);
       API.refreshMe().then(function (u) {

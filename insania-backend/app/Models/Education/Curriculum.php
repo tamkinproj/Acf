@@ -4,6 +4,8 @@ namespace App\Models\Education;
 
 class Curriculum extends Edu
 {
+    use \App\Models\Concerns\BelongsToPartner;
+
     protected $table = 'edu_curricula';
 
     public function units()

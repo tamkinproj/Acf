@@ -9,6 +9,7 @@ use App\Models\Foundation;
 use App\Support\ApiResponse;
 use App\Support\Audit;
 use App\Support\NameParts;
+use App\Support\Partners;
 use App\Support\OrphanFields;
 use App\Support\PrivateImages;
 use Illuminate\Http\Request;
@@ -21,15 +22,45 @@ use Illuminate\Support\Facades\Storage;
  */
 class PublicApplyController extends Controller
 {
-    public function status()
+    /**
+     * Each partner has its own application link (apply.html?partner=dar_al_ber). A link without a partner is Dar Al Ber's,
+     * so the links already sent to families keep working.
+     * @return array{0: ?\App\Models\Partner, 1: string} the partner and why the form is closed ('' when open)
+     */
+    private function partner(Request $request, ?Foundation $foundation): array
     {
-        return ApiResponse::ok(['open' => (bool) config('features.public_apply') && Foundation::primary() !== null, 'max_photos' => (int) config('orphan_fields.photos.max_files'), 'max_documents' => (int) config('orphan_fields.documents.max_files')]);
+        if (! config('features.public_apply') || ! $foundation) {
+            return [null, 'closed'];
+        }
+        $code = trim((string) $request->input('partner', '')) ?: Partners::DEFAULT;
+        $p = preg_match('/^[a-z0-9_]{2,40}$/', $code) ? Partners::byCode($foundation->id, $code) : null;
+        if (! $p) {
+            return [null, 'unknown'];
+        }
+
+        return [$p, $p->status === 'active' ? '' : ($p->status === 'paused' ? 'paused' : 'not_setup')];
+    }
+
+    public function status(Request $request)
+    {
+        [$p, $why] = $this->partner($request, Foundation::primary());
+
+        return ApiResponse::ok([
+            'open' => $why === '', 'reason' => $why ?: null,
+            'partner' => $p ? ['code' => $p->code, 'name_en' => $p->name_en, 'name_ar' => $p->name_ar, 'logo' => $p->logo] : null,
+            'max_photos' => (int) config('orphan_fields.photos.max_files'), 'max_documents' => (int) config('orphan_fields.documents.max_files'),
+        ]);
     }
 
     public function store(Request $request)
     {
-        if (! config('features.public_apply') || ! ($foundation = Foundation::primary())) {
+        $foundation = Foundation::primary();
+        [$partner, $why] = $this->partner($request, $foundation);
+        if ($why === 'closed' || $why === 'paused') {
             return ApiResponse::error('CLOSED', 'The application form is closed for now.', 503);
+        }
+        if ($why === 'not_setup' || $why === 'unknown') {
+            return ApiResponse::error('NOT_OPEN', 'This application form is not open yet.', 404);
         }
         if ($request->filled('website')) {                       // the hidden field: a robot filled it in. Pretend it worked.
             return ApiResponse::created(['reference' => 'APP-00000']);
@@ -48,6 +79,7 @@ class PublicApplyController extends Controller
             'document_types' => ['nullable', 'array'],
             'document_types.*' => ['nullable', 'in:'.implode(',', array_merge(Child::DOCUMENT_TYPES, ['other']))],
             'method' => ['nullable', 'in:form,documents'],
+            'partner' => ['nullable', 'string', 'max:40'],
         ];
         $rules['birth_date'] = ['required', 'date', 'before:today', 'after:1990-01-01'];
         $rules['gender'] = ['required', 'in:m,f'];
@@ -57,9 +89,9 @@ class PublicApplyController extends Controller
         $rules['name_ar'] = ['required_without:name_en', 'nullable', 'string', 'max:150'];
         $data = $request->validate($rules);
 
-        $answers = collect($data)->except(['photos', 'documents', 'document_types', 'method'])->filter(fn ($v) => $v !== null && $v !== '')->all();
+        $answers = collect($data)->except(['photos', 'documents', 'document_types', 'method', 'partner'])->filter(fn ($v) => $v !== null && $v !== '')->all();
         $app = ChildApplication::withoutGlobalScopes()->create([
-            'foundation_id' => $foundation->id, 'status' => 'new', 'data' => $answers, 'photos' => [], 'documents' => [], 'method' => $data['method'] ?? 'form',
+            'foundation_id' => $foundation->id, 'partner_id' => $partner->id, 'status' => 'new', 'data' => $answers, 'photos' => [], 'documents' => [], 'method' => $data['method'] ?? 'form',
             'ip_hash' => hash('sha256', $request->ip().'|'.config('app.key')),
         ]);
 

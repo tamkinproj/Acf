@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToFoundation;
+use App\Models\Concerns\BelongsToPartner;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Child extends Model
 {
-    use BelongsToFoundation;
+    use BelongsToFoundation, BelongsToPartner;
 
     public const DOCUMENT_TYPES = ['birth_certificate', 'father_death_certificate', 'school_record', 'guardian_id', 'case_study'];
 
@@ -17,7 +18,7 @@ class Child extends Model
         static::saving(fn (Child $c) => \App\Support\NameParts::sync($c));
     }
 
-    protected $fillable = ['foundation_id', 'ref', 'guardian_id', 'status', 'form_submitted_at', 'is_sample'];
+    protected $fillable = ['foundation_id', 'partner_id', 'ref', 'guardian_id', 'status', 'form_submitted_at', 'is_sample'];
 
     protected $casts = [
         'birth_date' => 'date:Y-m-d', 'father_death_date' => 'date:Y-m-d', 'responsible_since' => 'date:Y-m-d', 'expected_send_date' => 'date:Y-m-d',

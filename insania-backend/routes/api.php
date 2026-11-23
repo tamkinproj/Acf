@@ -62,6 +62,10 @@ Route::middleware('api.json')->group(function () {
             Route::patch('system/cloudflare/rules/{rule}', [\App\Http\Controllers\Api\CloudflareController::class, 'rule'])->middleware('throttle:30,1');
             Route::delete('system/cloudflare', [\App\Http\Controllers\Api\CloudflareController::class, 'disconnect']);
         });
+        // Partners: everyone sees the list; only the President Admin pauses or resumes one (there is no delete)
+        Route::get('partners', [\App\Http\Controllers\Api\PartnersController::class, 'index']);
+        Route::post('partners/{code}/pause', [\App\Http\Controllers\Api\PartnersController::class, 'pause'])->middleware(['permission:partners.manage', 'throttle:10,1'])->where('code', '[a-z0-9_]+');
+        Route::post('partners/{code}/resume', [\App\Http\Controllers\Api\PartnersController::class, 'resume'])->middleware(['permission:partners.manage', 'throttle:10,1'])->where('code', '[a-z0-9_]+');
         Route::get('system/health', [SystemController::class, 'health'])->middleware('permission:system.health');
         Route::get('system/settings', [SystemController::class, 'settings'])->middleware('permission:system.settings');
         Route::get('system/limits', [SystemController::class, 'limits'])->middleware('permission:system.settings');
@@ -95,7 +99,7 @@ Route::middleware('api.json')->group(function () {
         Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.read');
 
         // Education: Alimni teachers (contracts, salaries), the madrasa and partner markaz, and the curriculum
-        Route::prefix('edu')->group(function () {
+        Route::prefix('edu')->middleware('partner')->group(function () {
             $c = \App\Http\Controllers\Api\EducationController::class;
             Route::middleware('permission:education.view')->group(function () use ($c) {
                 Route::get('summary', [$c, 'summary']);
@@ -185,7 +189,7 @@ Route::middleware('api.json')->group(function () {
         });
 
         // Applications from the public form (Aytam staff)
-        Route::middleware('permission:applications.review')->group(function () {
+        Route::middleware(['partner', 'permission:applications.review'])->group(function () {
             Route::get('applications', [\App\Http\Controllers\Api\ApplicationController::class, 'index']);
             Route::get('applications/{application}', [\App\Http\Controllers\Api\ApplicationController::class, 'show']);
             Route::get('applications/{application}/photos/{n}', [\App\Http\Controllers\Api\ApplicationController::class, 'photo'])->whereNumber('n');
@@ -193,24 +197,26 @@ Route::middleware('api.json')->group(function () {
             Route::post('applications/{application}/reject', [\App\Http\Controllers\Api\ApplicationController::class, 'reject']);
         });
 
-        // Office: children (Aytam)
-        Route::get('children', [ChildController::class, 'index'])->middleware('permission:children.view');
-        Route::delete('children/samples', [ChildController::class, 'removeSamples'])->middleware('permission:children.update');
-        Route::get('children/accounts', [\App\Http\Controllers\Api\OrphanAccountController::class, 'summary'])->middleware('permission:orphans.accounts');
-        Route::get('children/{child}', [ChildController::class, 'show'])->middleware('permission:children.view');
-        Route::get('children/{child}/photos/{photo}', [ChildController::class, 'photo'])->middleware('permission:children.view')->whereNumber('photo');
-        Route::post('children/{child}/photos', [ChildController::class, 'addPhoto'])->middleware(['permission:children.update', 'block.uploads']);
-        Route::delete('children/{child}/photos/{photo}', [ChildController::class, 'removePhoto'])->middleware('permission:children.update')->whereNumber('photo');
-        Route::get('applications/{application}/documents/{n}', [\App\Http\Controllers\Api\ApplicationController::class, 'document'])->middleware('permission:applications.review')->whereNumber('n');
-        Route::post('children/accounts', [\App\Http\Controllers\Api\OrphanAccountController::class, 'store'])->middleware(['permission:orphans.accounts', 'throttle:60,1']);
-        Route::post('children/{child}/account', [\App\Http\Controllers\Api\OrphanAccountController::class, 'reset'])->middleware(['permission:orphans.accounts', 'throttle:30,1']);
-        Route::post('children/import', [\App\Http\Controllers\Api\ChildImportController::class, 'store'])->middleware(['permission:children.create', 'block.uploads', 'throttle:20,1']);
-        Route::post('children', [ChildController::class, 'store'])->middleware('permission:children.create');
-        Route::patch('children/{child}', [ChildController::class, 'update'])->middleware('permission:children.update');
-        Route::put('children/{child}/bank/verification', [BankVerificationController::class, 'update'])->middleware('permission:bank.verify');
-        Route::get('children/{child}/documents', [ChildDocumentController::class, 'index'])->middleware('permission:documents.view');
-        Route::get('children/{child}/documents/{type}/download', [ChildDocumentController::class, 'download'])->middleware('permission:documents.view');
-        Route::post('children/{child}/documents', [ChildDocumentController::class, 'store'])->middleware(['permission:documents.upload', 'block.uploads']);
+        // Office: children (Aytam), inside the partner the app works in
+        Route::middleware('partner')->group(function () {
+            Route::get('children', [ChildController::class, 'index'])->middleware('permission:children.view');
+            Route::delete('children/samples', [ChildController::class, 'removeSamples'])->middleware('permission:children.update');
+            Route::get('children/accounts', [\App\Http\Controllers\Api\OrphanAccountController::class, 'summary'])->middleware('permission:orphans.accounts');
+            Route::get('children/{child}', [ChildController::class, 'show'])->middleware('permission:children.view');
+            Route::get('children/{child}/photos/{photo}', [ChildController::class, 'photo'])->middleware('permission:children.view')->whereNumber('photo');
+            Route::post('children/{child}/photos', [ChildController::class, 'addPhoto'])->middleware(['permission:children.update', 'block.uploads']);
+            Route::delete('children/{child}/photos/{photo}', [ChildController::class, 'removePhoto'])->middleware('permission:children.update')->whereNumber('photo');
+            Route::get('applications/{application}/documents/{n}', [\App\Http\Controllers\Api\ApplicationController::class, 'document'])->middleware('permission:applications.review')->whereNumber('n');
+            Route::post('children/accounts', [\App\Http\Controllers\Api\OrphanAccountController::class, 'store'])->middleware(['permission:orphans.accounts', 'throttle:60,1']);
+            Route::post('children/{child}/account', [\App\Http\Controllers\Api\OrphanAccountController::class, 'reset'])->middleware(['permission:orphans.accounts', 'throttle:30,1']);
+            Route::post('children/import', [\App\Http\Controllers\Api\ChildImportController::class, 'store'])->middleware(['permission:children.create', 'block.uploads', 'throttle:20,1']);
+            Route::post('children', [ChildController::class, 'store'])->middleware('permission:children.create');
+            Route::patch('children/{child}', [ChildController::class, 'update'])->middleware('permission:children.update');
+            Route::put('children/{child}/bank/verification', [BankVerificationController::class, 'update'])->middleware('permission:bank.verify');
+            Route::get('children/{child}/documents', [ChildDocumentController::class, 'index'])->middleware('permission:documents.view');
+            Route::get('children/{child}/documents/{type}/download', [ChildDocumentController::class, 'download'])->middleware('permission:documents.view');
+            Route::post('children/{child}/documents', [ChildDocumentController::class, 'store'])->middleware(['permission:documents.upload', 'block.uploads']);
+        });
 
         // Office: money (Finance)
         Route::get('payments', [PaymentController::class, 'index'])->middleware('permission:payments.view');

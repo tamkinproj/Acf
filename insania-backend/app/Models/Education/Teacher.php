@@ -4,6 +4,8 @@ namespace App\Models\Education;
 
 class Teacher extends Edu
 {
+    use \App\Models\Concerns\BelongsToPartner;
+
     protected $table = 'edu_teachers';
 
     protected $casts = ['hired_on' => 'date'];

@@ -75,7 +75,7 @@ class ApplicationController extends Controller
 
         $child = DB::transaction(function () use ($application, $user) {
             $flat = $application->data + ['status' => 'active'];
-            $child = ChildRecords::create(ChildRecords::fromFlat($flat) + ['status' => 'active', 'form_submitted_at' => $application->created_at], $user->foundation_id);
+            $child = ChildRecords::create(ChildRecords::fromFlat($flat) + ['status' => 'active', 'form_submitted_at' => $application->created_at, 'partner_id' => $application->partner_id], $user->foundation_id);
             foreach ($application->photos ?? [] as $i => $p) {                       // the photos move to the child's own folder
                 $to = "children/{$child->foundation_id}/{$child->id}/photo-".($i + 1).'-'.bin2hex(random_bytes(6)).'.jpg';
                 if (Storage::disk('local')->exists($p['path']) && Storage::disk('local')->copy($p['path'], $to)) {

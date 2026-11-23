@@ -50,6 +50,7 @@ return [
             'education.view', 'education.manage', 'education.salary',
             'chat.use',                         // office chat
             'attendance.clock', 'attendance.manage', 'attendance.salary', 'work.view',
+            'partners.manage',                  // pause and resume partners
         ],
         'staff' => [],
         'user' => ['family.view_own'],

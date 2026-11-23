@@ -40,6 +40,8 @@ class DemoSeeder extends Seeder
             Department::firstOrCreate(['foundation_id' => $f->id, 'key' => $key], ['name_en' => $d['name_en'], 'name_ar' => $d['name_ar']]);
         }
 
+        \App\Support\Partners::ensure($f->id);
+
         $partner = Sponsor::firstOrCreate(['foundation_id' => $f->id, 'name' => 'Dar Al Ber Society'], ['organization' => 'Dar Al Ber Society']);
         Sponsor::firstOrCreate(['foundation_id' => $f->id, 'name' => 'Dubai Charity Association'], ['organization' => 'Dubai Charity Association']);
 

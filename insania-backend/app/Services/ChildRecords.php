@@ -32,7 +32,7 @@ final class ChildRecords
                 'foundation_id' => $foundationId,
                 'ref' => 'TMP-'.Str::random(12),
                 'guardian_id' => $guardian?->id,
-            ] + $columns + array_filter(['status' => $data['status'] ?? null, 'form_submitted_at' => $data['form_submitted_at'] ?? null]));
+            ] + $columns + array_filter(['status' => $data['status'] ?? null, 'form_submitted_at' => $data['form_submitted_at'] ?? null, 'partner_id' => $data['partner_id'] ?? null]));
             $child->update(['ref' => 'ACF-'.str_pad((string) $child->id, 4, '0', STR_PAD_LEFT)]);
 
             $channel = $data['channel'] ?? 'direct';
