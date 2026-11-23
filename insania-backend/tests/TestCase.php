@@ -26,6 +26,9 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // A shared cache (Redis) outlives one test; the in-memory test cache starts empty each time. Start every test clean.
+        \Illuminate\Support\Facades\Cache::flush();
+
         // Every test starts from an "already installed" server, in its own state folder. Installer tests change this.
         $dir = sys_get_temp_dir().'/insania-state-'.bin2hex(random_bytes(6));
         mkdir($dir, 0775, true);

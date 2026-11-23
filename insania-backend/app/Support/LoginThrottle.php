@@ -60,7 +60,8 @@ final class LoginThrottle
         RateLimiter::hit(self::key($request), self::DECAY_SECONDS);
         RateLimiter::hit(self::accountKey($request), SecurityLimits::get('lockout_minutes') * 60);
 
-        return RateLimiter::attempts(self::accountKey($request)) === SecurityLimits::get('lockout_attempts');
+        // (int): a Redis cache hands the count back as text, and "10" === 10 is false
+        return (int) RateLimiter::attempts(self::accountKey($request)) === SecurityLimits::get('lockout_attempts');
     }
 
     public static function clear(object $request): void

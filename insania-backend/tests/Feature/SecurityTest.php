@@ -48,6 +48,8 @@ class SecurityTest extends TestCase
         $this->withServerVariables(['REMOTE_ADDR' => '10.1.0.97'])->postJson('/api/login', ['login' => 'aytam', 'password' => self::PW])->assertOk();
         // and it unlocks by itself
         $this->travel(16)->minutes();
+        // a shared cache (Redis) expires its keys by the real clock, not the test clock: clear it as the 15-minute lock would have ended
+        \Illuminate\Support\Facades\Cache::flush();
         $this->withServerVariables(['REMOTE_ADDR' => '10.1.0.96'])->postJson('/api/login', ['login' => 'finance', 'password' => self::PW])->assertOk();
     }
 
