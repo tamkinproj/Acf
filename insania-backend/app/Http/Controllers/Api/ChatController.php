@@ -33,6 +33,19 @@ class ChatController extends Controller
         return $u->active && PermissionCatalog::allows($u, 'chat.use');
     }
 
+    /** Orphans and families (chat.guest): only in the groups the office adds them to. No General, no private chats, no cards, no new chats. */
+    private function isGuest(User $u): bool
+    {
+        return ! PermissionCatalog::allows($u, 'chat.use') && PermissionCatalog::allows($u, 'chat.guest');
+    }
+
+    /** Orphan and family accounts the office can add to a group. */
+    private function guestPeople(User $me)
+    {
+        return User::where('foundation_id', $me->foundation_id)->where('active', true)->where('role', 'user')->orderBy('name')->get()
+            ->filter(fn (User $u) => PermissionCatalog::allows($u, 'chat.guest'))->values();
+    }
+
     /** May this person change this conversation's name, theme, cover and members? The General group: the President Admin. A group: its maker or the President Admin. */
     private function mayManage(User $u, ChatConversation $c): bool
     {
@@ -47,13 +60,21 @@ class ChatController extends Controller
 
     private function personOut(User $u): array
     {
-        return ['id' => $u->id, 'name' => $u->name, 'username' => $u->username, 'avatar' => $u->avatar_v, 'role_label' => config("roles.roles.{$u->role}.label"),
-            'department' => $u->department_key ? config("roles.departments.{$u->department_key}.name_en") : null];
+        return ['id' => $u->id, 'name' => $u->name, 'username' => $u->username, 'avatar' => $u->avatar_v, 'role_label' => $this->label($u),
+            'department' => $u->department_key ? config("roles.departments.{$u->department_key}.name_en") : null, 'guest' => $this->isGuest($u)];
+    }
+
+    private function label(User $u): ?string
+    {
+        return $u->role === 'user' ? ($u->child_id ? 'Orphan' : 'Family') : config("roles.roles.{$u->role}.label");
     }
 
     /** May this person read and write this conversation? */
     private function mayUse(User $u, ChatConversation $c): bool
     {
+        if ($this->isGuest($u) && $c->type !== 'group') {
+            return false;   // orphans and families: only their groups
+        }
         if ($c->type === 'general') {
             return true;   // chat.use is already required by the route
         }
@@ -86,6 +107,7 @@ class ChatController extends Controller
         $out = [
             'id' => $m->id, 'user_id' => $m->user_id, 'user' => $m->user?->name, 'mine' => $m->user_id === $viewer->id,
             'av' => $m->user?->avatar_v, 'body' => $m->body, 'at' => $m->created_at?->toIso8601String(), 'card' => null,
+            'guest' => $m->user ? $this->isGuest($m->user) : false,
         ];
         if ($m->card_kind) {
             $out['card'] = ChatCards::describe($viewer, $m->card_kind, $m->card_id, $m->card_extra);
@@ -113,13 +135,16 @@ class ChatController extends Controller
     public function conversations(Request $request)
     {
         $me = $this->me($request);
-        $general = ChatConversation::general($me->foundation_id);
-        $this->memberRow($me, $general);
+        $guest = $this->isGuest($me);
+        $general = $guest ? null : ChatConversation::general($me->foundation_id);
+        if ($general) {
+            $this->memberRow($me, $general);
+        }
 
-        $directs = ChatConversation::whereIn('type', ['direct', 'group'])
+        $directs = ChatConversation::whereIn('type', $guest ? ['group'] : ['direct', 'group'])
             ->whereIn('id', ChatMember::where('user_id', $me->id)->pluck('conversation_id'))->get();
 
-        $rows = collect([$general])->merge($directs)->map(function (ChatConversation $c) use ($me) {
+        $rows = collect($general ? [$general] : [])->merge($directs)->map(function (ChatConversation $c) use ($me) {
             $last = ChatMessage::where('conversation_id', $c->id)->orderByDesc('id')->first();
             $other = null;
             if ($c->type === 'direct') {
@@ -142,20 +167,31 @@ class ChatController extends Controller
     public function unread(Request $request)
     {
         $me = $this->me($request);
-        $ids = ChatConversation::general($me->foundation_id)->id;
-        $conv = ChatConversation::whereIn('type', ['direct', 'group'])->whereIn('id', ChatMember::where('user_id', $me->id)->pluck('conversation_id'))->pluck('id')->push($ids);
+        $guest = $this->isGuest($me);
+        $conv = ChatConversation::whereIn('type', $guest ? ['group'] : ['direct', 'group'])->whereIn('id', ChatMember::where('user_id', $me->id)->pluck('conversation_id'))->pluck('id');
+        if (! $guest) {
+            $conv->push(ChatConversation::general($me->foundation_id)->id);
+        }
         $n = 0;
         foreach ($conv as $cid) {
             $last = (int) ChatMember::where('conversation_id', $cid)->where('user_id', $me->id)->value('last_read_id');
             $n += ChatMessage::where('conversation_id', $cid)->where('id', '>', $last)->where('user_id', '!=', $me->id)->count();
         }
 
-        return ApiResponse::ok(['unread' => $n, 'shareable' => ChatCards::shareable($me)]);
+        return ApiResponse::ok(['unread' => $n, 'shareable' => $guest ? [] : ChatCards::shareable($me), 'guest' => $guest]);
     }
 
     public function people(Request $request)
     {
         $me = $this->me($request);
+        if ($this->isGuest($me)) {
+            return ApiResponse::forbidden();
+        }
+        if ($request->boolean('guests')) {   // orphans and families, for a group
+            return ApiResponse::collection($this->guestPeople($me)->map(fn (User $u) => [
+                'id' => $u->id, 'name' => $u->name, 'username' => $u->username, 'avatar' => $u->avatar_v, 'role_label' => $this->label($u), 'kind' => $u->child_id ? 'orphan' : 'family', 'guest' => true,
+            ])->values());
+        }
 
         return ApiResponse::collection($this->chatPeople($me)->map(fn (User $u) => [
             'id' => $u->id, 'name' => $u->name, 'username' => $u->username, 'avatar' => $u->avatar_v, 'role_label' => config("roles.roles.{$u->role}.label"),
@@ -166,6 +202,9 @@ class ChatController extends Controller
     public function direct(Request $request)
     {
         $me = $this->me($request);
+        if ($this->isGuest($me)) {
+            return ApiResponse::forbidden();   // orphans and families do not start private chats
+        }
         $data = $request->validate(['user_id' => ['required', 'integer']]);
         $other = User::where('foundation_id', $me->foundation_id)->find($data['user_id']);
         if (! $other || $other->id === $me->id || ! $this->canChat($other)) {
@@ -239,7 +278,7 @@ class ChatController extends Controller
             if (! ChatCards::valid($kind)) {
                 return ApiResponse::error('BAD_CARD', 'This cannot be shared.', 422);
             }
-            if (! ChatCards::canOpen($me, $kind)) {
+            if ($this->isGuest($me) || ! ChatCards::canOpen($me, $kind)) {
                 return ApiResponse::forbidden('You can only share what you can open yourself.');
             }
             if (! ChatCards::exists($kind, $id, $extra)) {
@@ -321,13 +360,16 @@ class ChatController extends Controller
     public function createGroup(Request $request)
     {
         $me = $this->me($request);
+        if ($this->isGuest($me)) {
+            return ApiResponse::forbidden();
+        }
         $data = $request->validate([
             'title' => ['required', 'string', 'min:2', 'max:60'],
             'user_ids' => ['required', 'array', 'min:1', 'max:200'],
             'user_ids.*' => ['integer'],
             'theme' => ['nullable', 'in:'.implode(',', self::THEMES)],
         ]);
-        $allowed = $this->chatPeople($me)->pluck('id')->all();
+        $allowed = $this->chatPeople($me)->merge($this->guestPeople($me))->pluck('id')->all();   // staff, orphans and families
         $chosen = array_values(array_intersect(array_map('intval', $data['user_ids']), $allowed));
         if (! $chosen) {
             return ApiResponse::error('VALIDATION_ERROR', 'Choose at least one person for the group.', 422, ['user_ids' => ['Choose at least one person for the group.']]);
@@ -438,7 +480,7 @@ class ChatController extends Controller
             return ApiResponse::forbidden();
         }
         $data = $request->validate(['user_ids' => ['required', 'array', 'min:1', 'max:200'], 'user_ids.*' => ['integer']]);
-        $allowed = $this->chatPeople($me)->pluck('id')->all();
+        $allowed = $this->chatPeople($me)->merge($this->guestPeople($me))->pluck('id')->all();
         $n = 0;
         foreach (array_intersect(array_map('intval', $data['user_ids']), $allowed) as $uid) {
             $m = ChatMember::firstOrCreate(['conversation_id' => $conversation->id, 'user_id' => $uid]);
@@ -472,7 +514,7 @@ class ChatController extends Controller
     public function audience(Request $request, ChatConversation $conversation)
     {
         $me = $this->me($request);
-        if (! $this->mayUse($me, $conversation)) {
+        if ($this->isGuest($me) || ! $this->mayUse($me, $conversation)) {
             return ApiResponse::forbidden();
         }
         $kind = (string) $request->query('kind');

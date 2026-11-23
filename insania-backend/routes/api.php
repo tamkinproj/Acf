@@ -43,6 +43,7 @@ Route::middleware('api.json')->group(function () {
         Route::get('me/sessions', [AuthController::class, 'sessions']);
         Route::get('me/devices', [AuthController::class, 'trustedDevices']);
         Route::post('me/devices', [AuthController::class, 'trustThisDevice'])->middleware('throttle:6,1');
+        Route::post('me/devices/new', [AuthController::class, 'trustNewDevice'])->middleware('throttle:6,1,trust-new');
         Route::delete('me/devices/{id}', [AuthController::class, 'removeTrustedDevice'])->whereNumber('id');
         Route::post('me/sessions/end-others', [AuthController::class, 'endOtherSessions'])->middleware('throttle:10,1');
         Route::delete('me/sessions/{id}', [AuthController::class, 'endSession'])->whereNumber('id');
@@ -180,7 +181,8 @@ Route::middleware('api.json')->group(function () {
         });
 
         // Office chat: the General group and one-to-one chats (President Admin and staff). Cards are links, opened by each person's own access.
-        Route::middleware('permission:chat.use')->group(function () {
+        // orphans and families (chat.guest) take part only in the groups the office adds them to (checked in the controller)
+        Route::middleware('permission:chat.use,chat.guest')->group(function () {
             Route::get('chat/conversations', [\App\Http\Controllers\Api\ChatController::class, 'conversations']);
             Route::get('chat/unread', [\App\Http\Controllers\Api\ChatController::class, 'unread']);
             Route::get('chat/people', [\App\Http\Controllers\Api\ChatController::class, 'people']);

@@ -9,7 +9,7 @@
   var S = {
     en: {
       brand: "Al Insania Charity Foundation", staff: "Staff portal", signin: "Sign in", email: "Email", password: "Password",
-      trust_login: "Trust this device", trust_hint: "On a phone or computer only you use: no request limits, so it does not run into \"too many requests\". Turn it off in Settings any time.", login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
+      remember_me: "Remember me", remember_hint: "Stay signed in on this device, even after closing the app. Leave it off on a shared computer.", pw_show: "Show password", pw_hide: "Hide password", nd_title: "New sign-in on this device", nd_intro: "You just signed in. Check that this is you:", nd_device: "Device", nd_system: "System", nd_browser: "Browser", nd_ip: "Address", nd_time: "Time", nd_q: "Trust this device?", nd_note: "A trusted phone or computer is never slowed down or stopped by the app's security limits, even when the System Admin makes them strict. Trust only a device that only you use. You can stop trusting it in Settings any time.", nd_yes: "Trust this device", nd_no: "Not now", nd_done: "This device is trusted", trust_login: "Trust this device", trust_hint: "On a phone or computer only you use: no request limits, so it does not run into \"too many requests\". Turn it off in Settings any time.", login_hint: "Sign in with your account. After the first sign-in the app also works without internet.",
       login_err: "Enter your email or username, and your password.", login_fail: "Wrong email, username or password.", login_offline: "The first sign-in needs an internet connection.",
       login_expired: "Your session ended. Sign in again; anything not yet sent is kept.", login_busy: "Signing in…", login_locked: "Too many attempts. Wait a few minutes and try again.",
       n_partners: "Partners", n_files: "Files", pt_working: "Working in", pt_paused: "Paused", pt_paused_note: "{n} is paused. Its orphans, applications and education cannot be used until the President Admin resumes it.", pt_paused_pres: "{n} is paused. You can look, but nothing can be changed until you resume it.",
@@ -24,7 +24,7 @@
     },
     ar: {
       brand: "مؤسسة الإنسانية الخيرية", staff: "بوابة الموظفين", signin: "تسجيل الدخول", email: "البريد الإلكتروني", password: "كلمة المرور",
-      trust_login: "الوثوق بهذا الجهاز", trust_hint: "لهاتف أو حاسوب تستخدمه وحدك: دون حدود للطلبات، فلا تظهر رسالة «طلبات كثيرة». يمكنك إيقافه من الإعدادات في أي وقت.", login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
+      remember_me: "تذكرني", remember_hint: "ابقَ مسجّل الدخول على هذا الجهاز حتى بعد إغلاق التطبيق. اتركه مطفأً على حاسوب مشترك.", pw_show: "إظهار كلمة المرور", pw_hide: "إخفاء كلمة المرور", nd_title: "دخول جديد على هذا الجهاز", nd_intro: "سجّلت الدخول للتو. تأكد أن هذا أنت:", nd_device: "الجهاز", nd_system: "النظام", nd_browser: "المتصفح", nd_ip: "العنوان", nd_time: "الوقت", nd_q: "هل تثق بهذا الجهاز؟", nd_note: "الهاتف أو الحاسوب الموثوق لا تُبطئه حدود الأمان في التطبيق ولا توقفه، حتى عندما يشددها مدير النظام. ثق فقط بجهاز تستخدمه وحدك. يمكنك إلغاء الثقة من الإعدادات في أي وقت.", nd_yes: "الوثوق بهذا الجهاز", nd_no: "ليس الآن", nd_done: "هذا الجهاز موثوق", trust_login: "الوثوق بهذا الجهاز", trust_hint: "لهاتف أو حاسوب تستخدمه وحدك: دون حدود للطلبات، فلا تظهر رسالة «طلبات كثيرة». يمكنك إيقافه من الإعدادات في أي وقت.", login_hint: "سجّل الدخول بحسابك. بعد أول تسجيل دخول يعمل التطبيق أيضًا بدون إنترنت.",
       login_err: "أدخل بريدك أو اسم المستخدم وكلمة المرور.", login_fail: "البريد أو كلمة المرور غير صحيحة.", login_offline: "أول تسجيل دخول يحتاج اتصالًا بالإنترنت.",
       login_expired: "انتهت الجلسة. سجّل الدخول من جديد؛ ما لم يُرسل بعد محفوظ.", login_busy: "جارٍ تسجيل الدخول…", login_locked: "محاولات كثيرة. انتظر بضع دقائق ثم حاول مجددًا.",
       n_partners: "الشركاء", n_files: "الملفات", pt_working: "تعمل مع", pt_paused: "متوقف مؤقتًا", pt_paused_note: "{n} متوقف مؤقتًا. لا يمكن استخدام أيتامه وطلباته وتعليمه حتى يستأنفه رئيس الإدارة.", pt_paused_pres: "{n} متوقف مؤقتًا. يمكنك الاطلاع فقط، ولا يمكن تغيير شيء حتى تستأنفه.",
@@ -92,6 +92,8 @@
     '<symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>' +
     '<symbol id="i-back" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>' +
     '<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>' +
+    '<symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>' +
+    '<symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>' +
     '<symbol id="i-box" viewBox="0 0 24 24"><rect x="2.5" y="3.5" width="19" height="5" rx="1.2"/><path d="M4.5 8.5V19a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V8.5"/><path d="M10 12.5h4"/></symbol>' +
     '<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor" stroke="none"/></symbol>' +
     '<symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/></symbol>' +
@@ -128,7 +130,7 @@
   /* ---------------- menus by role ---------------- */
   // [id, page, text key, permission needed (null = everyone), icon]
   var MENU = [
-    ["dashboard", "dashboard.html", "n_home", null, "grid"], ["chat", "chat.html", "n_chat", "chat.use", "chat"], ["departments", "departments.html", "n_dept", "children.view|education.view", "folder"], ["attendance", "attendance.html", "n_att", "attendance.clock|attendance.manage", "clock"], ["work", "work.html", "n_work", "work.view", "pulse"],
+    ["dashboard", "dashboard.html", "n_home", null, "grid"], ["chat", "chat.html", "n_chat", "chat.use|chat.guest", "chat"], ["departments", "departments.html", "n_dept", "children.view|education.view", "folder"], ["attendance", "attendance.html", "n_att", "attendance.clock|attendance.manage", "clock"], ["work", "work.html", "n_work", "work.view", "pulse"],
     ["applications", "applications.html", "n_apps", "applications.review", "file"], ["payments", "payments.html", "n_pay", "payments.view", "wallet"], ["projects", "projects.html", "n_proj", "projects.view", "folder"], ["website", "website.html", "n_website", "site.edit", "globe"],
     ["reports", "reports.html", "n_rep", "reports.view", "file"], ["family", "family.html", "n_family", "family.view_own", "users"],
     ["files", "files.html", "n_files", "files.all", "box"], ["users", "users.html", "n_users", "users.manage", "shield"], ["partners", "partners.html", "n_partners", "partners.manage", "share"], ["audit", "audit.html", "n_audit", "audit.read", "file"],
@@ -382,6 +384,35 @@
     setTimeout(function () { document.addEventListener("click", close); document.addEventListener("keydown", close); }, 0);
   };
   ACTIONS.close = function (el, e) { if (e.target === el || el.tagName === "BUTTON") closeSheet(); };
+  /* the eye beside a password: see what you type, tap again to hide it */
+  ACTIONS.pweye = function (el) {
+    var inp = document.getElementById(el.getAttribute("aria-controls")); if (!inp) return;
+    var show = inp.type === "password"; inp.type = show ? "text" : "password";
+    el.setAttribute("aria-pressed", show ? "true" : "false"); el.setAttribute("aria-label", t(show ? "pw_hide" : "pw_show"));
+    el.innerHTML = ic(show ? "eye-off" : "eye"); inp.focus();
+  };
+
+  /* After signing in on a device that is not trusted: which device it is, and the choice to trust it (asked once; "Not now" is kept for 30 days). */
+  function newDevice() {
+    var raw = null; try { raw = JSON.parse(sessionStorage.getItem("acf_newdev") || "null"); sessionStorage.removeItem("acf_newdev"); } catch (e) {}
+    var u = user(); if (!raw || !u || raw.user !== u.id || API.deviceToken()) return;
+    var skip = 0; try { skip = +localStorage.getItem("acf_trust_skip:" + u.id) || 0; } catch (e) {}
+    if (skip && Date.now() - skip < 30 * 86400000) return;
+    var d = raw.device || {}, country = "";
+    try { country = d.country && window.Intl && Intl.DisplayNames ? new Intl.DisplayNames([lang === "ar" ? "ar" : "en"], { type: "region" }).of(d.country) : (d.country || ""); } catch (e) { country = d.country || ""; }
+    var row = function (icon, k, v) { return v ? '<div class="nd-row"><span class="nd-i">' + ic(icon) + '</span><span class="grow"><small>' + esc(t(k)) + '</small><b dir="auto">' + esc(v) + "</b></span></div>" : ""; };
+    sheet(t("nd_title"), '<p class="note" style="margin-top:0">' + esc(t("nd_intro")) + '</p><div class="nd-list">' +
+      row("phone", "nd_device", d.model || d.name) + row("sliders", "nd_system", d.system) + row("globe", "nd_browser", d.browser) + row("shield", "nd_ip", d.ip ? d.ip + (country ? " · " + country : "") : "") + row("clock", "nd_time", d.at ? dateTime(d.at) : "") +
+      '</div><h4 class="optlbl">' + esc(t("nd_q")) + '</h4><p class="note">' + esc(t("nd_note")) + '</p><div class="err" id="ndErr" role="alert"></div>' +
+      '<div class="actions"><button class="btn btn-main" type="button" data-act="ndyes">' + ic("shield") + " " + esc(t("nd_yes")) + '</button><button class="btn btn-line" type="button" data-act="ndno">' + esc(t("nd_no")) + "</button></div>");
+  }
+  ACTIONS.ndyes = function (el) {
+    el.disabled = true;
+    API.write("POST", "me/devices/new", {}, { online: true }).then(function (r) {
+      var tok = (r.data || r).device_token; if (tok) API.setDeviceToken(tok); closeSheet(); toast(t("nd_done"));
+    }, function (e) { el.disabled = false; var er = $("#ndErr"); if (er) er.textContent = msg(e); });
+  };
+  ACTIONS.ndno = function () { var u = user(); try { if (u) localStorage.setItem("acf_trust_skip:" + u.id, String(Date.now())); } catch (e) {} closeSheet(); };
   ACTIONS.tab = function (el) { UI.tab = el.getAttribute("data-v"); saveUI(); paint(); };
   ACTIONS.month = function (el) { UI.month = el.getAttribute("data-v"); saveUI(); load(); };
   ACTIONS.scope = function (el) { UI.scope = el.getAttribute("data-v"); saveUI(); load(); };
@@ -516,7 +547,7 @@
     var mm = document.querySelector(".mo-more"); if (mm) { var dot = mm.querySelector(".sdot"); if (UNREAD && menuHasChat) { if (!dot) mm.insertAdjacentHTML("beforeend", '<i class="sdot"></i>'); } else if (dot) dot.remove(); }
   }
   function pollUnread() {
-    if (!can("chat.use") || unreadTimer) return;
+    if (!(can("chat.use") || can("chat.guest")) || unreadTimer) return;
     var go = function () { if (document.hidden || navigator.onLine === false) return; API.get("chat/unread", { cache: false }).then(function (r) { UNREAD = r.data.unread || 0; applyBadge(); }, function () {}); };
     go(); unreadTimer = setInterval(go, 45000);
   }
@@ -579,13 +610,14 @@
       var mustChange = !!(user() || {}).must_change_password;
       if (s.page === "welcome") { if (!mustChange) { location.replace("dashboard.html"); return; } chrome(); if (s.after) s.after(); return; }
       if (mustChange) { location.replace("welcome.html"); return; }
-      if (s.perm && !can(s.perm)) { chrome(); $("#view").innerHTML = '<p class="note">' + t("noaccess") + "</p>"; return; }
+      if (s.perm && !s.perm.split("|").some(can)) { chrome(); $("#view").innerHTML = '<p class="note">' + t("noaccess") + "</p>"; return; }
       if (PARTNER_NAV[s.nav]) {
         // the partner must be known before its records are asked for; later changes (a pause) show on the next page
         if (!partnerInfo() && navigator.onLine !== false) refreshPartners().then(function () { load(); }, function () { load(); });
         else { load(); if (navigator.onLine !== false) refreshPartners().then(function () { var c = document.querySelector(".pchip-wrap"); if (c) c.outerHTML = partnerChip(); }, function () {}); }
       } else load();
       if (s.shell && !s.bare) { pollUnread(); pollNotices(); }
+      if (s.shell) setTimeout(newDevice, 600);
       var before = JSON.stringify((user() || {}).permissions || []);
       API.refreshMe().then(function (u) {
         if (u && JSON.stringify(u.permissions || []) !== before) location.reload();

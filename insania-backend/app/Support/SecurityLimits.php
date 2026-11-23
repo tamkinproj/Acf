@@ -26,6 +26,8 @@ final class SecurityLimits
         'idle_minutes_default' => [240, 10, 1440],    // any other sign-in unused this long ends
         'max_hours_privileged' => [8, 1, 24],         // a privileged sign-in never lasts longer than this
         'max_hours_default' => [12, 1, 72],           // any other sign-in never lasts longer than this
+        'remember_days_privileged' => [7, 1, 30],     // "Remember me": a System, Security or President sign-in stays this many days
+        'remember_days' => [30, 1, 90],               // "Remember me": any other sign-in stays this many days
     ];
 
     /** @return array<string, int> */

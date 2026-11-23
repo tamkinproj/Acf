@@ -45,7 +45,7 @@
       var m = MSGS[i], g = [m], j = i + 1;
       if (sep(MSGS[i - 1], m)) out += '<div class="rm-time">' + esc(stamp(m.at)) + "</div>";
       while (j < MSGS.length && MSGS[j].user_id === m.user_id && !sep(MSGS[j - 1], MSGS[j])) { g.push(MSGS[j]); j++; }
-      var grpChat = META && (META.type === "general" || META.type === "group"), dm = grpChat && !m.mine ? ' data-act="dmuser" data-id="' + m.user_id + '" aria-label="' + esc(t("rm_dm", { n: m.user || "" })) + '"' : "";
+      var grpChat = META && (META.type === "general" || META.type === "group"), dm = grpChat && !m.mine && !m.guest && A.can("chat.use") ? ' data-act="dmuser" data-id="' + m.user_id + '" aria-label="' + esc(t("rm_dm", { n: m.user || "" })) + '"' : "";
       out += '<div class="grp ' + (m.mine ? "me" : "you") + '">' + (m.mine ? "" : (dm ? '<button type="button" class="rm-avbtn"' + dm + ">" + A.avatar({ id: m.user_id, name: m.user, avatar: m.av }, "rm-av") + "</button>" : A.avatar({ id: m.user_id, name: m.user, avatar: m.av }, "rm-av"))) +
         '<div class="stack">' + (!m.mine && grpChat ? '<button type="button" class="msg-who"' + dm + ">" + esc(m.user || "") + "</button>" : "") + g.map(one).join("") + "</div></div>";
       i = j;
@@ -405,5 +405,5 @@
   A.room = { open: open, close: close };
   // on a computer a conversation opens in the chat page's right-hand pane
   if (document.body.getAttribute("data-page") === "room" && cid && window.matchMedia && window.matchMedia("(min-width:1024px)").matches) { location.replace("chat.html?c=" + cid); return; }
-  if (document.body.getAttribute("data-page") === "room") A.start({ page: "room", nav: "chat", title: "n_chat", perm: "chat.use", needsConn: true, shell: true, bare: true, load: load, render: render, after: init });
+  if (document.body.getAttribute("data-page") === "room") A.start({ page: "room", nav: "chat", title: "n_chat", perm: "chat.use|chat.guest", needsConn: true, shell: true, bare: true, load: load, render: render, after: init });
 })();

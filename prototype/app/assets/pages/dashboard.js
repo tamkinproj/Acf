@@ -84,7 +84,7 @@
     if (d.work) tiles.push(folderTile("work", "dashboard.html?d=work", t("fo_work", { n: num(d.work.active_now), m: num(d.work.active_today) })));
     if (A.can("site.edit")) tiles.push(folderTile("website", "dashboard.html?d=website", t("fo_website")));
     if (d.security) tiles.push(folderTile("accounts", "dashboard.html?d=accounts", t("fo_accounts", { n: num(d.security.active_users) })));
-    if (A.can("chat.use")) tiles.push(folderTile("chat", "chat.html", d.unread ? t("fo_chat", { n: num(d.unread) }) : t("fo_chat0")));
+    if (A.can("chat.use") || A.can("chat.guest")) tiles.push(folderTile("chat", "chat.html", d.unread ? t("fo_chat", { n: num(d.unread) }) : t("fo_chat0")));
     return '<div class="mo">' + head + (A.can("users.manage") ? '<a class="fo-add" href="users.html?add=1">' + ic("plus") + "<span>" + t("f_add_user") + "</span></a>" : "") +
       '<div class="fo-grid">' + tiles.join("") + "</div>" + (extra || "") + "</div>";
   }

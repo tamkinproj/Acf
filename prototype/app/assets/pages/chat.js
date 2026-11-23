@@ -1,6 +1,6 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
-  A.strings({ grp_new: "New group", chat_select: "Select a chat", chat_select_sub: "Choose a conversation on the left to start." }, { grp_new: "مجموعة جديدة", chat_select: "اختر محادثة", chat_select_sub: "اختر محادثة من القائمة للبدء." });
+  A.strings({ chat_guest_none: "No chats yet. When the office adds you to a group, it shows here.", grp_new: "New group", chat_select: "Select a chat", chat_select_sub: "Choose a conversation on the left to start." }, { chat_guest_none: "لا محادثات بعد. عندما يضيفك المكتب إلى مجموعة ستظهر هنا.", grp_new: "مجموعة جديدة", chat_select: "اختر محادثة", chat_select_sub: "اختر محادثة من القائمة للبدء." });
 
   function when(iso) {
     if (!iso) return "";
@@ -31,7 +31,9 @@
   window.addEventListener("resize", function () { clearTimeout(sync.t); sync.t = setTimeout(sync, 150); });
   function render(rows) {
     A.setUnread(rows.reduce(function (n, c) { return n + (c.unread || 0); }, 0));
-    return '<div class="head chat-head"><h1 class="title">' + t("n_chat") + '</h1><div class="actions"><a class="btn btn-line btn-sm" href="newgroup.html">' + ic("users") + "<span>" + t("grp_new") + '</span></a><button class="btn btn-main btn-sm" type="button" data-act="newchat">' + ic("plus") + "<span>" + t("chat_new") + "</span></button></div></div>" +
+    var staff = A.can("chat.use");   // orphans and families (chat.guest) only see the groups the office adds them to
+    return '<div class="head chat-head"><h1 class="title">' + t("n_chat") + "</h1>" + (staff ? '<div class="actions"><a class="btn btn-line btn-sm" href="newgroup.html">' + ic("users") + "<span>" + t("grp_new") + '</span></a><button class="btn btn-main btn-sm" type="button" data-act="newchat">' + ic("plus") + "<span>" + t("chat_new") + "</span></button></div>" : "") + "</div>" +
+      (!rows.length ? '<p class="note">' + esc(t("chat_guest_none")) + "</p>" : "") +
       '<div class="list chat-list">' + rows.map(function (c) {
         var name = c.type === "general" ? t("chat_general") : c.title;
         return '<a class="item chat-row' + (split() && ACTIVE === c.id ? " on" : "") + '" href="room.html?c=' + c.id + '" data-act="openroom" data-c="' + c.id + '">' + (c.type === "general" || c.type === "group" ? '<span class="avatar grp"' + (c.cover ? ' data-cov="' + c.id + '"' : "") + ">" + ic("users") + "</span>" : A.avatar(c.other || { name: name }, "avatar")) + '<span class="grow"><b>' + esc(name) + '</b><span class="sub">' + esc(preview(c)) + '</span></span>' +
@@ -59,5 +61,5 @@
   });
 
   setInterval(function () { if (!document.hidden && navigator.onLine !== false && !(A.$("#sheetRoot") && A.$("#sheetRoot").innerHTML)) A.reload(true); }, 15000);
-  A.start({ page: "chat", nav: "chat", title: "n_chat", perm: "chat.use", needsConn: true, shell: true, load: function () { return A.api.get("chat/conversations", { cache: false }); }, render: render, after: function () { sync(); Array.prototype.forEach.call(document.querySelectorAll("[data-cov]"), function (el) { A.api.blobUrl("chat/conversations/" + el.getAttribute("data-cov") + "/cover").then(function (u) { el.style.backgroundImage = 'url(\"' + u + '\")'; el.classList.add("has-photo"); }, function () {}); }); } });
+  A.start({ page: "chat", nav: "chat", title: "n_chat", perm: "chat.use|chat.guest", needsConn: true, shell: true, load: function () { return A.api.get("chat/conversations", { cache: false }); }, render: render, after: function () { sync(); Array.prototype.forEach.call(document.querySelectorAll("[data-cov]"), function (el) { A.api.blobUrl("chat/conversations/" + el.getAttribute("data-cov") + "/cover").then(function (u) { el.style.backgroundImage = 'url(\"' + u + '\")'; el.classList.add("has-photo"); }, function () {}); }); } });
 })();

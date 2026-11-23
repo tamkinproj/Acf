@@ -74,12 +74,14 @@ class DashboardController extends Controller
             $out['system'] = ['php' => PHP_VERSION, 'laravel' => app()->version(), 'environment' => app()->environment()];
         }
         if ($can('users.manage')) {
+            // the office does not count or list the System team
+            $people = fn () => User::where('foundation_id', $user->foundation_id)->when(\App\Support\SystemAccounts::hiddenFrom($user), fn ($q) => $q->whereNotIn('role', \App\Support\SystemAccounts::ROLES));
             $out['security'] = [
-                'active_users' => User::where('foundation_id', $user->foundation_id)->where('active', true)->count(),
-                'inactive_users' => User::where('foundation_id', $user->foundation_id)->where('active', false)->count(),
-                'by_role' => User::where('foundation_id', $user->foundation_id)->where('active', true)->selectRaw('role, count(*) as n')->groupBy('role')->pluck('n', 'role'),
-                'latest_users' => User::where('foundation_id', $user->foundation_id)->orderByDesc('id')->limit(5)->get()->map(fn ($u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role, 'department' => $u->department_key, 'active' => (bool) $u->active, 'added' => $u->created_at?->toDateString()])->values(),
-                'failed_logins_24h' => AuditLog::where('foundation_id', $user->foundation_id)->where('action', 'login.failed')->where('created_at', '>=', now()->subDay())->count(),
+                'active_users' => $people()->where('active', true)->count(),
+                'inactive_users' => $people()->where('active', false)->count(),
+                'by_role' => $people()->where('active', true)->selectRaw('role, count(*) as n')->groupBy('role')->pluck('n', 'role'),
+                'latest_users' => $people()->orderByDesc('id')->limit(5)->get()->map(fn ($u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role, 'department' => $u->department_key, 'active' => (bool) $u->active, 'added' => $u->created_at?->toDateString()])->values(),
+                'failed_logins_24h' => AuditLog::where('foundation_id', $user->foundation_id)->where('action', 'login.failed')->when(\App\Support\SystemAccounts::hiddenFrom($user), fn ($q) => $q->where(fn ($w) => $w->whereNull('user_id')->orWhereNotIn('user_id', \App\Support\SystemAccounts::ids((int) $user->foundation_id))))->where('created_at', '>=', now()->subDay())->count(),
             ];
         }
         if ($can('family.view_own')) {

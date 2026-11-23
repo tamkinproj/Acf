@@ -44,17 +44,17 @@ sec_title: "فحص الأمان", sec_ok: "سليم", sec_fix: "يحتاج ان�
     lim_title: "Sign-in and limits", lim_note: "How many tries and requests are allowed before the app says \"Too many attempts\". Each value stays inside its safe range. Changes apply within a minute.",
     lim_try: "Wrong passwords", lim_try_h: "Wrong passwords for one account from one address, per minute.", lim_lock: "Lock an account after", lim_lock_h: "Wrong passwords for one account from any address.", lim_lock_min: "Keep it locked for (minutes)",
     lim_login: "Sign-in requests per minute, from one address", lim_api_u: "Requests per minute, signed-in account", lim_api_ip: "Requests per minute, not signed in",
-    lim_idle_p: "Idle sign-out, System, Security and President (minutes)", lim_idle_d: "Idle sign-out, everyone else (minutes)", lim_max_p: "Longest sign-in, System, Security and President (hours)", lim_max_d: "Longest sign-in, everyone else (hours)",
+    lim_idle_p: "Idle sign-out, System, Security and President (minutes)", lim_idle_d: "Idle sign-out, everyone else (minutes)", lim_max_p: "Longest sign-in, System, Security and President (hours)", lim_max_d: "Longest sign-in, everyone else (hours)", lim_rem_p: "Remember me, System, Security and President (days)", lim_rem_d: "Remember me, everyone else (days)", lim_rem_h: "With Remember me, the sign-in on that device stays this long, even when it is not used.",
     lim_range: "Allowed {min} to {max} (usual {d})", lim_save: "Save limits", lim_pw: "Your own password, to confirm", lim_saved: "Limits saved", lim_bad: "The lock-out must be at least the wrong passwords per minute."
   }, {
     lim_title: "الدخول والحدود", lim_note: "عدد المحاولات والطلبات المسموح بها قبل أن يقول التطبيق «طلبات كثيرة». كل قيمة تبقى ضمن نطاقها الآمن. تُطبَّق التغييرات خلال دقيقة.",
     lim_try: "كلمات المرور الخاطئة", lim_try_h: "كلمات مرور خاطئة لحساب واحد من عنوان واحد، في الدقيقة.", lim_lock: "قفل الحساب بعد", lim_lock_h: "كلمات مرور خاطئة لحساب واحد من أي عنوان.", lim_lock_min: "يبقى مقفلًا (دقائق)",
     lim_login: "طلبات الدخول في الدقيقة، من عنوان واحد", lim_api_u: "الطلبات في الدقيقة، لحساب دخل", lim_api_ip: "الطلبات في الدقيقة، لعنوان لم يدخل",
-    lim_idle_p: "الخروج عند الخمول، مدير النظام والأمن ورئيس الإدارة (دقائق)", lim_idle_d: "الخروج عند الخمول، الباقون (دقائق)", lim_max_p: "أطول دخول، مدير النظام والأمن ورئيس الإدارة (ساعات)", lim_max_d: "أطول دخول، الباقون (ساعات)",
+    lim_idle_p: "الخروج عند الخمول، مدير النظام والأمن ورئيس الإدارة (دقائق)", lim_idle_d: "الخروج عند الخمول، الباقون (دقائق)", lim_max_p: "أطول دخول، مدير النظام والأمن ورئيس الإدارة (ساعات)", lim_max_d: "أطول دخول، الباقون (ساعات)", lim_rem_p: "«تذكرني»، مدير النظام والأمن ورئيس الإدارة (أيام)", lim_rem_d: "«تذكرني»، الباقون (أيام)", lim_rem_h: "مع «تذكرني» يبقى الدخول على ذلك الجهاز هذه المدة، حتى دون استخدام.",
     lim_range: "المسموح من {min} إلى {max} (المعتاد {d})", lim_save: "احفظ الحدود", lim_pw: "كلمة مرورك أنت، للتأكيد", lim_saved: "تم حفظ الحدود", lim_bad: "يجب أن يكون القفل على الأقل بعدد كلمات المرور الخاطئة في الدقيقة."
   });
   var LIM_FIELDS = [["attempts_per_minute", "lim_try", "lim_try_h"], ["lockout_attempts", "lim_lock", "lim_lock_h"], ["lockout_minutes", "lim_lock_min"], ["login_per_minute", "lim_login"],
-    ["api_per_minute_user", "lim_api_u"], ["api_per_minute_ip", "lim_api_ip"], ["idle_minutes_privileged", "lim_idle_p"], ["idle_minutes_default", "lim_idle_d"], ["max_hours_privileged", "lim_max_p"], ["max_hours_default", "lim_max_d"]];
+    ["api_per_minute_user", "lim_api_u"], ["api_per_minute_ip", "lim_api_ip"], ["idle_minutes_privileged", "lim_idle_p"], ["idle_minutes_default", "lim_idle_d"], ["max_hours_privileged", "lim_max_p"], ["max_hours_default", "lim_max_d"], ["remember_days_privileged", "lim_rem_p", "lim_rem_h"], ["remember_days", "lim_rem_d"]];
   function limitsCard(d) {
     var v = d.values, r = d.ranges;
     return '<div class="card" style="margin-top:1rem"><h3>' + t("lim_title") + '</h3><p class="note" style="margin-top:0">' + t("lim_note") + '</p><form id="limForm" novalidate>' +

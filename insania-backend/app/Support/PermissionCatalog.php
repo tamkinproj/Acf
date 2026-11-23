@@ -25,6 +25,7 @@ final class PermissionCatalog
             'system.first_admin' => 'Create the first Security Admin (only while none exists)',
             'users.manage' => 'Create users, assign roles and departments, reset passwords, end sessions',
             'audit.read' => 'Read the audit log',
+            'chat.guest' => 'Take part in the chat groups the office adds them to (orphans and families: no General, no private chats)',
             'files.all' => 'Open every file uploaded in the offices and download a backup of all files and records',
             'children.view' => 'See children and their profiles',
             'children.create' => 'Register children',

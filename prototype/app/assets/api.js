@@ -25,16 +25,25 @@
   }
 
   /* ---------- session ---------- */
-  function session() { return rd(SK, null); }
+  /* "Remember me": the sign-in is kept on the device (localStorage) and lasts days. Without it, it is kept only until the browser
+     or the app is closed (sessionStorage), like a shared computer needs. */
+  function rdS(k) { try { return JSON.parse(sessionStorage.getItem(k)); } catch (e) { return null; } }
+  function session() { return rd(SK, null) || rdS(SK); }
+  function remembered() { return !!rd(SK, null); }
   function user() { var s = session(); return s && s.user; }
   function can(p) { var u = user(); return !!(u && u.permissions && u.permissions.indexOf(p) > -1); }
-  function setSession(token, u) {
+  function setSession(token, u, keep) {
     var prev = session();
     // A different person on the same phone must never see the previous person's saved data or unsent changes.
     if (prev && prev.user && prev.user.id !== u.id) { wipeCache(); del(OB); }
-    wr(SK, { token: token, user: u, at: Date.now() });
+    var s = { token: token, user: u, at: Date.now() };
+    del(SK); try { sessionStorage.removeItem(SK); } catch (e) {}
+    if (keep) wr(SK, s); else { try { sessionStorage.setItem(SK, JSON.stringify(s)); } catch (e) { wr(SK, s); } }
   }
-  function updateUser(u) { var s = session(); if (s) { s.user = u; wr(SK, s); } }
+  function updateUser(u) {
+    var s = session(); if (!s) return; s.user = u;
+    if (remembered()) wr(SK, s); else { try { sessionStorage.setItem(SK, JSON.stringify(s)); } catch (e) {} }
+  }
 
   /* ---------- cache ---------- */
   /* The partner the app works in (Dar Al Ber Society, ...): sent with every request; the server limits orphans and education to it. */
@@ -111,18 +120,21 @@
   function fail(res) { var e = new Error(message(res)); e.status = res.status; e.code = res.json && res.json.code; e.errors = res.json && res.json.errors; return e; }
 
   /* ---------- public: sign in / out ---------- */
-  function login(email, password, trust) {
-    return request("POST", "login", { login: email, password: password, device_name: "staff-app", trust_device: !!trust }).then(function (res) {
+  function login(email, password, remember) {
+    return request("POST", "login", { login: email, password: password, device_name: "staff-app", remember: !!remember }).then(function (res) {
       if (!res.ok) throw fail(res);
-      if (res.json.data.device_token) setDeviceToken(res.json.data.device_token);
-      setSession(res.json.data.token, res.json.data.user); setMeta({ expired: false });
-      return res.json.data.user;
+      var d = res.json.data;
+      if (d.device_token) setDeviceToken(d.device_token);
+      setSession(d.token, d.user, !!remember); setMeta({ expired: false });
+      // a device that is not trusted yet: its details are shown once, after signing in, with the choice to trust it
+      try { if (d.device && !d.device.trusted) sessionStorage.setItem("acf_newdev", JSON.stringify({ user: d.user.id, device: d.device })); else sessionStorage.removeItem("acf_newdev"); } catch (e) {}
+      return d.user;
     });
   }
   function logout() {
     var s = session();
     var p = s && navigator.onLine !== false ? request("POST", "logout", undefined, { timeout: 4000 }).catch(function () {}) : Promise.resolve();
-    return p.then(function () { del(SK); wipeCache(); setMeta({ expired: false }); });
+    return p.then(function () { del(SK); try { sessionStorage.removeItem(SK); sessionStorage.removeItem("acf_newdev"); } catch (e) {} wipeCache(); setMeta({ expired: false }); });
   }
   /** Refreshes who I am and what I may do (a role may have changed). Quiet when offline. */
   function refreshMe() {
@@ -180,7 +192,7 @@
     }
     return next();
   }
-  function setPrefs(p) { var s = session(); if (s) { s.user.preferences = Object.assign({}, s.user.preferences, p); wr(SK, s); } }
+  function setPrefs(p) { var s = session(); if (s) { s.user.preferences = Object.assign({}, s.user.preferences, p); updateUser(s.user); } }
 
   /** Sends files (never queued: it needs a connection). Resolves the envelope's data, rejects with the server's message. */
   function upload(path, formData) {

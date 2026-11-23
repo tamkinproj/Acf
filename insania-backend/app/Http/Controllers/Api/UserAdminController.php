@@ -26,7 +26,9 @@ class UserAdminController extends Controller
     {
         $request->validate(['type' => ['nullable', 'in:staff,orphan,family'], 'per_page' => ['nullable', 'integer', 'min:1', 'max:100'], 'q' => ['nullable', 'string', 'max:80']]);
         $fid = $request->user()->foundation_id;
+        $hide = \App\Support\SystemAccounts::hiddenFrom($request->user());   // the System team is not listed in the office
         $users = User::with('department')->where('foundation_id', $fid)
+            ->when($hide, fn ($q) => $q->whereNotIn('role', \App\Support\SystemAccounts::ROLES))
             ->when($request->query('role'), fn ($q, $r) => $q->where('role', $r))
             ->when($request->query('type'), fn ($q, $type) => $this->ofType($q, $type))
             ->when(trim((string) $request->query('q')), function ($q, $term) {
@@ -35,7 +37,7 @@ class UserAdminController extends Controller
             })
             ->orderBy('name')->paginate((int) $request->query('per_page', 50));
         $users->setCollection($users->getCollection()->map(fn ($u) => $this->shape($u)));
-        $base = fn () => User::where('foundation_id', $fid);
+        $base = fn () => User::where('foundation_id', $fid)->when($hide, fn ($q) => $q->whereNotIn('role', \App\Support\SystemAccounts::ROLES));
 
         return ApiResponse::collection($users, ['counts' => [
             'staff' => $this->ofType($base(), 'staff')->count(), 'orphan' => $this->ofType($base(), 'orphan')->count(), 'family' => $this->ofType($base(), 'family')->count(),
@@ -224,6 +226,9 @@ class UserAdminController extends Controller
     {
         if ($user->foundation_id !== $request->user()->foundation_id) {
             return ApiResponse::notFound('No such user.');
+        }
+        if (\App\Support\SystemAccounts::isSystem($user) && \App\Support\SystemAccounts::hiddenFrom($request->user())) {
+            return ApiResponse::notFound('No such user.');   // the office does not see the System team
         }
         if ($user->role === 'system_admin') {
             return ApiResponse::forbidden('System Admin accounts cannot be changed here.');

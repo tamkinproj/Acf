@@ -21,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // A sign-in that has been idle for too long is ended (stricter for the roles that can change access or see everything).
         \Laravel\Sanctum\Sanctum::authenticateAccessTokensUsing(function ($token, bool $isValid) {
+            // "Remember me": the sign-in lasts until its own end date (days), not the general limit in hours, and never ends for being idle
+            if (in_array('remember', (array) $token->abilities, true)) {
+                return (bool) $token->tokenable && $token->expires_at !== null && $token->expires_at->isFuture() && ($isValid || $token->created_at?->gt(now()->subDays(90)));
+            }
             if (! $isValid || ! ($user = $token->tokenable)) {
                 return false;
             }

@@ -27,7 +27,8 @@ class ChatGroupsTest extends TestCase
         $family = $this->uid('family@insania.test');
 
         $this->postJson('/api/chat/groups', ['title' => 'x', 'user_ids' => [$fin]])->assertStatus(422);                 // name too short
-        $this->postJson('/api/chat/groups', ['title' => 'Field team', 'user_ids' => [$family]])->assertStatus(422);     // a family/orphan account cannot be added
+        $sys = \App\Models\User::where('email', $this->accounts['system_admin'])->value('id');
+        $this->postJson('/api/chat/groups', ['title' => 'Field team', 'user_ids' => [$sys]])->assertStatus(422);        // a System account cannot be added (orphans and families can: ChatGuestsTest)
         $r = $this->postJson('/api/chat/groups', ['title' => 'Field team', 'user_ids' => [$fin, $family]])->assertCreated();
         $id = $r->json('data.id');
 

@@ -38,6 +38,7 @@ class Kernel extends HttpKernel
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
         \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+        \App\Http\Middleware\ThrottleUnlessTrusted::class,
         \Illuminate\Routing\Middleware\ThrottleRequests::class,
         \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class,
         \Illuminate\Contracts\Session\Middleware\AuthenticatesSessions::class,
@@ -63,7 +64,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            \App\Http\Middleware\ThrottleUnlessTrusted::class.':api',   // a trusted device is never slowed down
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -94,7 +95,7 @@ class Kernel extends HttpKernel
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'throttle' => \App\Http\Middleware\ThrottleUnlessTrusted::class,   // every route limit, except for trusted devices
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];
 }

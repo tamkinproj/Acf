@@ -40,12 +40,16 @@ class ChatTest extends TestCase
             $this->getJson('/api/chat/conversations')->assertOk();
             $this->getJson('/api/chat/people')->assertOk();
         }
-        foreach (['system_admin', 'security_admin', 'admin_maintenance', 'user'] as $role) {
+        foreach (['system_admin', 'security_admin', 'admin_maintenance'] as $role) {
             $this->as($role);
             $this->getJson('/api/chat/conversations')->assertForbidden();
             $this->getJson('/api/chat/unread')->assertForbidden();
             $this->postJson('/api/chat/direct', ['user_id' => 1])->assertForbidden();
         }
+        // families and orphans: only the groups the office adds them to (none here), never the General chat or private chats
+        $this->as('user');
+        $this->assertSame([], $this->getJson('/api/chat/conversations')->assertOk()->json('data'));
+        $this->postJson('/api/chat/direct', ['user_id' => 1])->assertForbidden();
     }
 
     public function test_the_general_group_is_shared_by_the_whole_office_and_nobody_else(): void

@@ -25,7 +25,8 @@ class AuthController extends Controller
             'email' => ['required_without:login', 'nullable', 'string', 'max:190', 'regex:/^[^\x00-\x1F\x7F]*$/'],   // older copies of the app still send "email"
             'password' => ['required', 'string', 'max:200'],
             'device_name' => ['nullable', 'string', 'max:60'],
-            'trust_device' => ['nullable', 'boolean'],
+            'trust_device' => ['nullable', 'boolean'],   // older copies of the app ask at sign-in; the app now asks after (see trustNewDevice)
+            'remember' => ['nullable', 'boolean'],       // "Remember me": the sign-in stays for days on this device
         ]);
 
         if ($blocked = LoginThrottle::blocked($request)) {
@@ -49,11 +50,17 @@ class AuthController extends Controller
 
         LoginThrottle::clear($request);
         $privileged = in_array($user->role, (array) config('security.privileged_roles'), true);
-        $hours = \App\Support\SecurityLimits::get($privileged ? 'max_hours_privileged' : 'max_hours_default');
-        $token = $user->createToken(self::deviceLabel($request, $data['device_name'] ?? 'staff-app'), ['*'], now()->addHours($hours))->plainTextToken;
-        Audit::record('login', $request, 'user', $user->id, [], $user->id, $user->foundation_id);
+        $remember = ! empty($data['remember']);
+        // "Remember me": days instead of hours, and no idle sign-out (see AppServiceProvider). The 'remember' mark is read there.
+        $until = $remember ? now()->addDays(\App\Support\SecurityLimits::get($privileged ? 'remember_days_privileged' : 'remember_days'))
+            : now()->addHours(\App\Support\SecurityLimits::get($privileged ? 'max_hours_privileged' : 'max_hours_default'));
+        $token = $user->createToken(self::deviceLabel($request, $data['device_name'] ?? 'staff-app'), $remember ? ['*', 'remember'] : ['*'], $until)->plainTextToken;
+        Audit::record('login', $request, 'user', $user->id, $remember ? ['remember' => true] : [], $user->id, $user->foundation_id);
 
-        $out = ['token' => $token, 'user' => $user->toApi()];
+        $trusted = TrustedDevices::device($request, (int) $user->id) !== null;
+        $out = ['token' => $token, 'user' => $user->toApi(), 'remember' => $remember, 'expires_at' => $until->toIso8601String(),
+            // shown right after sign-in on a device that is not trusted yet, with the choice to trust it
+            'device' => self::deviceDetails($request) + ['trusted' => $trusted]];
         if (! empty($data['trust_device'])) {
             $out['device_token'] = TrustedDevices::create($request, $user, self::deviceLabel($request, $data['device_name'] ?? 'staff-app'));
             Audit::record('device.trusted', $request, 'user', $user->id, [], $user->id, $user->foundation_id);
@@ -62,6 +69,62 @@ class AuthController extends Controller
         }
 
         return ApiResponse::ok($out);
+    }
+
+    /** What the person sees after signing in on a device: which phone or computer, which browser, from which address, when. */
+    private static function deviceDetails(Request $request): array
+    {
+        $ua = (string) $request->userAgent();
+        $v = fn (string $re) => preg_match($re, $ua, $m) ? str_replace('_', '.', $m[1]) : null;
+        $system = match (true) {
+            (bool) preg_match('/iPad/i', $ua) => trim('iPadOS '.$v('/OS (\d+[_.]\d+)/')),
+            (bool) preg_match('/iPhone|iPod/i', $ua) => trim('iOS '.$v('/OS (\d+[_.]\d+)/')),
+            (bool) preg_match('/Android/i', $ua) => trim('Android '.$v('/Android (\d+(?:\.\d+)?)/')),
+            (bool) preg_match('/Windows NT/i', $ua) => 'Windows'.(($w = $v('/Windows NT (\d+\.\d+)/')) === '10.0' ? ' 10 or 11' : ($w ? ' '.$w : '')),
+            (bool) preg_match('/Macintosh|Mac OS X/i', $ua) => trim('macOS '.$v('/Mac OS X (\d+[_.]\d+)/')),
+            (bool) preg_match('/CrOS/i', $ua) => 'ChromeOS',
+            (bool) preg_match('/Linux/i', $ua) => 'Linux',
+            default => 'Unknown system',
+        };
+        $browser = match (true) {
+            (bool) preg_match('/Edg(?:e|A|iOS)?\//i', $ua) => trim('Edge '.$v('/Edg(?:e|A|iOS)?\/(\d+)/')),
+            (bool) preg_match('/SamsungBrowser/i', $ua) => trim('Samsung Internet '.$v('/SamsungBrowser\/(\d+)/')),
+            (bool) preg_match('/OPR\//i', $ua) => trim('Opera '.$v('/OPR\/(\d+)/')),
+            (bool) preg_match('/Firefox|FxiOS/i', $ua) => trim('Firefox '.$v('/(?:Firefox|FxiOS)\/(\d+)/')),
+            (bool) preg_match('/CriOS|Chrome/i', $ua) => trim('Chrome '.$v('/(?:CriOS|Chrome)\/(\d+)/')),
+            (bool) preg_match('/Safari/i', $ua) => trim('Safari '.$v('/Version\/(\d+(?:\.\d+)?)/')),
+            default => 'Browser',
+        };
+        // the phone's model, when the browser says it (Android does; an iPhone only says "iPhone")
+        $model = null;
+        if (preg_match('/Android[^;)]*;\s*([^;)]+?)(?:\s+Build\/[^;)]*)?\)/i', $ua, $m) && ! in_array(strtolower(trim($m[1])), ['k', 'wv', 'mobile'], true)) {
+            $model = trim($m[1]);
+        } elseif (preg_match('/iPhone|iPad|iPod/i', $ua, $m)) {
+            $model = $m[0];
+        }
+        $country = strtoupper(substr((string) $request->headers->get('CF-IPCountry', ''), 0, 2));
+
+        return ['name' => self::deviceLabel($request, 'staff-app'), 'model' => $model ? mb_substr($model, 0, 60) : null, 'system' => mb_substr($system, 0, 40), 'browser' => mb_substr($browser, 0, 40),
+            'ip' => $request->ip(), 'country' => preg_match('/^[A-Z]{2}$/', $country) && ! in_array($country, ['XX', 'T1'], true) ? $country : null, 'at' => now()->toIso8601String()];
+    }
+
+    /**
+     * POST me/devices/new : right after signing in, "Trust this device" without typing the password again.
+     * Only in the first 15 minutes of a sign-in, and only for that sign-in's device. After that, Settings asks for the password.
+     */
+    public function trustNewDevice(Request $request)
+    {
+        $token = $request->user()->currentAccessToken();
+        if (! $token || ! $token->created_at || $token->created_at->lt(now()->subMinutes(15))) {
+            return ApiResponse::error('TOO_LATE', 'Trust this device from Settings (it asks for your password).', 422);
+        }
+        if (TrustedDevices::device($request, (int) $request->user()->id)) {
+            return ApiResponse::ok(['already' => true]);
+        }
+        $secret = TrustedDevices::create($request, $request->user(), self::deviceLabel($request, 'staff-app'));
+        Audit::record('device.trusted', $request, 'user', $request->user()->id, ['after_sign_in' => true]);
+
+        return ApiResponse::created(['device_token' => $secret]);
     }
 
     /** "iPhone · Safari" style label, so a person can recognise their own devices in the list of sign-ins. */

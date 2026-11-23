@@ -54,7 +54,7 @@ return [
             'files.all',                        // the Files page and the backup
         ],
         'staff' => [],
-        'user' => ['family.view_own'],
+        'user' => ['family.view_own', 'chat.guest'],   // orphans and families: only in the groups the office adds them to
     ],
 
     // Departments a staff member can belong to, and what each one may do.
