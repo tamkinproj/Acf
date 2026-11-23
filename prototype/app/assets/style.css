@@ -1286,3 +1286,13 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:3px s
 a.pt-card{text-decoration:none;color:var(--ink)}
 /* the group avatar's class "grp" also names a run of messages (flex, bottom-aligned): keep the avatar a centred circle */
 .avatar.grp{display:grid;place-items:center;margin-top:0;gap:0}
+
+/* a partner's own page */
+.pp-head{display:flex;align-items:center;gap:1rem;margin:.9rem 0 1.2rem}
+.pp-head .pp-logo{width:7rem;height:4.2rem;flex:none;background-color:#fff;border-radius:.8rem}
+.pp-head .badge{margin-top:.35rem;display:inline-block}
+a.pt-card .pt-go{position:absolute;top:.9rem;inset-inline-end:.9rem}
+a.pt-card{position:relative}
+.pp-head .pp-logo{background-size:contain;background-position:left center;background-repeat:no-repeat}
+[dir=rtl] .pp-head .pp-logo{background-position:right center}
+.pp-head .pp-logo.ini{display:grid;place-items:center;background:#eef2e6}

@@ -615,3 +615,11 @@
         }
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] a.pt-card .pt-go {
+        right: .9rem
+    }
+    html[dir=rtl] a.pt-card .pt-go {
+        left: .9rem
+    }
+}
