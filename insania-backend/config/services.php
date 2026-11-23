@@ -2,6 +2,10 @@
 
 return [
 
+    // Cloudflare's API address: empty means the real one (https://api.cloudflare.com/client/v4). Only a test server sets it.
+    'cloudflare' => ['api' => env('CLOUDFLARE_API')],
+
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

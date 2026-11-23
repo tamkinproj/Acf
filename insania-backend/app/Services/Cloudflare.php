@@ -21,6 +21,12 @@ final class Cloudflare
     {
     }
 
+    /** Cloudflare's API address (config services.cloudflare.api only changes it for a test server). */
+    public static function base(): string
+    {
+        return rtrim((string) (config('services.cloudflare.api') ?: self::BASE), '/');
+    }
+
     /** The saved connection of this foundation, or null. */
     public static function saved(): ?self
     {
@@ -56,7 +62,7 @@ final class Cloudflare
     public function call(string $method, string $path, ?array $body = null): array
     {
         try {
-            $r = Http::withToken($this->token)->acceptJson()->timeout(15)->baseUrl(self::BASE)->send($method, ltrim($path, '/'), $body === null ? [] : ['json' => $body]);
+            $r = Http::withToken($this->token)->acceptJson()->timeout(15)->baseUrl(self::base())->send($method, ltrim($path, '/'), $body === null ? [] : ['json' => $body]);
         } catch (\Throwable) {
             return ['ok' => false, 'result' => null, 'error' => 'Could not reach Cloudflare from this server.'];
         }
@@ -73,6 +79,83 @@ final class Cloudflare
     public function z(string $path = ''): string
     {
         return 'zones/'.$this->zone.($path !== '' ? '/'.ltrim($path, '/') : '');
+    }
+
+    /** The Cloudflare account the website belongs to (needs Zone: Read). Remembered for a day. */
+    public function accountId(): ?string
+    {
+        $id = \Illuminate\Support\Facades\Cache::get('cf-account:'.$this->zone);
+        if (! $id) {
+            $r = $this->call('GET', $this->z());
+            $id = $r['ok'] ? ($r['result']['account']['id'] ?? null) : null;
+            if ($id) {
+                \Illuminate\Support\Facades\Cache::put('cf-account:'.$this->zone, $id, 86400);
+            }
+        }
+
+        return $id ?: null;
+    }
+
+    /**
+     * Blocks an address at Cloudflare (an IP Access rule: Account > Account Firewall Access Rules: Edit).
+     * It applies to every website in the Cloudflare account. An address already blocked there is reused.
+     *
+     * @return array{ok: bool, id: ?string, error: ?string}
+     */
+    public function blockIp(string $ip, string $note): array
+    {
+        $acc = $this->accountId();
+        if (! $acc) {
+            return ['ok' => false, 'id' => null, 'error' => 'Cloudflare did not say which account the website is in (the token needs Zone: Read).'];
+        }
+        $target = str_contains($ip, ':') ? 'ip6' : 'ip';
+        $r = $this->call('POST', "accounts/$acc/firewall/access_rules/rules", ['mode' => 'block', 'configuration' => ['target' => $target, 'value' => $ip], 'notes' => mb_substr($note, 0, 400)]);
+        if ($r['ok'] && ! empty($r['result']['id'])) {
+            return ['ok' => true, 'id' => (string) $r['result']['id'], 'error' => null];
+        }
+        // already there (made earlier, or by hand in Cloudflare): use that rule if it blocks
+        $f = $this->call('GET', "accounts/$acc/firewall/access_rules/rules?configuration.target=$target&configuration.value=".rawurlencode($ip));
+        foreach ((array) ($f['ok'] ? $f['result'] : []) as $rule) {
+            if (($rule['mode'] ?? '') === 'block' && ! empty($rule['id'])) {
+                return ['ok' => true, 'id' => (string) $rule['id'], 'error' => null];
+            }
+        }
+
+        return ['ok' => false, 'id' => null, 'error' => $r['error'] ?: 'Cloudflare did not accept the block.'];
+    }
+
+    /** @return array{ok: bool, error: ?string} */
+    public function unblockIp(string $ruleId): array
+    {
+        $acc = $this->accountId();
+        if (! $acc) {
+            return ['ok' => false, 'error' => 'Cloudflare did not say which account the website is in (the token needs Zone: Read).'];
+        }
+        $r = $this->call('DELETE', "accounts/$acc/firewall/access_rules/rules/".rawurlencode($ruleId));
+        if (! $r['ok'] && preg_match('/not found|does not exist|could not find/i', (string) $r['error'])) {
+            return ['ok' => true, 'error' => null];   // already gone
+        }
+
+        return ['ok' => $r['ok'], 'error' => $r['error']];
+    }
+
+    /** Cloudflare's GraphQL Analytics API (Zone > Analytics: Read). @return array{ok: bool, data: ?array, error: ?string} */
+    public function graphql(string $query, array $variables): array
+    {
+        try {
+            $r = Http::withToken($this->token)->acceptJson()->timeout(20)->post(self::base().'/graphql', ['query' => $query, 'variables' => $variables]);
+        } catch (\Throwable) {
+            return ['ok' => false, 'data' => null, 'error' => 'Could not reach Cloudflare from this server.'];
+        }
+        $j = $r->json();
+        if (! is_array($j)) {
+            return ['ok' => false, 'data' => null, 'error' => 'Cloudflare answered with an error ('.$r->status().').'];
+        }
+        if (! empty($j['errors'])) {
+            return ['ok' => false, 'data' => $j['data'] ?? null, 'error' => (string) ($j['errors'][0]['message'] ?? 'Cloudflare refused this question.')];
+        }
+
+        return ['ok' => true, 'data' => $j['data'] ?? null, 'error' => null];
     }
 
     /** Finds the zone of a website address (tries the address, then its parent). @return array{id: string, name: string}|null */

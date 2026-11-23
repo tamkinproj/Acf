@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Cloudflare;
+use App\Services\CloudflareTraffic;
 use App\Services\Traffic;
 use App\Support\ApiResponse;
 use App\Support\Audit;
@@ -79,7 +81,20 @@ class TrafficController extends Controller
             'series' => array_values($series), 'daily' => $daily, 'countries' => $byCountry, 'paths' => $paths,
             'visitors' => $this->visitorRows($f, null, 10)['rows'], 'events' => $events, 'blocked_now' => count($active),
             'my_ip' => Traffic::canon((string) $request->ip()), 'via_cloudflare' => (bool) $request->attributes->get('via_cloudflare'),
+            'cloudflare' => Cloudflare::saved() !== null,
         ]);
+    }
+
+    /** GET system/traffic/cloudflare?range=&fresh=1 : Cloudflare's own figures (kept five minutes; fresh=1 asks again) */
+    public function cloudflare(Request $request)
+    {
+        $cf = Cloudflare::saved();
+        if (! $cf) {
+            return ApiResponse::ok(['connected' => false]);
+        }
+        $range = $this->range($request);
+
+        return ApiResponse::ok(CloudflareTraffic::overview($cf, $range, $this->from($range), $request->boolean('fresh')));
     }
 
     /** GET system/traffic/visitors?range=&q=&page= : every address, most requests first */
@@ -173,7 +188,8 @@ class TrafficController extends Controller
     {
         $until = $b->expires_at ? Carbon::parse($b->expires_at) : null;
 
-        return ['id' => (int) $b->id, 'ip' => $b->ip, 'reason' => $b->reason, 'expires_at' => $until?->toIso8601String(), 'active' => ! $until || $until->isFuture(),
+        return ['id' => (int) $b->id, 'ip' => $b->ip, 'reason' => $b->reason, 'expires_at' => $until?->toIso8601String(), 'active' => (! $until || $until->isFuture()) && $b->cf_status !== 'removing',
+            'cloudflare' => $b->cf_status ? ['status' => $b->cf_status, 'error' => $b->cf_error] : null,
             'by' => $b->created_by ? User::withoutGlobalScopes()->whereKey($b->created_by)->value('name') : null, 'at' => Carbon::parse($b->created_at)->toIso8601String()];
     }
 
@@ -196,12 +212,45 @@ class TrafficController extends Controller
         }
         $until = ! empty($data['days']) ? now()->addDays((int) $data['days']) : null;
         $now = now()->format('Y-m-d H:i:s');
+        $prev = DB::table('blocked_ips')->where('ip', $ip)->first();
         DB::table('blocked_ips')->updateOrInsert(['ip' => $ip], ['reason' => ($data['reason'] ?? '') !== '' ? $data['reason'] : null, 'expires_at' => $until?->format('Y-m-d H:i:s'),
-            'created_by' => $request->user()->id, 'created_at' => $now, 'updated_at' => $now]);
+            'created_by' => $request->user()->id, 'created_at' => $now, 'updated_at' => $now] + ($prev && $prev->cf_status === 'removing' ? ['cf_status' => 'ok', 'cf_error' => null] : []));
         Traffic::forgetBlocks();
-        Audit::record('traffic.blocked', $request, null, null, ['ip' => $ip, 'days' => $data['days'] ?? null, 'accounts' => $used]);
+        $cf = $this->toCloudflare((int) DB::table('blocked_ips')->where('ip', $ip)->value('id'));
+        Audit::record('traffic.blocked', $request, null, null, ['ip' => $ip, 'days' => $data['days'] ?? null, 'accounts' => $used, 'cloudflare' => $cf]);
 
         return ApiResponse::created(['blocks' => $this->blockList()]);
+    }
+
+    /** Makes (or confirms) the block at Cloudflare. Returns ok, failed, or off (Cloudflare not connected). The app's own block works either way. */
+    private function toCloudflare(int $id): string
+    {
+        $b = DB::table('blocked_ips')->where('id', $id)->first();
+        $cf = Cloudflare::saved();
+        if (! $b || ! $cf) {
+            return 'off';
+        }
+        if ($b->cf_rule_id && $b->cf_status === 'ok') {
+            return 'ok';
+        }
+        $r = $cf->blockIp($b->ip, 'Al Insania app: blocked by the System Admin'.($b->reason ? ' ('.$b->reason.')' : ''));
+        DB::table('blocked_ips')->where('id', $id)->update($r['ok'] ? ['cf_rule_id' => $r['id'], 'cf_status' => 'ok', 'cf_error' => null] : ['cf_status' => 'failed', 'cf_error' => mb_substr((string) $r['error'], 0, 200)]);
+
+        return $r['ok'] ? 'ok' : 'failed';
+    }
+
+    /** POST system/traffic/blocks/{id}/cloudflare : try Cloudflare again for a block it refused */
+    public function retry(Request $request, int $id)
+    {
+        if (! DB::table('blocked_ips')->where('id', $id)->exists()) {
+            return ApiResponse::notFound('No such block.');
+        }
+        $res = $this->toCloudflare($id);
+        if ($res === 'failed') {
+            return ApiResponse::error('CLOUDFLARE_REFUSED', (string) DB::table('blocked_ips')->where('id', $id)->value('cf_error'), 422);
+        }
+
+        return ApiResponse::ok(['blocks' => $this->blockList()]);
     }
 
     /** DELETE system/traffic/blocks/{id} */
@@ -211,11 +260,22 @@ class TrafficController extends Controller
         if (! $b) {
             return ApiResponse::notFound('No such block.');
         }
-        DB::table('blocked_ips')->where('id', $id)->delete();
+        $warning = null;
+        if ($b->cf_rule_id && ($cf = Cloudflare::saved())) {
+            $r = $cf->unblockIp($b->cf_rule_id);
+            if (! $r['ok']) {
+                // the app lets the address in now; Cloudflare is asked again every ten minutes until it is gone there too
+                DB::table('blocked_ips')->where('id', $id)->update(['expires_at' => now()->format('Y-m-d H:i:s'), 'cf_status' => 'removing', 'cf_error' => mb_substr((string) $r['error'], 0, 200), 'updated_at' => now()]);
+                $warning = 'Unblocked in the app, but Cloudflare did not remove it yet ('.$r['error'].'). The app will keep trying, or remove it in Cloudflare (Security, WAF, Tools).';
+            }
+        }
+        if (! $warning) {
+            DB::table('blocked_ips')->where('id', $id)->delete();
+        }
         Traffic::forgetBlocks();
-        Audit::record('traffic.unblocked', $request, null, null, ['ip' => $b->ip]);
+        Audit::record('traffic.unblocked', $request, null, null, ['ip' => $b->ip, 'cloudflare' => $b->cf_rule_id ? ($warning ? 'pending' : 'removed') : 'off']);
 
-        return ApiResponse::ok(['blocks' => $this->blockList()]);
+        return ApiResponse::ok(['blocks' => $this->blockList(), 'warning' => $warning]);
     }
 
     /** PATCH system/traffic/settings {logging, blocking, retention_days} */
@@ -224,6 +284,9 @@ class TrafficController extends Controller
         $data = $request->validate([
             'logging' => ['sometimes', 'boolean'], 'blocking' => ['sometimes', 'boolean'],
             'retention_days' => ['sometimes', 'integer', 'min:'.Traffic::RETENTION[0], 'max:'.Traffic::RETENTION[1]],
+            'alerts' => ['sometimes', 'boolean'],
+            'alert_failed' => ['sometimes', 'integer', 'in:'.implode(',', Traffic::ALERT_FAILED)],
+            'alert_refused' => ['sometimes', 'integer', 'in:'.implode(',', Traffic::ALERT_REFUSED)],
         ]);
         $before = Traffic::settings();
         $after = Traffic::saveSettings((int) $request->user()->foundation_id, $data);

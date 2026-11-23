@@ -27,8 +27,11 @@ final class Traffic
     public const KEY = 'traffic_settings';
     public const EVENT_CAP = 60;
     public const KINDS = ['blocked', 'login', 'login_failed', 'login_locked', 'throttled', 'denied', 'not_found'];
-    public const DEFAULTS = ['logging' => true, 'blocking' => true, 'retention_days' => 30];
+    public const DEFAULTS = ['logging' => true, 'blocking' => true, 'retention_days' => 30, 'alerts' => true, 'alert_failed' => 10, 'alert_refused' => 50];
     public const RETENTION = [7, 90];
+    public const ALERT_FAILED = [5, 10, 20, 50];       // wrong passwords from one address in an hour
+    public const ALERT_REFUSED = [20, 50, 100, 200];   // refused, not found, too many requests from one address in an hour
+    public const REFUSED_KINDS = ['login_locked', 'throttled', 'denied', 'not_found'];
 
     /** @return array{logging: bool, blocking: bool, retention_days: int} */
     public static function settings(): array
@@ -36,10 +39,15 @@ final class Traffic
         return Cache::remember('traffic-settings', 30, function () {
             $saved = (array) json_decode((string) Setting::withoutGlobalScopes()->where('key', self::KEY)->orderBy('id')->value('value'), true);
 
+            $pick = fn (string $k, array $allowed) => in_array((int) ($saved[$k] ?? 0), $allowed, true) ? (int) $saved[$k] : self::DEFAULTS[$k];
+
             return [
                 'logging' => (bool) ($saved['logging'] ?? self::DEFAULTS['logging']),
                 'blocking' => (bool) ($saved['blocking'] ?? self::DEFAULTS['blocking']),
                 'retention_days' => max(self::RETENTION[0], min(self::RETENTION[1], (int) ($saved['retention_days'] ?? self::DEFAULTS['retention_days']))),
+                'alerts' => (bool) ($saved['alerts'] ?? self::DEFAULTS['alerts']),
+                'alert_failed' => $pick('alert_failed', self::ALERT_FAILED),
+                'alert_refused' => $pick('alert_refused', self::ALERT_REFUSED),
             ];
         });
     }
@@ -173,7 +181,8 @@ final class Traffic
         $path = self::path($request);
         $ua = substr((string) $request->userAgent(), 0, 200) ?: null;
 
-        $add = ['signins' => $kind === 'login', 'failed_logins' => $kind === 'login_failed', 'blocked' => $kind === 'blocked', 'throttled' => in_array($kind, ['throttled', 'login_locked'], true)];
+        $add = ['signins' => $kind === 'login', 'failed_logins' => $kind === 'login_failed', 'blocked' => $kind === 'blocked', 'throttled' => in_array($kind, ['throttled', 'login_locked'], true),
+            'refused' => in_array($kind, self::REFUSED_KINDS, true)];
         $set = ['requests' => DB::raw('requests + 1'), 'last_at' => $at, 'last_path' => $path, 'user_agent' => $ua];
         foreach ($add as $col => $yes) {
             if ($yes) {
@@ -211,9 +220,59 @@ final class Traffic
                 'path' => $path, 'status' => $response->getStatusCode(), 'user_id' => $userId, 'user_agent' => $ua]);
         }
 
-        if (Cache::add('traffic-pruned', 1, 3600)) {
-            self::prune();
+        if ($kind === 'login_failed' || in_array($kind, self::REFUSED_KINDS, true)) {
+            self::alert($ip, $kind, $row()->first(['failed_logins', 'refused', 'country']), $hour);
         }
+    }
+
+    /**
+     * Tells the System Admin (on the bell) when one address reaches the wrong-password or refused threshold in an hour.
+     * Once per address, kind and hour. It never blocks anything: the System Admin decides.
+     */
+    private static function alert(string $ip, string $kind, ?object $hit, string $hour): void
+    {
+        $s = self::settings();
+        if (! $s['alerts'] || ! $hit) {
+            return;
+        }
+        $failed = $kind === 'login_failed';
+        $n = (int) ($failed ? $hit->failed_logins : $hit->refused);
+        if ($n !== ($failed ? $s['alert_failed'] : $s['alert_refused'])) {
+            return;
+        }
+        $where = $ip.($hit->country ? ' ('.$hit->country.')' : '');
+        $title = $failed ? 'Many wrong passwords from one address' : 'Many refused requests from one address';
+        $body = $failed ? "$where: $n wrong passwords this hour. Open Security to look at it or block it." : "$where: $n refused or unknown requests this hour. Open Security to look at it or block it.";
+        foreach (User::withoutGlobalScopes()->where('role', 'system_admin')->where('active', true)->get(['id', 'foundation_id']) as $u) {
+            \App\Support\Notify::to((int) $u->id, (int) $u->foundation_id, 'security', $title, $body, 'security.html?ip='.rawurlencode($ip), 'sec:'.($failed ? 'f' : 'r').':'.$ip.':'.substr($hour, 0, 13));
+        }
+    }
+
+    /**
+     * Upkeep, at most every ten minutes (after an answer has been sent): delete what is older than the retention period,
+     * and remove at Cloudflare the blocks that have ended or were unblocked (Cloudflare's rules do not end by themselves).
+     */
+    public static function maintain(): void
+    {
+        if (! Cache::add('traffic-maintained', 1, 600)) {
+            return;
+        }
+        self::prune();
+        $due = DB::table('blocked_ips')->whereNotNull('cf_rule_id')->whereNotNull('expires_at')->where('expires_at', '<=', now()->format('Y-m-d H:i:s'))->limit(20)->get();
+        if ($due->isEmpty() || ! ($cf = Cloudflare::saved())) {
+            return;
+        }
+        foreach ($due as $b) {
+            $r = $cf->unblockIp($b->cf_rule_id);
+            if ($r['ok'] && $b->cf_status === 'removing') {
+                DB::table('blocked_ips')->where('id', $b->id)->delete();   // unblocked by hand earlier: now gone from Cloudflare too
+            } elseif ($r['ok']) {
+                DB::table('blocked_ips')->where('id', $b->id)->update(['cf_rule_id' => null, 'cf_status' => 'removed', 'cf_error' => null, 'updated_at' => now()]);
+            } else {
+                DB::table('blocked_ips')->where('id', $b->id)->update(['cf_error' => mb_substr((string) $r['error'], 0, 200)]);
+            }
+        }
+        self::forgetBlocks();
     }
 
     /** Deletes what is older than the retention period, and blocks that ended that long ago. */
@@ -223,7 +282,7 @@ final class Traffic
         DB::table('traffic_hits')->where('hour', '<', $cut)->delete();
         DB::table('traffic_paths')->where('hour', '<', $cut)->delete();
         DB::table('traffic_events')->where('at', '<', $cut)->delete();
-        if (DB::table('blocked_ips')->whereNotNull('expires_at')->where('expires_at', '<', $cut)->delete()) {
+        if (DB::table('blocked_ips')->whereNotNull('expires_at')->where('expires_at', '<', $cut)->whereNull('cf_rule_id')->delete()) {
             self::forgetBlocks();
         }
     }

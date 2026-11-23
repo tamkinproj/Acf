@@ -65,6 +65,8 @@ Route::middleware('api.json')->group(function () {
             Route::get('system/traffic/blocks', [\App\Http\Controllers\Api\TrafficController::class, 'blocks']);
             Route::post('system/traffic/blocks', [\App\Http\Controllers\Api\TrafficController::class, 'block'])->middleware('throttle:60,1,traffic-block');
             Route::delete('system/traffic/blocks/{id}', [\App\Http\Controllers\Api\TrafficController::class, 'unblock'])->whereNumber('id');
+            Route::post('system/traffic/blocks/{id}/cloudflare', [\App\Http\Controllers\Api\TrafficController::class, 'retry'])->whereNumber('id')->middleware('throttle:30,1,traffic-retry');
+            Route::get('system/traffic/cloudflare', [\App\Http\Controllers\Api\TrafficController::class, 'cloudflare'])->middleware('throttle:30,1,traffic-cf');
             Route::patch('system/traffic/settings', [\App\Http\Controllers\Api\TrafficController::class, 'settings'])->middleware('throttle:30,1,traffic-settings');
         });
         Route::middleware('permission:system.cloudflare')->group(function () {

@@ -83,7 +83,7 @@ class TrafficTest extends TestCase
         $this->assertContains('PH', array_column($d['countries'], 'code'));
         $this->assertSame(7, count($d['series']));
         $this->assertTrue($d['daily']);
-        $this->assertSame(['logging' => true, 'blocking' => true, 'retention_days' => 30], $d['settings']);
+        $this->assertSame(['logging' => true, 'blocking' => true, 'retention_days' => 30, 'alerts' => true, 'alert_failed' => 10, 'alert_refused' => 50], $d['settings']);
         $this->getJson('/api/system/traffic/visitors?q=203.0')->assertOk()->assertJsonPath('data.0.ip', '203.0.113.7');
         $a = $this->getJson('/api/system/traffic/address?ip=203.0.113.7')->assertOk()->json('data');
         $this->assertSame(['PH'], $a['countries']);
@@ -169,7 +169,7 @@ class TrafficTest extends TestCase
         $old = now()->subDays(40)->startOfHour()->format('Y-m-d H:i:s');
         DB::table('traffic_hits')->insert(['hour' => $old, 'ip' => '192.0.2.99', 'requests' => 5, 'first_at' => $old, 'last_at' => $old]);
         DB::table('traffic_events')->insert(['at' => $old, 'ip' => '192.0.2.99', 'kind' => 'not_found', 'method' => 'GET', 'path' => '/x', 'status' => 404]);
-        \Illuminate\Support\Facades\Cache::forget('traffic-pruned');
+        \Illuminate\Support\Facades\Cache::forget('traffic-maintained');
         $this->at('192.0.2.92')->getJson('/api/public/site')->assertOk();
         $this->assertNull($this->hit('192.0.2.99'));
         $this->assertSame(0, DB::table('traffic_events')->where('ip', '192.0.2.99')->count());

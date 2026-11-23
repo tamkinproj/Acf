@@ -1501,3 +1501,15 @@ html[class*="th-"] .rr-pill .rv-play,html[class*="th-"] .avatar.att-photo{backgr
 .sc .setrow select{width:auto;flex:none;min-width:8rem}
 .sc-dev{margin:.2rem 0 .8rem;padding-inline-start:1.2rem;font-size:.9rem}
 #scAllMore,#scEvMore{margin-top:.7rem}
+/* Security, phase 2: Cloudflare's figures, block status at Cloudflare */
+.sc-cfcard .sc-h{align-items:flex-start}
+.sc-cfcard .sc-tiles{margin-top:.8rem}
+.sc-sub{min-width:0;margin-top:.6rem}
+.sc-sub .optlbl{margin-top:.6rem}
+.sc-cferr{color:var(--danger,#b3261e)}
+.sc-cfs{display:flex;align-items:center;gap:.3rem;margin-top:.25rem;font-size:.8rem;color:var(--muted)}
+.sc-cfs .icon{width:.85rem;height:.85rem}
+.sc-cfs.ok{color:var(--accent-ink)}
+.sc-cfs.bad{color:var(--danger,#b3261e)}
+.sc-retry{margin-top:.4rem}
+.sc-block{align-items:flex-start}

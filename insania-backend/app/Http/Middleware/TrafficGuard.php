@@ -43,5 +43,9 @@ class TrafficGuard
         } catch (\Throwable) {
             // counting is best effort
         }
+        try {
+            Traffic::maintain();   // clean-up and ending blocks at Cloudflare, at most every ten minutes
+        } catch (\Throwable) {
+        }
     }
 }
