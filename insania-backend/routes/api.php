@@ -189,6 +189,8 @@ Route::middleware('api.json')->group(function () {
             Route::get('chat/conversations/{conversation}/messages', [\App\Http\Controllers\Api\ChatController::class, 'messages']);
             Route::get('chat/conversations/{conversation}/audience', [\App\Http\Controllers\Api\ChatController::class, 'audience']);
             Route::post('chat/conversations/{conversation}/messages', [\App\Http\Controllers\Api\ChatController::class, 'send'])->middleware('throttle:90,1');
+            Route::post('chat/conversations/{conversation}/files', [\App\Http\Controllers\Api\ChatController::class, 'sendFile'])->middleware(['throttle:30,1', 'block.uploads']);
+            Route::get('chat/conversations/{conversation}/messages/{message}/file', [\App\Http\Controllers\Api\ChatController::class, 'file'])->whereNumber('message');
         });
 
         // Applications from the public form (Aytam staff)
@@ -239,6 +241,10 @@ Route::middleware('api.json')->group(function () {
 
         // Office: the public landing page (President Admin)
         Route::get('site', [\App\Http\Controllers\Api\SiteController::class, 'show'])->middleware('permission:site.edit');
+        // a staff member's own card in the landing page team (linked by the President); changes wait in the draft
+        Route::get('site/team/me', [\App\Http\Controllers\Api\SiteController::class, 'myTeam'])->middleware('throttle:60,1');
+        Route::put('site/team/me', [\App\Http\Controllers\Api\SiteController::class, 'saveMyTeam'])->middleware('throttle:30,1');
+        Route::post('site/team/me/photo', [\App\Http\Controllers\Api\SiteController::class, 'myTeamPhoto'])->middleware(['throttle:10,1', 'block.uploads']);
         Route::put('site', [\App\Http\Controllers\Api\SiteController::class, 'save'])->middleware('permission:site.edit');
         Route::post('site/images', [\App\Http\Controllers\Api\SiteController::class, 'upload'])->middleware('permission:site.edit');
         Route::post('site/posts', [\App\Http\Controllers\Api\SiteController::class, 'post'])->middleware('permission:site.publish');

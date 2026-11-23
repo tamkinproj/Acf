@@ -15,9 +15,12 @@ use Illuminate\Support\Facades\Hash;
  */
 class PartnersController extends Controller
 {
+    /** The President sees every partner (working, paused, not set up). Other staff see only the partners that are working. */
     private function list(Request $request): array
     {
-        return Partners::all((int) $request->user()->foundation_id)->map(fn ($p) => $p->toApi())->values()->all();
+        $all = in_array('partners.manage', \App\Support\PermissionCatalog::forUser($request->user()), true);
+
+        return Partners::all((int) $request->user()->foundation_id)->filter(fn ($p) => $all || $p->status === 'active')->map(fn ($p) => $p->toApi())->values()->all();
     }
 
     public function index(Request $request)

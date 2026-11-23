@@ -5,6 +5,7 @@
     sess_title: "Where you are signed in", sess_note: "Sign out any device you do not recognise or have lost.", sess_this: "This device", sess_last: "Last used {d}", sess_out: "Sign out", sess_others: "Sign out all other devices", sess_done: "Signed out", sess_load: "Loading…",
     pw_title: "Change my password", pw_btn: "Change password", pw_cur: "Current password", pw_new: "New password", pw_again: "New password again", pw_hint: "At least 12 characters with upper and lower case and a number. No common words, and not your name or username. Your other devices will be signed out.",
     pw_same: "The two new passwords are not the same.", pw_done: "Password changed.", pw_conn: "Changing the password needs a connection.",
+    mc_row: "My card on the website", mc_title: "My card on the website", mc_note: "This is your card in the team section of the landing page. Your changes are saved as a draft; they appear on the website when the President publishes.", mc_live: "On the website as shown", mc_wait: "Changes waiting for the President to publish", mc_name_en: "Name (English)", mc_name_ar: "Name (Arabic)", mc_role_en: "Position (English)", mc_role_ar: "Position (Arabic)", mc_bio_en: "Details (English)", mc_bio_ar: "Details (Arabic)", mc_photo: "Photo", mc_change: "Change photo", mc_saved: "Saved. The President will publish it.", mc_card: "Card {n}",
     set_title: "Settings", set_rem: "Monthly reminders", set_amt: "Show amounts", set_lang: "Language", set_acct: "Account", set_role: "Role", set_dept: "Department",
     set_sync: "Offline and sync", set_last: "Last sent", set_never: "Not yet", set_now: "Send now", set_none: "Nothing is waiting.", set_install: "Install app", set_installed: "To install: use your browser menu, Add to Home Screen.",
     set_note: "After the first sign-in this app opens and works without internet. Changes made offline are saved here and sent when you are back online.", pref_saved: "Saved",
@@ -13,6 +14,7 @@
     sess_title: "الأجهزة المسجّلة الدخول", sess_note: "سجّل الخروج من أي جهاز لا تعرفه أو فقدته.", sess_this: "هذا الجهاز", sess_last: "آخر استخدام {d}", sess_out: "تسجيل الخروج", sess_others: "تسجيل الخروج من كل الأجهزة الأخرى", sess_done: "تم تسجيل الخروج", sess_load: "جارٍ التحميل…",
     pw_title: "تغيير كلمة المرور", pw_btn: "غيّر كلمة المرور", pw_cur: "كلمة المرور الحالية", pw_new: "كلمة المرور الجديدة", pw_again: "أعد كتابة كلمة المرور الجديدة", pw_hint: "12 حرفًا على الأقل مع حروف كبيرة وصغيرة ورقم. سيتم تسجيل خروج أجهزتك الأخرى.",
     pw_same: "كلمتا المرور الجديدتان غير متطابقتين.", pw_done: "تم تغيير كلمة المرور.", pw_conn: "تغيير كلمة المرور يحتاج اتصالًا.",
+    mc_row: "بطاقتي في الموقع", mc_title: "بطاقتي في الموقع", mc_note: "هذه بطاقتك في قسم الفريق في الصفحة الرئيسية. تُحفظ تغييراتك كمسودة، وتظهر في الموقع عندما ينشرها الرئيس.", mc_live: "ظاهرة في الموقع كما هي", mc_wait: "تغييرات بانتظار نشر الرئيس", mc_name_en: "الاسم (بالإنجليزية)", mc_name_ar: "الاسم (بالعربية)", mc_role_en: "المنصب (بالإنجليزية)", mc_role_ar: "المنصب (بالعربية)", mc_bio_en: "نبذة (بالإنجليزية)", mc_bio_ar: "نبذة (بالعربية)", mc_photo: "الصورة", mc_change: "تغيير الصورة", mc_saved: "تم الحفظ. سينشرها الرئيس.", mc_card: "البطاقة {n}",
     set_title: "الإعدادات", set_rem: "تذكيرات شهرية", set_amt: "إظهار المبالغ", set_lang: "اللغة", set_acct: "الحساب", set_role: "الدور", set_dept: "القسم",
     set_sync: "العمل بدون اتصال والمزامنة", set_last: "آخر إرسال", set_never: "لم يتم بعد", set_now: "أرسل الآن", set_none: "لا شيء بانتظار الإرسال.", set_install: "تثبيت التطبيق", set_installed: "للتثبيت: من قائمة المتصفح اختر إضافة إلى الشاشة الرئيسية.",
     set_note: "بعد أول تسجيل دخول يفتح التطبيق ويعمل بدون إنترنت. التغييرات التي تتم بدون اتصال تُحفظ هنا وتُرسل عند عودة الاتصال.", pref_saved: "تم الحفظ",
@@ -36,7 +38,7 @@
     var install = window.ACF_PWA && window.ACF_PWA.canInstall ? [row({ label: t("set_install"), tile: ["blue", "download"], act: "install", noChev: true })] : [];
     return '<div class="head"><h1 class="title">' + t("set_title") + '</h1></div><div class="ios">' +
       '<button class="ios-prof" type="button" data-act="profile">' + A.avatar(u, "big") + '<span class="grow"><b>' + esc(u.name) + '</b><span class="sub" dir="ltr">@' + esc(u.username || "") + "</span><span class=\"sub\">" + esc(u.role_label || "") + "</span></span>" + ic("chev", "ios-chev") + "</button>" +
-      '<input id="avatarIn" type="file" accept="image/jpeg,image/png,image/webp" hidden>' +
+      '<input id="avatarIn" type="file" accept="image/jpeg,image/png,image/webp" hidden>' + '<div id="myCardBox">' + (MC && MC.cards.length ? group(MC.cards.map(function (c, i) { return row({ label: t("mc_row") + (MC.cards.length > 1 ? " · " + (i + 1) : ""), tile: ["green", "globe"], act: "mycard", k: String(i), val: esc(t(c.published ? "mc_live" : "mc_wait")) }); })) : "") + "</div>" +
       (A.moreItems().length ? group(A.moreItems().map(function (m) { return row({ label: t(m[2]), tile: ["gray", m[4]], href: m[1] }); })) : "") +
       group([
         row({ label: t("set_rem"), tile: ["orange", "bell"], sw: { k: "reminders", on: pref.reminders !== false } }),
@@ -175,9 +177,37 @@
   A.act("discard", function (el) { A.api.discard(el.getAttribute("data-id")); A.paint(); });
   A.act("install", function () { window.ACF_PWA.install().then(function () { A.paint(); }); });
 
+  /* ---- my own card in the landing page team (when the President has linked one to me) ---- */
+  var MC = null, mcPhoto;
+  function mcLoad() { if (navigator.onLine === false) return; A.api.get("site/team/me", { cache: false }).then(function (r) { var had = MC && MC.cards.length; MC = r.data; if ((MC.cards.length || had) && document.getElementById("myCardBox")) A.paint(); }, function () {}); }
+  function mcField(k, long) {
+    var c = MC.cur, rtl = /_ar$/.test(k) ? ' dir="rtl"' : "", v = esc(c[k] || "");
+    return '<div><label for="mc_' + k + '">' + t("mc_" + k) + "</label>" + (long ? '<textarea id="mc_' + k + '" rows="3" maxlength="400"' + rtl + ">" + v + "</textarea>" : '<input id="mc_' + k + '" maxlength="100"' + rtl + ' value="' + v + '">') + '<div class="err" id="mc_' + k + 'Err"></div></div>';
+  }
+  A.act("mycard", function (el) {
+    MC.cur = MC.cards[+el.getAttribute("data-k")]; mcPhoto = MC.cur.photo; var im = mcPhoto && MC.images[mcPhoto];
+    A.sheet(t("mc_title"), '<form id="mcForm" novalidate><p class="note" style="margin-top:0">' + t("mc_note") + "</p>" +
+      '<div style="display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem"><span id="mcImg" class="avatar big" style="' + (im ? "background-image:url('" + esc(im.url) + "');background-size:cover" : "") + '"></span><button class="btn btn-line btn-sm" type="button" data-act="mcphoto">' + t("mc_change") + '</button><input type="file" id="mcIn" accept="image/jpeg,image/png,image/webp" hidden></div>' +
+      '<div style="display:grid;gap:.8rem">' + mcField("name_en") + mcField("name_ar") + mcField("role_en") + mcField("role_ar") + mcField("bio_en", true) + mcField("bio_ar", true) + "</div>" + A.formEnd("save") + "</form>");
+  });
+  A.act("mcphoto", function () {
+    var f = document.getElementById("mcIn");
+    f.onchange = function () { var file = f.files[0]; f.value = ""; if (!file) return; var fd = new FormData(); fd.append("image", file); A.toast("…");
+      A.api.upload("site/team/me/photo", fd).then(function (d) { mcPhoto = d.id; var b = document.getElementById("mcImg"); if (b) { b.style.backgroundImage = "url('" + d.url + "')"; b.style.backgroundSize = "cover"; } A.toast("✓"); }, function (e) { A.toast(e.offline ? t("need_conn") : A.msg(e)); }); };
+    f.click();
+  });
+  A.form("mcForm", function () {
+    var body = { index: MC.cur.index, photo: mcPhoto };
+    ["name_en", "name_ar", "role_en", "role_ar", "bio_en", "bio_ar"].forEach(function (k) { body[k] = document.getElementById("mc_" + k).value.trim(); document.getElementById("mc_" + k + "Err").textContent = ""; });
+    document.getElementById("formErr").textContent = "";
+    A.api.write("PUT", "site/team/me", body, { online: true }).then(function (r) { MC = r.data; A.closeSheet(); A.toast(t("mc_saved")); A.paint(); }, function (e) {
+      if (!(e.errors && A.showErrors(e.errors, "mc_"))) document.getElementById("formErr").textContent = e.offline ? t("need_conn") : A.msg(e);
+    });
+  });
+
   A.start({
     page: "settings", nav: "settings", title: "n_set", shell: true, load: function () { return Promise.resolve({ data: {} }); }, render: render,
     onSync: function () { A.paint(); },
-    after: function () { if (location.hash === "#outbox") { var el = document.querySelector("[data-act=outbox]"); if (el) el.click(); } }
+    after: function () { if (!MC) mcLoad(); if (location.hash === "#outbox") { var el = document.querySelector("[data-act=outbox]"); if (el) el.click(); } }
   });
 })();

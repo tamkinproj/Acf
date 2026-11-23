@@ -92,6 +92,7 @@
     fillPhoto($(".avatar", card), m.photo); var av = $(".avatar img", card); if (av) av.style.position = "static";
     dynText($("b", card), m.name_en || m.name_ar, m.name_ar || m.name_en);
     var sp = $("span", card); if (m.role_en || m.role_ar) dynText(sp, m.role_en || m.role_ar, m.role_ar || m.role_en); else sp.remove();
+    if (m.bio_en || m.bio_ar) { var bio = document.createElement("p"); bio.className = "bio"; card.appendChild(bio); dynText(bio, m.bio_en || m.bio_ar, m.bio_ar || m.bio_en); }   // a few words about the person
   }
   function buildNews(card, n) {
     fillPhoto($(".photo", card), n.photo); var ph = $(".photo span", card); if (ph && imgUrl(n.photo)) ph.remove();

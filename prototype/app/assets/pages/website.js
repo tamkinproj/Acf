@@ -12,7 +12,7 @@
     ws_fix: "Fix these first:", ws_leave: "You have unsaved changes. Leave without saving?", ws_untitled: "(untitled)",
     wp_btn: "Post an update", wp_title: "Post an update", wp_note: "Appears at the top of the Updates section of the landing page as soon as you post. Other draft changes are not published.", wp_t_en: "Title (English)", wp_t_ar: "Title (Arabic)", wp_s_en: "Text (English)", wp_s_ar: "Text (Arabic)", wp_photo: "Add a photo", wp_post: "Post", wp_done: "Update posted on the landing page", wp_need: "Write a title in English or Arabic.", ws_projects: "Projects we have completed", ws_team: "Team and staff", ws_news: "News and announcements",
     f_title_en: "Title (English)", f_title_ar: "Title (Arabic)", f_category: "Category", f_location_en: "Place (English)", f_location_ar: "Place (Arabic)", f_year: "Year completed", f_ben: "Beneficiaries", f_sponsor_en: "Sponsored by (English)", f_sponsor_ar: "Sponsored by (Arabic)",
-    f_name_en: "Name (English)", f_name_ar: "Name (Arabic)", f_role_en: "Position (English)", f_role_ar: "Position (Arabic)", f_summary_en: "Summary (English)", f_summary_ar: "Summary (Arabic)", f_date: "Date",
+    f_bio_en: "Details (English)", f_bio_ar: "Details (Arabic)", f_who: "Staff account that can edit this card", f_who_none: "Nobody (only you)", f_you: "you", f_who_note: "That person can change their own name, position, details and photo from Settings. Their changes wait in the draft until you publish.", f_name_en: "Name (English)", f_name_ar: "Name (Arabic)", f_role_en: "Position (English)", f_role_ar: "Position (Arabic)", f_summary_en: "Summary (English)", f_summary_ar: "Summary (Arabic)", f_date: "Date",
     cat_orphan: "Orphan care", cat_edu: "Education", cat_alimni: "Alimni", cat_waqf: "Waqf", cat_water: "Water", cat_mosque: "Mosques", cat_relief: "Relief", cat_train: "Training and events", ws_open: "Open the public page", ws_edit_page: "Edit on the page"
   }, {
     ws_title: "الموقع", ws_note: "هنا تعدّل الصفحة العامة. تبقى التغييرات مسودة حتى تضغط نشر. يحتاج اتصالًا بالإنترنت.",
@@ -24,7 +24,7 @@
     ws_fix: "أصلح هذه أولًا:", ws_leave: "لديك تغييرات غير محفوظة. المغادرة دون حفظ؟", ws_untitled: "(بلا عنوان)",
     wp_btn: "نشر تحديث", wp_title: "نشر تحديث", wp_note: "يظهر في أعلى قسم التحديثات في الصفحة الرئيسية فور النشر. لا تُنشر تعديلات المسودة الأخرى.", wp_t_en: "العنوان (الإنجليزية)", wp_t_ar: "العنوان (العربية)", wp_s_en: "النص (الإنجليزية)", wp_s_ar: "النص (العربية)", wp_photo: "إضافة صورة", wp_post: "نشر", wp_done: "تم نشر التحديث في الصفحة الرئيسية", wp_need: "اكتب عنوانًا بالإنجليزية أو العربية.", ws_projects: "المشاريع التي أنجزناها", ws_team: "الفريق والموظفون", ws_news: "الأخبار والإعلانات",
     f_title_en: "العنوان (بالإنجليزية)", f_title_ar: "العنوان (بالعربية)", f_category: "التصنيف", f_location_en: "المكان (بالإنجليزية)", f_location_ar: "المكان (بالعربية)", f_year: "سنة الإنجاز", f_ben: "عدد المستفيدين", f_sponsor_en: "برعاية (بالإنجليزية)", f_sponsor_ar: "برعاية (بالعربية)",
-    f_name_en: "الاسم (بالإنجليزية)", f_name_ar: "الاسم (بالعربية)", f_role_en: "المنصب (بالإنجليزية)", f_role_ar: "المنصب (بالعربية)", f_summary_en: "الملخص (بالإنجليزية)", f_summary_ar: "الملخص (بالعربية)", f_date: "التاريخ",
+    f_bio_en: "نبذة (بالإنجليزية)", f_bio_ar: "نبذة (بالعربية)", f_who: "حساب الموظف الذي يمكنه تعديل هذه البطاقة", f_who_none: "لا أحد (أنت فقط)", f_you: "أنت", f_who_note: "يستطيع هذا الشخص تغيير اسمه ومنصبه ونبذته وصورته من الإعدادات. تبقى تغييراته في المسودة حتى تنشرها.", f_name_en: "الاسم (بالإنجليزية)", f_name_ar: "الاسم (بالعربية)", f_role_en: "المنصب (بالإنجليزية)", f_role_ar: "المنصب (بالعربية)", f_summary_en: "الملخص (بالإنجليزية)", f_summary_ar: "الملخص (بالعربية)", f_date: "التاريخ",
     cat_orphan: "رعاية الأيتام", cat_edu: "التعليم", cat_alimni: "علّمني", cat_waqf: "الوقف", cat_water: "المياه", cat_mosque: "المساجد", cat_relief: "الإغاثة", cat_train: "التدريب والفعاليات", ws_open: "افتح الصفحة العامة", ws_edit_page: "تعديل على الصفحة نفسها"
   });
   // Arabic names of the page's own fields (the server sends English labels)
@@ -122,7 +122,14 @@
       '<div><label>' + t("f_category") + '</label><select data-path="' + b + '.category">' + cats + "</select></div>" +
       pair(b + ".location", "f_location_en", "f_location_ar", { max: 150 }) + '<div class="pair">' + input(b + ".year", t("f_year"), { max: 4, dir: "ltr", attrs: ' inputmode="numeric"' }) + input(b + ".beneficiaries", t("f_ben"), { max: 9, dir: "ltr", attrs: ' inputmode="numeric"' }) + "</div>" + pair(b + ".sponsor", "f_sponsor_en", "f_sponsor_ar", { max: 100 });
   }
-  function teamFields(b) { return pair(b + ".name", "f_name_en", "f_name_ar", { max: 100 }) + pair(b + ".role", "f_role_en", "f_role_ar", { max: 100 }); }
+  var STAFF = [];   // staff accounts, to link a team card to the person it shows
+  function teamFields(b) {
+    var cur = String(val(b + ".user_id") || ""), has = false;
+    var opts = STAFF.map(function (u) { var on = String(u.id) === cur; if (on) has = true; return '<option value="' + u.id + '"' + (on ? " selected" : "") + ">" + esc(u.name) + (u.role_label ? " · " + esc(u.role_label) : "") + "</option>"; }).join("");
+    if (cur && !has) opts += '<option value="' + esc(cur) + '" selected>#' + esc(cur) + "</option>";
+    return pair(b + ".name", "f_name_en", "f_name_ar", { max: 100 }) + pair(b + ".role", "f_role_en", "f_role_ar", { max: 100 }) + pair(b + ".bio", "f_bio_en", "f_bio_ar", { long: true, max: 400, rows: 3 }) +
+      '<div><label for="w_' + b.replace(/\./g, "_") + '_user">' + t("f_who") + '</label><select id="w_' + b.replace(/\./g, "_") + '_user" data-path="' + b + '.user_id"><option value="">' + t("f_who_none") + "</option>" + opts + '</select><p class="note" style="margin:.3rem 0 0">' + t("f_who_note") + "</p></div>";
+  }
   function newsFields(b) { return pair(b + ".title", "f_title_en", "f_title_ar", { max: 150 }) + pair(b + ".summary", "f_summary_en", "f_summary_ar", { long: true, max: 600, rows: 3 }) + input(b + ".date", t("f_date"), { type: "date", dir: "ltr" }); }
   function versions() {
     if (!S.versions.length) return "";
@@ -205,5 +212,5 @@
     A.api.write("POST", "site/revert/" + n, {}, { online: true }).then(function () { dirty = false; A.toast(t("ws_restored")); A.reload(); }, function (e) { A.toast(e.offline ? t("need_conn") : A.msg(e)); });
   });
 
-  A.start({ page: "website", nav: "website", title: "ws_title", needsConn: true, perm: "site.edit", shell: true, load: function () { dirty = false; errors = null; return A.api.get("site", { cache: false }); }, render: render, after: after });
+  A.start({ page: "website", nav: "website", title: "ws_title", needsConn: true, perm: "site.edit", shell: true, load: function () { dirty = false; errors = null; A.api.get("chat/people", { cache: false }).then(function (r) { var me = A.user() || {}; STAFF = (me.id ? [{ id: me.id, name: me.name, role_label: t("f_you") }] : []).concat(r.data || []); if (S && !dirty) A.paint(); }, function () {}); return A.api.get("site", { cache: false }); }, render: render, after: after });
 })();

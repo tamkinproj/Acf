@@ -30,6 +30,10 @@ class PartnersTest extends TestCase
     {
         $this->world();
         $this->actingAsRole('staff:aytam');
+        // staff see only the partner that is working
+        $this->assertSame(['dar_al_ber'], array_column($this->getJson('/api/partners')->assertOk()->json('data'), 'code'));
+        $this->app['auth']->forgetGuards();
+        $this->actingAsRole('president_admin');   // the President sees them all
         $list = $this->getJson('/api/partners')->assertOk()->json('data');
         $this->assertSame(['dar_al_ber', 'dubai_charity', 'sharjah_charity', 'ico'], array_column($list, 'code'));
         $this->assertSame(['active', 'not_setup', 'not_setup', 'not_setup'], array_column($list, 'status'));

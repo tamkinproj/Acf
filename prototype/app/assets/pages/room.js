@@ -1,6 +1,8 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
-  A.strings({ ci_tap: "Tap for settings and members", ci_title: "Chat settings" }, { ci_tap: "اضغط للإعدادات والأعضاء", ci_title: "إعدادات المحادثة" });
+  A.strings({ ci_tap: "Tap for settings and members", ci_title: "Chat settings", rm_photo: "Send a photo", rm_voice: "Record a voice message", rm_rec: "Recording…", rm_rec_send: "Send", rm_rec_cancel: "Cancel", rm_no_mic: "Voice messages need the microphone. Allow it in the browser, or this browser cannot record.", rm_sending: "Sending…", rm_dm: "Message {n}", rm_voice_msg: "Voice message", rm_photo_msg: "Photo" },
+    { ci_tap: "اضغط للإعدادات والأعضاء", ci_title: "إعدادات المحادثة", rm_photo: "إرسال صورة", rm_voice: "تسجيل رسالة صوتية", rm_rec: "جارٍ التسجيل…", rm_rec_send: "إرسال", rm_rec_cancel: "إلغاء", rm_no_mic: "الرسائل الصوتية تحتاج الميكروفون. اسمح به في المتصفح، أو أن هذا المتصفح لا يستطيع التسجيل.", rm_sending: "جارٍ الإرسال…", rm_dm: "مراسلة {n}", rm_voice_msg: "رسالة صوتية", rm_photo_msg: "صورة" });
+  var FILES = {};   // message id => blob: address of its photo or voice message (fetched with the sign-in token)
   var cid = parseInt((location.search.match(/[?&]c=(\d+)/) || [])[1], 10) || 0;
   var POP = {}, MSGS = [], META = null, lastId = 0, draft = "", timer = null, busy = false;
   var HOST = null, opened = 0;   // HOST: on a computer the conversation is drawn in the chat page's right-hand pane; null on its own page
@@ -24,8 +26,15 @@
   // Messenger style: a centred time when the talk pauses, one small avatar per run of messages from the same person, pill bubbles, no time inside them
   function sep(a, b) { return !a || new Date(a.at).toDateString() !== new Date(b.at).toDateString() || (new Date(b.at) - new Date(a.at)) > 20 * 60000; }
   function stamp(iso) { return new Date(iso).toDateString() === new Date().toDateString() ? hm(iso) : day(iso) + " · " + hm(iso); }
+  function fileHtml(m) {
+    var f = m.file; if (!f) return "";
+    var src = FILES[m.id] ? ' src="' + esc(FILES[m.id]) + '"' : "";
+    if (f.kind === "image") return '<button type="button" class="rm-img' + (POP[m.id] ? " pop" : "") + '" data-act="rmimg" data-id="' + m.id + '" aria-label="' + esc(t("rm_photo_msg")) + '"><img alt="" data-file="' + m.id + '"' + src + "></button>";
+    return '<div class="rm-voice' + (POP[m.id] ? " pop" : "") + '">' + ic("bell") + '<audio controls preload="metadata" data-file="' + m.id + '"' + src + ' aria-label="' + esc(t("rm_voice_msg")) + '"></audio></div>';
+  }
   function one(m) {
     var c = m.card ? card(m.card) : ""; if (c && POP[m.id]) c = c.replace('class="cc', 'class="pop cc');
+    c += fileHtml(m);
     return c + (m.body ? '<p class="b' + (POP[m.id] ? " pop" : "") + '" data-id="' + m.id + '" title="' + esc(hm(m.at)) + '">' + esc(m.body) + "</p>" : "");
   }
   function listHtml() {
@@ -35,8 +44,9 @@
       var m = MSGS[i], g = [m], j = i + 1;
       if (sep(MSGS[i - 1], m)) out += '<div class="rm-time">' + esc(stamp(m.at)) + "</div>";
       while (j < MSGS.length && MSGS[j].user_id === m.user_id && !sep(MSGS[j - 1], MSGS[j])) { g.push(MSGS[j]); j++; }
-      out += '<div class="grp ' + (m.mine ? "me" : "you") + '">' + (m.mine ? "" : A.avatar({ id: m.user_id, name: m.user, avatar: m.av }, "rm-av")) +
-        '<div class="stack">' + (!m.mine && META && (META.type === "general" || META.type === "group") ? '<span class="msg-who">' + esc(m.user || "") + "</span>" : "") + g.map(one).join("") + "</div></div>";
+      var grpChat = META && (META.type === "general" || META.type === "group"), dm = grpChat && !m.mine ? ' data-act="dmuser" data-id="' + m.user_id + '" aria-label="' + esc(t("rm_dm", { n: m.user || "" })) + '"' : "";
+      out += '<div class="grp ' + (m.mine ? "me" : "you") + '">' + (m.mine ? "" : (dm ? '<button type="button" class="rm-avbtn"' + dm + ">" + A.avatar({ id: m.user_id, name: m.user, avatar: m.av }, "rm-av") + "</button>" : A.avatar({ id: m.user_id, name: m.user, avatar: m.av }, "rm-av"))) +
+        '<div class="stack">' + (!m.mine && grpChat ? '<button type="button" class="msg-who"' + dm + ">" + esc(m.user || "") + "</button>" : "") + g.map(one).join("") + "</div></div>";
       i = j;
     }
     return out;
@@ -64,7 +74,9 @@
     return '<div class="rm' + (HOST ? " in-pane" : "") + '"><div class="dp-bar">' + head + "</div>" +
       '<div class="rm-list" id="msgs">' + listHtml() + "</div>" +
       '<form class="rm-comp" id="rmForm" novalidate><button type="button" class="rm-clip" data-act="attach" aria-label="' + esc(t("chat_attach")) + '">' + ic("clip") + '</button>' +
+      '<button type="button" class="rm-clip" data-act="rmphoto" aria-label="' + esc(t("rm_photo")) + '">' + ic("camera") + '</button><input type="file" id="rmPhotoIn" accept="image/*" hidden>' +
       '<textarea id="rmText" rows="1" maxlength="2000" placeholder="' + esc(t("chat_type")) + '" aria-label="' + esc(t("chat_type")) + '">' + esc(draft) + '</textarea>' +
+      '<button type="button" class="rm-clip rm-mic" data-act="rmvoice" aria-label="' + esc(t("rm_voice")) + '">' + ic("mic") + "</button>" +
       '<button type="submit" class="rm-send" aria-label="' + esc(t("chat_send")) + '">' + ic("send") + "</button></form><div class=\"err rm-err\" id=\"rmErr\" role=\"alert\"></div></div>";
   }
 
@@ -72,7 +84,10 @@
     var fresh = rows.filter(function (m) { return m.id > lastId; }); if (!fresh.length) return false;
     var stick = nearBottom(), list = document.getElementById("msgs");
     fresh.forEach(function (m) { MSGS.push(m); lastId = Math.max(lastId, m.id); POP[m.id] = 1; });
+    var playing = list && Array.prototype.filter.call(list.querySelectorAll("audio"), function (a) { return !a.paused; })[0], at = playing ? [playing.getAttribute("data-file"), playing.currentTime] : null;
     if (list) list.innerHTML = listHtml();   // the runs of messages are regrouped as new ones arrive
+    loadFiles();
+    if (at) { var again = list.querySelector('audio[data-file="' + at[0] + '"]'); if (again && again.src) { again.currentTime = at[1]; again.play().catch(function () {}); } }
     setTimeout(function () { POP = {}; }, 900);
     if (fresh.some(function (m) { return !m.mine; })) A.sound("receive"); else A.sound("send");   // like iMessage: a soft pop in, and a sound
     if (stick || fresh.some(function (m) { return m.mine; })) toBottom();
@@ -87,6 +102,7 @@
     var tx = document.getElementById("rmText"); if (!tx) return;
     tx.addEventListener("input", function () { draft = tx.value; tx.style.height = "auto"; tx.style.height = Math.min(tx.scrollHeight, 130) + "px"; });
     tx.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && (window.matchMedia && window.matchMedia("(hover:hover)").matches)) { e.preventDefault(); send(); } });
+    loadFiles();
     if (MSGS.length) toBottom();
     clearInterval(timer); timer = setInterval(poll, 4000);
   }
@@ -102,6 +118,73 @@
     }, function (e) { busy = false; err.textContent = e.offline ? t("chat_offline") : A.msg(e); });
   }
   A.form("rmForm", function () { send(); });
+
+  /* ---- photos and voice messages ---- */
+  function loadFiles() {
+    Array.prototype.forEach.call(document.querySelectorAll("#msgs [data-file]"), function (el) {
+      var id = el.getAttribute("data-file"); if (el.getAttribute("src")) return;
+      if (FILES[id]) { el.src = FILES[id]; return; }
+      FILES[id] = ""; A.api.blobUrl("chat/conversations/" + cid + "/messages/" + id + "/file").then(function (u) {
+        FILES[id] = u; Array.prototype.forEach.call(document.querySelectorAll('#msgs [data-file="' + id + '"]'), function (x) { x.src = u; });
+        if (el.tagName === "IMG") el.addEventListener("load", function () { if (nearBottom()) toBottom(); }, { once: true });
+      }, function () { delete FILES[id]; });
+    });
+  }
+  function sendFile(kind, blob, name, ms) {
+    var err = document.getElementById("rmErr"), tx = document.getElementById("rmText"), fd = new FormData();
+    if (navigator.onLine === false) { err.textContent = t("chat_offline"); return; }
+    fd.append("kind", kind); fd.append("file", blob, name); if (ms) fd.append("ms", String(Math.round(ms)));
+    var text = kind === "image" && tx ? tx.value.trim() : ""; if (text) fd.append("body", text);
+    err.textContent = t("rm_sending");
+    A.api.upload("chat/conversations/" + cid + "/files", fd).then(function (d) {
+      err.textContent = ""; if (text) { draft = ""; tx.value = ""; tx.style.height = "auto"; }
+      addMessages([d]); toBottom();
+    }, function (e) { err.textContent = e.offline ? t("chat_offline") : A.msg(e); });
+  }
+  A.act("rmphoto", function () {
+    var f = document.getElementById("rmPhotoIn"); if (!f) return;
+    f.onchange = function () { var file = f.files[0]; f.value = ""; if (file) sendFile("image", file, file.name || "photo.jpg"); };
+    f.click();
+  });
+  A.act("rmimg", function (el) { var u = FILES[el.getAttribute("data-id")]; if (u) window.open(u, "_blank", "noopener"); });
+
+  // voice: tap the microphone, talk, then Send (or Cancel). At most two minutes.
+  var REC = null;
+  function recBar(sec) { return '<div class="rm-rec" role="status"><span class="rm-dot"></span><b>' + esc(t("rm_rec")) + '</b><span class="rm-t" id="rmRecT">' + Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2) + '</span><button type="button" class="btn btn-line btn-sm" data-act="rmrecx">' + t("rm_rec_cancel") + '</button><button type="button" class="btn btn-main btn-sm" data-act="rmrecgo">' + ic("send") + t("rm_rec_send") + "</button></div>"; }
+  function recStop(send) {
+    if (!REC) return; var r = REC; REC = null; clearInterval(r.tick); r.send = send;
+    try { r.rec.stop(); } catch (e) { r.done(); }
+  }
+  A.act("rmvoice", function () {
+    var err = document.getElementById("rmErr"); if (REC) return;
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)) { err.textContent = t("rm_no_mic"); return; }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      var type = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"].filter(function (x) { return MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(x); })[0];
+      var rec = type ? new MediaRecorder(stream, { mimeType: type }) : new MediaRecorder(stream), parts = [], started = Date.now();
+      var form = document.getElementById("rmForm"), bar = document.createElement("div"); bar.className = "rm-rec"; bar.innerHTML = recBar(0).replace(/^<div class="rm-rec" role="status">|<\/div>$/g, ""); bar.setAttribute("role", "status"); form.appendChild(bar); form.classList.add("recording");
+      var r = { rec: rec, send: false };
+      r.done = function () {
+        stream.getTracks().forEach(function (x) { x.stop(); }); bar.remove(); form.classList.remove("recording");
+        var ms = Date.now() - started, mime = (rec.mimeType || type || "audio/webm").split(";")[0];
+        if (r.send && parts.length && ms > 700) sendFile("audio", new Blob(parts, { type: mime }), "voice." + (/mp4/.test(mime) ? "m4a" : /ogg/.test(mime) ? "ogg" : "webm"), ms);
+      };
+      rec.ondataavailable = function (e) { if (e.data && e.data.size) parts.push(e.data); };
+      rec.onstop = r.done;
+      r.tick = setInterval(function () { var sec = Math.floor((Date.now() - started) / 1000), el = document.getElementById("rmRecT"); if (el) el.textContent = Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); if (sec >= 120) recStop(true); }, 500);
+      REC = r; err.textContent = ""; rec.start(250);
+    }, function () { err.textContent = t("rm_no_mic"); });
+  });
+  A.act("rmrecgo", function () { recStop(true); });
+  A.act("rmrecx", function () { recStop(false); });
+
+  // tap a person in a group to message them on their own
+  function openDirect(userId) {
+    A.api.write("POST", "chat/direct", { user_id: userId }, { online: true }).then(function (r) {
+      var id = (r.data || r).id; location.href = (window.matchMedia && window.matchMedia("(min-width:1024px)").matches ? "chat.html?c=" : "room.html?c=") + id;
+    }, function (e) { var err = document.getElementById("rmErr"); if (err) err.textContent = A.msg(e); else A.toast(A.msg(e)); });
+  }
+  A.act("dmuser", function (el) { openDirect(+el.getAttribute("data-id")); });
+  A.openDirect = openDirect;
   // group settings: a panel beside the conversation on a computer, their own page on a phone
   A.act("rminfo", function (el, e) {
     if (!HOST || !A.chatinfo) return;

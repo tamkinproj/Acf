@@ -148,7 +148,15 @@ final class SiteContentRules
         }
         unset($p);
 
-        $out['team'] = $list('team', ['name_en' => [100, false], 'name_ar' => [100, false], 'role_en' => [100, false], 'role_ar' => [100, false]]);
+        $out['team'] = $list('team', ['name_en' => [100, false], 'name_ar' => [100, false], 'role_en' => [100, false], 'role_ar' => [100, false], 'bio_en' => [400, true], 'bio_ar' => [400, true]]);
+        // the staff account that may edit this card itself (a staff account of this foundation, or nobody)
+        $rawTeam = is_array($in['team'] ?? null) ? array_values($in['team']) : [];
+        $staff = \App\Models\User::withoutGlobalScopes()->where('foundation_id', $foundationId)->where('role', '!=', 'user')->pluck('id')->flip();
+        foreach ($out['team'] as $i => &$m) {
+            $uid = (int) (is_array($rawTeam[$i] ?? null) ? ($rawTeam[$i]['user_id'] ?? 0) : 0);
+            $m['user_id'] = $uid > 0 && isset($staff[$uid]) ? $uid : null;
+        }
+        unset($m);
         foreach ($out['team'] as $i => $m) {
             if ($m['name_en'] === '' && $m['name_ar'] === '') {
                 $err["team.$i.name_en"] = 'Give the person a name.';

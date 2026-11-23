@@ -12,6 +12,7 @@ use App\Support\Audit;
 use App\Support\ChatCards;
 use App\Support\PermissionCatalog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Office chat. Everything here needs the chat.use permission (President Admin and staff; never the system roles).
@@ -89,6 +90,9 @@ class ChatController extends Controller
         if ($m->card_kind) {
             $out['card'] = ChatCards::describe($viewer, $m->card_kind, $m->card_id, $m->card_extra);
         }
+        if ($m->file_kind) {   // the file itself is fetched with the sign-in token: chat/conversations/{c}/messages/{m}/file
+            $out['file'] = ['kind' => $m->file_kind, 'ms' => $m->file_ms, 'size' => $m->file_size];
+        }
 
         return $out;
     }
@@ -99,7 +103,11 @@ class ChatController extends Controller
             return null;
         }
 
-        return $m->body !== null && $m->body !== '' ? mb_substr($m->body, 0, 80) : '['.$m->card_kind.']';
+        if ($m->body !== null && $m->body !== '') {
+            return mb_substr($m->body, 0, 80);
+        }
+
+        return $m->file_kind ? ($m->file_kind === 'audio' ? '[voice]' : '[photo]') : '['.$m->card_kind.']';
     }
 
     public function conversations(Request $request)
@@ -248,6 +256,64 @@ class ChatController extends Controller
         }
 
         return ApiResponse::created($this->messageOut($m->load('user'), $me));
+    }
+
+    /** Sound files a phone or computer records (MediaRecorder): WebM/Ogg (Chrome, Firefox, Android), MP4/AAC (iPhone). */
+    private const AUDIO = ['audio/webm' => 'webm', 'video/webm' => 'webm', 'audio/ogg' => 'ogg', 'application/ogg' => 'ogg', 'audio/mp4' => 'm4a', 'video/mp4' => 'm4a', 'audio/x-m4a' => 'm4a', 'audio/aac' => 'aac', 'audio/mpeg' => 'mp3', 'audio/wav' => 'wav', 'audio/x-wav' => 'wav'];
+
+    /** POST chat/conversations/{c}/files - a photo (kind=image) or a voice message (kind=audio), with optional text. */
+    public function sendFile(Request $request, ChatConversation $conversation)
+    {
+        $me = $this->me($request);
+        if (! $this->mayUse($me, $conversation)) {
+            return ApiResponse::forbidden();
+        }
+        $data = $request->validate([
+            'kind' => ['required', 'in:image,audio'],
+            'file' => ['required', 'file', 'max:'.($request->input('kind') === 'audio' ? 3072 : 4096)],
+            'body' => ['nullable', 'string', 'max:2000'],
+            'ms' => ['nullable', 'integer', 'min:0', 'max:130000'],
+        ]);
+        $dir = 'chat/'.$me->foundation_id.'/'.$conversation->id;
+        if ($data['kind'] === 'image') {
+            $saved = \App\Support\PrivateImages::store($request->file('file'), $dir, 1600, 4096);   // decoded and saved again: nothing hidden in the file survives
+            if (is_string($saved)) {
+                return ApiResponse::error('VALIDATION_ERROR', $saved, 422, ['file' => [$saved]]);
+            }
+            $file = ['file_kind' => 'image', 'file_path' => $saved['path'], 'file_mime' => 'image/jpeg', 'file_size' => strlen((string) Storage::disk('local')->get($saved['path']))];
+        } else {
+            $up = $request->file('file');
+            $mime = (string) (new \finfo(FILEINFO_MIME_TYPE))->file($up->getRealPath());
+            if (! isset(self::AUDIO[$mime])) {
+                return ApiResponse::error('VALIDATION_ERROR', 'This is not a voice recording.', 422, ['file' => ['This is not a voice recording.']]);
+            }
+            $path = $dir.'/'.bin2hex(random_bytes(16)).'.'.self::AUDIO[$mime];
+            if (! Storage::disk('local')->put($path, (string) file_get_contents($up->getRealPath()))) {
+                return ApiResponse::error('SAVE_FAILED', 'The recording could not be saved.', 500);
+            }
+            $file = ['file_kind' => 'audio', 'file_path' => $path, 'file_mime' => str_starts_with($mime, 'video/') ? 'audio/'.substr($mime, 6) : $mime, 'file_size' => $up->getSize(), 'file_ms' => min(120000, (int) ($data['ms'] ?? 0)) ?: null];
+        }
+        $body = trim((string) ($data['body'] ?? ''));
+        $m = ChatMessage::create(['foundation_id' => $me->foundation_id, 'conversation_id' => $conversation->id, 'user_id' => $me->id, 'body' => $body === '' ? null : $body, 'created_at' => now()] + $file);
+        $conversation->forceFill(['last_message_at' => $m->created_at])->save();
+        $this->memberRow($me, $conversation)->update(['last_read_id' => $m->id]);
+
+        return ApiResponse::created($this->messageOut($m->load('user'), $me));
+    }
+
+    /** GET chat/conversations/{c}/messages/{m}/file - only for the chat's members. */
+    public function file(Request $request, ChatConversation $conversation, int $message)
+    {
+        $me = $this->me($request);
+        if (! $this->mayUse($me, $conversation)) {
+            return ApiResponse::forbidden();
+        }
+        $m = ChatMessage::where('conversation_id', $conversation->id)->where('id', $message)->first();
+        if (! $m || ! $m->file_path || ! Storage::disk('local')->exists($m->file_path)) {
+            return ApiResponse::notFound('No such file.');
+        }
+
+        return response(Storage::disk('local')->get($m->file_path), 200, ['Content-Type' => $m->file_mime ?: 'application/octet-stream', 'Cache-Control' => 'private, no-store', 'X-Content-Type-Options' => 'nosniff']);
     }
 
     /** POST chat/groups - anyone who can chat makes a group and chooses who is in it. */

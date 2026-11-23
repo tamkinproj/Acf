@@ -63,6 +63,84 @@ class SiteController extends Controller
         return ApiResponse::updated(['unpublished_changes' => $clean != $row->published] + self::withImages($clean, $fid));
     }
 
+    /** The landing-page team cards linked to the signed-in staff member (what they may edit themselves). */
+    public function myTeam(Request $request)
+    {
+        if ($request->user()->role === 'user') {   // family and orphan accounts have no team card
+            return ApiResponse::error('FORBIDDEN', 'This account is not allowed to do that.', 403);
+        }
+        $row = $this->row($request);
+        $draft = $row->draft ?: SiteContentRules::defaults();
+        $mine = [];
+        foreach ($draft['team'] ?? [] as $i => $m) {
+            if ((int) ($m['user_id'] ?? 0) === (int) $request->user()->id) {
+                $live = $row->published['team'][$i] ?? null;
+                $mine[] = ['index' => $i, 'published' => $live !== null && $live == $m] + array_intersect_key($m, array_flip(['name_en', 'name_ar', 'role_en', 'role_ar', 'bio_en', 'bio_ar', 'photo']));
+            }
+        }
+        $images = self::withImages(['team' => $mine], (int) $request->user()->foundation_id)['images'] ?? [];
+
+        return ApiResponse::ok(['cards' => $mine, 'images' => $images]);
+    }
+
+    /** A staff member changes their own team card. It goes into the draft: the President publishes it. */
+    public function saveMyTeam(Request $request)
+    {
+        if ($request->user()->role === 'user') {   // family and orphan accounts have no team card
+            return ApiResponse::error('FORBIDDEN', 'This account is not allowed to do that.', 403);
+        }
+        $data = $request->validate([
+            'index' => ['required', 'integer', 'min:0'],
+            'name_en' => ['nullable', 'string', 'max:100'], 'name_ar' => ['nullable', 'string', 'max:100'],
+            'role_en' => ['nullable', 'string', 'max:100'], 'role_ar' => ['nullable', 'string', 'max:100'],
+            'bio_en' => ['nullable', 'string', 'max:400'], 'bio_ar' => ['nullable', 'string', 'max:400'],
+            'photo' => ['nullable', 'integer'],
+        ]);
+        $row = $this->row($request);
+        $draft = $row->draft ?: SiteContentRules::defaults();
+        $i = (int) $data['index'];
+        if (! isset($draft['team'][$i]) || (int) ($draft['team'][$i]['user_id'] ?? 0) !== (int) $request->user()->id) {
+            return ApiResponse::error('FORBIDDEN', 'This card is not yours to change.', 403);
+        }
+        foreach (['name_en', 'name_ar', 'role_en', 'role_ar', 'bio_en', 'bio_ar'] as $k) {
+            if (array_key_exists($k, $data)) {
+                $draft['team'][$i][$k] = (string) ($data[$k] ?? '');
+            }
+        }
+        if (array_key_exists('photo', $data)) {
+            $draft['team'][$i]['photo'] = $data['photo'];
+        }
+        [$clean, $errors] = SiteContentRules::clean($draft, (int) $request->user()->foundation_id);
+        $mineErr = array_filter($errors, fn ($k) => str_starts_with($k, "team.$i."), ARRAY_FILTER_USE_KEY);
+        if ($mineErr) {
+            return ApiResponse::error('INVALID_CONTENT', 'Some fields need fixing.', 422, array_combine(array_map(fn ($k) => substr($k, strlen("team.$i.")), array_keys($mineErr)), array_map(fn ($m) => [$m], $mineErr)));
+        }
+        if ($errors) {   // something else in the draft is wrong: only this card changes
+            $draft = $row->draft;
+            $draft['team'][$i] = $clean['team'][$i];
+            $clean = $draft;
+        }
+        $row->update(['draft' => $clean, 'updated_by' => $request->user()->id]);
+        Audit::record('site.team_card_edited', $request, null, null, ['card' => $i]);
+
+        return $this->myTeam($request);
+    }
+
+    /** A photo for one's own team card (the same checks as every website photo). */
+    public function myTeamPhoto(Request $request)
+    {
+        if ($request->user()->role === 'user') {   // family and orphan accounts have no team card
+            return ApiResponse::error('FORBIDDEN', 'This account is not allowed to do that.', 403);
+        }
+        $request->validate(['image' => ['required', 'file', 'max:5120']]);
+        $r = SiteImages::store($request->file('image'), $request->user()->foundation_id, $request->user()->id);
+        if (is_string($r)) {
+            return ApiResponse::error('UNSAFE_FILE', $r, 422, ['image' => [$r]]);
+        }
+
+        return ApiResponse::created(['id' => $r->id, 'url' => $r->url()]);
+    }
+
     public function upload(Request $request)
     {
         $request->validate(['image' => ['required', 'file', 'max:5120']]);

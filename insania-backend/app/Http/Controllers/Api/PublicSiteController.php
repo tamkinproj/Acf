@@ -25,6 +25,9 @@ class PublicSiteController extends Controller
         // Live figures for the landing page: bare counts, nothing about any child or family.
         // Demo (sample) records are not counted. A figure with no real data behind it is left out,
         // and the page keeps its own temporary number for it.
+        foreach ($body['content']['team'] ?? [] as $i => $m) {   // which account may edit a card stays inside the staff app
+            unset($body['content']['team'][$i]['user_id']);
+        }
         $body['stats'] = $fid ? self::stats($fid) : null;
 
         return ApiResponse::ok($body)->header('Cache-Control', 'public, max-age=60')->header('Access-Control-Allow-Origin', '*');

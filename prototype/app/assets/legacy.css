@@ -623,3 +623,11 @@
         left: .9rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .rm-rec .rm-t {
+        margin-right: auto
+    }
+    html[dir=rtl] .rm-rec .rm-t {
+        margin-left: auto
+    }
+}

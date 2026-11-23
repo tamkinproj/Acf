@@ -16,11 +16,11 @@
   }
   function render(list) {
     var p = list.filter(function (x) { return x.code === CODE; })[0];
-    var back = '<a class="btn btn-line btn-sm" href="departments.html">' + ic("back", "flip") + t("pp_back") + "</a>";
-    if (!p) return '<div class="head">' + back + '</div><p class="note">' + t("pp_gone") + "</p>";
+    // the bar at the top: back to Departments, and the partner's name (no logo, no status tag)
+    var bar = function (title) { return '<div class="dp-bar"><a class="dp-back" href="departments.html" aria-label="' + t("pp_back") + '">' + ic("back", "flip") + '</a><span class="dp-title">' + esc(title) + '</span><span class="dp-act ghost"></span></div>'; };
+    if (!p) return bar(t("pp_back")) + '<p class="note">' + t("pp_gone") + "</p>";
     var look = p.status === "paused" && A.can("partners.manage"), usable = p.status === "active" || look;
-    var badge = '<span class="badge ' + (p.status === "active" ? "" : p.status === "paused" ? "warn" : "grey") + '">' + t("pp_s_" + p.status) + "</span>";
-    var head = '<div class="head">' + back + '</div><div class="pp-head">' + P.logo(p, "pt-logo pp-logo") + '<div><h1 class="title" style="margin:0">' + esc(P.name(p)) + "</h1>" + badge + "</div></div>";
+    var head = bar(P.name(p));
     if (p.status === "not_setup") return head + '<div class="card"><b>' + t("pp_none") + '</b><p class="note" style="margin-bottom:0">' + t("pp_none_sub") + "</p></div>";
     if (!usable) return head + '<p class="banner warn">' + t("pp_paused") + "</p>";
     var tiles = [];

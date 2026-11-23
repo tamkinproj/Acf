@@ -18,7 +18,8 @@
   }
   function person(m, d, man) {
     var rm = man && d.type === "group" && !m.owner && m.id !== d.me ? '<button class="ci-x" type="button" data-act="ci_rm" data-id="' + m.id + '" aria-label="' + esc(t("ci_cover_rm")) + '">&times;</button>' : "";
-    return '<div class="ios-row no-tile dp-row ci-person">' + A.avatar(m, "avatar") + '<span class="grow"><b>' + esc(m.name) + (m.owner ? ' <span class="badge">' + t("ci_owner") + "</span>" : "") + '</b><span class="sub">' + esc(m.role_label + (m.department ? " · " + m.department : "")) + "</span></span>" + rm + "</div>";
+    var tap = m.id !== d.me ? ' role="button" tabindex="0" data-act="ci_dm" data-id="' + m.id + '"' : "";   // tap someone to message them on their own
+    return '<div class="ios-row no-tile dp-row ci-person' + (tap ? " dp-tap" : "") + '"' + tap + '>' + A.avatar(m, "avatar") + '<span class="grow"><b>' + esc(m.name) + (m.owner ? ' <span class="badge">' + t("ci_owner") + "</span>" : "") + '</b><span class="sub">' + esc(m.role_label + (m.department ? " · " + m.department : "")) + "</span></span>" + rm + "</div>";
   }
   function render(d) {
     INFO = d; look(d.theme); var grp = d.type === "group", man = d.can_manage;
@@ -73,6 +74,7 @@
     A.api.write("POST", "chat/conversations/" + cid + "/members", { user_ids: ids }, { online: true }).then(function () { adding = false; again(); }, fail);
   });
   A.act("ci_rm", function (el) { if (!confirm(t("ci_rm_q"))) return; A.api.write("DELETE", "chat/conversations/" + cid + "/members/" + el.getAttribute("data-id"), undefined, { online: true }).then(function () { again(); }, fail); });
+  A.act("ci_dm", function (el) { if (A.openDirect) A.openDirect(+el.getAttribute("data-id")); else A.api.write("POST", "chat/direct", { user_id: +el.getAttribute("data-id") }, { online: true }).then(function (r) { location.href = "room.html?c=" + (r.data || r).id; }, fail); });
   A.act("ci_leave", function () { if (!confirm(t("ci_leave_q"))) return; A.api.write("DELETE", "chat/conversations/" + cid + "/members/" + INFO.me, undefined, { online: true }).then(function () { location.replace("chat.html"); }, fail); });
   function open(id, pane, back) {
     cid = id; PANE = pane; BACK = back; editing = false; adding = false; picked = {};
