@@ -58,7 +58,10 @@ class RememberAndNewDeviceTest extends TestCase
     public function test_after_signing_in_a_new_device_shows_its_details_and_can_be_trusted(): void
     {
         $this->world();
-        $d = $this->signIn('aytam@insania.test', true, ['CF-IPCountry' => 'PH']);
+        // through Cloudflare (the country is only believed then)
+        $this->withServerVariables(['REMOTE_ADDR' => '172.64.10.20']);
+        $d = $this->signIn('aytam@insania.test', true, ['CF-Connecting-IP' => '203.0.113.5', 'CF-IPCountry' => 'PH']);
+        $this->assertSame('203.0.113.5', $d['device']['ip']);
         $this->assertFalse($d['device']['trusted']);
         $this->assertSame('Android 14', $d['device']['system']);
         $this->assertSame('Chrome 124', $d['device']['browser']);

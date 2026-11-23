@@ -102,10 +102,10 @@ class AuthController extends Controller
         } elseif (preg_match('/iPhone|iPad|iPod/i', $ua, $m)) {
             $model = $m[0];
         }
-        $country = strtoupper(substr((string) $request->headers->get('CF-IPCountry', ''), 0, 2));
+        $country = (string) \App\Services\Traffic::country($request);   // only believed when the request really came through Cloudflare
 
         return ['name' => self::deviceLabel($request, 'staff-app'), 'model' => $model ? mb_substr($model, 0, 60) : null, 'system' => mb_substr($system, 0, 40), 'browser' => mb_substr($browser, 0, 40),
-            'ip' => $request->ip(), 'country' => preg_match('/^[A-Z]{2}$/', $country) && ! in_array($country, ['XX', 'T1'], true) ? $country : null, 'at' => now()->toIso8601String()];
+            'ip' => $request->ip(), 'country' => $country !== '' ? $country : null, 'at' => now()->toIso8601String()];
     }
 
     /**

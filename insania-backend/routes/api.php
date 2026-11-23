@@ -56,6 +56,17 @@ Route::middleware('api.json')->group(function () {
         Route::get('setup', [\App\Http\Controllers\Api\SetupController::class, 'steps']);
 
         // Technical roles
+        // Security (System Admin only): who reaches the server, and the block list (blocking is by hand only)
+        Route::middleware('permission:system.traffic')->group(function () {
+            Route::get('system/traffic', [\App\Http\Controllers\Api\TrafficController::class, 'overview']);
+            Route::get('system/traffic/visitors', [\App\Http\Controllers\Api\TrafficController::class, 'visitors']);
+            Route::get('system/traffic/address', [\App\Http\Controllers\Api\TrafficController::class, 'address']);
+            Route::get('system/traffic/events', [\App\Http\Controllers\Api\TrafficController::class, 'events']);
+            Route::get('system/traffic/blocks', [\App\Http\Controllers\Api\TrafficController::class, 'blocks']);
+            Route::post('system/traffic/blocks', [\App\Http\Controllers\Api\TrafficController::class, 'block'])->middleware('throttle:60,1,traffic-block');
+            Route::delete('system/traffic/blocks/{id}', [\App\Http\Controllers\Api\TrafficController::class, 'unblock'])->whereNumber('id');
+            Route::patch('system/traffic/settings', [\App\Http\Controllers\Api\TrafficController::class, 'settings'])->middleware('throttle:30,1,traffic-settings');
+        });
         Route::middleware('permission:system.cloudflare')->group(function () {
             Route::get('system/cloudflare', [\App\Http\Controllers\Api\CloudflareController::class, 'show']);
             Route::post('system/cloudflare', [\App\Http\Controllers\Api\CloudflareController::class, 'connect'])->middleware('throttle:6,1');

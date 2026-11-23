@@ -18,6 +18,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrustProxies::class,
         \App\Http\Middleware\SecurityHeaders::class,
         \App\Http\Middleware\EnsureInstalled::class,
+        \App\Http\Middleware\TrafficGuard::class,   // blocked addresses are refused first; every request is counted for the Security page
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,

@@ -15,7 +15,7 @@ final class SystemAccounts
     public const ROLES = ['system_admin'];
 
     /** activity only the System team does (updates, settings, Cloudflare, partner keys, sign-in limits, the President account) */
-    public const ACTIONS = ['update.', 'settings.', 'cloudflare.', 'api_key.', 'limits.', 'president.', 'system.', 'install.'];
+    public const ACTIONS = ['update.', 'settings.', 'cloudflare.', 'api_key.', 'limits.', 'president.', 'system.', 'install.', 'traffic.'];
 
     /** Is the System team hidden from this person? (yes for everyone in the office) */
     public static function hiddenFrom(?User $viewer): bool

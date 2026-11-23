@@ -47,6 +47,7 @@ class TrustProxies extends Middleware
         $visitor = trim((string) $request->headers->get('CF-Connecting-IP', ''));
         if ($remote !== '' && $visitor !== '' && filter_var($visitor, FILTER_VALIDATE_IP) && IpUtils::checkIp($remote, self::CLOUDFLARE)) {
             $request->server->set('REMOTE_ADDR', $visitor);
+            $request->attributes->set('via_cloudflare', true);   // so Cloudflare's other headers (the country) can be believed too
         }
 
         return parent::handle($request, $next);
