@@ -232,6 +232,15 @@ class DarAlBerReportTest extends TestCase
         $this->postJson("/api/children/{$child->id}/report/approve", ['year' => 2026, 'approved' => true])->assertOk()->assertJsonPath('data.status', 'approved');
 
         $pdf = $this->get("/api/children/{$child->id}/report/pdf?year=2026")->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        // the file is named with the year, the number, the English and the Arabic name
+        $cd = (string) $pdf->headers->get('Content-Disposition');
+        $this->assertTrue((bool) preg_match("/filename\\*=utf-8''([^;]+)/i", $cd, $m), $cd);
+        $saved = rawurldecode($m[1]);
+        $this->assertStringStartsWith('Dar Al Ber 2026 - ', $saved);
+        $this->assertStringContainsString((string) $child->name_en, $saved);
+        if ($child->name_ar) {
+            $this->assertStringContainsString((string) $child->name_ar, $saved);
+        }
         $form = new Form(Document::load($pdf->getContent()));
         $this->assertSame('خديجة علي', $form->value('Text18'));
         $this->assertSame('خالة', $form->value('Text19'));
@@ -255,6 +264,8 @@ class DarAlBerReportTest extends TestCase
         $z = new \ZipArchive();
         $this->assertTrue($z->open($file) === true);
         $this->assertSame(3, $z->numFiles);
+        $this->assertTrue((bool) preg_match('/\p{Arabic}/u', $z->getNameIndex(0).$z->getNameIndex(1).$z->getNameIndex(2)), 'the Arabic names are in the ZIP');
+        $this->assertSame(0x800, unpack('v', substr((string) file_get_contents($file), 6, 2))[1] & 0x800, 'and marked as UTF-8 so they open right');
         $comments = [];
         for ($i = 0; $i < $z->numFiles; $i++) {
             $comments[] = (new Form(Document::load($z->getFromIndex($i))))->value('Text22');

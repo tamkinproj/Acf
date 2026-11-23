@@ -139,7 +139,16 @@ final class OrphanSheetImport
                 $info['updated']++;
                 if (! $dryRun) {
                     $existing->forceFill($data)->save();
-                    $existing->sponsorship()->first()?->update(['pay_type' => $pay]);
+                    $sp = $existing->sponsorship()->first();
+                    if ($sp && $sp->pay_type === '' && $sp->status === 'pending') {
+                        // added earlier without bank or cash (UPDATE-61 sheet merge): the sponsor sheet decides it and makes it active
+                        $sp->update(['pay_type' => $pay, 'status' => 'active']);
+                        if ($existing->status === 'pending') {
+                            $existing->forceFill(['status' => 'active'])->save();
+                        }
+                    } else {
+                        $sp?->update(['pay_type' => $pay]);
+                    }
                 }
             } else {
                 $info['new']++;

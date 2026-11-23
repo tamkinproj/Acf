@@ -222,11 +222,30 @@ class OrphanReportController extends Controller
         return $p && $p->path && Storage::disk('local')->exists($p->path) ? Storage::disk('local')->get($p->path) : null;
     }
 
-    private static function fileName(Child $c, int $year): string
+    /**
+     * "Dar Al Ber 2026 - 161186 - Amina Hassan - أمينة حسن.pdf": the year, the orphan number, then the English and the
+     * Arabic name, so many reports saved together are easy to tell apart. Signs a file name cannot have are left out.
+     */
+    public static function fileName(Child $c, int $year): string
     {
-        $who = preg_replace('/[^A-Za-z0-9 ._-]+/', '', (string) ($c->name_en ?: ''));
+        $clean = fn (?string $s) => trim(preg_replace('#\s+#u', ' ', preg_replace('#[\\\\/:*?"<>|\x00-\x1F\x7F\x{200E}\x{200F}\x{202A}-\x{202E}]+#u', ' ', (string) $s)));
+        $en = mb_substr($clean($c->name_en), 0, 100);
+        $ar = mb_substr($clean($c->name_ar), 0, 100);
+        if ($ar === $en) {
+            $ar = '';
+        }
+        $parts = array_filter(['Dar Al Ber '.$year, $clean((string) ($c->external_no ?: $c->ref)), $en, $ar], fn ($p) => $p !== '');
 
-        return trim('Dar Al Ber report '.$year.' - '.($c->external_no ?: $c->ref).($who !== '' ? ' - '.mb_substr($who, 0, 60) : '')).'.pdf';
+        return implode(' - ', $parts).'.pdf';
+    }
+
+    /** The same name in plain English letters, for programs that cannot show Arabic in a file name. */
+    private static function plainName(string $name): string
+    {
+        $plain = trim(preg_replace('#\s+#', ' ', preg_replace('#[^\x20-\x7E]|[%/\\\\"]#', ' ', $name)));
+        $plain = preg_replace('#(\s*-\s*)+\.pdf$#', '.pdf', $plain);
+
+        return $plain !== '' && $plain !== '.pdf' ? $plain : 'report.pdf';
     }
 
     private function noForm(): \Illuminate\Http\JsonResponse
@@ -248,7 +267,9 @@ class OrphanReportController extends Controller
         Audit::record('report.downloaded', $request, 'child', $child->id, ['year' => $book->year]);
         $name = self::fileName($child, $book->year);
 
-        return response($pdf, 200, ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'attachment; filename="'.$name.'"', 'Cache-Control' => 'private, no-store', 'X-Content-Type-Options' => 'nosniff']);
+        $disposition = \Symfony\Component\HttpFoundation\HeaderUtils::makeDisposition('attachment', $name, self::plainName($name));
+
+        return response($pdf, 200, ['Content-Type' => 'application/pdf', 'Content-Disposition' => $disposition, 'Cache-Control' => 'private, no-store', 'X-Content-Type-Options' => 'nosniff']);
     }
 
     /** The year at a glance, for downloading many at once. */
@@ -299,12 +320,17 @@ class OrphanReportController extends Controller
         $zip = new \ZipArchive();
         $zip->open($tmp, \ZipArchive::OVERWRITE);
         $files = [];
+        $used = [];
         foreach ($slice as $c) {
             $f = tempnam(sys_get_temp_dir(), 'pdf');
             file_put_contents($f, DarAlBerReport::pdf($tpl, $book->facts($c), $this->photo($c)));
             $files[] = $f;
             $name = self::fileName($c, $book->year);
-            $zip->addFile($f, $name);
+            if (isset($used[$name])) {   // the same number and names twice: keep both
+                $name = preg_replace('/\.pdf$/', ' ('.$c->ref.').pdf', $name);
+            }
+            $used[$name] = true;
+            $zip->addFile($f, $name, 0, 0, \ZipArchive::FL_ENC_UTF_8);   // Arabic names marked as UTF-8 so they open right
             $zip->setCompressionName($name, \ZipArchive::CM_STORE);   // PDFs are compressed already
         }
         $zip->close();

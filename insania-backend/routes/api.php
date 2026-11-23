@@ -213,6 +213,8 @@ Route::middleware('api.json')->group(function () {
             Route::post('children/accounts', [\App\Http\Controllers\Api\OrphanAccountController::class, 'store'])->middleware(['permission:orphans.accounts', 'throttle:60,1']);
             Route::post('children/{child}/account', [\App\Http\Controllers\Api\OrphanAccountController::class, 'reset'])->middleware(['permission:orphans.accounts', 'throttle:30,1']);
             Route::post('children/import', [\App\Http\Controllers\Api\ChildImportController::class, 'store'])->middleware(['permission:children.create', 'block.uploads', 'throttle:20,1']);
+            // TEMPORARY (UPDATE-61): the Google Form answer sheets added to the orphans already saved
+            Route::post('children/sheet-merge', [\App\Http\Controllers\Api\ChildSheetMergeController::class, 'store'])->middleware(['permission:children.update', 'block.uploads', 'throttle:20,1']);
             Route::post('children', [ChildController::class, 'store'])->middleware('permission:children.create');
             Route::patch('children/{child}', [ChildController::class, 'update'])->middleware('permission:children.update');
             Route::put('children/{child}/bank/verification', [BankVerificationController::class, 'update'])->middleware('permission:bank.verify');

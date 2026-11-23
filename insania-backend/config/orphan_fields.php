@@ -76,6 +76,7 @@ return [
         'message_to_sponsor' => ['string', 'max:1500', 'staff' => true],
         'delay_reason' => ['string', 'max:500', 'staff' => true],
         'expected_send_date' => ['date', 'staff' => true],
+        'photo_links' => ['string', 'max:3000', 'staff' => true],   // links to the photos sent with the update form (not downloaded)
     ],
 
     'photos' => ['max_files' => 2, 'max_kb' => 4096, 'max_per_child' => 8],

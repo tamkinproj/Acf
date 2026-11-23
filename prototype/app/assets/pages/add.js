@@ -10,6 +10,7 @@
   function render() {
     var more = "";
     if (A.can("children.create")) more += '<button class="btn btn-line btn-sm" type="button" data-act="importxl">' + ic("download") + t("imp_btn") + "</button>";
+    if (A.can("children.create") && A.can("children.update")) more += '<button class="btn btn-line btn-sm" type="button" data-act="mergexl">' + ic("download") + t("mg_btn") + "</button>";
     if (A.can("orphans.accounts")) more += '<button class="btn btn-line btn-sm" type="button" data-act="accounts">' + ic("users") + t("acc_btn") + "</button>";
     return '<div class="dp-bar"><a class="dp-back" href="people.html" data-act="goback" aria-label="' + t("p_back") + '">' + ic("back", "flip") + '</a><span class="dp-title">' + t("add_title") + "</span></div>" +
       '<div class="addwrap"><form id="addForm" novalidate>' + A.orphan.formHtml(null, null, true) +

@@ -75,7 +75,8 @@
       f("organization_comment", "Organization comment", "تعليق المؤسسة", "long", { staff: 1 }),
       f("message_to_sponsor", "Message", "رسالة", "long", { staff: 1 }),
       f("delay_reason", "Delay reason", "سبب التأخير", "text", { staff: 1 }),
-      f("expected_send_date", "Expected send date", "تاريخ الإرسال المتوقع", "date", { staff: 1 })
+      f("expected_send_date", "Expected send date", "تاريخ الإرسال المتوقع", "date", { staff: 1 }),
+      f("photo_links", "Photo links (from the update form)", "روابط الصور (من نموذج التحديث)", "long", { staff: 1, dir: "ltr" })
     ] }
   ];
   window.ORPHAN_SCHEMA_STATUS = [["active", "Active", "نشط"], ["pending", "Pending", "معلّق"], ["ended", "Ended", "منتهٍ"]];

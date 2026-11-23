@@ -80,6 +80,7 @@
     if (f.t === "sel") { for (var i = 0; i < f.o.length; i++) if (f.o[i][0] === String(val)) return esc(optLabel(f.o[i])); return esc(val); }
     if (f.t === "date") return esc(dateText(val));
     if (f.t === "tel") return '<a dir="ltr" href="tel:' + esc(String(val).replace(/[^0-9+]/g, "")) + '">' + esc(val) + "</a>";
+    if (f.k === "photo_links") return String(val).split(/[\s,]+/).filter(function (u) { return /^https:\/\//.test(u); }).map(function (u, i) { return '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer" dir="ltr">' + (i + 1) + "</a>"; }).join(" · ") || esc(val);
     if (f.k === "bank_last4") return '<span dir="ltr">•••• ' + esc(val) + "</span>";
     if (f.t === "dec") return esc(Number(val).toLocaleString("en-US", { maximumFractionDigits: 2 }));
     if (f.t === "long") return '<span style="white-space:pre-line">' + esc(val) + "</span>";

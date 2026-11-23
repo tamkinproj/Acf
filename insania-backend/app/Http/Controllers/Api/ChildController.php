@@ -115,6 +115,11 @@ class ChildController extends Controller
     {
         $request->merge(\App\Support\NameParts::prepare($request->all(), $child));
         $data = $request->validate($this->rules(false));
+        if (($data['status'] ?? null) === 'active' && $child->status !== 'active' && $child->sponsorship?->pay_type === '') {
+            $msg = 'Bank or cash is not chosen yet for this orphan. They become active when the sponsor sheet (كشف) that lists them is imported.';
+
+            return ApiResponse::error('VALIDATION_ERROR', $msg, 422, ['status' => [$msg]]);
+        }
 
         DB::transaction(function () use ($data, $child, $request) {
             if (! empty($data['guardian'])) {

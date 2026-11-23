@@ -38,7 +38,9 @@
   function here() { return (A.api.partner() || "dar_al_ber") === "dar_al_ber"; }
   function years() { var y = new Date().getFullYear(); return [y + 1, y, y - 1, y - 2]; }
   function save(blob, headers, fallback) {
-    var cd = (headers && headers.get("Content-Disposition")) || "", m = cd.match(/filename="?([^";]+)"?/), name = m ? m[1] : fallback;
+    // the server sends the name with the Arabic in it (filename*=UTF-8''...), and a plain one for old programs
+    var cd = (headers && headers.get("Content-Disposition")) || "", u = cd.match(/filename\*\s*=\s*UTF-8''([^;]+)/i), m = cd.match(/filename\s*=\s*"?([^";]+)"?/i), name = fallback;
+    if (u) { try { name = decodeURIComponent(u[1].trim()); } catch (e) { name = m ? m[1] : fallback; } } else if (m) name = m[1];
     var u = URL.createObjectURL(blob), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
   }
