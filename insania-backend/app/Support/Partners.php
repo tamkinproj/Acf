@@ -15,7 +15,7 @@ final class Partners
     public const LIST = [
         ['code' => 'dar_al_ber', 'name_en' => 'Dar Al Ber Society', 'name_ar' => 'جمعية دار البر', 'logo' => 'assets/partners/dar_al_ber.png', 'form_key' => 'dar_al_ber', 'status' => 'active', 'sort' => 1],
         ['code' => 'dubai_charity', 'name_en' => 'Dubai Charity Association', 'name_ar' => 'جمعية دبي الخيرية', 'logo' => 'assets/partners/dubai_charity.svg', 'form_key' => null, 'status' => 'not_setup', 'sort' => 2],
-        ['code' => 'sharjah_charity', 'name_en' => 'Sharjah Charity International', 'name_ar' => 'جمعية الشارقة الخيرية', 'logo' => null, 'form_key' => null, 'status' => 'not_setup', 'sort' => 3],
+        ['code' => 'sharjah_charity', 'name_en' => 'Sharjah Charity International', 'name_ar' => 'جمعية الشارقة الخيرية', 'logo' => 'assets/partners/sharjah_charity.jpg', 'form_key' => null, 'status' => 'not_setup', 'sort' => 3],
         ['code' => 'ico', 'name_en' => 'International Charity Organization (ICO)', 'name_ar' => 'هيئة الأعمال الخيرية العالمية', 'logo' => 'assets/partners/ico.jpg', 'form_key' => null, 'status' => 'not_setup', 'sort' => 4],
     ];
 

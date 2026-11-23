@@ -226,13 +226,14 @@
   var PARTNER_NAV = { people: 1, education: 1, applications: 1 };
   function partnerInfo() { try { return JSON.parse(localStorage.getItem("acf_partner_info") || "null"); } catch (e) { return null; } }
   /* keep the chosen partner while it works; a paused one gives way to a working one; with none working, the paused one stays (and says so) */
-  function choosePartner(list, want) {
+  function choosePartner(list, want, force) {
     var by = function (c) { return list.filter(function (p) { return p.code === c; })[0]; }, cur = by(want), active = list.filter(function (p) { return p.status === "active"; });
-    var pick = (cur && cur.status === "active" ? cur : null) || active[0] || (cur && cur.status === "paused" ? cur : null) || by("dar_al_ber") || null;
+    // the President may stay in a paused partner to look (read only); everyone else moves to a working one
+    var pick = (force && cur && cur.status === "paused" ? cur : null) || (cur && cur.status === "active" ? cur : null) || active[0] || (cur && cur.status === "paused" ? cur : null) || by("dar_al_ber") || null;
     if (pick) { API.setPartner(pick.code); try { localStorage.setItem("acf_partner_info", JSON.stringify(pick)); } catch (e) {} }
     return pick;
   }
-  function refreshPartners() { return API.get("partners", { cache: false }).then(function (r) { var list = r.data || []; choosePartner(list, API.partner()); return list; }); }
+  function refreshPartners() { return API.get("partners", { cache: false }).then(function (r) { var list = r.data || []; choosePartner(list, API.partner(), can("partners.manage")); return list; }); }
   function partnerName(p) { return lang === "ar" && p.name_ar ? p.name_ar : p.name_en; }
   function partnerLogo(p, cls) {
     return p.logo ? '<span class="' + (cls || "pchip-logo") + '" style="background-image:url(&quot;' + esc(p.logo) + '&quot;)" role="img" aria-label="' + esc(partnerName(p)) + '"></span>'

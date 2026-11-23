@@ -3,6 +3,7 @@
   A.strings({ ci_tap: "Tap for settings and members", ci_title: "Chat settings" }, { ci_tap: "اضغط للإعدادات والأعضاء", ci_title: "إعدادات المحادثة" });
   var cid = parseInt((location.search.match(/[?&]c=(\d+)/) || [])[1], 10) || 0;
   var POP = {}, MSGS = [], META = null, lastId = 0, draft = "", timer = null, busy = false;
+  var HOST = null, opened = 0;   // HOST: on a computer the conversation is drawn in the chat page's right-hand pane; null on its own page
   var KIND_ICON = { child: "users", application: "file", project: "folder", payment: "wallet", user: "shield", report: "file", site: "globe" };
 
   function lang() { return A.lang() === "ar" ? "ar" : "en-GB"; }
@@ -40,9 +41,13 @@
     }
     return out;
   }
-  function nearBottom() { return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 160; }
+  function nearBottom() {
+    if (HOST) { var l = document.getElementById("msgs"); return !l || l.scrollHeight - l.scrollTop - l.clientHeight < 160; }
+    return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 160;
+  }
   /* show the newest message just above the box you type in. When everything fits on the screen the page stays at the top. */
   function toBottom() {
+    if (HOST) { var pl = document.getElementById("msgs"); if (pl) pl.scrollTop = pl.scrollHeight; return; }
     var h = document.documentElement, b = h.style.scrollBehavior, list = document.getElementById("msgs"), comp = document.querySelector(".rm-comp");
     var end = list ? list.getBoundingClientRect().bottom + window.scrollY : h.scrollHeight, boxH = comp ? comp.offsetHeight : 0;
     h.style.scrollBehavior = "auto"; window.scrollTo(0, Math.max(0, Math.round(end + boxH + 8 - window.innerHeight))); h.style.scrollBehavior = b;
@@ -52,10 +57,11 @@
     var title = META ? (META.type === "general" ? t("chat_general") : META.title) : "";
     var sub = META && META.other ? META.other.role_label : (META ? "" : "");
     var isGrp = META && META.is_group, info = "chatinfo.html?c=" + cid;
-    var head = '<a class="dp-back" href="chat.html" data-act="rmback" aria-label="' + esc(t("back")) + '">' + ic("back", "flip") + "</a>" +
-      (isGrp ? '<a class="rm-title" href="' + info + '"><b>' + esc(title) + "</b><small>" + esc(t("ci_tap")) + "</small></a>" : '<span class="rm-title"><b>' + esc(title) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>") +
-      (isGrp ? '<a class="rm-hav grpav" id="rmCover" href="' + info + '" aria-label="' + esc(t("ci_title")) + '">' + ic("users") + "</a>" : (META && META.other ? A.avatar(META.other, "rm-hav") : '<span class="dp-act rm-gap"></span>'));
-    return '<div class="rm"><div class="dp-bar">' + head + "</div>" +
+    // Back always goes to the chat list (never to the browser's previous page, which could be the settings and loop back here)
+    var head = (HOST ? "" : '<a class="dp-back" href="chat.html" aria-label="' + esc(t("back")) + '">' + ic("back", "flip") + "</a>") +
+      (isGrp ? '<a class="rm-title" href="' + info + '" data-act="rminfo"><b>' + esc(title) + "</b><small>" + esc(t("ci_tap")) + "</small></a>" : '<span class="rm-title"><b>' + esc(title) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>") +
+      (isGrp ? '<a class="rm-hav grpav" id="rmCover" href="' + info + '" data-act="rminfo" aria-label="' + esc(t("ci_title")) + '">' + ic("users") + "</a>" : (META && META.other ? A.avatar(META.other, "rm-hav") : '<span class="dp-act rm-gap"></span>'));
+    return '<div class="rm' + (HOST ? " in-pane" : "") + '"><div class="dp-bar">' + head + "</div>" +
       '<div class="rm-list" id="msgs">' + listHtml() + "</div>" +
       '<form class="rm-comp" id="rmForm" novalidate><button type="button" class="rm-clip" data-act="attach" aria-label="' + esc(t("chat_attach")) + '">' + ic("clip") + '</button>' +
       '<textarea id="rmText" rows="1" maxlength="2000" placeholder="' + esc(t("chat_type")) + '" aria-label="' + esc(t("chat_type")) + '">' + esc(draft) + '</textarea>' +
@@ -96,7 +102,12 @@
     }, function (e) { busy = false; err.textContent = e.offline ? t("chat_offline") : A.msg(e); });
   }
   A.form("rmForm", function () { send(); });
-  A.act("rmback", function (el, e) { if (document.referrer && document.referrer.indexOf(location.origin) === 0 && history.length > 1) { e.preventDefault(); history.back(); } });
+  // group settings: a panel beside the conversation on a computer, their own page on a phone
+  A.act("rminfo", function (el, e) {
+    if (!HOST || !A.chatinfo) return;
+    e.preventDefault(); var host = HOST, id = cid;
+    A.chatinfo.open(id, host, function () { open(id, host); });
+  });
 
   /* ---- attach: choose a kind of card, then the item ---- */
   var PICK = null;
@@ -153,9 +164,21 @@
     if (!cid) return Promise.reject(new Error(t("chat_gone")));
     return A.api.get("chat/conversations/" + cid + "/messages", { cache: false, forceNet: true }).then(function (r) {
       META = Object.assign({}, r.meta.conversation, { shareable: r.meta.shareable }); MSGS = []; lastId = 0; MSGS = r.data.slice(); r.data.forEach(function (m) { lastId = Math.max(lastId, m.id); });
-      document.title = (META.type === "general" ? t("chat_general") : META.title) + " | " + t("brand");
+      if (!HOST) document.title = (META.type === "general" ? t("chat_general") : META.title) + " | " + t("brand");
       return { data: MSGS };
     });
   }
-  A.start({ page: "room", nav: "chat", title: "n_chat", perm: "chat.use", needsConn: true, shell: true, bare: true, load: load, render: render, after: init });
+  /* Open a conversation inside a pane (the chat page on a computer). */
+  function open(id, host) {
+    clearInterval(timer); if (id !== opened) draft = ""; opened = id;
+    cid = id; HOST = host; MSGS = []; META = null; lastId = 0; POP = {}; busy = false;
+    host.innerHTML = '<p class="note rm-loading">' + esc(t("loading")) + "</p>";
+    return load().then(function () { if (HOST !== host || cid !== id) return; host.innerHTML = render(); init(); },
+      function (e) { if (HOST === host) host.innerHTML = '<p class="err" style="padding:1rem">' + esc(A.msg(e)) + "</p>"; });
+  }
+  function close() { clearInterval(timer); HOST = null; }
+  A.room = { open: open, close: close };
+  // on a computer a conversation opens in the chat page's right-hand pane
+  if (document.body.getAttribute("data-page") === "room" && cid && window.matchMedia && window.matchMedia("(min-width:1024px)").matches) { location.replace("chat.html?c=" + cid); return; }
+  if (document.body.getAttribute("data-page") === "room") A.start({ page: "room", nav: "chat", title: "n_chat", perm: "chat.use", needsConn: true, shell: true, bare: true, load: load, render: render, after: init });
 })();

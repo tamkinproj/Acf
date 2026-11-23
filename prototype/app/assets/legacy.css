@@ -599,3 +599,19 @@
         border-left: 2px solid currentColor
     }
 }
+@media (min-width:1024px) {
+    @supports not (padding-inline:1px) {
+        html[dir=ltr] body.chat-split #view {
+            padding-right: .3rem
+        }
+        html[dir=rtl] body.chat-split #view {
+            padding-left: .3rem
+        }
+    }
+    @supports not (padding-inline:1px) {
+        .chat-pane .rm-list {
+            margin-left: auto;
+            margin-right: auto
+        }
+    }
+}

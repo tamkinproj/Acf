@@ -1,6 +1,7 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
   var cid = parseInt((location.search.match(/[?&]c=(\d+)/) || [])[1], 10) || 0, INFO = null, editing = false, adding = false, POOL = null, picked = {};
+  var PANE = null, BACK = null;   // on a computer the settings open in the chat page's right-hand panel; BACK returns to the conversation
 
   A.strings({
     ci_title: "Chat settings", ci_cover: "Cover photo", ci_cover_set: "Change cover", ci_cover_rm: "Remove", ci_name: "Group name", ci_theme: "Theme", ci_members: "Members", ci_owner: "Owner", ci_add: "Add people", ci_add_go: "Add", ci_leave: "Leave group",
@@ -37,15 +38,19 @@
     }
     var members = '<div class="ios-group dp-rows ci-members">' + d.members.map(function (m) { return person(m, d, man); }).join("") + "</div>" + (grp && man && !adding ? '<div class="actions" style="margin-top:.7rem"><button class="btn btn-line btn-sm" type="button" data-act="ci_add">' + ic("plus") + "<span>" + t("ci_add") + "</span></button></div>" : "") + pool;
     var leave = grp ? '<div class="ios-group" style="margin-top:1rem"><button class="ios-row no-tile ios-danger" type="button" data-act="ci_leave"><span class="ios-lbl">' + t("ci_leave") + "</span></button></div>" : "";
-    return '<div class="dp-bar"><a class="dp-back" href="room.html?c=' + d.id + '" aria-label="' + t("ci_back") + '">' + ic("back", "flip") + '</a><span class="dp-title">' + esc(d.type === "general" ? t("ci_general") : d.title) + '</span><span class="dp-act ghost"></span></div>' +
+    return '<div class="dp-bar">' + (PANE ? '<button class="dp-back" type="button" data-act="ci_back" aria-label="' + t("ci_back") + '">' + ic("back", "flip") + "</button>" : '<a class="dp-back" href="room.html?c=' + d.id + '" aria-label="' + t("ci_back") + '">' + ic("back", "flip") + "</a>") + '<span class="dp-title">' + esc(d.type === "general" ? t("ci_general") : d.title) + '</span><span class="dp-act ghost"></span></div>' +
       '<div class="addwrap">' + cover + '<div class="dp-sec" style="margin-top:1rem"><div class="ios-head"><h3>' + t("ci_title") + '</h3></div><div class="ios-group dp-rows">' + nameRow + "</div>" + (man ? "" : '<p class="ios-note">' + t("ci_view_only") + "</p>") + "</div>" +
       '<div class="dp-sec"><div class="ios-head"><h3>' + t("ci_theme") + "</h3></div>" + themes + "</div>" +
       '<div class="dp-sec"><div class="ios-head"><h3>' + t("ci_members") + '</h3><span class="note">' + t("ci_n", { n: d.members.length }) + "</span></div>" + members + "</div>" + leave + "</div>";
   }
-  function again() { return A.reload(true); }
+  function coverAfter(d) { var cv = document.getElementById("ciCover"); if (cv && d && d.cover) A.api.blobUrl("chat/conversations/" + cid + "/cover").then(function (u) { cv.style.backgroundImage = 'url("' + u + '")'; cv.classList.add("has-photo"); }, function () {}); }
+  function paint() { if (PANE) { PANE.innerHTML = render(INFO); coverAfter(INFO); } else A.paint(); }
+  function load() { return A.api.get("chat/conversations/" + cid + "/info", { cache: false, forceNet: true }); }
+  function again() { if (!PANE) return A.reload(true); return load().then(function (r) { INFO = r.data; paint(); }, fail); }
+  A.act("ci_back", function () { if (BACK) BACK(); });
   function fail(e) { A.toast(e.offline ? t("need_conn") : A.msg(e)); }
-  A.act("ci_edit", function () { editing = true; A.paint(); });
-  A.act("ci_cancel", function () { editing = false; A.paint(); });
+  A.act("ci_edit", function () { editing = true; paint(); });
+  A.act("ci_cancel", function () { editing = false; paint(); });
   A.act("ci_save", function () {
     var v = (document.getElementById("ci_title").value || "").trim(); if (v.length < 2) { document.getElementById("ci_titleErr").textContent = t("required"); return; }
     A.api.write("PATCH", "chat/conversations/" + cid, { title: v }, { online: true }).then(function () { editing = false; A.toast(t("ci_saved")); again(); }, fail);
@@ -59,20 +64,25 @@
   A.act("ci_cover_rm", function () { A.api.write("DELETE", "chat/conversations/" + cid + "/cover", undefined, { online: true }).then(function () { again(); }, fail); });
   A.act("ci_add", function () {
     adding = true; picked = {};
-    (POOL ? Promise.resolve() : A.api.get("chat/people", { cache: false }).then(function (r) { POOL = r.data; })).then(function () { A.paint(); }, fail);
+    (POOL ? Promise.resolve() : A.api.get("chat/people", { cache: false }).then(function (r) { POOL = r.data; })).then(function () { paint(); }, fail);
   });
-  A.act("ci_pick", function (el) { var id = el.getAttribute("data-id"); if (picked[id]) delete picked[id]; else picked[id] = 1; A.paint(); });
-  A.act("ci_add_cancel", function () { adding = false; A.paint(); });
+  A.act("ci_pick", function (el) { var id = el.getAttribute("data-id"); if (picked[id]) delete picked[id]; else picked[id] = 1; paint(); });
+  A.act("ci_add_cancel", function () { adding = false; paint(); });
   A.act("ci_add_go", function () {
-    var ids = Object.keys(picked).map(Number); if (!ids.length) { adding = false; A.paint(); return; }
+    var ids = Object.keys(picked).map(Number); if (!ids.length) { adding = false; paint(); return; }
     A.api.write("POST", "chat/conversations/" + cid + "/members", { user_ids: ids }, { online: true }).then(function () { adding = false; again(); }, fail);
   });
   A.act("ci_rm", function (el) { if (!confirm(t("ci_rm_q"))) return; A.api.write("DELETE", "chat/conversations/" + cid + "/members/" + el.getAttribute("data-id"), undefined, { online: true }).then(function () { again(); }, fail); });
   A.act("ci_leave", function () { if (!confirm(t("ci_leave_q"))) return; A.api.write("DELETE", "chat/conversations/" + cid + "/members/" + INFO.me, undefined, { online: true }).then(function () { location.replace("chat.html"); }, fail); });
+  function open(id, pane, back) {
+    cid = id; PANE = pane; BACK = back; editing = false; adding = false; picked = {};
+    pane.innerHTML = '<p class="note" style="padding:1rem">' + esc(t("loading")) + "</p>";
+    return load().then(function (r) { if (PANE !== pane || cid !== id) return; INFO = r.data; paint(); }, function (e) { pane.innerHTML = '<p class="err" style="padding:1rem">' + esc(A.msg(e)) + "</p>"; });
+  }
+  A.chatinfo = { open: open };
 
-  A.start({
+  if (document.body.getAttribute("data-page") === "chatinfo") A.start({
     page: "chatinfo", nav: "chat", title: "ci_title", perm: "chat.use", needsConn: true, shell: true, bare: true,
-    load: function () { return A.api.get("chat/conversations/" + cid + "/info", { cache: false, forceNet: true }); }, render: render,
-    after: function (d) { var cv = document.getElementById("ciCover"); if (cv && d && d.cover) A.api.blobUrl("chat/conversations/" + cid + "/cover").then(function (u) { cv.style.backgroundImage = 'url("' + u + '")'; cv.classList.add("has-photo"); }, function () {}); }
+    load: load, render: render, after: coverAfter
   });
 })();

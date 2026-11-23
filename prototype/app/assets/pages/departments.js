@@ -11,37 +11,14 @@
   function tile(icon, href, title, sub) {
     return '<a class="fo" href="' + href + '"><span class="fo-top">' + ic(icon) + ic("chev", "fo-go") + "</span><b>" + t(title) + '</b><span class="fo-sub">' + t(sub) + "</span></a>";
   }
-  var P = A.partners;
-  function partnerCard(p, cur) {
-    var on = cur && cur.code === p.code, usable = p.status === "active";
-    var badge = '<span class="badge ' + (p.status === "active" ? "" : p.status === "paused" ? "warn" : "grey") + '">' + t(on ? "pt_here" : "pt_s_" + p.status) + "</span>";
-    var inner = P.logo(p, "pt-logo") + "<b>" + A.esc(P.name(p)) + "</b>" + badge;
-    return usable ? '<button class="pt-card' + (on ? " on" : "") + '" type="button" data-act="pickpartner" data-code="' + A.esc(p.code) + '" aria-pressed="' + !!on + '">' + inner + "</button>"
-      : '<div class="pt-card off' + (on ? " on" : "") + '" aria-disabled="true">' + inner + "</div>";
+  /* Orphans and Education belong to a partner, so they open the partner list first; HR and Work are shared and open directly. */
+  function render() {
+    var tiles = [];
+    if (A.can("children.view")) tiles.push(tile("users", "partnerpick.html?for=people", "dp_aytam", "dp_aytam_sub"));
+    if (A.can("education.view")) tiles.push(tile("book", "partnerpick.html?for=education", "dp_edu", "dp_edu_sub"));
+    if (A.can("attendance.clock") || A.can("attendance.manage")) tiles.push(tile("clock", "attendance.html", "dp_att", "dp_att_sub"));
+    if (A.can("work.view")) tiles.push(tile("pulse", "work.html", "dp_work", "dp_work_sub"));
+    return '<div class="head"><h1 class="title">' + t("dp_title") + '</h1></div><p class="note">' + t("dp_hello") + '</p><div class="fo-grid">' + tiles.join("") + "</div>";
   }
-  function render(d) {
-    var list = d.list, cur = P.info(), paused = cur && cur.status === "paused", look = paused && A.can("partners.manage");
-    var mine = [], shared = [];
-    if (A.can("children.view") && (!paused || look)) mine.push(tile("users", "people.html", "dp_aytam", "dp_aytam_sub"));
-    if (A.can("education.view") && (!paused || look)) mine.push(tile("book", "education.html", "dp_edu", "dp_edu_sub"));
-    if (A.can("attendance.clock") || A.can("attendance.manage")) shared.push(tile("clock", "attendance.html", "dp_att", "dp_att_sub"));
-    if (A.can("work.view")) shared.push(tile("pulse", "work.html", "dp_work", "dp_work_sub"));
-    var out = '<div class="head"><h1 class="title">' + t("dp_title") + "</h1></div>";
-    if (list && list.length) {
-      out += '<h3 class="optlbl">' + t("dp_partner") + '</h3><p class="note" style="margin-top:0">' + t("dp_partner_note") + '</p><div class="pt-row">' + list.map(function (p) { return partnerCard(p, cur); }).join("") + "</div>";
-    }
-    if (paused) out += '<p class="banner warn">' + A.esc(t(look ? "pt_paused_pres" : "pt_paused_note", { n: P.name(cur) })) + "</p>";
-    if (mine.length) out += '<h3 class="optlbl">' + A.esc(t("dp_partner_dep", { n: cur ? P.name(cur) : "" })) + '</h3><div class="fo-grid">' + mine.join("") + "</div>";
-    if (shared.length) out += '<h3 class="optlbl" style="margin-top:1.4rem">' + t("dp_shared") + '</h3><div class="fo-grid">' + shared.join("") + "</div>";
-    return out;
-  }
-  A.act("pickpartner", function (el) {
-    var code = el.getAttribute("data-code"), list = (lastList || []);
-    P.choose(list, code); A.paint();
-  });
-  var lastList = null;
-  function load() {
-    return P.refresh().then(function (list) { lastList = list; return { data: { list: list } }; }, function () { return { data: { list: null } }; });
-  }
-  A.start({ page: "departments", nav: "departments", title: "dp_title", shell: true, load: load, render: render });
+  A.start({ page: "departments", nav: "departments", title: "dp_title", shell: true, load: function () { return Promise.resolve({ data: {} }); }, render: render });
 })();
