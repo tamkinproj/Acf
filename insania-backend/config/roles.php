@@ -51,6 +51,7 @@ return [
             'chat.use',                         // office chat
             'attendance.clock', 'attendance.manage', 'attendance.salary', 'work.view',
             'partners.manage',                  // pause and resume partners
+            'files.all',                        // the Files page and the backup
         ],
         'staff' => [],
         'user' => ['family.view_own'],

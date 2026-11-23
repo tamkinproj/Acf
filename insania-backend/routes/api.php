@@ -100,6 +100,13 @@ Route::middleware('api.json')->group(function () {
             Route::post('users/{user}/revoke-tokens', [UserAdminController::class, 'revokeTokens']);
         });
         Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.read');
+        // the President's Files page: every file uploaded in the offices, and a backup to keep offline
+        Route::middleware('permission:files.all')->group(function () {
+            Route::get('files', [\App\Http\Controllers\Api\FileManagerController::class, 'index'])->middleware('throttle:120,1,fm-list');
+            Route::get('files/file', [\App\Http\Controllers\Api\FileManagerController::class, 'file'])->middleware('throttle:600,1,fm-file');
+            Route::get('files/zip', [\App\Http\Controllers\Api\FileManagerController::class, 'zip'])->middleware('throttle:30,1,fm-zip');
+            Route::post('files/backup', [\App\Http\Controllers\Api\FileManagerController::class, 'backup'])->middleware('throttle:20,1,fm-backup');
+        });
 
         // Education: Alimni teachers (contracts, salaries), the madrasa and partner markaz, and the curriculum
         Route::prefix('edu')->middleware('partner')->group(function () {

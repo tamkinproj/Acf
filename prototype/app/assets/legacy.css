@@ -645,3 +645,11 @@
         margin-right: -.55rem
     }
 }
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .fm-bk-list {
+        padding-left: 1.2rem
+    }
+    html[dir=rtl] .fm-bk-list {
+        padding-right: 1.2rem
+    }
+}

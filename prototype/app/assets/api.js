@@ -199,10 +199,11 @@
   }
 
   /** Downloads a private file (a PDF, a ZIP): resolves { blob, headers }, or rejects with the server's own message. Never saved on the phone. */
-  function file(path) {
+  function file(path, body) {   // body: sent as POST (a password to confirm, for example)
     if (navigator.onLine === false) { var e = new Error("This needs a connection."); e.offline = true; return Promise.reject(e); }
     var s = session(), headers = { Accept: "application/json" }; if (s && s.token) headers.Authorization = "Bearer " + s.token; if (deviceToken()) headers["X-Device-Token"] = deviceToken(); if (partner()) headers["X-Partner"] = partner();
-    return fetch(base() + path, { headers: headers, credentials: "omit" }).then(function (r) {
+    if (body) headers["Content-Type"] = "application/json";
+    return fetch(base() + path, body ? { method: "POST", headers: headers, body: JSON.stringify(body), credentials: "omit" } : { headers: headers, credentials: "omit" }).then(function (r) {
       if (r.ok) return r.blob().then(function (b) { return { blob: b, headers: r.headers }; });
       return r.text().then(function (txt) { var j = null; try { j = JSON.parse(txt); } catch (x) {} var er = new Error((j && j.message) || "The download did not work."); er.status = r.status; er.code = j && j.code; throw er; });
     }, function () { var er = new Error("This needs a connection."); er.network = true; er.offline = true; throw er; });
