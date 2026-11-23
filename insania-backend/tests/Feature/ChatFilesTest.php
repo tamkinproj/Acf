@@ -41,15 +41,19 @@ class ChatFilesTest extends TestCase
         $photo = $this->post("/api/chat/conversations/{$dm}/files", ['kind' => 'image', 'file' => UploadedFile::fake()->createWithContent('p.jpg', $this->jpeg()), 'body' => 'Look'], ['Accept' => 'application/json'])->assertCreated()->json('data');
         $this->assertSame('image', $photo['file']['kind']);
         $this->assertSame('Look', $photo['body']);
-        $voice = $this->post("/api/chat/conversations/{$dm}/files", ['kind' => 'audio', 'file' => UploadedFile::fake()->createWithContent('voice.webm', $this->webm()), 'ms' => 4200], ['Accept' => 'application/json'])->assertCreated()->json('data');
-        $this->assertSame(['kind' => 'audio', 'ms' => 4200], array_intersect_key($voice['file'], ['kind' => 1, 'ms' => 1]));
+        $voice = $this->post("/api/chat/conversations/{$dm}/files", ['kind' => 'audio', 'file' => UploadedFile::fake()->createWithContent('voice.webm', $this->webm()), 'ms' => 4200, 'peaks' => '0369cfilv'], ['Accept' => 'application/json'])->assertCreated()->json('data');
+        $this->assertSame(['kind' => 'audio', 'ms' => 4200, 'peaks' => '0369cfilv'], array_intersect_key($voice['file'], ['kind' => 1, 'ms' => 1, 'peaks' => 1]));
+        // the shape of the sound is only letters 0-9 and a-v (one per bar)
+        $this->post("/api/chat/conversations/{$dm}/files", ['kind' => 'audio', 'file' => UploadedFile::fake()->createWithContent('voice.webm', $this->webm()), 'peaks' => '<b>'], ['Accept' => 'application/json'])->assertStatus(422);
+        $plain = $this->post("/api/chat/conversations/{$dm}/files", ['kind' => 'audio', 'file' => UploadedFile::fake()->createWithContent('voice.webm', $this->webm())], ['Accept' => 'application/json'])->assertCreated()->json('data');
+        $this->assertNull($plain['file']['peaks']);
         // a text file pretending to be a recording is refused
         $this->post("/api/chat/conversations/{$dm}/files", ['kind' => 'audio', 'file' => UploadedFile::fake()->createWithContent('voice.webm', 'not sound')], ['Accept' => 'application/json'])->assertStatus(422);
 
         $this->get("/api/chat/conversations/{$dm}/messages/{$photo['id']}/file")->assertOk()->assertHeader('Content-Type', 'image/jpeg');
         $this->get("/api/chat/conversations/{$dm}/messages/{$voice['id']}/file")->assertOk()->assertHeader('Content-Type', 'audio/webm');
         $list = $this->getJson("/api/chat/conversations/{$dm}/messages")->assertOk()->json('data');
-        $this->assertSame(['image', 'audio'], array_column(array_column(array_slice($list, -2), 'file'), 'kind'));
+        $this->assertSame(['image', 'audio', 'audio'], array_column(array_column(array_slice($list, -3), 'file'), 'kind'));
 
         // someone outside the chat cannot open them
         $this->app['auth']->forgetGuards();

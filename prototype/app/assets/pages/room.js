@@ -1,7 +1,7 @@
 (function () {
   var A = ACF, t = A.t, esc = A.esc, ic = A.ic;
-  A.strings({ ci_tap: "Tap for settings and members", ci_title: "Chat settings", rm_photo: "Send a photo", rm_voice: "Record a voice message", rm_rec: "Recording…", rm_rec_send: "Send", rm_rec_cancel: "Cancel", rm_no_mic: "Voice messages need the microphone. Allow it in the browser, or this browser cannot record.", rm_sending: "Sending…", rm_dm: "Message {n}", rm_voice_msg: "Voice message", rm_photo_msg: "Photo" },
-    { ci_tap: "اضغط للإعدادات والأعضاء", ci_title: "إعدادات المحادثة", rm_photo: "إرسال صورة", rm_voice: "تسجيل رسالة صوتية", rm_rec: "جارٍ التسجيل…", rm_rec_send: "إرسال", rm_rec_cancel: "إلغاء", rm_no_mic: "الرسائل الصوتية تحتاج الميكروفون. اسمح به في المتصفح، أو أن هذا المتصفح لا يستطيع التسجيل.", rm_sending: "جارٍ الإرسال…", rm_dm: "مراسلة {n}", rm_voice_msg: "رسالة صوتية", rm_photo_msg: "صورة" });
+  A.strings({ ci_tap: "Tap for settings and members", ci_title: "Chat settings", rm_photo: "Send a photo", rm_voice: "Record a voice message", rm_rec: "Recording…", rm_rec_send: "Send", rm_rec_cancel: "Cancel", rm_no_mic: "Voice messages need the microphone. Allow it in the browser, or this browser cannot record.", rm_sending: "Sending…", rm_dm: "Message {n}", rm_voice_msg: "Voice message", rm_photo_msg: "Photo", rm_photo_item: "Photo", rm_photo_sub: "From your gallery or camera", rm_share: "Or share a record", rm_listen: "Stop and listen", rm_delete: "Delete", rm_play: "Play", rm_pause: "Pause", rm_cant_play: "This voice message cannot be played on this phone or browser." },
+    { ci_tap: "اضغط للإعدادات والأعضاء", ci_title: "إعدادات المحادثة", rm_photo: "إرسال صورة", rm_voice: "تسجيل رسالة صوتية", rm_rec: "جارٍ التسجيل…", rm_rec_send: "إرسال", rm_rec_cancel: "إلغاء", rm_no_mic: "الرسائل الصوتية تحتاج الميكروفون. اسمح به في المتصفح، أو أن هذا المتصفح لا يستطيع التسجيل.", rm_sending: "جارٍ الإرسال…", rm_dm: "مراسلة {n}", rm_voice_msg: "رسالة صوتية", rm_photo_msg: "صورة", rm_photo_item: "صورة", rm_photo_sub: "من المعرض أو الكاميرا", rm_share: "أو شارك سجلًا", rm_listen: "إيقاف والاستماع", rm_delete: "حذف", rm_play: "تشغيل", rm_pause: "إيقاف مؤقت", rm_cant_play: "لا يمكن تشغيل هذه الرسالة الصوتية على هذا الهاتف أو المتصفح." });
   var FILES = {};   // message id => blob: address of its photo or voice message (fetched with the sign-in token)
   var cid = parseInt((location.search.match(/[?&]c=(\d+)/) || [])[1], 10) || 0;
   var POP = {}, MSGS = [], META = null, lastId = 0, draft = "", timer = null, busy = false;
@@ -30,7 +30,8 @@
     var f = m.file; if (!f) return "";
     var src = FILES[m.id] ? ' src="' + esc(FILES[m.id]) + '"' : "";
     if (f.kind === "image") return '<button type="button" class="rm-img' + (POP[m.id] ? " pop" : "") + '" data-act="rmimg" data-id="' + m.id + '" aria-label="' + esc(t("rm_photo_msg")) + '"><img alt="" data-file="' + m.id + '"' + src + "></button>";
-    return '<div class="rm-voice' + (POP[m.id] ? " pop" : "") + '">' + ic("bell") + '<audio controls preload="metadata" data-file="' + m.id + '"' + src + ' aria-label="' + esc(t("rm_voice_msg")) + '"></audio></div>';
+    return '<div class="rm-voice' + (POP[m.id] ? " pop" : "") + '" data-voice="' + m.id + '" role="group" aria-label="' + esc(t("rm_voice_msg")) + '"><button type="button" class="rv-play" data-act="rvplay" data-id="' + m.id + '" aria-label="' + esc(t("rm_play")) + '">' + ic("play") + "</button>" +
+      '<span class="rv-wave" data-act="rvseek" data-id="' + m.id + '">' + barsHtml(levelsOf(f.peaks)) + '</span><span class="rv-time" data-ms="' + (f.ms || 0) + '">' + fmt(f.ms || 0) + "</span></div>";
   }
   function one(m) {
     var c = m.card ? card(m.card) : ""; if (c && POP[m.id]) c = c.replace('class="cc', 'class="pop cc');
@@ -74,7 +75,7 @@
     return '<div class="rm' + (HOST ? " in-pane" : "") + '"><div class="dp-bar">' + head + "</div>" +
       '<div class="rm-list" id="msgs">' + listHtml() + "</div>" +
       '<form class="rm-comp" id="rmForm" novalidate><button type="button" class="rm-clip" data-act="attach" aria-label="' + esc(t("chat_attach")) + '">' + ic("clip") + '</button>' +
-      '<button type="button" class="rm-clip" data-act="rmphoto" aria-label="' + esc(t("rm_photo")) + '">' + ic("camera") + '</button><input type="file" id="rmPhotoIn" accept="image/*" hidden>' +
+      '<input type="file" id="rmPhotoIn" accept="image/*" hidden>' +
       '<textarea id="rmText" rows="1" maxlength="2000" placeholder="' + esc(t("chat_type")) + '" aria-label="' + esc(t("chat_type")) + '">' + esc(draft) + '</textarea>' +
       '<button type="button" class="rm-clip rm-mic" data-act="rmvoice" aria-label="' + esc(t("rm_voice")) + '">' + ic("mic") + "</button>" +
       '<button type="submit" class="rm-send" aria-label="' + esc(t("chat_send")) + '">' + ic("send") + "</button></form><div class=\"err rm-err\" id=\"rmErr\" role=\"alert\"></div></div>";
@@ -84,10 +85,8 @@
     var fresh = rows.filter(function (m) { return m.id > lastId; }); if (!fresh.length) return false;
     var stick = nearBottom(), list = document.getElementById("msgs");
     fresh.forEach(function (m) { MSGS.push(m); lastId = Math.max(lastId, m.id); POP[m.id] = 1; });
-    var playing = list && Array.prototype.filter.call(list.querySelectorAll("audio"), function (a) { return !a.paused; })[0], at = playing ? [playing.getAttribute("data-file"), playing.currentTime] : null;
     if (list) list.innerHTML = listHtml();   // the runs of messages are regrouped as new ones arrive
-    loadFiles();
-    if (at) { var again = list.querySelector('audio[data-file="' + at[0] + '"]'); if (again && again.src) { again.currentTime = at[1]; again.play().catch(function () {}); } }
+    loadFiles(); paintVoice();
     setTimeout(function () { POP = {}; }, 900);
     if (fresh.some(function (m) { return !m.mine; })) A.sound("receive"); else A.sound("send");   // like iMessage: a soft pop in, and a sound
     if (stick || fresh.some(function (m) { return m.mine; })) toBottom();
@@ -102,7 +101,7 @@
     var tx = document.getElementById("rmText"); if (!tx) return;
     tx.addEventListener("input", function () { draft = tx.value; tx.style.height = "auto"; tx.style.height = Math.min(tx.scrollHeight, 130) + "px"; });
     tx.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && (window.matchMedia && window.matchMedia("(hover:hover)").matches)) { e.preventDefault(); send(); } });
-    loadFiles();
+    loadFiles(); paintVoice();
     if (MSGS.length) toBottom();
     clearInterval(timer); timer = setInterval(poll, 4000);
   }
@@ -129,11 +128,15 @@
         if (el.tagName === "IMG") el.addEventListener("load", function () { if (nearBottom()) toBottom(); }, { once: true });
       }, function () { delete FILES[id]; });
     });
+    Array.prototype.forEach.call(document.querySelectorAll("#msgs [data-voice]"), function (el) {
+      var id = el.getAttribute("data-voice"); if (FILES[id] !== undefined) return;
+      FILES[id] = ""; A.api.blobUrl("chat/conversations/" + cid + "/messages/" + id + "/file").then(function (u) { FILES[id] = u; }, function () { delete FILES[id]; });
+    });
   }
-  function sendFile(kind, blob, name, ms) {
+  function sendFile(kind, blob, name, ms, peaks) {
     var err = document.getElementById("rmErr"), tx = document.getElementById("rmText"), fd = new FormData();
     if (navigator.onLine === false) { err.textContent = t("chat_offline"); return; }
-    fd.append("kind", kind); fd.append("file", blob, name); if (ms) fd.append("ms", String(Math.round(ms)));
+    fd.append("kind", kind); fd.append("file", blob, name); if (ms) fd.append("ms", String(Math.round(ms))); if (peaks) fd.append("peaks", peaks);
     var text = kind === "image" && tx ? tx.value.trim() : ""; if (text) fd.append("body", text);
     err.textContent = t("rm_sending");
     A.api.upload("chat/conversations/" + cid + "/files", fd).then(function (d) {
@@ -141,41 +144,179 @@
       addMessages([d]); toBottom();
     }, function (e) { err.textContent = e.offline ? t("chat_offline") : A.msg(e); });
   }
-  A.act("rmphoto", function () {
-    var f = document.getElementById("rmPhotoIn"); if (!f) return;
+  A.act("attphoto", function () {
+    var f = document.getElementById("rmPhotoIn"); A.closeSheet(); if (!f) return;
     f.onchange = function () { var file = f.files[0]; f.value = ""; if (file) sendFile("image", file, file.name || "photo.jpg"); };
     f.click();
   });
   A.act("rmimg", function (el) { var u = FILES[el.getAttribute("data-id")]; if (u) window.open(u, "_blank", "noopener"); });
 
-  // voice: tap the microphone, talk, then Send (or Cancel). At most two minutes.
-  var REC = null;
-  function recBar(sec) { return '<div class="rm-rec" role="status"><span class="rm-dot"></span><b>' + esc(t("rm_rec")) + '</b><span class="rm-t" id="rmRecT">' + Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2) + '</span><button type="button" class="btn btn-line btn-sm" data-act="rmrecx">' + t("rm_rec_cancel") + '</button><button type="button" class="btn btn-main btn-sm" data-act="rmrecgo">' + ic("send") + t("rm_rec_send") + "</button></div>"; }
-  function recStop(send) {
-    if (!REC) return; var r = REC; REC = null; clearInterval(r.tick); r.send = send;
-    try { r.rec.stop(); } catch (e) { r.done(); }
+  /* ---- voice messages: a player that shows the shape of the sound ---- */
+  var BARS = 32, PLAY = null;   // PLAY: the voice message playing now { id, audio, ms }
+  function fmt(ms) { var s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+  function levelsOf(peaks) { var out = []; for (var i = 0; i < BARS; i++) { var c = peaks ? peaks.charAt(Math.floor(i * peaks.length / BARS)) : ""; out.push(c ? parseInt(c, 32) / 31 : 0.3 + 0.25 * Math.abs(Math.sin(i * 1.7))); } return out; }
+  function barsHtml(levels) { return levels.map(function (v) { return '<i style="height:' + Math.round(16 + v * 84) + '%"></i>'; }).join(""); }
+  function durOf(a, ms) { return a && isFinite(a.duration) && a.duration > 0 ? a.duration * 1000 : ms; }
+  function paintBars(box, frac) { var bars = box.querySelectorAll("i"); for (var i = 0; i < bars.length; i++) bars[i].classList.toggle("on", (i + 0.5) / bars.length <= frac); }
+  function paintVoice() {
+    Array.prototype.forEach.call(document.querySelectorAll("#msgs .rm-voice"), function (v) {
+      var on = !!(PLAY && String(PLAY.id) === v.getAttribute("data-voice")), a = on ? PLAY.audio : null, going = on && !a.paused;
+      var dur = on ? durOf(a, PLAY.ms) : 0, frac = on && dur ? Math.min(1, a.currentTime * 1000 / dur) : 0;
+      v.classList.toggle("playing", going);
+      var b = v.querySelector(".rv-play"); if (b) { b.innerHTML = ic(going ? "pause" : "play"); b.setAttribute("aria-label", t(going ? "rm_pause" : "rm_play")); }
+      paintBars(v.querySelector(".rv-wave"), frac);
+      var tm = v.querySelector(".rv-time"); if (tm) tm.textContent = fmt(on && a.currentTime > 0 ? a.currentTime * 1000 : +tm.getAttribute("data-ms"));
+    });
+  }
+  function cantPlay(e) {
+    if (e && e.name === "AbortError") return;
+    if (e && e.name === "NotAllowedError") { stopPlay(); paintVoice(); return; }   // the phone wanted a fresh tap: the next one plays
+    var err = document.getElementById("rmErr"); if (err) err.textContent = t("rm_cant_play");
+    if (PLAY) { PLAY.audio.pause(); PLAY = null; paintVoice(); }
+  }
+  function urlOf(id) { return FILES[id] ? Promise.resolve(FILES[id]) : A.api.blobUrl("chat/conversations/" + cid + "/messages/" + id + "/file").then(function (u) { FILES[id] = u; return u; }); }
+  function stopPlay() { if (PLAY) { PLAY.audio.pause(); PLAY = null; } }
+  function seekTo(frac) {
+    var a = PLAY.audio, go = function () { var dur = durOf(a, PLAY && PLAY.audio === a ? PLAY.ms : 0); if (dur) { a.currentTime = frac * dur / 1000; paintVoice(); } };
+    if (a.readyState >= 1) go(); else a.addEventListener("loadedmetadata", go, { once: true });
+  }
+  function play(id, frac) {
+    var m = MSGS.filter(function (x) { return x.id === id; })[0], err = document.getElementById("rmErr");
+    if (err) err.textContent = "";
+    if (PLAY && PLAY.id === id) { if (frac != null) seekTo(frac); else if (!PLAY.audio.paused) { PLAY.audio.pause(); return; } if (PLAY.audio.paused) PLAY.audio.play().catch(cantPlay); paintVoice(); return; }
+    stopPlay(); paintVoice();
+    var a = new Audio(); a.preload = "auto"; PLAY = { id: id, audio: a, ms: (m && m.file && m.file.ms) || 0 };   // made inside the tap, so phones allow the sound
+    a.addEventListener("timeupdate", paintVoice); a.addEventListener("play", paintVoice); a.addEventListener("pause", paintVoice);
+    a.addEventListener("ended", function () { if (PLAY && PLAY.audio === a) PLAY = null; paintVoice(); });
+    a.addEventListener("error", function () { if (PLAY && PLAY.audio === a && a.src) cantPlay(); });
+    var start = function (u) { if (!PLAY || PLAY.audio !== a) return; a.src = u; if (frac) seekTo(frac); return a.play(); };
+    if (FILES[id]) { start(FILES[id]).catch(cantPlay); paintVoice(); return; }   // already here: it starts inside the tap
+    urlOf(id).then(start).catch(cantPlay);
+  }
+  A.act("rvplay", function (el) { play(+el.getAttribute("data-id")); });
+  A.act("rvseek", function (el, e) {   // tap the wave to jump there (it starts playing if it was not)
+    var r = el.getBoundingClientRect(), frac = Math.max(0, Math.min(1, ((e && e.clientX != null ? e.clientX : r.left) - r.left) / r.width));
+    if (getComputedStyle(el).direction === "rtl") frac = 1 - frac;
+    play(+el.getAttribute("data-id"), frac);
+  });
+
+  /* ---- recording: tap the microphone. The level shows your voice while you talk; Stop to listen first, or Send at once. At most two minutes. ---- */
+  var REC = null;   // { state: rec | stopping | review, rec, stream, parts, levels, started, ms, blob, peaks, audio }
+  function recUi(html) {
+    var form = document.getElementById("rmForm"); if (!form) return;
+    var box = document.getElementById("rmRecBox"); if (!box) { box = document.createElement("div"); box.id = "rmRecBox"; box.className = "rm-rec"; box.setAttribute("role", "status"); form.appendChild(box); }
+    form.classList.add("recording"); box.innerHTML = html;
+  }
+  function recEnd() { var form = document.getElementById("rmForm"), box = document.getElementById("rmRecBox"); if (box) box.remove(); if (form) form.classList.remove("recording"); }
+  function delBtn() { return '<button type="button" class="rr-btn rr-del" data-act="rmrecx" aria-label="' + esc(t("rm_delete")) + '">' + ic("trash") + "</button>"; }
+  function sendBtn() { return '<button type="button" class="rm-send" data-act="rmrecgo" aria-label="' + esc(t("rm_rec_send")) + '">' + ic("send") + "</button>"; }
+  function recHtml() {
+    return delBtn() + '<span class="rr-pill" aria-label="' + esc(t("rm_rec")) + '"><span class="rm-dot"></span><span class="rm-t" id="rmRecT">0:00</span><canvas class="rr-level" id="rmLevel" aria-hidden="true"></canvas></span>' +
+      '<button type="button" class="rr-btn" data-act="rmrecstop" aria-label="' + esc(t("rm_listen")) + '">' + ic("stop") + "</button>" + sendBtn();
+  }
+  function reviewHtml(r) {
+    return delBtn() + '<span class="rr-pill"><button type="button" class="rv-play" data-act="rrplay" aria-label="' + esc(t("rm_play")) + '">' + ic("play") + '</button><span class="rv-wave" id="rrWave">' + barsHtml(levelsOf(r.peaks)) + '</span><span class="rm-t" id="rmRecT">' + fmt(r.ms) + "</span></span>" + sendBtn();
+  }
+  function peaksOf(levels) {
+    if (!levels.length) return "";
+    var out = "";
+    for (var i = 0; i < BARS; i++) {
+      var a = Math.floor(i * levels.length / BARS), b = Math.max(a + 1, Math.floor((i + 1) * levels.length / BARS)), mx = 0;
+      for (var j = a; j < b && j < levels.length; j++) mx = Math.max(mx, levels[j]);
+      out += Math.min(31, Math.round(mx * 31)).toString(32);
+    }
+    return out;
+  }
+  function drawLevel(r) {   // the newest sound at the end, bars sliding along like a voice note being drawn
+    var c = document.getElementById("rmLevel"); if (!c) return;
+    var dpr = window.devicePixelRatio || 1, w = c.clientWidth, h = c.clientHeight; if (!w || !h) return;
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    var g = c.getContext("2d"), step = 5, n = Math.floor(w / step), lv = r.levels.slice(-n), rtl = getComputedStyle(c).direction === "rtl";
+    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h); g.fillStyle = getComputedStyle(c).color;
+    for (var i = 0; i < lv.length; i++) {
+      var bh = Math.max(3, lv[i] * h), k = lv.length - i, x = rtl ? (k - 1) * step : w - k * step;
+      g.fillRect(x, (h - bh) / 2, 3, bh);
+    }
+  }
+  function meter() { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; try { var c = new AC(); if (c.resume) c.resume().catch(function () {}); return c; } catch (e) { return null; } }
+  function listen(r) {   // how loud the voice is, many times a second
+    if (!r.ctx) return;
+    try { var src = r.ctx.createMediaStreamSource(r.stream); r.an = r.ctx.createAnalyser(); r.an.fftSize = 1024; src.connect(r.an); } catch (e) { r.an = null; }
+  }
+  function frame(r) {
+    var buf = r.an ? new Uint8Array(r.an.fftSize) : null, last = 0;
+    (function tick(ts) {
+      if (REC !== r || r.state !== "rec") return;
+      if (buf && ts - last > 55) {
+        r.an.getByteTimeDomainData(buf); var sum = 0; for (var i = 0; i < buf.length; i++) { var v = (buf[i] - 128) / 128; sum += v * v; }
+        r.levels.push(Math.max(0, Math.min(1, (Math.sqrt(Math.sqrt(sum / buf.length)) - 0.08) * 1.9))); last = ts; drawLevel(r);
+      }
+      var el = document.getElementById("rmRecT"), ms = Date.now() - r.started; if (el) el.textContent = fmt(ms);
+      if (ms >= 120000) { recStop(r, false); return; }
+      r.raf = requestAnimationFrame(tick);
+    })(0);
+  }
+  function release(r) {
+    cancelAnimationFrame(r.raf);
+    if (r.stream) { r.stream.getTracks().forEach(function (x) { x.stop(); }); r.stream = null; }
+    if (r.ctx && r.ctx.close) { r.ctx.close().catch(function () {}); r.ctx = null; }
+  }
+  function recStop(r, sendNow) {
+    if (!r || r.state !== "rec") return;
+    r.state = "stopping"; r.sendNow = sendNow; r.ms = Date.now() - r.started; cancelAnimationFrame(r.raf);
+    try { r.rec.stop(); } catch (e) { finish(r); }
+  }
+  function finish(r) {
+    release(r);
+    if (REC !== r) return;   // deleted meanwhile
+    r.blob = new Blob(r.parts, { type: r.mime }); r.peaks = peaksOf(r.levels);
+    if (!r.parts.length || r.ms < 700) { REC = null; recEnd(); return; }   // a tap, not a message
+    if (r.sendNow) { recSend(r); return; }
+    r.state = "review"; recUi(reviewHtml(r));
+  }
+  function recSend(r) {
+    if (r.audio) r.audio.pause(); if (r.url) URL.revokeObjectURL(r.url);
+    REC = null; recEnd();
+    sendFile("audio", r.blob, "voice." + (/mp4/.test(r.mime) ? "m4a" : /ogg/.test(r.mime) ? "ogg" : "webm"), r.ms, r.peaks);
+  }
+  function recDelete() {
+    var r = REC; if (!r) return; REC = null;
+    if (r.state === "rec") { try { r.rec.stop(); } catch (e) {} }
+    release(r); if (r.audio) r.audio.pause(); if (r.url) URL.revokeObjectURL(r.url); recEnd();
   }
   A.act("rmvoice", function () {
-    var err = document.getElementById("rmErr"); if (REC) return;
+    var err = document.getElementById("rmErr"); if (REC) return; stopPlay(); paintVoice();
     if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)) { err.textContent = t("rm_no_mic"); return; }
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-      var type = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"].filter(function (x) { return MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(x); })[0];
-      var rec = type ? new MediaRecorder(stream, { mimeType: type }) : new MediaRecorder(stream), parts = [], started = Date.now();
-      var form = document.getElementById("rmForm"), bar = document.createElement("div"); bar.className = "rm-rec"; bar.innerHTML = recBar(0).replace(/^<div class="rm-rec" role="status">|<\/div>$/g, ""); bar.setAttribute("role", "status"); form.appendChild(bar); form.classList.add("recording");
-      var r = { rec: rec, send: false };
-      r.done = function () {
-        stream.getTracks().forEach(function (x) { x.stop(); }); bar.remove(); form.classList.remove("recording");
-        var ms = Date.now() - started, mime = (rec.mimeType || type || "audio/webm").split(";")[0];
-        if (r.send && parts.length && ms > 700) sendFile("audio", new Blob(parts, { type: mime }), "voice." + (/mp4/.test(mime) ? "m4a" : /ogg/.test(mime) ? "ogg" : "webm"), ms);
-      };
-      rec.ondataavailable = function (e) { if (e.data && e.data.size) parts.push(e.data); };
-      rec.onstop = r.done;
-      r.tick = setInterval(function () { var sec = Math.floor((Date.now() - started) / 1000), el = document.getElementById("rmRecT"); if (el) el.textContent = Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); if (sec >= 120) recStop(true); }, 500);
-      REC = r; err.textContent = ""; rec.start(250);
-    }, function () { err.textContent = t("rm_no_mic"); });
+    var ctx = meter();
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }).then(function (stream) {
+      var type = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm", "audio/ogg;codecs=opus"].filter(function (x) { return MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(x); })[0];
+      var rec = type ? new MediaRecorder(stream, { mimeType: type }) : new MediaRecorder(stream);
+      var r = { state: "rec", rec: rec, stream: stream, ctx: ctx, parts: [], levels: [], started: Date.now(), mime: (rec.mimeType || type || "audio/webm").split(";")[0] };
+      rec.ondataavailable = function (e) { if (e.data && e.data.size) r.parts.push(e.data); };
+      rec.onstop = function () { finish(r); };
+      REC = r; err.textContent = ""; recUi(recHtml());
+      listen(r); rec.start(250); frame(r);
+    }, function () { if (ctx && ctx.close) ctx.close().catch(function () {}); err.textContent = t("rm_no_mic"); });
   });
-  A.act("rmrecgo", function () { recStop(true); });
-  A.act("rmrecx", function () { recStop(false); });
+  A.act("rmrecstop", function () { recStop(REC, false); });
+  A.act("rmrecgo", function () { if (!REC) return; if (REC.state === "rec") recStop(REC, true); else if (REC.state === "review") recSend(REC); });
+  A.act("rmrecx", function () { recDelete(); });
+  A.act("rrplay", function (el) {   // listen before sending
+    var r = REC; if (!r || r.state !== "review") return;
+    if (!r.audio) {
+      r.url = URL.createObjectURL(r.blob); r.audio = new Audio(r.url);
+      var paint = function () {
+        var wave = document.getElementById("rrWave"), tm = document.getElementById("rmRecT"), b = document.querySelector("[data-act=rrplay]"), going = !r.audio.paused;
+        var dur = durOf(r.audio, r.ms); if (wave) paintBars(wave, dur ? Math.min(1, r.audio.currentTime * 1000 / dur) : 0);
+        if (tm) tm.textContent = fmt(r.audio.currentTime > 0 && going ? r.audio.currentTime * 1000 : r.ms);
+        if (b) { b.innerHTML = ic(going ? "pause" : "play"); b.setAttribute("aria-label", t(going ? "rm_pause" : "rm_play")); }
+      };
+      r.audio.addEventListener("timeupdate", paint); r.audio.addEventListener("play", paint); r.audio.addEventListener("pause", paint);
+      r.audio.addEventListener("ended", function () { r.audio.currentTime = 0; paint(); });
+      r.audio.addEventListener("error", function () { cantPlay(); });
+    }
+    if (r.audio.paused) r.audio.play().catch(cantPlay); else r.audio.pause();
+  });
 
   // tap a person in a group to message them on their own
   function openDirect(userId) {
@@ -197,9 +338,10 @@
   function months6() { var out = [], d = new Date(); for (var i = 0; i < 6; i++) { out.push(d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2)); d.setMonth(d.getMonth() - 1); } return out; }
   A.act("attach", function () {
     var kinds = (META && META.shareable) || [];
-    A.sheet(t("chat_attach"), '<p class="note">' + esc(t("chat_pick_kind")) + '</p><div class="list">' + kinds.map(function (k) {
-      return '<button class="item" type="button" data-act="attkind" data-kind="' + k + '"><span class="avatar">' + ic(KIND_ICON[k] || "file") + '</span><span class="grow"><b>' + esc(t("k_" + k)) + "</b></span>" + ic("chev", "flip") + "</button>";
-    }).join("") + "</div>");
+    A.sheet(t("chat_attach"), '<div class="list"><button class="item" type="button" data-act="attphoto"><span class="avatar att-photo">' + ic("camera") + '</span><span class="grow"><b>' + esc(t("rm_photo_item")) + '</b><span class="sub">' + esc(t("rm_photo_sub")) + "</span></span>" + ic("chev", "flip") + "</button></div>" +
+      (kinds.length ? '<p class="note att-note">' + esc(t("rm_share")) + '</p><div class="list">' + kinds.map(function (k) {
+        return '<button class="item" type="button" data-act="attkind" data-kind="' + k + '"><span class="avatar">' + ic(KIND_ICON[k] || "file") + '</span><span class="grow"><b>' + esc(t("k_" + k)) + "</b></span>" + ic("chev", "flip") + "</button>";
+      }).join("") + "</div>" : ""));
   });
   function items(kind, month) {
     if (kind === "child") return A.api.get("children?per_page=100", { cache: false }).then(function (r) { return r.data.map(function (c) { return { id: c.id, label: A.name(c) || c.ref, sub: c.ref }; }); });
@@ -253,13 +395,13 @@
   }
   /* Open a conversation inside a pane (the chat page on a computer). */
   function open(id, host) {
-    clearInterval(timer); if (id !== opened) draft = ""; opened = id;
+    clearInterval(timer); recDelete(); stopPlay(); if (id !== opened) draft = ""; opened = id;
     cid = id; HOST = host; MSGS = []; META = null; lastId = 0; POP = {}; busy = false;
     host.innerHTML = '<p class="note rm-loading">' + esc(t("loading")) + "</p>";
     return load().then(function () { if (HOST !== host || cid !== id) return; host.innerHTML = render(); init(); },
       function (e) { if (HOST === host) host.innerHTML = '<p class="err" style="padding:1rem">' + esc(A.msg(e)) + "</p>"; });
   }
-  function close() { clearInterval(timer); HOST = null; }
+  function close() { clearInterval(timer); recDelete(); stopPlay(); HOST = null; }
   A.room = { open: open, close: close };
   // on a computer a conversation opens in the chat page's right-hand pane
   if (document.body.getAttribute("data-page") === "room" && cid && window.matchMedia && window.matchMedia("(min-width:1024px)").matches) { location.replace("chat.html?c=" + cid); return; }

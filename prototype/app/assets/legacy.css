@@ -624,10 +624,24 @@
     }
 }
 @supports not (padding-inline:1px) {
-    html[dir=ltr] .rm-rec .rm-t {
-        margin-right: auto
+    .rm-voice {
+        padding-top: .4rem;
+        padding-bottom: .4rem
     }
-    html[dir=rtl] .rm-rec .rm-t {
-        margin-left: auto
+    html[dir=ltr] .rm-voice {
+        padding-left: .4rem;
+        padding-right: .85rem
+    }
+    html[dir=rtl] .rm-voice {
+        padding-right: .4rem;
+        padding-left: .85rem
+    }
+}
+@supports not (padding-inline:1px) {
+    html[dir=ltr] .rr-pill .rv-play {
+        margin-left: -.55rem
+    }
+    html[dir=rtl] .rr-pill .rv-play {
+        margin-right: -.55rem
     }
 }

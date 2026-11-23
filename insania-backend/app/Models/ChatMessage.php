@@ -11,7 +11,7 @@ class ChatMessage extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['foundation_id', 'conversation_id', 'user_id', 'body', 'card_kind', 'card_id', 'card_extra', 'created_at', 'file_kind', 'file_path', 'file_mime', 'file_size', 'file_ms'];
+    protected $fillable = ['foundation_id', 'conversation_id', 'user_id', 'body', 'card_kind', 'card_id', 'card_extra', 'created_at', 'file_kind', 'file_path', 'file_mime', 'file_size', 'file_ms', 'file_peaks'];
 
     protected $casts = ['created_at' => 'datetime'];
 

@@ -91,7 +91,7 @@ class ChatController extends Controller
             $out['card'] = ChatCards::describe($viewer, $m->card_kind, $m->card_id, $m->card_extra);
         }
         if ($m->file_kind) {   // the file itself is fetched with the sign-in token: chat/conversations/{c}/messages/{m}/file
-            $out['file'] = ['kind' => $m->file_kind, 'ms' => $m->file_ms, 'size' => $m->file_size];
+            $out['file'] = ['kind' => $m->file_kind, 'ms' => $m->file_ms, 'size' => $m->file_size, 'peaks' => $m->file_peaks];
         }
 
         return $out;
@@ -273,6 +273,7 @@ class ChatController extends Controller
             'file' => ['required', 'file', 'max:'.($request->input('kind') === 'audio' ? 3072 : 4096)],
             'body' => ['nullable', 'string', 'max:2000'],
             'ms' => ['nullable', 'integer', 'min:0', 'max:130000'],
+            'peaks' => ['nullable', 'string', 'max:64', 'regex:/^[0-9a-v]*$/'],   // loudness over time, one sign 0-v (0-31) per bar
         ]);
         $dir = 'chat/'.$me->foundation_id.'/'.$conversation->id;
         if ($data['kind'] === 'image') {
@@ -291,7 +292,7 @@ class ChatController extends Controller
             if (! Storage::disk('local')->put($path, (string) file_get_contents($up->getRealPath()))) {
                 return ApiResponse::error('SAVE_FAILED', 'The recording could not be saved.', 500);
             }
-            $file = ['file_kind' => 'audio', 'file_path' => $path, 'file_mime' => str_starts_with($mime, 'video/') ? 'audio/'.substr($mime, 6) : $mime, 'file_size' => $up->getSize(), 'file_ms' => min(120000, (int) ($data['ms'] ?? 0)) ?: null];
+            $file = ['file_kind' => 'audio', 'file_path' => $path, 'file_mime' => str_starts_with($mime, 'video/') ? 'audio/'.substr($mime, 6) : $mime, 'file_size' => $up->getSize(), 'file_ms' => min(120000, (int) ($data['ms'] ?? 0)) ?: null, 'file_peaks' => ($data['peaks'] ?? '') !== '' ? $data['peaks'] : null];
         }
         $body = trim((string) ($data['body'] ?? ''));
         $m = ChatMessage::create(['foundation_id' => $me->foundation_id, 'conversation_id' => $conversation->id, 'user_id' => $me->id, 'body' => $body === '' ? null : $body, 'created_at' => now()] + $file);
