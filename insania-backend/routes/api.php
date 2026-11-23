@@ -66,6 +66,9 @@ Route::middleware('api.json')->group(function () {
         Route::get('partners', [\App\Http\Controllers\Api\PartnersController::class, 'index']);
         Route::post('partners/{code}/pause', [\App\Http\Controllers\Api\PartnersController::class, 'pause'])->middleware(['permission:partners.manage', 'throttle:10,1'])->where('code', '[a-z0-9_]+');
         Route::post('partners/{code}/resume', [\App\Http\Controllers\Api\PartnersController::class, 'resume'])->middleware(['permission:partners.manage', 'throttle:10,1'])->where('code', '[a-z0-9_]+');
+        Route::get('partners/{code}/report-form', [\App\Http\Controllers\Api\ReportFormController::class, 'show'])->middleware('permission:children.view')->where('code', '[a-z0-9_]+');
+        Route::post('partners/{code}/report-form', [\App\Http\Controllers\Api\ReportFormController::class, 'upload'])->middleware(['permission:partners.manage', 'throttle:10,1', 'block.uploads'])->where('code', '[a-z0-9_]+');
+        Route::put('partners/{code}/report-form', [\App\Http\Controllers\Api\ReportFormController::class, 'details'])->middleware(['permission:partners.manage', 'throttle:30,1'])->where('code', '[a-z0-9_]+');
         Route::get('system/health', [SystemController::class, 'health'])->middleware('permission:system.health');
         Route::get('system/settings', [SystemController::class, 'settings'])->middleware('permission:system.settings');
         Route::get('system/limits', [SystemController::class, 'limits'])->middleware('permission:system.settings');
@@ -216,6 +219,14 @@ Route::middleware('api.json')->group(function () {
             Route::get('children/{child}/documents', [ChildDocumentController::class, 'index'])->middleware('permission:documents.view');
             Route::get('children/{child}/documents/{type}/download', [ChildDocumentController::class, 'download'])->middleware('permission:documents.view');
             Route::post('children/{child}/documents', [ChildDocumentController::class, 'store'])->middleware(['permission:documents.upload', 'block.uploads']);
+            // Dar Al Ber's periodic orphan report (filled into their own PDF form)
+            Route::get('children/{child}/report', [\App\Http\Controllers\Api\OrphanReportController::class, 'show'])->middleware('permission:children.view');
+            Route::put('children/{child}/report', [\App\Http\Controllers\Api\OrphanReportController::class, 'save'])->middleware('permission:children.update');
+            Route::post('children/{child}/report/write', [\App\Http\Controllers\Api\OrphanReportController::class, 'write'])->middleware(['permission:children.update', 'throttle:90,1']);
+            Route::post('children/{child}/report/approve', [\App\Http\Controllers\Api\OrphanReportController::class, 'approve'])->middleware('permission:children.update');
+            Route::get('children/{child}/report/pdf', [\App\Http\Controllers\Api\OrphanReportController::class, 'pdf'])->middleware(['permission:children.view', 'throttle:60,1']);
+            Route::get('partner-reports', [\App\Http\Controllers\Api\OrphanReportController::class, 'index'])->middleware('permission:children.view');
+            Route::get('partner-reports/zip', [\App\Http\Controllers\Api\OrphanReportController::class, 'zip'])->middleware(['permission:children.view', 'throttle:20,1']);
         });
 
         // Office: money (Finance)

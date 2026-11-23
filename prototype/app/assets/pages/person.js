@@ -86,7 +86,8 @@
 
     var record = sec(t("sec_record"), rows([row(t("p_added"), dash(c.created_at)), row(t("p_updated"), dash(c.updated_at)), row(t("p_submitted"), dash(c.form_submitted_at ? A.dateTime(c.form_submitted_at) : null)), row(t("p_photos"), String((c.photos || []).length))]));
     var bar2 = typeof editing === "string" ? '<div class="err" id="formErr" role="alert"></div><div class="dp-savebar"><button class="btn btn-line" type="button" data-act="canceledit">' + t("cancel") + '</button><button class="btn btn-main" type="button" data-act="saveedit">' + t("save") + "</button></div>" : "";
-    return '<div class="dp">' + bar(A.name(c)) + head + '<div class="dp-grid">' + groups + bank + photos + docs + acct + record + "</div>" + bar2 + "</div>";
+    var report = A.report && A.report.here() ? A.report.card() : "";
+    return '<div class="dp">' + bar(A.name(c)) + head + '<div class="dp-grid">' + groups + bank + photos + docs + report + acct + record + "</div>" + bar2 + "</div>";
   }
 
   /* ---- editing: right on the page, all sections or one ---- */
@@ -170,6 +171,6 @@
 
   A.start({
     page: "person", nav: "people", title: "child_title", perm: "children.view", shell: true, bare: true, load: load, render: render,
-    after: function (c) { if (c && c.ref) { document.title = A.name(c) + " | " + t("brand"); loadPhotos(c); if (editing && editing.field) { var inp = document.getElementById("f_" + editing.field); if (inp && inp.focus) { inp.focus(); } } } }
+    after: function (c) { if (c && c.ref) { document.title = A.name(c) + " | " + t("brand"); loadPhotos(c); if (A.report) A.report.mount(c.id); if (editing && editing.field) { var inp = document.getElementById("f_" + editing.field); if (inp && inp.focus) { inp.focus(); } } } }
   });
 })();

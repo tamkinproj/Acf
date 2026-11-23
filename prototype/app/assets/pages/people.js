@@ -59,6 +59,7 @@
   function tools() {
     var samples = rows.filter(function (c) { return c.is_sample; }).length, out = "";
     if (samples && A.can("children.update")) out += '<button class="btn btn-line btn-sm" type="button" data-act="rmsamples">' + t("rm_samples") + " (" + samples + ")</button>";
+    if (A.report) out += A.report.batchButton();
     return out ? '<div class="actions" style="margin-bottom:1rem">' + out + "</div>" : "";
   }
   A.act("rmsamples", function () {

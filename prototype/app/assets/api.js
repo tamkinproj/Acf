@@ -198,6 +198,16 @@
     return fetch(base() + path, { headers: headers, credentials: "omit" }).then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.blob(); }).then(function (b) { return URL.createObjectURL(b); });
   }
 
+  /** Downloads a private file (a PDF, a ZIP): resolves { blob, headers }, or rejects with the server's own message. Never saved on the phone. */
+  function file(path) {
+    if (navigator.onLine === false) { var e = new Error("This needs a connection."); e.offline = true; return Promise.reject(e); }
+    var s = session(), headers = { Accept: "application/json" }; if (s && s.token) headers.Authorization = "Bearer " + s.token; if (deviceToken()) headers["X-Device-Token"] = deviceToken(); if (partner()) headers["X-Partner"] = partner();
+    return fetch(base() + path, { headers: headers, credentials: "omit" }).then(function (r) {
+      if (r.ok) return r.blob().then(function (b) { return { blob: b, headers: r.headers }; });
+      return r.text().then(function (txt) { var j = null; try { j = JSON.parse(txt); } catch (x) {} var er = new Error((j && j.message) || "The download did not work."); er.status = r.status; er.code = j && j.code; throw er; });
+    }, function () { var er = new Error("This needs a connection."); er.network = true; er.offline = true; throw er; });
+  }
+
   /* ---------- public: write ---------- */
   /** opts: { label, optimistic: function(), online: true (never queue) }  -> { queued, data } */
   function write(method, path, body, opts) {
@@ -267,7 +277,7 @@
   window.addEventListener("load", function () { setTimeout(sync, 600); });
 
   window.ACFAPI = {
-    partner: partner, setPartner: setPartner, deviceToken: deviceToken, setDeviceToken: setDeviceToken, base: base, session: session, user: user, can: can, blobUrl: blobUrl, login: login, logout: logout, refreshMe: refreshMe,
+    partner: partner, setPartner: setPartner, deviceToken: deviceToken, setDeviceToken: setDeviceToken, base: base, session: session, user: user, can: can, blobUrl: blobUrl, file: file, login: login, logout: logout, refreshMe: refreshMe,
     get: get, getAll: getAll, upload: upload, getEvery: getEvery, prefetch: prefetch, setPrefs: setPrefs, updateUser: updateUser, write: write, patchCache: patchCache, wipeCache: wipeCache,
     outbox: mine, counts: counts, state: state, onChange: onChange, sync: sync, discard: discard, retry: retry,
     expired: function () { return !!rd(META, {}).expired; }, clearExpired: function () { setMeta({ expired: false }); }

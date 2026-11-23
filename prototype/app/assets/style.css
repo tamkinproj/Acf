@@ -1296,3 +1296,29 @@ a.pt-card{position:relative}
 .pp-head .pp-logo{background-size:contain;background-position:left center;background-repeat:no-repeat}
 [dir=rtl] .pp-head .pp-logo{background-position:right center}
 .pp-head .pp-logo.ini{display:grid;place-items:center;background:#eef2e6}
+
+/* Dar Al Ber report (profile card, batch download, report form on the Partners page) */
+.rep{display:grid;gap:.8rem}
+.rep .note{margin:0}
+.rep .optlbl{margin:.4rem 0 0}
+.rep-top{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}
+.rep-y{display:flex;align-items:center;gap:.45rem;margin:0;font-weight:600}
+.rep-y select{width:auto;min-width:6.5rem}
+.rep-grid{display:grid;gap:.8rem;grid-template-columns:minmax(0,1fr)}
+@media (min-width:720px){.rep-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rep-text{display:grid;gap:.35rem}
+.rep-lab{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.rep-lab label{margin:0}
+.rep-lab .btn svg{width:1rem;height:1rem}
+.rep textarea{font-size:1rem;line-height:1.7;min-height:4.2rem}
+.rep-foot{font-size:.8rem;color:var(--muted)}
+.rep-n.warn,.rep-warn{color:var(--danger)}
+.rep-actions{flex-wrap:wrap;margin-top:.2rem}
+.rep-batch{display:grid;gap:.6rem}
+.rep-batch .note{margin:0}
+.rb-opt{justify-content:flex-start;align-items:flex-start;cursor:pointer}
+.rb-opt input{margin-top:.2rem;flex:none}
+.rf{display:grid;gap:.45rem;margin-top:.4rem;padding-top:.6rem;border-top:1px solid var(--line);width:100%}
+.rf .note{margin:0}
+.dp-grid > #sec-report{grid-column:1 / -1}
+@media (min-width:980px){.rep-choices{grid-template-columns:repeat(3,minmax(0,1fr))}}
