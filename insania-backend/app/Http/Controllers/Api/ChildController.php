@@ -56,7 +56,7 @@ class ChildController extends Controller
         if ($child->photos()->count() >= (int) config('orphan_fields.photos.max_per_child', 8)) {
             return ApiResponse::error('TOO_MANY', 'This child already has the most photos allowed. Remove one first.', 422);
         }
-        $saved = \App\Support\PrivateImages::store($request->file('photo'), "children/{$child->foundation_id}/{$child->id}");
+        $saved = \App\Support\PrivateImages::store($request->file('photo'), "children/{$child->foundation_id}/{$child->id}", 1400, null, 3 / 4);   // upright 3:4, like the report's photo box
         if (is_string($saved)) {
             return ApiResponse::error('VALIDATION_ERROR', $saved, 422, ['photo' => [$saved]]);
         }

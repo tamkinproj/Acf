@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Storage;
 final class PrivateImages
 {
     /** @return array{path: string, mime: string}|string a stored file, or a plain-language reason */
-    public static function store(UploadedFile $file, string $dir, int $maxSide = 1400, ?int $maxKb = null): array|string
+    /** $ratio: width / height the photo must have (within 3%), for example 3 / 4; empty: any shape. */
+    public static function store(UploadedFile $file, string $dir, int $maxSide = 1400, ?int $maxKb = null, ?float $ratio = null): array|string
     {
         $max = ($maxKb ?? (int) config('orphan_fields.photos.max_kb', 4096)) * 1024;
         if (! $file->isValid() || $file->getSize() > $max) {
@@ -36,6 +37,9 @@ final class PrivateImages
             $src = match ($o) { 3 => imagerotate($src, 180, 0), 6 => imagerotate($src, -90, 0), 8 => imagerotate($src, 90, 0), default => $src };
             [$w, $h] = [imagesx($src), imagesy($src)];
         }
+        if ($ratio !== null && abs(($w / $h) - $ratio) / $ratio > 0.03) {
+            return 'The photo must be upright, 3 wide by 4 tall (the same shape as the box in the report). The app crops it for you; crop it first if you use another program.';
+        }
         if (max($w, $h) > $maxSide) {
             $r = $maxSide / max($w, $h);
             $dst = imagecreatetruecolor((int) round($w * $r), (int) round($h * $r));
@@ -54,5 +58,37 @@ final class PrivateImages
         }
 
         return ['path' => $path, 'mime' => 'image/jpeg'];
+    }
+
+    /** A JPEG cut to width / height = $ratio, keeping the top (faces stay in view) and the middle from side to side. Already that shape: unchanged. */
+    public static function cropToRatio(string $jpeg, float $ratio): string
+    {
+        $info = @getimagesizefromstring($jpeg);
+        if (! $info || ! function_exists('imagecreatefromstring')) {
+            return $jpeg;
+        }
+        [$w, $h] = [$info[0], $info[1]];
+        if (abs(($w / $h) - $ratio) / $ratio <= 0.01) {
+            return $jpeg;
+        }
+        $src = @imagecreatefromstring($jpeg);
+        if (! $src) {
+            return $jpeg;
+        }
+        if ($w / $h > $ratio) {
+            $cw = (int) round($h * $ratio);
+            $rect = ['x' => (int) floor(($w - $cw) / 2), 'y' => 0, 'width' => $cw, 'height' => $h];
+        } else {
+            $ch = (int) round($w / $ratio);
+            $rect = ['x' => 0, 'y' => 0, 'width' => $w, 'height' => min($h, $ch)];
+        }
+        $out = imagecrop($src, $rect);
+        if (! $out) {
+            return $jpeg;
+        }
+        ob_start();
+        imagejpeg($out, null, 88);
+
+        return (string) ob_get_clean() ?: $jpeg;
     }
 }

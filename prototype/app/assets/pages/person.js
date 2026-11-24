@@ -5,14 +5,14 @@
   A.strings({
     child_title: "Orphan profile", p_edit_all: "Edit all", p_call: "Call guardian", p_age: "Age", p_years: "{n} years", p_grade: "Grade", f_health: "Health status", good: "Good", needs_followup: "Needs follow-up",
     p_added: "Added on", p_updated: "Last updated", p_submitted: "Form submitted", p_photos: "Photos uploaded", sec_record: "Record", sec_photos: "Photos", sec_docs: "Documents", sec_bank: "Bank account",
-    p_saved: "Saved", p_conn: "Editing needs a connection.", p_samplebadge: "Sample", p_back: "Back", p_add_photo: "Add photo", p_remove_q: "Remove this photo?", p_removed: "Photo removed", p_photo_added: "Photo added",
+    p_saved: "Saved", p_conn: "Editing needs a connection.", p_samplebadge: "Sample", p_back: "Back", p_add_photo: "Add photo", p_photo_shape: "The photo is cut to an upright 3 by 4 shape, the same as the box in the report. Check that the face is in it.", p_photo_use: "Use this photo", p_photo_bad: "This photo could not be read. Choose a JPG, PNG or WebP photo.", p_remove_q: "Remove this photo?", p_removed: "Photo removed", p_photo_added: "Photo added",
     f_holder: "Account holder", f_bankname: "Bank", f_last4: "Last 4 digits", verify: "Verified", notver: "Not verified", ver_on: "Bank account verified", ver_off: "Verification removed", no_bank: "No bank account yet (cash).", no_pay: "Bank or cash not chosen yet. This orphan becomes active when the sponsor sheet (كشف) that lists them is imported.",
     doc_on: "On file", doc_missing: "Missing", doc_view: "View", doc_upload: "Upload", doc_replace: "Replace", doc_done: "Document saved", d_birth_certificate: "Orphan's birth certificate", d_father_death_certificate: "Father's death certificate", d_school_record: "School certificate", d_guardian_id: "Direct responsible person's ID", d_case_study: "Case study",
     waiting: "Waiting to send", wait_note: "This orphan was added offline. Details appear once it has been sent.", active: "Active", pending: "Pending", ended: "Ended", p_edit_sec: "Edit: {s}", p_from_app: "Original application", p_account: "Sign-in account", p_noacct: "No account yet"
   }, {
     child_title: "ملف اليتيم", p_edit_all: "تعديل الكل", p_call: "اتصل بالوصي", p_age: "العمر", p_years: "{n} سنة", p_grade: "الصف", f_health: "الحالة الصحية", good: "جيدة", needs_followup: "تحتاج متابعة",
     p_added: "تاريخ الإضافة", p_updated: "آخر تحديث", p_submitted: "تاريخ تقديم النموذج", p_photos: "الصور المرفوعة", sec_record: "السجل", sec_photos: "الصور", sec_docs: "المستندات", sec_bank: "الحساب البنكي",
-    p_saved: "تم الحفظ", p_conn: "التعديل يحتاج اتصالًا.", p_samplebadge: "تجريبي", p_back: "رجوع", p_add_photo: "أضف صورة", p_remove_q: "حذف هذه الصورة؟", p_removed: "تم حذف الصورة", p_photo_added: "تمت إضافة الصورة",
+    p_saved: "تم الحفظ", p_conn: "التعديل يحتاج اتصالًا.", p_samplebadge: "تجريبي", p_back: "رجوع", p_add_photo: "أضف صورة", p_photo_shape: "تُقصّ الصورة بشكل عمودي 3 في 4، مثل مربع الصورة في التقرير. تأكد أن الوجه داخلها.", p_photo_use: "استخدم هذه الصورة", p_photo_bad: "تعذّرت قراءة الصورة. اختر صورة JPG أو PNG أو WebP.", p_remove_q: "حذف هذه الصورة؟", p_removed: "تم حذف الصورة", p_photo_added: "تمت إضافة الصورة",
     f_holder: "صاحب الحساب", f_bankname: "البنك", f_last4: "آخر 4 أرقام", verify: "موثّق", notver: "غير موثّق", ver_on: "تم توثيق الحساب البنكي", ver_off: "أُلغي التوثيق", no_bank: "لا يوجد حساب بنكي بعد (نقدًا).", no_pay: "لم يُحدَّد بنكي أو نقدي بعد. يصبح هذا اليتيم نشطًا عند استيراد الكشف الذي يذكره.",
     doc_on: "موجود", doc_missing: "ناقص", doc_view: "عرض", doc_upload: "رفع", doc_replace: "استبدال", doc_done: "تم حفظ المستند", d_birth_certificate: "صورة شهادة ميلاد اليتيم", d_father_death_certificate: "صورة شهادة وفاة الاب", d_school_record: "صورة الشهادة الدراسية", d_guardian_id: "صورة هوية المسؤول المباشر", d_case_study: "صورة بحث الحالة",
     waiting: "بانتظار الإرسال", wait_note: "أُضيف هذا اليتيم بدون اتصال. تظهر التفاصيل بعد إرساله.", active: "نشط", pending: "معلّق", ended: "منتهٍ", p_edit_sec: "تعديل: {s}", p_from_app: "الطلب الأصلي", p_account: "حساب الدخول", p_noacct: "لا يوجد حساب بعد"
@@ -146,7 +146,36 @@
     });
   }
   A.act("openphoto", function (el) { var u = el.getAttribute("data-url"); if (u) window.open(u, "_blank", "noopener"); });
-  A.act("addphoto", function () { var f = document.getElementById("photoIn"); f.onchange = function () { var file = f.files[0]; f.value = ""; if (!file) return; var fd = new FormData(); fd.append("photo", file); A.toast("…"); A.api.upload("children/" + id + "/photos", fd).then(function () { A.toast(t("p_photo_added")); A.reload(true); }, function (e) { A.toast(e.offline ? t("p_conn") : A.msg(e)); }); }; f.click(); });
+  /* a photo of the orphan must be upright 3:4 (the box in the Dar Al Ber report): the app crops it, keeping the top, and shows it before it is sent */
+  var CROP = null;
+  function crop34(file) {
+    return new Promise(function (ok, no) {
+      var im = new Image(), u = URL.createObjectURL(file);
+      im.onload = function () {
+        var w = im.naturalWidth, h = im.naturalHeight, cw = w, ch = h, sx = 0, sy = 0;
+        if (w / h > 0.75) { cw = Math.round(h * 0.75); sx = Math.floor((w - cw) / 2); } else { ch = Math.round(w / 0.75); sy = 0; }
+        var k = Math.min(1, 1600 / Math.max(cw, ch)), c = document.createElement("canvas"); c.width = Math.round(cw * k); c.height = Math.round(ch * k);
+        var g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, sx, sy, cw, ch, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(u); c.toBlob(function (b) { b ? ok(b) : no(new Error("crop")); }, "image/jpeg", 0.9);
+      };
+      im.onerror = function () { URL.revokeObjectURL(u); no(new Error("read")); }; im.src = u;
+    });
+  }
+  A.act("addphoto", function () {
+    var f = document.getElementById("photoIn");
+    f.onchange = function () {
+      var file = f.files[0]; f.value = ""; if (!file) return;
+      crop34(file).then(function (blob) {
+        CROP = blob;
+        A.sheet(t("p_add_photo"), '<p class="note" style="margin-top:0">' + t("p_photo_shape") + '</p><div class="p34"><img alt="" src="' + URL.createObjectURL(blob) + '"></div><div class="err" id="p34Err" role="alert"></div><div class="actions"><button class="btn btn-main" type="button" data-act="p34go">' + t("p_photo_use") + '</button><button class="btn btn-line" type="button" data-act="close">' + t("cancel") + "</button></div>");
+      }, function () { A.toast(t("p_photo_bad")); });
+    };
+    f.click();
+  });
+  A.act("p34go", function (el) {
+    if (!CROP) return; el.disabled = true; var fd = new FormData(); fd.append("photo", CROP, "photo.jpg");
+    A.api.upload("children/" + id + "/photos", fd).then(function () { CROP = null; A.closeSheet(); A.toast(t("p_photo_added")); A.reload(true); }, function (e) { el.disabled = false; var er = document.getElementById("p34Err"); if (er) er.textContent = e.offline ? t("p_conn") : A.msg(e); });
+  });
   A.act("rmphoto", function (el) { if (!confirm(t("p_remove_q"))) return; A.api.write("DELETE", "children/" + id + "/photos/" + el.getAttribute("data-id"), undefined, { online: true }).then(function () { A.toast(t("p_removed")); A.reload(true); }, function (e) { A.toast(e.offline ? t("p_conn") : A.msg(e)); }); });
 
   /* ---- documents ---- */

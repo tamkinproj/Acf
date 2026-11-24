@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Child;
 use App\Models\Foundation;
 use App\Models\Project;
-use App\Models\Sponsor;
 use App\Models\SiteContent;
 use App\Support\ApiResponse;
 
@@ -41,7 +40,6 @@ class PublicSiteController extends Controller
         $all = [
             'hero_orphans' => (clone $kids)->count(),
             'hero_families' => (clone $kids)->whereNotNull('guardian_id')->distinct()->count('guardian_id'),
-            'hero_partners' => Sponsor::withoutGlobalScopes()->where('foundation_id', $fid)->count(),
             'proj_done' => (clone $projects)->where('status', 'completed')->count(),
             'proj_communities' => (clone $projects)->whereNotNull('location')->where('location', '!=', '')->distinct()->count('location'),
         ];

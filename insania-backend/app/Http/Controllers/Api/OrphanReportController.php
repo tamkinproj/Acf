@@ -219,7 +219,9 @@ class OrphanReportController extends Controller
     {
         $p = $child->photos()->orderByDesc('id')->first();
 
-        return $p && $p->path && Storage::disk('local')->exists($p->path) ? Storage::disk('local')->get($p->path) : null;
+        $bytes = $p && $p->path && Storage::disk('local')->exists($p->path) ? Storage::disk('local')->get($p->path) : null;
+
+        return $bytes === null ? null : \App\Support\PrivateImages::cropToRatio($bytes, 3 / 4);   // older photos of another shape fill the form's 3:4 box
     }
 
     /**

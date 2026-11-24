@@ -29,7 +29,7 @@ class OrphanApplicationTest extends TestCase
 
     private function png(string $name = 'p.png'): UploadedFile
     {
-        $im = imagecreatetruecolor(40, 30);
+        $im = imagecreatetruecolor(30, 40);   // upright 3:4, the shape an orphan's photo must have
         ob_start();
         imagepng($im);
 

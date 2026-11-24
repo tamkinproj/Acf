@@ -93,7 +93,7 @@ class SiteController extends Controller
             'index' => ['required', 'integer', 'min:0'],
             'name_en' => ['nullable', 'string', 'max:100'], 'name_ar' => ['nullable', 'string', 'max:100'],
             'role_en' => ['nullable', 'string', 'max:100'], 'role_ar' => ['nullable', 'string', 'max:100'],
-            'bio_en' => ['nullable', 'string', 'max:400'], 'bio_ar' => ['nullable', 'string', 'max:400'],
+            'bio_en' => ['nullable', 'string', 'max:80'], 'bio_ar' => ['nullable', 'string', 'max:80'],
             'photo' => ['nullable', 'integer'],
         ]);
         $row = $this->row($request);

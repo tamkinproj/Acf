@@ -148,7 +148,7 @@ final class SiteContentRules
         }
         unset($p);
 
-        $out['team'] = $list('team', ['name_en' => [100, false], 'name_ar' => [100, false], 'role_en' => [100, false], 'role_ar' => [100, false], 'bio_en' => [400, true], 'bio_ar' => [400, true]]);
+        $out['team'] = $list('team', ['name_en' => [100, false], 'name_ar' => [100, false], 'role_en' => [100, false], 'role_ar' => [100, false], 'bio_en' => [80, true], 'bio_ar' => [80, true]]);
         // the staff account that may edit this card itself (a staff account of this foundation, or nobody)
         $rawTeam = is_array($in['team'] ?? null) ? array_values($in['team']) : [];
         $staff = \App\Models\User::withoutGlobalScopes()->where('foundation_id', $foundationId)->where('role', '!=', 'user')->pluck('id')->flip();

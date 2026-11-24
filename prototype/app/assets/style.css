@@ -1513,3 +1513,7 @@ html[class*="th-"] .rr-pill .rv-play,html[class*="th-"] .avatar.att-photo{backgr
 .sc-cfs.bad{color:var(--danger,#b3261e)}
 .sc-retry{margin-top:.4rem}
 .sc-block{align-items:flex-start}
+
+/* orphan photo: shown cut to the report's upright 3:4 shape before it is sent */
+.p34{width:min(15rem,70%);aspect-ratio:3/4;margin:.4rem auto 1rem;border-radius:1rem;overflow:hidden;background:#eef0ea}
+.p34 img{width:100%;height:100%;object-fit:cover;display:block}

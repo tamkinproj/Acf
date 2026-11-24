@@ -51,7 +51,6 @@ return [
     'numbers' => [
         'hero_orphans' => ['label' => 'Orphans sponsored', 'default' => 120],
         'hero_families' => ['label' => 'Families reached', 'default' => 85],
-        'hero_partners' => ['label' => 'Partner sponsors', 'default' => 2],
         'hero_years' => ['label' => 'Years of service', 'default' => 10],
         'proj_done' => ['label' => 'Projects completed', 'default' => 24],
         'proj_types' => ['label' => 'Types of projects', 'default' => 8],

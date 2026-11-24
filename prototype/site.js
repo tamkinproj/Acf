@@ -86,7 +86,6 @@
     setMeta(card, "#i-pin", p.location_en || p.location_ar, p.location_ar || p.location_en);
     setMeta(card, "#i-clock", p.year ? "Completed " + p.year : "", p.year ? "اكتمل عام " + p.year : "");
     setMeta(card, "#i-users", p.beneficiaries ? p.beneficiaries + " beneficiaries" : "", p.beneficiaries ? p.beneficiaries + " مستفيد" : "");
-    setMeta(card, "#i-heart", p.sponsor_en ? "Sponsored by " + p.sponsor_en : "", p.sponsor_ar || p.sponsor_en ? "برعاية " + (p.sponsor_ar || p.sponsor_en) : "");
   }
   function buildMember(card, m) {
     fillPhoto($(".avatar", card), m.photo); var av = $(".avatar img", card); if (av) av.style.position = "static";
@@ -192,16 +191,64 @@
     };
     f.click();
   }
+  /* ---- the team cards, edited where they stand: photo, name, position and a one-line description ---- */
+  var TT = { add: ["Add a person", "إضافة شخص"], rm: ["Remove", "حذف"], prev: ["Move earlier", "تقديم"], next: ["Move later", "تأخير"], hide: ["Hide from visitors", "إخفاء عن الزوار"], show: ["Show to visitors", "إظهار للزوار"],
+    name: ["Full name", "الاسم الكامل"], role: ["Position", "المنصب"], bio: ["One line about the person", "سطر واحد عن الشخص"], newp: ["New person", "شخص جديد"], photo: ["Click the circle to choose a photo", "اضغط الدائرة لاختيار صورة"] };
+  function tt(k) { return TT[k][lang() === "ar" ? 1 : 0]; }
+  function paintTeam() {
+    var o = orig && orig.lists.team, box = o && o.box; if (!box || !data || !data.content) return;
+    var c = data.content, L = lang() === "ar" ? "ar" : "en"; c.team = c.team || [];
+    box.textContent = ""; box.classList.add("cms-team");
+    if (!c.team.length) o.kids.forEach(function (k) { box.appendChild(k); });             // nobody yet: the sample cards stay visible
+    c.team.forEach(function (m, i) {
+      var card = o.tpl.cloneNode(true); card.classList.add("cms-tm"); if (m.visible === false) card.classList.add("cms-off");
+      var av = $(".avatar", card); av.classList.add("cms-img"); av.setAttribute("title", tt("photo")); av.setAttribute("role", "button");
+      if (imgUrl(m.photo)) { fillPhoto(av, m.photo); var im = $("img", av); if (im) im.style.position = "static"; }
+      av.onclick = function () { pickTeamPhoto(m, av); };
+      fieldEdit($("b", card), m, "name_" + L, tt("name"), 100); fieldEdit($("span", card), m, "role_" + L, tt("role"), 100);
+      var bio = el("p", "bio"); card.appendChild(bio); fieldEdit(bio, m, "bio_" + L, tt("bio"), 80);
+      var tools = el("div", "cms-tools"); card.appendChild(tools);
+      [["prev", "‹", function () { if (i > 0) { c.team.splice(i - 1, 0, c.team.splice(i, 1)[0]); mark(); paintTeam(); } }, i === 0],
+       ["next", "›", function () { if (i < c.team.length - 1) { c.team.splice(i + 1, 0, c.team.splice(i, 1)[0]); mark(); paintTeam(); } }, i === c.team.length - 1],
+       [m.visible === false ? "show" : "hide", m.visible === false ? "◌" : "◉", function () { m.visible = m.visible === false; mark(); paintTeam(); }, false],
+       ["rm", "✕", function () { c.team.splice(i, 1); mark(); paintTeam(); }, false]].forEach(function (x) {
+        var t = el("button", "", x[1]); t.type = "button"; t.title = tt(x[0]); t.setAttribute("aria-label", tt(x[0])); t.disabled = x[3]; t.onclick = x[2]; tools.appendChild(t); });
+      box.appendChild(card);
+    });
+    var add = el("button", "cms-addp", "+ " + tt("add")); add.type = "button";
+    add.onclick = function () {
+      var m = { visible: true, photo: null, name_en: "", name_ar: "", role_en: "", role_ar: "", bio_en: "", bio_ar: "", user_id: null };
+      m[lang() === "ar" ? "name_ar" : "name_en"] = tt("newp"); c.team.push(m); mark(); paintTeam();
+    };
+    box.appendChild(add);
+  }
+  function fieldEdit(n, m, key, ph, max) {
+    n.removeAttribute("data-i18n"); n.removeAttribute("data-cms-key"); n.textContent = m[key] || ""; n.setAttribute("data-ph", ph);
+    n.classList.add("cms-ed", "cms-tf"); n.setAttribute("contenteditable", "plaintext-only"); if (n.contentEditable !== "plaintext-only") n.setAttribute("contenteditable", "true");
+    n.addEventListener("input", function () {
+      var v = n.textContent.replace(/\s+/g, " ");
+      if (v.length > max) { v = v.slice(0, max); n.textContent = v; var r = document.createRange(); r.selectNodeContents(n); r.collapse(false); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+      m[key] = v; mark();
+    });
+  }
+  function pickTeamPhoto(m, av) {
+    var f = el("input"); f.type = "file"; f.accept = "image/jpeg,image/png,image/webp";
+    f.onchange = function () {
+      if (!f.files[0]) return; var fd = new FormData(); fd.append("image", f.files[0]);
+      api("site/images", { method: "POST", body: fd }).then(function (r) { data.images[r.id] = { url: r.url }; m.photo = r.id; mark(); $$("svg,img", av).forEach(function (x) { x.remove(); }); fillPhoto(av, r.id); var im = $("img", av); if (im) im.style.position = "static"; }, fail);
+    };
+    f.click();
+  }
   var SLOTSEL = [[".logo", "brand_logo"], [".plogo.l-dar", "partner_dar"], [".plogo.l-dub", "partner_dub"], ["[data-cms-img=president_photo]", "president_photo"]];
   function startEdit() {
     if (editing) return; editing = true;
     api("site").then(function (d) {
       data = { content: d.content, images: d.images }; remember(); dyn = []; applyTexts(d.content); applySlots(d.content); showLang();
-      var css = el("style"); css.textContent = ".cms-ed{outline:2px dashed rgba(154,205,50,.9);outline-offset:2px;cursor:text;min-width:1ch}.cms-ed:hover,.cms-ed:focus{outline-color:#f6e91b;background:rgba(246,233,27,.18)}.cms-img{cursor:pointer}.cms-bar{position:fixed;z-index:400;bottom:5.8rem;inset-inline:.6rem;display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;padding:.5rem .7rem;border-radius:1.2rem;background:#17300d;color:#fff;font:600 13px system-ui;box-shadow:0 10px 30px rgba(0,0,0,.3)}.cms-bar button,.cms-bar a{font:inherit;border:0;border-radius:999px;padding:.45rem .9rem;background:#fff;color:#17300d;cursor:pointer;text-decoration:none}.cms-bar .go{background:#9acd32}.cms-bar span{flex:1 1 12rem;opacity:.9}@media(min-width:1120px){.cms-bar{bottom:1rem;max-width:60rem;margin-inline:auto}}";
+      var css = el("style"); css.textContent = ".cms-ed{outline:2px dashed rgba(154,205,50,.9);outline-offset:2px;cursor:text;min-width:1ch}.cms-ed:hover,.cms-ed:focus{outline-color:#f6e91b;background:rgba(246,233,27,.18)}.cms-img{cursor:pointer}.cms-team{position:relative}.cms-tm{position:relative}.cms-tm .cms-tools{display:flex;gap:.25rem;justify-content:center;margin-top:.5rem}.cms-tm .cms-tools button{width:1.9rem;height:1.9rem;border-radius:50%;border:1px solid rgba(0,0,0,.15);background:#fff;color:#17300d;cursor:pointer;font:700 14px system-ui;padding:0}.cms-tm .cms-tools button:disabled{opacity:.3;cursor:default}.cms-tf:empty::before{content:attr(data-ph);opacity:.45}.cms-tm .bio{min-height:1.2em}.cms-off{opacity:.45}.cms-addp{grid-column:1/-1;justify-self:center;padding:.6rem 1.2rem;border:2px dashed rgba(154,205,50,.9);background:#fff;border-radius:999px;font:700 14px system-ui;color:#17300d;cursor:pointer}.cms-bar{position:fixed;z-index:400;bottom:5.8rem;inset-inline:.6rem;display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;padding:.5rem .7rem;border-radius:1.2rem;background:#17300d;color:#fff;font:600 13px system-ui;box-shadow:0 10px 30px rgba(0,0,0,.3)}.cms-bar button,.cms-bar a{font:inherit;border:0;border-radius:999px;padding:.45rem .9rem;background:#fff;color:#17300d;cursor:pointer;text-decoration:none}.cms-bar .go{background:#9acd32}.cms-bar span{flex:1 1 12rem;opacity:.9}@media(min-width:1120px){.cms-bar{bottom:1rem;max-width:60rem;margin-inline:auto}}";
       document.head.appendChild(css);
       bar = el("div", "cms-bar"); bar.setAttribute("role", "toolbar"); statusEl = el("span", "", tr("hint"));
       var labelled = []; function btn(label, cls, fn, key) { var b = el("button", cls, label); b.type = "button"; b.onclick = fn; if (key) labelled.push([b, key]); return b; }
-      bar.relabel = function () { labelled.forEach(function (x) { x[0].textContent = tr(x[1]); }); if (!dirty) statusEl.textContent = tr("hint"); };
+      bar.relabel = function () { labelled.forEach(function (x) { x[0].textContent = tr(x[1]); }); if (!dirty) statusEl.textContent = tr("hint"); paintTeam(); };
       var pub = btn(tr("publish"), "go", function () { if (!confirm(tr("confirm"))) return; save().then(function () { return api("site/publish", { method: "POST" }); }).then(function () { statusEl.textContent = tr("pubd"); }, fail); }, "publish");
       var lists = el("a", "", tr("lists")); lists.href = "app/website.html"; lists.target = "_blank";
       bar.appendChild(statusEl); bar.appendChild(btn(tr("save"), "", function () { save().catch(fail); }, "save")); bar.appendChild(pub); bar.appendChild(btn(tr("hero"), "", function () { pickImage("hero_photo"); }, "hero")); bar.appendChild(lists);
@@ -209,7 +256,7 @@
       document.body.appendChild(bar);
       $$("[data-cms-key],[data-cms],[data-cms-num]").forEach(function (n) { if (inList(n)) return; n.classList.add("cms-ed"); n.setAttribute("contenteditable", "plaintext-only"); if (n.contentEditable !== "plaintext-only") n.setAttribute("contenteditable", "true"); });
       SLOTSEL.forEach(function (s) { $$(s[0]).forEach(function (n) { if (!inList(n)) { n.classList.add("cms-ed", "cms-img"); n.setAttribute("data-slot", s[1]); } }); });
-      statusEl.textContent = tr("hint");
+      statusEl.textContent = tr("hint"); paintTeam();
     }, function (e) { editing = false; alert(e.message); });
   }
   document.addEventListener("click", function (e) {

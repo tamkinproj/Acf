@@ -30,6 +30,19 @@ class SiteTeamSelfEditTest extends TestCase
         return [$aytam, $family];
     }
 
+    public function test_the_description_under_a_team_card_is_one_line(): void
+    {
+        $this->world();
+        $this->linkCard();
+        $content = $this->getJson('/api/site')->assertOk()->json('data.content');
+        $content['team'][0]['bio_en'] = str_repeat('a', 81);
+        $saved = $this->putJson('/api/site', ['content' => $content])->assertOk()->json('data.content.team.0.bio_en');
+        $this->assertSame(80, mb_strlen($saved), 'a longer line is cut to one line of 80 characters');
+        $this->app['auth']->forgetGuards();
+        $this->actingAsRole('staff:aytam');
+        $this->putJson('/api/site/team/me', ['index' => 0, 'bio_en' => str_repeat('b', 81)])->assertStatus(422);
+    }
+
     public function test_the_linked_person_edits_their_own_card_and_it_waits_for_the_president(): void
     {
         $this->world();
